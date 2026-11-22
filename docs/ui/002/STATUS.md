@@ -25,11 +25,12 @@
 - **UI-D004.3a APPROVED:** Search only literature linked to the current Project, matching Zotero Title, Authors, Publication Year and DOI; compose with the existing global reading-state filter and current sort.
 - **UI-D004.3b APPROVED (AMENDED):** Graded import/batch confirmation and partial-result feedback; before unlink confirm chosen scope, protecting Zotero/global notes, and support failed-only safe retry.
 - **UI-D004.3b-R1 APPROVED:** Per-item/bulk unlink selector: default Current Project only or All Projects including current. Global unlink needs a stronger explicit confirmation; no canonical paper/status/note/quote deletion.
-- **UI-D004.3-R1 APPROVED IN PRINCIPLE:** Add a distinct Important Papers section to each Project Literature List while preserving newest-linked-first sorting for ordinary papers. Proposed Important flag is Project-specific; final membership/ordering presentation is pending UI-D004.3-R1a.
-- **UI-D004.3-R1a / UI-D004.3c / UI-D005.1c / UI-D005.2c / UI-D006:** PENDING. Important Papers display details, list confirmation/search/error UI, Markdown draft/conflict UI, highlight picker/source change details and accessibility.
+- **UI-D004.3-R1 APPROVED IN PRINCIPLE:** Distinct Important Papers view; UI-D004.3-R1a confirms tabs instead of a pinned section. Proposed Important flag is Project-specific, pending final scope approval.
+- **UI-D004.3-R1a APPROVED:** All Papers / Important Papers tabs, All includes all Project papers (including Important); Important shows the marked subset, without copying records. All Papers remains newest-linked-first.
+- **UI-D004.3-R1b / UI-D004.3c / UI-D005.1c / UI-D005.2c / UI-D006:** PENDING. Important flag ownership/tab sort details, list confirmation/search/error UI, Markdown draft/conflict UI, highlight picker/source change details and accessibility.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D004.3-R1a — Important Papers section organization (then resume UI-D005.1c conflict UX).
+**Next Design decision:** UI-D004.3-R1b — Important marker scope and ordering (then resume UI-D005.1c conflict UX).
