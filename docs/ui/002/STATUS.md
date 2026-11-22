@@ -29,10 +29,11 @@
 - **UI-D004.3-R1a APPROVED:** All Papers / Important Papers tabs, All includes all Project papers (including Important); Important shows the marked subset, without copying records. All Papers remains newest-linked-first.
 - **UI-D004.3-R1b APPROVED:** Important is Project–Literature association-specific; marking/unmarking affects only the current Project's Important tab and never the global status/notes.
 - **UI-D004.3-R1c APPROVED:** Important Papers sorts by the most recent per-Project Important marking timestamp descending; All Papers keeps newest linked first.
-- **UI-D004.3-R1d / UI-D004.3c / UI-D005.1c / UI-D005.2c / UI-D006:** PENDING. Important controls, list confirmation/search/error UI, Markdown draft/conflict UI, highlight picker/source changes and accessibility.
+- **UI-D005.1c APPROVED:** Recover offline Markdown drafts; compare local vs remote across five fields, choose local/remote or manually merge per field; version-check the entire globally shared note again before saving, never overwrite silently.
+- **UI-D004.3-R1d / UI-D004.3c / UI-D005.1d / UI-D005.2c / UI-D006:** PENDING. Important controls, list confirmation/search/error UI, Markdown toolbar/export and draft privacy details, highlight picker/source changes and accessibility.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D005.1c — Offline draft recovery and multi-device note conflict interaction (UI-D004.3-R1d after).
+**Next Design decision:** UI-D004.3-R1d — Important Papers mark/unmark placement and tab controls (then UI-D005.2c).

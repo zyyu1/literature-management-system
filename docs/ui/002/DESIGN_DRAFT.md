@@ -95,7 +95,7 @@ The user selected **Option C: Autosave + Save Now** on 2026-11-22. This decision
 
 - While editing the five global Research Note fields, offer **automatic saving** after an appropriate pause in input, as well as an explicit **Save Now** action. The precise debounce duration is an implementation detail subject to QA and a practical UX review.
 - Display **unambiguous save status**: at minimum `Unsaved changes`, `Saving`, `Saved`, `Offline/local draft`, `Save failed` and `Conflict` when relevant. Do not claim `Saved` from a local cache or optimistic UI alone: only a confirmed remote write may show it.
-- **Network interruption:** protect edits as recoverable drafts rather than silently dropping text. Clearly disclose if a draft is only local or has not yet reached the remote store. The exact local persistence mechanism, encryption/privacy behavior, device/browser limits and recovery workflow require technical security review; do not promise cross-device availability of an unsynced draft.
+- **Network interruption:** protect edits as recoverable drafts rather than silently dropping text. Clearly disclose if a draft is only local or has not yet reached the remote store. Offline draft recovery and field-level conflict comparison are approved in UI-D005.1c. The exact local persistence mechanism, encryption/privacy behavior and device/browser limits require technical security review; do not promise cross-device availability of an unsynced draft.
 - **Reconnection:** safely retry saves after network recovery only with concurrency checks, or require review when a conflict is detected. Never silently overwrite a newer edit from another device.
 - **Multi-device safety:** detect stale revisions/ETag or equivalent version conflicts, block destructive overwrite, and offer a visible path to preserve and resolve both versions. Do not assume Nutstore WebDAV supports a particular conditional-write mechanism until **POC-001** demonstrates it.
 - **Save Now:** requests the same safe write pathway; it must not bypass revision checking or force the user into overwriting another device's changes.
@@ -283,11 +283,26 @@ On 2026-11-22, the user chose **Option A: most recently marked Important first**
 - The approved sorting menu remains available; alternate sort selection never changes the stored marked-at time. Equal timestamps should have a stable deterministic tie-break.
 - Open decisions: mark/unmark action placement, count badges, tab preference persistence and mobile access. These belong to UI-D004.3-R1d/UI-D006, not this sorting approval.
 
+### UI-D005.1c — Offline draft recovery and field-level note conflict resolution: APPROVED
+
+On 2026-11-22 the user selected **Option B: recover offline drafts, compare local/remote versions per Markdown field, choose a version or merge manually, then save safely**.
+
+- **Recoverability:** after a network interruption, keep the user's unsynced edits as a **recoverable local draft**, identify the canonical Zotero paper and the five-field global Research Note, and clearly label the draft as **not yet remotely saved**. When the app is reopened, offer an explicit recovery path if that local draft still exists. Never treat local storage as a guaranteed cross-device or permanent backup; browser storage can be unavailable or cleared.
+- **Conflict detection:** compare the editor's last known remote note revision to the current remote revision before commit, using a verified optimistic-concurrency mechanism (ETag/version/precondition or an equivalent tested server-side solution). If a stale-write conflict exists, **do not overwrite** the newer remote note automatically; show a conflict interface and keep the full local draft intact.
+- **Five independent fields:** display the **local draft and remote version** for each of the five structured Markdown fields. Identify which fields differ, enabling the user to review unaffected fields and conflicting edits separately. Provide a side-by-side comparison on sufficiently wide screens and a readable sequential alternative on phones.
+- **Resolution options:** for each differing field, allow **Use Local**, **Use Remote**, or **Manual Merge** while retaining the ability to review/copy both originals. A manually merged result edits the same Markdown source format; do not destroy formatting or silently pick one version.
+- **Whole-note safety:** even with field-level visual choices, the note is **one globally shared record**. Saving the resolved five-field result must recheck the latest remote document revision **atomically**, or reenter comparison if another device has saved in the meantime. Never treat independent fields as permission to race or blindly overwrite unrelated fields.
+- **Status and Save Now:** respect UI-D005.1: distinguish Unsaved, Saving, Saved, Offline/local draft, Save failed and Conflict; only show Saved after an acknowledged remote commit. Save Now uses the same revision guard and cannot force-overwrite newer changes.
+- **No historical timeline requirement:** this option does not approve complete version history or multi-snapshot restore. It approves recoverable offline drafts and a current local-vs-remote conflict comparison.
+- **POC-001 technical gate:** persistence, recovery after refresh/relaunch, WebDAV conditional writes, simultaneous editor races, partial network failures, privacy and safe local storage must be validated before implementation claims. The UI decision alone does not prove Nutstore WebDAV can satisfy these guarantees.
+
+**Still pending:** exact Markdown toolbar/export filename, fine-grained focus restoration, local-draft privacy/expiration and recovery prompts, conflict resolution copy, accessible focus and mobile handling (UI-D005.1d/UI-D006).
+
 ## Pending decisions
 
 - **UI-D004.3-R1d (refinement):** Important mark/unmark placement, count badges, per-tab sort preference, and mobile controls.
 - **UI-D004.3c (refinement):** Exact confirmation/error copy and result display, alternate sort directions, query-match details and mobile bulk-selection affordances.
-- **UI-D005.1c (refinement):** Markdown toolbar details, focus/caret restoration, safe export filename/content and offline-draft/conflict-resolution UI states.
+- **UI-D005.1d (refinement):** Markdown toolbar/export filename, focus/caret restoration, offline-draft privacy/recovery prompt and accessible conflict resolution details.
 - **UI-D005.2c (refinement):** Highlight picker order, empty/loading/permission/error states, annotation change/relink handling, and cross-device focus behavior.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
@@ -303,4 +318,4 @@ On 2026-11-22, the user chose **Option A: most recently marked Important first**
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1d, UI-D004.3c, UI-D005.1c, UI-D005.2c and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1d, UI-D004.3c, UI-D005.1d, UI-D005.2c and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.

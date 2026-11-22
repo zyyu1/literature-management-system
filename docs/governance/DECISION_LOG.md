@@ -48,6 +48,8 @@
 
 | UI-D004.3-R1c | Important Papers defaults to most-recently-marked-Important-in-current-Project first; All Papers remains newest-Project-linked-first; re-marking refreshes per-Project mark timestamp without changing global notes/status | APPROVED 2026-11-22 |
 
+| UI-D005.1c | Recover unsynced offline drafts; compare five Markdown fields local vs remote; per-field use local/use remote/manual merge; revalidate whole-note remote revision atomically before confirmed save; never silently overwrite, full version history not required | APPROVED 2026-11-22; POC-001 CONCURRENCY/DRAFT FEASIBILITY PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
