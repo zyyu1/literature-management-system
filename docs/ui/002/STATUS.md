@@ -12,7 +12,7 @@
 - **UI-D002 APPROVED:** Project create/edit/archive/restore and permanent delete with a distinct second confirmation; permanent deletion removes only Project and its associations, never global papers, reading states, notes, quotes or Zotero content.
 - **UI-D003 APPROVED:** Standard Home display with Project name/description, literature total, three-state counts, reading progress bar, search, sorting and archive browsing in both Cards/List views.
 - **UI-D004 APPROVED (LAYOUT ONLY):** Desktop literature table; compact phone literature cards; tablet responds to available width. All views share global literature identity/status and Project associations.
-- **UI-D004.1 APPROVED (STANDARD MANAGEMENT):** Current-Project search and status filters, sort controls, Zotero library item selection plus one-time Collection import, multi-select, bulk global reading-state updates, and bulk Project-association removal with canonical paper and note preservation.
+- **UI-D004.1 APPROVED (STANDARD MANAGEMENT; UNLINK SCOPE AMENDED):** Current-Project search/status filtering, sorting, Zotero selection/one-time Collection import, multi-select, bulk global reading-state updates, and scope-selectable unlinking (current Project only or all Projects), always preserving the canonical literature record and notes.
 - **UI-D005 APPROVED (LAYOUT ONLY):** Desktop two columns (left: structured Research Notes; right: Key Quotes + Zotero metadata); mobile single column; tablet adaptive. One global note per canonical paper.
 - **UI-D005.1 APPROVED (SAVE BEHAVIOR):** Autosave plus Save Now, remote-acknowledged Saved state, explicit local-draft/offline/failure/conflict states and no silent multi-device overwrite; WebDAV support requires POC-001.
 - **UI-D005.2 APPROVED:** Key Quotes can be entered manually or created by selectively choosing existing Zotero highlights; preserve annotation/page reference when available; no bulk automatic synchronization or source-edit side effects.
@@ -23,7 +23,8 @@
 - **UI-D005.2b APPROVED:** Progressive Zotero source-open fallback: precise highlight if supported, then paper/PDF with page hint, then copy excerpt; retain Key Quote/comment even if source unavailable. External navigation success cannot be assumed.
 - **UI-D004.3 APPROVED:** Default Project Literature sorting is Date Added to the Current Project descending (newest project association first); other approved sort choices remain available.
 - **UI-D004.3a APPROVED:** Search only literature linked to the current Project, matching Zotero Title, Authors, Publication Year and DOI; compose with the existing global reading-state filter and current sort.
-- **UI-D004.3b APPROVED:** Graded confirmation/feedback: import count and result without extra mandatory confirmation; confirm global impact before bulk reading status change; confirm Project-only unlink before bulk removal; show partial outcomes and safe failed-only retry.
+- **UI-D004.3b APPROVED (AMENDED):** Graded import/batch confirmation and partial-result feedback; before unlink confirm chosen scope, protecting Zotero/global notes, and support failed-only safe retry.
+- **UI-D004.3b-R1 APPROVED:** Per-item/bulk unlink selector: default Current Project only or All Projects including current. Global unlink needs a stronger explicit confirmation; no canonical paper/status/note/quote deletion.
 - **UI-D004.3c / UI-D005.1c / UI-D005.2c / UI-D006:** PENDING. Fine-grained list confirmation/sort/search and error UI, Markdown draft/conflict UI, highlight picker/source change details, and accessibility need further design.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.

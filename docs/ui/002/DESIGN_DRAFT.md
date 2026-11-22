@@ -70,12 +70,12 @@ The user chose **Option B: Standard Management** on 2026-11-22.
 - **Add Papers via Zotero:** (1) search the user's Zotero library and select one or multiple paper items; (2) select a Zotero Collection for a **one-time** batch import. Re-importing an existing Zotero item does not create a duplicate global literature identity or duplicate Project association. No continuous Collection-to-Project synchronization.
 - **Multi-select:** select multiple literature rows/cards to operate on a batch within the current Project.
 - **Bulk change reading state:** update the *single global* reading status for the selected canonical papers, and make the scope clear to the user: the changed states will appear in **all** Projects containing those papers, not just the current Project.
-- **Bulk remove from Project:** remove only the selected Project–Literature associations in the current Project. **Do not delete** the canonical Zotero items, Zotero PDF/annotations, globally shared notes, quotes, or reading statuses. Do not imply this operation is a global deletion.
+- **Remove Project associations (amended by UI-D004.3b-R1):** for one or multiple selected papers, provide two explicitly labeled unlink scopes: **Current Project only** (default, existing behavior) or **All Projects including the current Project** (remove every Project–Literature link for each selected canonical paper). Neither scope deletes the Zotero item, PDFs, Zotero annotations, global reading status, global Research Note or Key Quotes. The all-Projects operation is global *unlinking*, **not global literature deletion**.
 - **No advanced bulk features in this approved scope:** do not infer bulk links to other Projects, bulk tag editing or complex faceted filters.
 
 ### Still to detail after UI-D004.1
 
-Bibliographic fields and four sorting criteria are approved in UI-D004.2, and the default descending Project-added sort in UI-D004.3. Search fields and scope are approved in UI-D004.3a; exact matching semantics, bulk action placement on mobile, exact confirmation wording, uncertain-outcome and import loading/error/permission state presentations remain pending; graded confirmations and result counts are approved in UI-D004.3b. No live Zotero integration has been tested by this design approval.
+Bibliographic fields and four sorting criteria are approved in UI-D004.2, and the default descending Project-added sort in UI-D004.3. Search fields and scope are approved in UI-D004.3a; exact matching semantics, bulk action placement on mobile, exact scope confirmation wording, uncertain-outcome and import loading/error/permission state presentations remain pending; graded confirmations and result counts are approved in UI-D004.3b. No live Zotero integration has been tested by this design approval.
 
 ### UI-D005 — Literature Detail main responsive layout: APPROVED
 
@@ -152,7 +152,7 @@ On 2026-11-22, the user selected **Option B: standard bibliography table/card de
 - **Mobile compact cards:** display the essential paper information (title, author summary, year and global reading status) in a touch-friendly compact layout, with access to the Actions menu and selection/batch operations. Do not force horizontal scrolling to expose normal actions.
 - **Tablet:** adapt the desktop table or mobile card density as dictated by usable width (UI-D004), while keeping the same data identities and permissions.
 - **Sorting controls must include:** **Publication Year**, **Title**, **Reading Status**, and **Date Added to the Current Project**. Project-added time refers to the Project–Literature association timestamp, **not** Zotero's library-added or last-modified timestamp.
-- **Source of truth:** metadata fields originate in Zotero; reading status is the one global status across Projects. The Actions menu must respect UI-D004.1: removing an item from this Project only removes its association and never erases the paper, PDF, shared notes or quotes.
+- **Source of truth:** metadata fields originate in Zotero; reading status is the one global status across Projects. The Actions menu must offer the UI-D004.3b-R1 unlink scope choice (current Project only or all Projects) and **never erase** a canonical paper, PDF, shared note or Key Quote.
 - **No custom column editor** or extra mandatory columns for journal, DOI or citation metrics are approved under this standard-density choice.
 - **Default sort is approved in UI-D004.3:** current-Project association created time descending. Remaining: alternate sort direction/null-year behavior, search matching, mobile bulk-selection affordances and confirmation/loading/error states.
 
@@ -211,7 +211,7 @@ On 2026-11-22 the user selected **Option B: graded confirmations and result feed
 
 - **Add from Zotero (manual item selection or one-time Collection import):** show the selected/import-eligible item count before initiating the import; do not add unnecessary second confirmation for ordinary import. On completion, report **newly linked, already linked/skipped, failed** (and any other explicitly distinguishable results) accurately; do not treat skipped duplicates as errors or create duplicate canonical papers/Project links. The selected Collection is not subscribed for ongoing background sync.
 - **Bulk change global Reading Status:** before applying, present a clear confirmation containing the selected paper count and intended destination status, explicitly stating that **the single global status changes across all Projects containing these papers**, not just the current Project. A user must affirm before mutation.
-- **Bulk remove from current Project:** before applying, present a clear confirmation containing the count and **current Project name**, explicitly stating that this action only unlinks those papers from the current Project and **does not delete Zotero items, PDFs, global research notes, Key Quotes, annotations or global reading status**. A user must affirm before mutation. This is separate from UI-D002 permanent Project deletion.
+- **Bulk unlink with chosen scope (amended by UI-D004.3b-R1):** before applying, present a confirmation identifying the selected paper count, the chosen scope (**Current Project only**, default; or **All Projects including current**), and the specific non-destructive data semantics. For Current Project only, name the current Project. For All Projects, emphasize that *all* Project–Literature links for the selected papers will be removed, preferably show affected Project names/link counts when available, and require an especially unambiguous second confirmation. Both operations preserve Zotero items, PDFs, global notes, Key Quotes, annotations and reading statuses. Neither deletes a Project; Project permanent deletion in UI-D002 is separate.
 - **Partial success:** show accurate per-operation totals (succeeded, failed, and skipped where applicable) and retain enough information to identify/retry **only genuinely failed items** without reapplying successful operations or duplicating links. Acknowledging the UI result must not erase unresolved failures.
 - **Uncertain outcome:** do not claim success or blindly retry if a request timed out after a possible remote write. Reconcile against authoritative state or use an idempotent/revision-safe method before offering retry. Global status changes must not overwrite concurrent updates silently.
 - **Progress, errors and cancellation:** show a visible in-progress state and clear completion/failure feedback. Do not imply that closing a dialog cancels a server-side action unless cancellation is actually guaranteed.
@@ -219,6 +219,20 @@ On 2026-11-22 the user selected **Option B: graded confirmations and result feed
 - **Feasibility gate:** batch retry safety, Zotero API rate limits, partial persistence, secure credential handling and concurrency semantics must be validated during implementation/QA and are **not** deemed proven by this UI approval.
 
 **Still pending:** exact wording/layout of confirmation modals and result summaries, accessible focus behavior, alternate sort directions, detail-level search matching and loading/permission/empty-state variants. Track under UI-D004.3c/UI-D006.
+
+### UI-D004.3b-R1 — Amendment: selectable Project-unlink scope: APPROVED
+
+The user amended the previously approved removal workflow on 2026-11-22 to allow **two scope choices** for removing literature associations.
+
+1. **Remove from this Project only (default).** Unlink each selected canonical Zotero paper from the current Project; other Project links remain untouched.
+2. **Remove from all Projects (including this Project).** Unlink each selected canonical Zotero paper from **every** Project that currently references it, including the current Project. Show that the action affects other Projects; the paper may subsequently belong to **zero** Projects.
+
+- This scope selector applies to **per-paper removal** and **multi-selected/bulk unlink** from the Project Literature view. Do not interpret it as a feature for deleting Projects themselves.
+- Neither action deletes the underlying Zotero paper, attachment/PDF, Zotero annotation, globally shared reading status, single global structured Research Note or Key Quotes. Orphaned globally owned records must be preserved and accessible again when the paper is re-linked from Zotero; do not cascade-delete them.
+- **Safety:** default to Current Project only. Before any unlink, explicitly confirm chosen scope and selected paper count. For All Projects, use a stronger warning, including affected Project names/counts when known and a separately affirmative confirmation. Never present All Projects as an innocuous synonym for Remove from current Project.
+- **Reliability:** perform idempotent/revision-safe link changes, report actual success/failure/skipped outcomes, handle partial completion and only retry links proved not removed; never silently hide partial failures or retry blindly after an ambiguous timeout.
+- Respect UI-D002: archiving/restoring/deleting a Project is a separate lifecycle operation with its original non-cascading constraints.
+- **Terminology:** to remove ambiguity, the all-Projects choice in this design explicitly **includes the current Project**. If the intended scope was instead “only other Projects, preserve the current Project”, it needs a subsequent explicit amendment; that interpretation is not silently inferred.
 
 ## Pending decisions
 

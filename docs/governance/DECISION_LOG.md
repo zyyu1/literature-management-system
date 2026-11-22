@@ -38,7 +38,8 @@
 
 | UI-D004.3a | Search current Project literature metadata only (Zotero title, authors, publication year, DOI), combined with global three-state reading filter and current sorting; note, quote and PDF content excluded | APPROVED 2026-11-22 |
 
-| UI-D004.3b | Graded import/bulk action confirmations: show Zotero import count/results without superfluous confirm; explicit global-impact confirmation for bulk reading-status change and Project-only unlink confirmation for bulk removal; partial successes and safe failed-item retry | APPROVED 2026-11-22; CONCURRENCY/RETRY TECHNICAL VALIDATION PENDING |
+| UI-D004.3b | Graded import/bulk action confirmations: show Zotero import count/results without superfluous confirm; explicit global-impact confirmation for bulk reading-status change and scope-aware unlink confirmation for current or all Projects; partial successes and safe failed-item retry | APPROVED 2026-11-22; AMENDED BY UI-D004.3b-R1; CONCURRENCY/RETRY TECHNICAL VALIDATION PENDING |
+| UI-D004.3b-R1 | Per-paper and bulk unlink scope chooser: default remove links from current Project only, or remove all links from every Project including current; stronger explicit cross-Project confirmation; preserve Zotero source, global reading status, Research Notes, Key Quotes and annotations | APPROVED 2026-11-22; UI SCOPE AMENDMENT |
 
 ## Guardrails
 
