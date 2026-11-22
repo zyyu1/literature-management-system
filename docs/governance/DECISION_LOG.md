@@ -116,6 +116,8 @@
 
 | UI-D004.3-R1l | In phone Select mode hide individual Actions menus and Important star shortcuts; only checkbox selection and the bottom approved batch-action bar act on papers, with normal menus/star restored on exit. Preserve ongoing per-paper Saving, failure and unknown states through transition; expose truthful read-only status in Select mode and restore recovery/Retry after exit, never fabricate success | APPROVED 2026-11-23; MOBILE MODE-TRANSITION/STATUS A11Y QA PENDING |
 
+| UI-D004.3g | Phone pre-batch confirmation uses a scrollable modal bottom sheet with operation/scope, unique total and hidden selected counts, expandable complete selected-paper list and accessible safe-area-aware Cancel/Confirm. All-Projects unlink retains stronger affirmative confirmation; close/cancel never writes or clears selection | APPROVED 2026-11-23; MOBILE SHEET/KEYBOARD/A11Y QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
