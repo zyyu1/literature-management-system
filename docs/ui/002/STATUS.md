@@ -36,10 +36,11 @@
 - **UI-D005.2e APPROVED:** Existing Key Quote remains unchanged by Zotero source edits until explicit review; compare saved/current highlight, choose Keep or Update excerpt only, preserve personal comment and source identity; never infer deletion from transient failure.
 - **UI-D005.2f APPROVED:** Zotero highlights grouped under their original PDF attachment names, with accessible expand/collapse and ascending PDF-page order inside each group; cross-group selections preserve annotation and attachment identity.
 - **UI-D005.2g APPROVED:** When an original Zotero annotation is unavailable, user may explicitly select and confirm a new highlight; retain same Key Quote excerpt/comment and inspectable previous-source provenance. No automatic relinking or source edits.
-- **UI-D004.3-R1e / UI-D004.3c / UI-D005.1d / UI-D005.2h / UI-D006:** PENDING. Important count/persistence/feedback, list confirmation/search/errors, Markdown toolbar/export/draft privacy, source-history presentation and accessibility.
+- **UI-D004.3-R1e APPROVED:** Show counts on All Papers and Important Papers; preserve separate user-selected sorts when switching tabs within an open page session; a new page visit restores the existing per-tab default sorts; no cross-device/persistent preference storage.
+- **UI-D004.3-R1f / UI-D004.3c / UI-D005.1d / UI-D005.2h / UI-D006:** PENDING. Important count/feedback visual details, list confirmation/search/errors, Markdown toolbar/export/draft privacy, source-history presentation and accessibility.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D004.3-R1e — Important Papers count badges and tab preference behavior (then remaining UI refinements).
+**Next Design decision:** UI-D004.3c — List confirmation/search/error presentation and mobile bulk operations (then remaining UI refinements).

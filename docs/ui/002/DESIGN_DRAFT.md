@@ -308,7 +308,7 @@ On 2026-11-22 the user selected **Option B: a star control on each desktop liter
 - **Tab behavior:** All Papers always retains the paper. Once marked it becomes eligible for Important Papers; when unmarked from Important Papers it disappears from that subset but remains in All Papers. Its Project-added timestamp does not change. Marking again refreshes its Project-specific marked-at timestamp and the Important Papers default order (UI-D004.3-R1c).
 - **Feedback:** do not present the remote change as completed until its authoritative write has succeeded; show an actionable error and retain/restore the verified state if the write fails. Avoid duplicate or racing updates from rapid taps and preserve the original state on unconfirmed changes. Exact visual feedback is a UI-D006 refinement.
 - **No bulk-marking authorization:** this selection approves the single-paper star shortcut plus menu access only, **not** a new mass Mark Important / Unmark Important action. Existing separate batch actions retain their approved behavior.
-- **Layout:** touch target and keyboard focus must work without forcing mobile horizontal scrolling or conflicting with row navigation/selection. Precise placement, count badges and preference persistence remain for UI-D004.3-R1e/UI-D006.
+- **Layout:** touch target and keyboard focus must work without forcing mobile horizontal scrolling or conflicting with row navigation/selection. Count labels and per-tab session-local sort preferences are approved in UI-D004.3-R1e; exact placement, badge styling and accessible feedback remain UI-D004.3-R1f/UI-D006.
 
 ### UI-D005.2c — Zotero highlight picker default page order: APPROVED
 
@@ -383,9 +383,20 @@ On 2026-11-22 the user selected **Option B: allow the user to manually choose a 
 
 **Remaining UI-D005.2h/UI-D006 detail refinements:** specific re-link confirmation copy, how to display previous-source history, ambiguous source-version messaging, focus restoration and cross-device error states; no automatic re-link is approved.
 
+### UI-D004.3-R1e — Tab counts and session-local independent sort preferences: APPROVED
+
+On 2026-11-22 the user selected **Option B: show each Project Literature tab's paper count and independently remember the chosen sort for each tab within the current page session; a freshly reopened page can return to the approved default orders**.
+
+- **Count labels:** show actual Project-scoped item counts beside **All Papers** and **Important Papers**. All Papers counts every uniquely linked canonical paper in this Project, including Important; Important Papers counts the currently Important-marked subset, never duplicated records. Counts update when confirmed link, unlink, or Important-mark changes occur. Do not invent counts during loading/failure: display a loading/unknown state instead of a misleading zero.
+- **Tab independence:** a user's temporary sort selection in All Papers and in Important Papers is remembered **separately** while navigating back and forth between tabs in the same open page/session. Tab switching does not reset the other tab's selected sort.
+- **Fresh open/reset:** opening the Project Literature page anew (including a reload/new page session) can restore **All Papers: most recently linked to this Project first** (UI-D004.3), and **Important Papers: most recently marked Important in this Project first** (UI-D004.3-R1c). This design does **not** request persistent user sort preferences in the backend or cross-device synchronization.
+- **Other sorting:** the previously approved sort criteria remain available to the user in both tabs. Merely changing sort view must never rewrite Project association or Important-mark timestamps, nor Zotero metadata.
+- **Filters/search:** existing search and global reading-state filtering operate on each tab's proper Project-scoped subset. The precise choice of whether tab badges represent the unfiltered total versus the active filtered match count, and how to show both if needed, remains for UI-D004.3c/UI-D006; ensure no double-counting or falsely presented totals.
+- **Pending UI refinements:** precise star placement, confirmation/loading/failure feedback, count badge styling/accessibility, mobile tab and keyboard focus behavior under UI-D004.3-R1f/UI-D006. User did not approve long-term preference storage or batch Important marking.
+
 ## Pending decisions
 
-- **UI-D004.3-R1e (refinement):** Exact star position/feedback, count badges, per-tab sort preference persistence and mobile accessibility.
+- **UI-D004.3-R1f (refinement):** Exact star position/feedback, count badge styling and filtered-match semantics, and mobile accessibility.
 - **UI-D004.3c (refinement):** Exact confirmation/error copy and result display, alternate sort directions, query-match details and mobile bulk-selection affordances.
 - **UI-D005.1d (refinement):** Markdown toolbar/export filename, focus/caret restoration, offline-draft privacy/recovery prompt and accessible conflict resolution details.
 - **UI-D005.2h (refinement):** Re-link confirmation copy, source-history display, uncertain source-version messaging and cross-device focus.
@@ -403,4 +414,4 @@ On 2026-11-22 the user selected **Option B: allow the user to manually choose a 
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1e, UI-D004.3c, UI-D005.1d, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1f, UI-D004.3c, UI-D005.1d, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.

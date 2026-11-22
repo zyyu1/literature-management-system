@@ -62,6 +62,8 @@
 
 | UI-D005.2g | User-initiated replacement Zotero annotation linking for unavailable original Key Quote source, explicitly confirmed; keep Key Quote excerpt/comment unchanged and old attachment/annotation/page provenance inspectable, no similarity auto-link; remote/version safety required | APPROVED 2026-11-22; SOURCE HISTORY AND CONCURRENCY VALIDATION PENDING |
 
+| UI-D004.3-R1e | Show per-Project All Papers and Important Papers counts; maintain separate user-selected sorts for both tabs while switching in the current open page; fresh page visit can restore All newest-linked and Important newest-marked defaults; no persistent or cross-device sort preference | APPROVED 2026-11-22; EXACT FILTERED COUNT BADGE SEMANTICS PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
