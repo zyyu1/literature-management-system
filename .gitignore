@@ -1,0 +1,20 @@
+# Do not track user data or secrets
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite3
+*.db
+*.pdf
+*.zip
+*.xpi
+node_modules/
+.next/
+dist/
+build/
+coverage/
+.DS_Store
+*.log
+secrets/
+private/
+user-data/

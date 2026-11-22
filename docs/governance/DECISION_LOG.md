@@ -1,0 +1,27 @@
+# Literature Management System — Decision Log
+
+**Baseline date:** 2026-11-22 (Europe/Berlin). Technical hypotheses are NOT proof of integration.
+
+| ID | Confirmed decision | Status |
+| --- | --- | --- |
+| D001 | Multiple Projects can reference the same Zotero item; only ONE global reading status and ONE research note per item | APPROVED |
+| D002 | Search/select Zotero items manually, or ONE-TIME batch import of a Zotero Collection (no continuous Collection binding) | APPROVED |
+| D003 | Reading statuses limited to To Read / Reading / Read | APPROVED |
+| D004 | Zotero title/authors, manual research question, argument/content, theories/methods, innovations, limitations, multiple source-linked quotations | APPROVED |
+| D004-A | Zotero PDF annotation and highlight association; aim for direct source jump where platform permits | APPROVED GOAL; TECHNICAL CHECK PENDING |
+| D005 | Internet-accessible responsive site; use current device's Zotero desktop/mobile app for PDF launch | APPROVED GOAL; CROSS-DEVICE VALIDATION PENDING |
+| D005-S | Existing Zotero metadata sync and Nutstore WebDAV attachment sync; website never duplicates PDFs | CONFIRMED ENVIRONMENT |
+| D006 | Independent Personal Workspace reads authenticated read-only API and opens deep links; writing stays in literature site | APPROVED |
+| D007 | Lightweight standalone web site; second Nutstore account for JSON/Markdown notes behind secure API; MVP no PostgreSQL | CONDITIONALLY APPROVED, SUBJECT TO POC-001 |
+| OSS | Review Notero (MIT), Better Notes (AGPL), PaperPilot (MIT) for selective reuse | REFERENCE STRATEGY APPROVED; CODE COPYING NOT AUTHORIZED |
+| D007-A | Hosting/provider, domain, authentication method | UNDECIDED |
+| UI-002 | Detailed desktop/mobile UI interaction design | NOT FROZEN |
+
+## Guardrails
+
+- Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
+- Website owns Projects, global reading status, manually written research notes and quote associations; the second Nutstore service is **not technically verified**.
+- Secure server-side credentials, data recovery, safe multi-device concurrency and mobile Zotero PDF opening must be tested before claiming completion.
+- No personal Zotero library export, passwords, real research notes, token, PDF or Zotero database may be committed to GitHub.
+
+[Canonical requirements](../baseline/LMS_REQUIREMENTS_ARCHITECTURE_v0.1.md).
