@@ -77,10 +77,23 @@ The user chose **Option B: Standard Management** on 2026-11-22.
 
 Exact bibliographic columns/card fields, search matching, sort menu entries, bulk action placement on mobile, confirmation text/undo policy, import loading/error/permission states and count display are design refinements that remain pending. No live Zotero integration has been tested by this design approval.
 
+### UI-D005 — Literature Detail main responsive layout: APPROVED
+
+The user selected **Option B: two columns on desktop / a single column on mobile** on 2026-11-22.
+
+- The desktop Literature Detail page has a **left column for the structured Research Notes** and a **right column for Zotero-linked Key Quotes and bibliographic metadata**.
+- Mobile displays the content in **one readable vertical column**, not a compressed two-column layout; tablet responsive behavior adapts to usable width and is yet to be specified precisely.
+- Literature title, authors and other Zotero metadata remain **source-attributed**; do not imply the website edits original Zotero metadata.
+- Show an **Open in Zotero** entry point for the same canonical paper; precise deep-link support, annotation-focused navigation and fallbacks require device-level verification and later interaction design.
+- Research Note fields remain globally unique per canonical Zotero item (D001), including research question, arguments/content, theories/methods, innovations/contributions, and limitations. Key Quotes are source-linked excerpts of the same global paper rather than copies per Project.
+- **Not yet settled:** rich text vs Markdown note editor, explicit save vs autosave, draft/error/conflict states, quote linking/sorting, mobile stacking order, edit affordances and exact responsive breakpoints.
+- This is the **layout decision only**; do not expand its scope into unapproved UI-D005.1 / UI-D006 save behavior or implement code.
+
 ## Pending decisions
 
 - **UI-D004.2 (refinement):** Exact literature table/card fields, search/sort defaults, interaction states and import/batch confirmation details.
-- **UI-D005:** Literature Detail note sections, Key Quotes and PDF deep-link affordances.
+- **UI-D005.1:** Structured Research Notes editing and save behavior.
+- **UI-D005.2:** Key Quotes source linking, Zotero deep-link and metadata interactions.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
 
@@ -95,4 +108,4 @@ Exact bibliographic columns/card fields, search matching, sort menu entries, bul
 
 ## Gate
 
-`UI-D001` through `UI-D004` and `UI-D004.1` are approved so far; UI-D004.2 and subsequent decisions remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005` (including UI-D004.1, and UI-D005 layout only) are approved so far; UI-D004.2, UI-D005.1, UI-D005.2 and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.

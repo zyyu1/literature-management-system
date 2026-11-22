@@ -22,6 +22,7 @@
 | UI-D004 | Project Literature List responsive layout: desktop table; mobile compact cards; tablet adaptive; shared global paper identity/status | APPROVED 2026-11-22; UI-D004.1 STANDARD MANAGEMENT APPROVED, DETAILED CONTROLS PENDING |
 
 | UI-D004.1 | Standard list management: current-Project search/filter/sort; Zotero single/multi selection and one-off Collection import; bulk global reading-state update; bulk removal only of Project-paper links; no duplicate canonical Zotero items or loss of global notes | APPROVED 2026-11-22 |
+| UI-D005 | Literature Detail layout: desktop two columns (Research Notes left; Key Quotes/Zotero metadata right), mobile single column and adaptive tablet; global note identity unchanged | APPROVED 2026-11-22; EDITING/SAVING AND QUOTE DEEP LINK DETAIL PENDING |
 
 ## Guardrails
 
