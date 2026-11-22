@@ -130,6 +130,8 @@
 
 | UI-D004.3l | Show a dedicated current-Project Pending verification status bar just below Project Literature title/header, with Review batch results access independent of All/Important tab, filters and phone Select mode; keep separate from per-paper Important Saving/Failed/Unknown summary, do not blind-retry unknowns or claim background auto-verification | APPROVED 2026-11-23; MULTI-BATCH HEADER/FOCUS QA PENDING |
 
+| UI-D004.3m | Option B: current-Project Pending verification header summarizes N distinct unresolved batches; for one, directly Review batch results; for multiple, expand a separate operation/scope/identity row with independently reopening each original read-only Results Bottom Sheet. Isolate overlapping papers and per-batch outcomes, no blind retry, false counts, auto-monitoring promises or false cleared state; preserve accessible focus/labels and responsive in-flow list; persistence/reconciliation/QA gated | APPROVED 2026-11-23; MULTI-BATCH/FOCUS/PERSISTENCE QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
