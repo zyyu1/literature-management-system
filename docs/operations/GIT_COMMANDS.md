@@ -1,51 +1,10 @@
-# GitHub Publication and Read-Only Handoff Commands
+# GitHub Operations — Literature Management System
 
-**Repo name is only proposed until created:** `zyyu1/literature-management-system` — **private**, separate from `personal-workspace`.
+**Repository:** [zyyu1/literature-management-system](https://github.com/zyyu1/literature-management-system) (**PRIVATE; verified 2026-11-22**).
 
-## Initial repository creation
+**Important:** The empty-repository initialization has already been performed. **Do not run `git init` or `git push -f` again.** The current working baseline is `main` in this existing repository. Keep the separate Personal Workspace repository untouched.
 
-The repository must first be created in GitHub UI (Private, ideally empty without auto-generated README) or through an authorized repository-creation tool. This package cannot create a repository by merely issuing Git commands. Never publish to an unrelated repo as a workaround.
-
-## PowerShell (Windows): initialize an empty new remote
-
-Run from the **root of the extracted package** after the GitHub repository has been created:
-
-```powershell
-Get-Location
-Get-ChildItem -Force
-# Confirm no .env, PDF, SQLite, personal notes or credentials in the package
-
-git init -b main
-git remote add origin https://github.com/zyyu1/literature-management-system.git
-git add .
-git diff --cached --name-only
-git diff --cached --check
-git status --short
-# Inspect exact staged file list, stop if unexpected contents
-git commit -m "docs: initialize literature-management design and handoffs"
-git push -u origin main
-git rev-parse HEAD
-```
-
-If `main` already exists remotely, do **not** force-push or overwrite: clone/inspect latest `main`, create a separate branch and PR as specified in the protocol.
-
-## Bash/macOS/Linux: initialize empty new remote
-
-```bash
-pwd
-find . -maxdepth 2 -type f | sort
-git init -b main
-git remote add origin https://github.com/zyyu1/literature-management-system.git
-git add .
-git diff --cached --name-only
-git diff --cached --check
-git status --short
-git commit -m "docs: initialize literature-management design and handoffs"
-git push -u origin main
-git rev-parse HEAD
-```
-
-## Execution / QA window read preflight (PowerShell)
+## Execution / QA initial checkout — PowerShell (Windows)
 
 ```powershell
 git clone https://github.com/zyyu1/literature-management-system.git
@@ -55,17 +14,51 @@ git fetch origin main
 git status --short
 git rev-parse origin/main
 git show origin/main:docs/handoffs/INDEX.md
+git show origin/main:docs/governance/THREE_WINDOW_PROTOCOL.md
 ```
 
-## Read an exact PR head (do not guess or use latest after a PR update)
+If a clone already exists, run `git fetch origin main` there; do not overwrite local changes.
+
+## Read the frozen documentation
 
 ```powershell
-git fetch origin pull/<PR_NUMBER>/head:refs/remotes/origin/review-pr-<PR_NUMBER>
-git rev-parse refs/remotes/origin/review-pr-<PR_NUMBER>
-git checkout --detach refs/remotes/origin/review-pr-<PR_NUMBER>
-git status --short
+git show origin/main:docs/baseline/LMS_REQUIREMENTS_ARCHITECTURE_v0.1.md
+git show origin/main:docs/governance/DECISION_LOG.md
+git show origin/main:docs/handoffs/000/DESIGN_APPROVED.md
+git show origin/main:docs/handoffs/000/EXECUTION_INSTRUCTION.md
+git show origin/main:docs/handoffs/000/QA_INSTRUCTION.md
+git show origin/main:docs/handoffs/000/STATUS.md
 ```
 
-Replace `<PR_NUMBER>` with an actual existing PR number only. If GitHub connector APIs are available, the Execution and QA windows may instead read files and exact PR SHAs through the connector.
+## Review exactly one immutable commit
 
-Do not store access tokens in shell history, a `.env` committed file, Markdown reports, or logs. Never run the live WebDAV POC using personal account credentials until a separately authorized secure test plan exists.
+Use the exact SHA provided in the corresponding QA handoff or Design Window, not an assumed current `main`.
+
+```powershell
+$sha = "<VERIFIED_FULL_COMMIT_SHA>"
+git fetch origin main
+git checkout --detach $sha
+git rev-parse HEAD
+git status --short
+git ls-tree -r --name-only HEAD
+git diff-tree --no-commit-id --name-only -r HEAD
+```
+
+Replace the placeholder with a real 40-character SHA; do not literally paste brackets.
+
+## Future feature development — only after explicit Design authorization
+
+```powershell
+git fetch origin main
+git switch main
+git pull --ff-only origin main
+git status --short
+# Only on a clean tree and with an approved frozen module + code-start authorization:
+git switch -c exec/<MODULE-ID>-<SHORT-SCOPE>
+```
+
+Do not create feature branches until a specific module is authorized. Execution submits a PR and `QA_HANDOFF.md`; QA independently checks the exact PR head. **Neither Execution nor QA may merge without an explicit Design decision.**
+
+## Safety
+
+Do not store GitHub tokens, Zotero API credentials, Nutstore/WebDAV app passwords, actual PDF files, user notes, Zotero SQLite or personal bibliographic exports in the repository. POC-001 remains unexecuted and not authorized until Design publishes a bounded test scope.
