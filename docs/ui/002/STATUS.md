@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-23 (Europe/Berlin)  
 **Owner:** Design Window  
-**Stage:** DESIGN IN PROGRESS / NOT FROZEN  
+**Stage:** DESIGN_APPROVED / FROZEN UI SPECIFICATION (UI-FREEZE-01)  
 **Code implementation:** NOT AUTHORIZED / NOT STARTED  
 **Independent QA:** NOT STARTED
 
@@ -74,12 +74,12 @@
 - **UI-D004.3-R1n APPROVED:** Phone Select mode puts a compact Important Saving/Failed/Unknown summary directly below its Select toolbar and above the paper list, in normal flow and separate from Project batch verification and bottom bulk actions. Wrapped text/icon counts include hidden current-Project papers; announce meaningful changes politely without stealing focus. Enter/exit restores relevant checkbox/star/Select focus with fallback; unknowns never become false successes or blind retries.
 - **UI-D005.1p APPROVED:** Option B: choose Markdown More popover or keyboard-aware compact panel from actual visible viewport fit; retain complete tools, selection/IME, safe-area visibility and optional correct shortcut hints. On phone, long conflict/local-draft recovery uses a full-screen viewport-constrained dialog with independently scrollable five-field comparisons, reachable controls, guarded draft/concurrency behavior and safe focus return.
 - **UI-D005.2k APPROVED:** Option B: mobile viewport-aware full-screen Relink Source dialog presents separate existing/proposed source comparisons and scrollable long content. Definite failures, unknown acknowledgment and stale remote-source conflicts use distinct in-place messages and guarded review; uncertain outcomes retain a same-Key-Quote recovery entry after safe dismissal. Preserve quote/comment/last confirmed source/provenance, provide manual Zotero precise-highlight→paper/PDF/page→copy fallback, and restore accessible focus correctly. No blind retry or unsupported persistence/deep-link claims.
-- **UI-D006 APPROVED (ACCEPTANCE DESIGN ONLY):** Option B four-layer L1 layout/accessibility, L2 complete workflows, L3 safe failures/recovery, L4 cross-device authority and consistency with representative Windows/macOS desktop, iPhone/Android phone and iPad/Android tablet checks. P0/P1 block full acceptance; P2 is trackable with evidence. Device tests, POC-001, independent QA, design-consistency audit and freeze are NOT completed or implied.
+- **UI-D006 APPROVED (ACCEPTANCE DESIGN ONLY):** Option B four-layer L1 layout/accessibility, L2 complete workflows, L3 safe failures/recovery, L4 cross-device authority and consistency with representative Windows/macOS desktop, iPhone/Android phone and iPad/Android tablet checks. P0/P1 block full acceptance; P2 is trackable with evidence. Device tests, POC-001 and independent runtime QA remain NOT RUN; later UI-FREEZE-PREP-01/UI-FREEZE-01 separately completed document cleanup and design freeze.
 - **UI-FREEZE-PREP-01 APPROVED (DOCS ONLY):** 67 authoritative [DESIGN_DRAFT.md](DESIGN_DRAFT.md) subsections normalized, duplicates and broken Markdown repaired, [Consistency Audit](CONSISTENCY_AUDIT.md) and [Acceptance Traceability](ACCEPTANCE_TRACEABILITY.md) published. No functionality changed; scenarios NOT RUN.
-- **UI-FREEZE-01:** PENDING independent design-freeze disposition; no `DESIGN_APPROVED.md` or implementation authorization yet.
+- **UI-FREEZE-01 APPROVED (OPTION B — DESIGN FREEZE ONLY):** [DESIGN_APPROVED.md](DESIGN_APPROVED.md) freezes all 67 UI-D decisions and 26 unrun acceptance scenarios by exact immutable source revision. POC-001, mobile Zotero/WebDAV validation, implementation and independent runtime QA remain unproven, unstarted and/or separately unauthorized.
 
-See [DESIGN_DRAFT.md](DESIGN_DRAFT.md), [CONSISTENCY_AUDIT.md](CONSISTENCY_AUDIT.md), and [ACCEPTANCE_TRACEABILITY.md](ACCEPTANCE_TRACEABILITY.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
+See authoritative frozen [DESIGN_APPROVED.md](DESIGN_APPROVED.md), original [DESIGN_DRAFT.md](DESIGN_DRAFT.md), [CONSISTENCY_AUDIT.md](CONSISTENCY_AUDIT.md) and [ACCEPTANCE_TRACEABILITY.md](ACCEPTANCE_TRACEABILITY.md). **Design freeze is not implementation permission.** This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-FREEZE-01 — Separate decision whether to freeze canonical Module 002 into `DESIGN_APPROVED.md`; POC-001 and runtime QA remain gated.
+**Next Design decision:** POC-001-SCOPE-01 — decide a separately bounded Nutstore/WebDAV safe-API feasibility scope and whether to issue an explicit execution-start authorization; no full UI code yet.

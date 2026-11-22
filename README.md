@@ -1,6 +1,6 @@
 # Literature Management System — 文献管理系统
 
-**Status:** design baseline approved; no application code, deployment, Zotero authorization or Nutstore/WebDAV integration has been executed.
+**Status:** Module 002 UI design is **FROZEN / DESIGN_APPROVED**. No application code, deployment, Zotero authorization or Nutstore/WebDAV integration has been executed.
 
 This is an **independent responsive website**, not a Zotero replacement. Zotero manages bibliographic metadata, PDF files, annotations, and PDF reading; the website manages Projects, one global status and research note per literature item, and key-quote associations.
 
@@ -17,7 +17,7 @@ This is an **independent responsive website**, not a Zotero replacement. Zotero 
 - **Module 001 product requirements:** approved baseline, but technical feasibility pending.
 - **D007 note storage:** second Nutstore account via safe API and JSON/Markdown is a **conditional proposal**, pending POC-001.
 - **BOOTSTRAP-000:** *documentation/repository initialization only*. This handoff does **not** authorize application source code, Zotero API credentials, cloud deployment, production data or UI implementation.
-- **Module 002:** UI / interaction design is **not yet approved for implementation**.
+- **Module 002:** [frozen UI design](docs/ui/002/DESIGN_APPROVED.md) is approved as specification only (67 UI decisions; 26 planned, unrun scenarios). Implementation is **NOT AUTHORIZED**; separate POC-001 and execution gates are required.
 - **QA:** none completed for this repository; no PR or CI pass is implied by these documents.
 
 ## Role separation

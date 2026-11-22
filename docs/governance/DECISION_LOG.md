@@ -142,6 +142,8 @@
 
 | UI-FREEZE-PREP-01 | Option B: editorial normalization of Module 002 to one canonical section per 67 approved UI-D IDs; repair duplicated/split passages, preserve Git provenance and approved outcomes, update Handoff Index and add full L1–L4 decision traceability plus consistency audit. No application code, runtime QA or design freeze authorized | APPROVED 2026-11-23; UI-FREEZE-01 SEPARATE DECISION PENDING |
 
+| UI-FREEZE-01 | Option B: freeze Module 002 in a canonical DESIGN_APPROVED.md with exact SHA-pinned 67 UI-D decisions and 26 L1–L4 planned QA scenarios; explicitly distinguish UI design approval from POC-001, Zotero deep-link/attachment verification, secure WebDAV concurrency, implementation, deployment and independent QA. Any behavior change needs a separately approved amendment, with no automatic code-start permission | APPROVED 2026-11-23; DESIGN FROZEN ONLY, POC/CODE/QA NOT AUTHORIZED OR NOT RUN |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
