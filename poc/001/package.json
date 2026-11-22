@@ -1,0 +1,20 @@
+{
+  "name": "lms-poc-001-webdav-feasibility",
+  "version": "0.0.0-poc",
+  "private": true,
+  "description": "POC-001 LOCAL MOCK ONLY: safe API + WebDAV adapter feasibility with synthetic data. Not a product, not deployable.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=22.21.0"
+  },
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "test": "node --test \"test/*.test.mjs\"",
+    "scan": "node scripts/secret-scan.mjs",
+    "mutation": "node scripts/mutation-check.mjs",
+    "evidence": "node scripts/run-evidence.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
