@@ -72,6 +72,8 @@
 
 | UI-D005.1f | On reopening a note with recoverable unsynced local edits, display an explicit dialog showing available local/remote statuses, timestamps and changed fields; Review & Recover opens five-field comparison; Not Now/close preserves local draft; never overwrite or mark Saved before version-guarded acknowledged remote commit | APPROVED 2026-11-22; LOCAL DRAFT PRIVACY/POC-001 VALIDATION PENDING |
 
+| UI-D005.1g | When unsynced research-note edits exist, the user explicitly chooses Export Local Draft or Export Saved Version; local draft is labeled unsynced and saved export requires a confirmed/candidly cached revision, both preserve five-field Typora Markdown, and neither triggers remote save or draft deletion | APPROVED 2026-11-22; OFFLINE CACHE/DOWNLOAD VERIFICATION PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
