@@ -64,10 +64,11 @@
 - **UI-D005.1o APPROVED:** Phone Markdown More uses a button-anchored menu when space allows, switching to a compact keyboard-aware bottom action panel when the virtual keyboard constrains the viewport. Both expose the full remaining toolset and preserve per-field selection/caret, touch/keyboard/screen-reader use; opening, closing or adapting never edits or saves.
 - **UI-D004.3-R1l APPROVED:** During phone Select mode, hide individual Actions menus as well as star shortcuts; keep checkbox selection and the bottom approved batch-action bar as the available paper actions. Exit restores current verified star and per-paper Actions. In-flight Important writes, failures and uncertain results remain tracked, truthfully indicated and recoverable after exit, without accidental retry/success claims.
 - **UI-D004.3g APPROVED:** Phone batch confirmation uses a scrollable modal bottom sheet with operation/scope, full and hidden selection counts, expandable list of all selected papers, and easily reached safe-area-aware Cancel/Confirm controls. All-Project unlink still requires a stronger affirmative acknowledgment; no write on dismissal.
-- **UI-D004.3-R1m / UI-D004.3h / UI-D005.1p / UI-D005.2k / UI-D006:** PENDING. Select-mode Important save status/focus, remaining literature list copy/sort/search and result placement, adaptive Markdown More layout/long-dialog details, Relink failure fallback, responsive cross-device QA.
+- **UI-D004.3h APPROVED:** In Project Literature desktop rows and phone cards, subtly highlight only actual search-matched title/author/year/DOI text spans with readable accessible contrast; reuse existing search matching semantics, preserving result membership, tab counts, sorting and Zotero original metadata. No extra match-summary row.
+- **UI-D004.3-R1m / UI-D004.3i / UI-D005.1p / UI-D005.2k / UI-D006:** PENDING. Select-mode Important state visibility/focus, sort-direction and batch copy/results details, adaptive Markdown More dialog layout, Relink fallback and cross-device UI acceptance.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D004.3h — Project Literature search-match text highlighting in desktop rows and phone cards (then remaining UI refinements).
+**Next Design decision:** UI-D004.3i — Project Literature per-tab ascending/descending sort-direction control (then list result copy and responsive refinements).
