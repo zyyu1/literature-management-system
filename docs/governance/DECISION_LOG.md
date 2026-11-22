@@ -41,6 +41,8 @@
 | UI-D004.3b | Graded import/bulk action confirmations: show Zotero import count/results without superfluous confirm; explicit global-impact confirmation for bulk reading-status change and scope-aware unlink confirmation for current or all Projects; partial successes and safe failed-item retry | APPROVED 2026-11-22; AMENDED BY UI-D004.3b-R1; CONCURRENCY/RETRY TECHNICAL VALIDATION PENDING |
 | UI-D004.3b-R1 | Per-paper and bulk unlink scope chooser: default remove links from current Project only, or remove all links from every Project including current; stronger explicit cross-Project confirmation; preserve Zotero source, global reading status, Research Notes, Key Quotes and annotations | APPROVED 2026-11-22; UI SCOPE AMENDMENT |
 
+| UI-D004.3-R1 | Separate Important Papers section on each Project Literature page while regular literature remains newest-project-linked-first; Important is proposed per Project-literature membership, not a global reading state or Zotero mutation | APPROVED IN PRINCIPLE 2026-11-22; ORGANIZATION/ORDERING PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

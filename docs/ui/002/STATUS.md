@@ -25,10 +25,11 @@
 - **UI-D004.3a APPROVED:** Search only literature linked to the current Project, matching Zotero Title, Authors, Publication Year and DOI; compose with the existing global reading-state filter and current sort.
 - **UI-D004.3b APPROVED (AMENDED):** Graded import/batch confirmation and partial-result feedback; before unlink confirm chosen scope, protecting Zotero/global notes, and support failed-only safe retry.
 - **UI-D004.3b-R1 APPROVED:** Per-item/bulk unlink selector: default Current Project only or All Projects including current. Global unlink needs a stronger explicit confirmation; no canonical paper/status/note/quote deletion.
-- **UI-D004.3c / UI-D005.1c / UI-D005.2c / UI-D006:** PENDING. Fine-grained list confirmation/sort/search and error UI, Markdown draft/conflict UI, highlight picker/source change details, and accessibility need further design.
+- **UI-D004.3-R1 APPROVED IN PRINCIPLE:** Add a distinct Important Papers section to each Project Literature List while preserving newest-linked-first sorting for ordinary papers. Proposed Important flag is Project-specific; final membership/ordering presentation is pending UI-D004.3-R1a.
+- **UI-D004.3-R1a / UI-D004.3c / UI-D005.1c / UI-D005.2c / UI-D006:** PENDING. Important Papers display details, list confirmation/search/error UI, Markdown draft/conflict UI, highlight picker/source change details and accessibility.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D005.1c — Offline draft recovery and multi-device note conflict interaction.
+**Next Design decision:** UI-D004.3-R1a — Important Papers section organization (then resume UI-D005.1c conflict UX).

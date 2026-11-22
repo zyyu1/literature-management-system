@@ -234,8 +234,21 @@ The user amended the previously approved removal workflow on 2026-11-22 to allow
 - Respect UI-D002: archiving/restoring/deleting a Project is a separate lifecycle operation with its original non-cascading constraints.
 - **Terminology:** to remove ambiguity, the all-Projects choice in this design explicitly **includes the current Project**. If the intended scope was instead “only other Projects, preserve the current Project”, it needs a subsequent explicit amendment; that interpretation is not silently inferred.
 
+### UI-D004.3-R1 — Separate Important Papers section: APPROVED IN PRINCIPLE
+
+On 2026-11-22 the user requested a distinct **Important Papers / 重点文献** area in each Project's Literature List, while retaining the existing **newest-linked-first** default sorting for ordinary literature.
+
+- **Project Literature hierarchy:** provide a visibly separate Important Papers section in addition to the regular Literature list. Its presence does not replace the original standard literature list, search, status filter, sort choices, Add Papers or bulk management.
+- **Mark/unmark:** allow a paper linked to the current Project to be marked **Important** and subsequently unmarked through the Project Literature UI. Do not conflate Important with any of the three global reading statuses.
+- **Scope proposed for the data model:** store Important as a **per-Project, per-paper association property** (e.g., isImportant on the Project–Literature link), not as a global property of the canonical Zotero paper. The same Zotero paper may be Important for Project A and not for Project B. User confirmation of this scope and its representation remains a refinement; do not silently change global statuses or notes.
+- **Normal ordering preserved:** default regular literature ordering remains descending by the date the paper was linked to the current Project (UI-D004.3). Moving or marking a paper Important must not rewrite its original Project-added timestamp.
+- **Retention/deletion:** unmarking Important never removes the Project–Literature link; unlinking the paper from one Project also removes that Project-specific Important designation, but never deletes global paper/status/notes/quotes. Unlinking from all Projects removes all their associations and associated Important designations, leaving global paper data intact.
+- **Display details still pending (UI-D004.3-R1a):** whether Important papers are excluded from ordinary list display to prevent duplicates, how Important papers are internally sorted (recently marked, manually ordered, or project-added), collapsibility, empty-state display, search/filter coverage, and multi-select marking.
+- **Baseline protection:** this addition does not alter Zotero metadata ownership, one global research note per canonical Zotero item, one global reading status, or UI-D004.3b-R1 scoped unlink safety. No code is authorized by this Design addition.
+
 ## Pending decisions
 
+- **UI-D004.3-R1a (refinement):** Important Papers per-Project scope confirmation, section membership vs regular list duplication, ordering, mark/unmark affordance and filters.
 - **UI-D004.3c (refinement):** Exact confirmation/error copy and result display, alternate sort directions, query-match details and mobile bulk-selection affordances.
 - **UI-D005.1c (refinement):** Markdown toolbar details, focus/caret restoration, safe export filename/content and offline-draft/conflict-resolution UI states.
 - **UI-D005.2c (refinement):** Highlight picker order, empty/loading/permission/error states, annotation change/relink handling, and cross-device focus behavior.
@@ -253,4 +266,4 @@ The user amended the previously approved removal workflow on 2026-11-22 to allow
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3c, UI-D005.1c, UI-D005.2c and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1a, UI-D004.3c, UI-D005.1c, UI-D005.2c and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
