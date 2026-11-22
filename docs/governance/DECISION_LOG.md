@@ -17,6 +17,7 @@
 | D007-A | Hosting/provider, domain, authentication method | UNDECIDED |
 | UI-002 | Detailed desktop/mobile UI interaction design | IN DESIGN; NOT FROZEN |
 | UI-D001 | Projects landing page uses switchable Cards / List layout; default cards; mobile single-column responsive layout | APPROVED 2026-11-22 |
+| UI-D002 | Project create/edit/archive/restore/permanent delete with independent second confirmation; delete Project and links only, retain globally shared Zotero items, statuses, notes and quotes | APPROVED 2026-11-22 |
 
 ## Guardrails
 

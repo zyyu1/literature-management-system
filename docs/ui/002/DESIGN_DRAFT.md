@@ -25,9 +25,20 @@ User selected **Option C: hybrid Cards / List switchable view** on 2026-11-22.
 - Proposed card contents (Project title, description, counts/reading progress) are design examples and will be separately refined; no demo numbers are actual library counts.
 - Selection persistence, sort order, available quick actions and error-state details are **not yet decided**.
 
+### UI-D002 — Project lifecycle and actions: APPROVED
+
+User selected **Option B: Create / Edit / Archive / Restore / Permanently Delete with a second explicit confirmation** on 2026-11-22.
+
+- **Create:** provide a New Project action and fields for Project name (required) and description (optional). Create a new Project identity; does not copy or create Zotero items.
+- **Edit:** allow changing Project name and description without replacing the Project identity or modifying paper data.
+- **Archive:** keep the Project and its membership records for later recovery; distinguish archived from active in navigation (precise filtering / placement in UI-D003).
+- **Restore:** reverse archive without creating a new Project identity.
+- **Permanent delete:** must include a separate, explicit confirmation that names the affected Project and discloses the irreversible removal of **Project and its Project–Literature associations**. Never treat archive as permanent deletion.
+- **Critical D001 preservation:** permanent Project deletion removes neither canonical Zotero items nor the globally shared reading state, global research notes, Key Quotes, original Zotero annotations or source PDFs, even when a Project is the sole one referencing a paper. In particular, paper records must not be cascade-deleted by Project deletion.
+- Confirmations, archive discovery, field-level validation and optimistic-state behavior will be specified later with responsive/error UI; no code is authorized by this partial decision.
+
 ## Pending decisions
 
-- **UI-D002:** Project lifecycle and interaction model — create/edit/archive/delete, confirmations and navigation.
 - **UI-D003:** Project list card/row fields, ordering, sorting, statistics and filtering.
 - **UI-D004:** Project Literature layout and Zotero import/search behavior.
 - **UI-D005:** Literature Detail note sections, Key Quotes and PDF deep-link affordances.
@@ -45,4 +56,4 @@ User selected **Option C: hybrid Cards / List switchable view** on 2026-11-22.
 
 ## Gate
 
-Only `UI-D001` is approved so far. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+Only `UI-D001` and `UI-D002` are approved so far. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
