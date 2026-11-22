@@ -128,6 +128,8 @@
 
 | UI-D004.3k | Permit closing phone batch Results Bottom Sheet with Unknown/Pending verification outcomes while keeping an accessible visible current-Project Pending verification notice and reopening entry for the original batch; do not recategorize unknown as success/failure, blind retry, or promise background auto-check; cross-reload durability remains technical QA/POC-001 gated | APPROVED 2026-11-23; UNKNOWN-OUTCOME REOPEN/PERSISTENCE QA PENDING |
 
+| UI-D004.3l | Show a dedicated current-Project Pending verification status bar just below Project Literature title/header, with Review batch results access independent of All/Important tab, filters and phone Select mode; keep separate from per-paper Important Saving/Failed/Unknown summary, do not blind-retry unknowns or claim background auto-verification | APPROVED 2026-11-23; MULTI-BATCH HEADER/FOCUS QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
