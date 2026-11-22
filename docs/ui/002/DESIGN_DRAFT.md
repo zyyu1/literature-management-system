@@ -22,7 +22,7 @@ User selected **Option C: hybrid Cards / List switchable view** on 2026-11-22.
 - Default view is a Project card grid; provide a visible way to switch to a compact Project list view.
 - Both views represent the **same** Projects and actions, with no duplicated Project identities or data.
 - Responsive mobile presentation adapts to a single-column layout.
-- Proposed card contents (Project title, description, counts/reading progress) are design examples and will be separately refined; no demo numbers are actual library counts.
+- Card/list information density and progress display are now approved in UI-D003; no demo numbers are actual library counts.
 - Selection persistence, sort order, available quick actions and error-state details are **not yet decided**.
 
 ### UI-D002 — Project lifecycle and actions: APPROVED
@@ -37,9 +37,20 @@ User selected **Option B: Create / Edit / Archive / Restore / Permanently Delete
 - **Critical D001 preservation:** permanent Project deletion removes neither canonical Zotero items nor the globally shared reading state, global research notes, Key Quotes, original Zotero annotations or source PDFs, even when a Project is the sole one referencing a paper. In particular, paper records must not be cascade-deleted by Project deletion.
 - Confirmations, archive discovery, field-level validation and optimistic-state behavior will be specified later with responsive/error UI; no code is authorized by this partial decision.
 
+### UI-D003 — Projects Home information density: APPROVED
+
+User selected **Option B: Standard** on 2026-11-22.
+
+- In both the Card and List views, display **Project name**, **optional description** (if present), **total number of linked literature items**, counts of **To Read / Reading / Read** and a visible **reading progress bar**.
+- Show functional **Project search**, **sorting controls**, and a way to **view archived Projects**. Both layout modes operate on the same Project records and global reading-state counts.
+- In list mode, present the same core information in compact row/column form; mobile adapts to a single-column presentation as decided in UI-D001.
+- Reading progress refers to the proportion of items in the Read state out of the project's linked item total. An empty Project must show an honest zero/empty state, not invented progress.
+- Archived Projects must remain discoverable and restorable under UI-D002; their archival state must not affect the underlying linked literature's global reading status or note.
+- Specific sort keys, default ordering, search matching fields, view-preference persistence, number formatting and empty-state copy are **still design details to settle**, not implicitly approved.
+- Any previous example Project names and paper counts are dummy UI data, not actual user statistics.
+
 ## Pending decisions
 
-- **UI-D003:** Project list card/row fields, ordering, sorting, statistics and filtering.
 - **UI-D004:** Project Literature layout and Zotero import/search behavior.
 - **UI-D005:** Literature Detail note sections, Key Quotes and PDF deep-link affordances.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
@@ -56,4 +67,4 @@ User selected **Option B: Create / Edit / Archive / Restore / Permanently Delete
 
 ## Gate
 
-Only `UI-D001` and `UI-D002` are approved so far. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+Only `UI-D001`, `UI-D002`, and `UI-D003` are approved so far. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
