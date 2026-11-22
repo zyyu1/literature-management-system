@@ -75,7 +75,7 @@ The user chose **Option B: Standard Management** on 2026-11-22.
 
 ### Still to detail after UI-D004.1
 
-Bibliographic fields and four sorting criteria are approved in UI-D004.2, and the default descending Project-added sort in UI-D004.3. Search fields and scope are approved in UI-D004.3a; exact matching semantics, bulk action placement on mobile, exact scope confirmation wording, uncertain-outcome and import loading/error/permission state presentations remain pending; graded confirmations and result counts are approved in UI-D004.3b. No live Zotero integration has been tested by this design approval.
+Bibliographic fields and four sorting criteria are approved in UI-D004.2, and the default descending Project-added sort in UI-D004.3. Search fields and scope are approved in UI-D004.3a; exact matching semantics, mobile batch bar is approved in UI-D004.3c; exact scope confirmation wording, uncertain-outcome and import loading/error/permission state presentations remain pending; graded confirmations and result counts are approved in UI-D004.3b. No live Zotero integration has been tested by this design approval.
 
 ### UI-D005 — Literature Detail main responsive layout: APPROVED
 
@@ -391,13 +391,26 @@ On 2026-11-22 the user selected **Option B: show each Project Literature tab's p
 - **Tab independence:** a user's temporary sort selection in All Papers and in Important Papers is remembered **separately** while navigating back and forth between tabs in the same open page/session. Tab switching does not reset the other tab's selected sort.
 - **Fresh open/reset:** opening the Project Literature page anew (including a reload/new page session) can restore **All Papers: most recently linked to this Project first** (UI-D004.3), and **Important Papers: most recently marked Important in this Project first** (UI-D004.3-R1c). This design does **not** request persistent user sort preferences in the backend or cross-device synchronization.
 - **Other sorting:** the previously approved sort criteria remain available to the user in both tabs. Merely changing sort view must never rewrite Project association or Important-mark timestamps, nor Zotero metadata.
-- **Filters/search:** existing search and global reading-state filtering operate on each tab's proper Project-scoped subset. The precise choice of whether tab badges represent the unfiltered total versus the active filtered match count, and how to show both if needed, remains for UI-D004.3c/UI-D006; ensure no double-counting or falsely presented totals.
+- **Filters/search:** existing search and global reading-state filtering operate on each tab's proper Project-scoped subset. The precise choice of whether tab badges represent the unfiltered total versus the active filtered match count, and how to show both if needed, remains for UI-D004.3d/UI-D006; ensure no double-counting or falsely presented totals.
 - **Pending UI refinements:** precise star placement, confirmation/loading/failure feedback, count badge styling/accessibility, mobile tab and keyboard focus behavior under UI-D004.3-R1f/UI-D006. User did not approve long-term preference storage or batch Important marking.
+
+### UI-D004.3c — Phone literature dedicated Select mode: APPROVED
+
+On 2026-11-22 the user chose **Option B: a visible Select entry to a dedicated multi-select mode, showing selection checkboxes and a bottom batch-action bar, with an explicit way to exit**.
+
+- **Default compact cards:** the phone Project Literature page shows regular compact paper cards without permanent selection checkboxes. A discoverable **Select** control enters the multi-select mode; long-press is **not** the sole or required way to enter it.
+- **Selection mode:** each visible eligible paper card exposes a touch- and keyboard-accessible checkbox with its paper identity/selection state. The user can select multiple literature items in the current Project, and a clear **Done / Cancel / Exit selection** action leaves this mode without committing a batch change.
+- **Bottom batch bar:** while selecting, present an accessible bottom batch-action bar with the **selected paper count** and only already approved batch actions: **Change global Reading Status** and **Remove Project associations**. Disable actions with zero selected items. The bar must respect phone safe areas and not permanently cover the last card or navigation.
+- **Global status safety:** Change Reading Status still requires the UI-D004.3b confirmation explaining the effect on the same canonical papers in **all** Projects. Do not introduce a Project-specific reading status.
+- **Unlink safety:** Remove Associations still offers both approved UI-D004.3b-R1 scopes: **Current Project only (default)** or **All Projects including current**; confirm scope and count, with the stronger warning for all-Project unlink. Never delete canonical Zotero literature/PDFs, original annotations, global notes, Key Quotes or shared reading statuses.
+- **Compatibility:** All Papers and Important Papers retain their approved tabs, counts, Project-only Important star, search/status filter and sort behavior. Do not add a new bulk-important-mark feature as a side effect of the selected multi-select UI.
+- **Robust state:** make an unfinished selection visually distinct from a successful operation. A failed/partially successful batch action must keep actionable feedback and cannot be presented as full success; failure retry follows UI-D004.3b. An exit from selection mode cannot itself mutate data.
+- **Still pending (UI-D004.3d/UI-D006):** exact selection persistence/clearing rules when changing tabs, filters or Project; precise bottom-bar/button placement, confirmation copy, screen-reader focus, per-item loading and mobile empty/error states. These details are not silently decided by this approval.
 
 ## Pending decisions
 
 - **UI-D004.3-R1f (refinement):** Exact star position/feedback, count badge styling and filtered-match semantics, and mobile accessibility.
-- **UI-D004.3c (refinement):** Exact confirmation/error copy and result display, alternate sort directions, query-match details and mobile bulk-selection affordances.
+- **UI-D004.3d (refinement):** Mobile selection persistence across tab/filter changes, exact confirmation/error copy and result display, alternative sort directions and query-match details.
 - **UI-D005.1d (refinement):** Markdown toolbar/export filename, focus/caret restoration, offline-draft privacy/recovery prompt and accessible conflict resolution details.
 - **UI-D005.2h (refinement):** Re-link confirmation copy, source-history display, uncertain source-version messaging and cross-device focus.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
@@ -414,4 +427,4 @@ On 2026-11-22 the user selected **Option B: show each Project Literature tab's p
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1f, UI-D004.3c, UI-D005.1d, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1f, UI-D004.3d, UI-D005.1d, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.

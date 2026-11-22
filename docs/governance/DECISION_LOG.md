@@ -64,6 +64,8 @@
 
 | UI-D004.3-R1e | Show per-Project All Papers and Important Papers counts; maintain separate user-selected sorts for both tabs while switching in the current open page; fresh page visit can restore All newest-linked and Important newest-marked defaults; no persistent or cross-device sort preference | APPROVED 2026-11-22; EXACT FILTERED COUNT BADGE SEMANTICS PENDING |
 
+| UI-D004.3c | Phone literature uses visible Select entry to a dedicated checkbox multi-select mode with selected-count bottom batch bar and exit action; bar supports only approved global reading-status and scoped Project-unlink operations with their confirmations | APPROVED 2026-11-22; MOBILE SELECTION PERSISTENCE/A11Y DETAILS PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
