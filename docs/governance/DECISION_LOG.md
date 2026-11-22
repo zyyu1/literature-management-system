@@ -134,6 +134,8 @@
 
 | UI-D004.3-R1n | Option B: in phone Select mode place a compact, wrapping, read-only Important Saving/Failed/Unknown count summary immediately below Select toolbar and above paper list, independent of Project batch Pending verification header, neutral tab counts and bottom bulk bar. Preserve hidden-paper Project-wide accuracy, concise polite/coalesced screen-reader announcements, predictable star/checkbox/exit focus with safe fallbacks, viewport/safe-area access and no unintended writes, blind retry or false confirmed success | APPROVED 2026-11-23; SELECT-MODE LIVE-REGION/FOCUS/RESPONSIVE QA PENDING |
 
+| UI-D005.1p | Option B: adapt phone Markdown More between button-anchored popover and keyboard-aware bottom action panel by actual visible viewport/keyboard fit, preserving all commands, field selection/IME, focus and undo without writes on open/dismiss/resize; show accurate optional shortcut hints. Phone long note conflict/recovery uses accessible full-screen viewport-constrained dialog with independently scrolling five-field comparisons and available safe actions; preserve unsynced drafts, revision-checked saving, accessible focus/safe areas and recovery | APPROVED 2026-11-23; MOBILE VIEWPORT/IME/DIALOG/CONFLICT QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
