@@ -21,6 +21,10 @@
 - Preserve globally shared Reading Status/note vs per-Project Important; no canonical Zotero/PDF deletion, false save/unknown retry or lost Key Quote provenance.
 - Module 002 is NOT FROZEN; no `DESIGN_APPROVED.md`, scoped `EXECUTION_INSTRUCTION.md`, implementation code or independent runtime QA created by this cleanup.
 
+## Final editorial consistency follow-up
+
+After the first normalization commit, a second static read identified a handful of early ‘pending’ phrases and a planned L2 scenario range of 01–06 versus the 26-scenario table’s seven L2 cases. These were aligned with **already approved** UI-D refinements; UI-D006 now references L2-01..07. This only subdivides planned testing; no product behavior, backend guarantee, executed QA result or approved UI requirement changed.
+
 ## Remaining dependencies
 
 POC-001 must validate second Nutstore account and secure conflict-safe storage; Zotero desktop/iOS/iPadOS/Android deep links and stored-versus-linked mobile PDF access require separate device proof. Durable post-reload recovery, server acknowledgments, safe concurrency, backup, accessibility and L1–L4 runtime QA are NOT RUN. This is a Design-window documentation consistency record, not QA sign-off. Next decision: **UI-FREEZE-01** (explicit canonical `DESIGN_APPROVED.md` freeze or deferral); no automatic code authorization.
