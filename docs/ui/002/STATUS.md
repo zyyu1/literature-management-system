@@ -48,7 +48,7 @@
 - **UI-D005.1k APPROVED:** Export Local Draft uses `<safe-title>_<zotero-key>_LOCAL-DRAFT.md`; Export Saved Version uses `<safe-title>_<zotero-key>_SAVED.md`. Suffix reflects selected source; an offline cached confirmed-saved revision is not necessarily latest; no export writes.
 - **UI-D004.3-R1f APPROVED:** Tab badges show current Project's unfiltered All Papers and Important Papers totals; active search/status-filter matches display as a separate N results label in the list area, with truthful loading/zero/error states.
 - **UI-D004.3d APPROVED:** Phone Select-mode selection persists within the current Project across All/Important tabs, search and status filters, even when selected cards are hidden. Bottom bar counts all selected; leaving Project or exiting Select mode clears without writing; batch confirmation includes hidden selections and honors approved scoped safeguards.
-- **UI-D004.3-R1g / UI-D004.3e / UI-D005.1l / UI-D005.2h / UI-D006:** PENDING. Star feedback and mobile/count styling, selection persistence and list errors, Markdown toolbar overflow/conflict focus, Key Quote source-history presentation and cross-device acceptance.
+- **UI-D004.3-R1g / UI-D004.3e / UI-D005.1l / UI-D005.2h / UI-D006:** PENDING. Star feedback and mobile/count styling, exact batch confirmation/partial-result and list error copy, Markdown toolbar overflow/conflict focus, Key Quote source-history presentation and cross-device acceptance.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
