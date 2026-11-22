@@ -19,6 +19,7 @@
 | UI-D001 | Projects landing page uses switchable Cards / List layout; default cards; mobile single-column responsive layout | APPROVED 2026-11-22 |
 | UI-D002 | Project create/edit/archive/restore/permanent delete with independent second confirmation; delete Project and links only, retain globally shared Zotero items, statuses, notes and quotes | APPROVED 2026-11-22 |
 | UI-D003 | Projects Home Standard view: name, optional description, total literature, three-state counts, reading-progress bar; search, sorting and archived browsing; same data in Cards/List | APPROVED 2026-11-22 |
+| UI-D004 | Project Literature List responsive layout: desktop table; mobile compact cards; tablet adaptive; shared global paper identity/status | APPROVED 2026-11-22; IMPORT/FILTER/BULK DETAIL PENDING |
 
 ## Guardrails
 

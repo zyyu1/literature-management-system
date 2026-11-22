@@ -49,9 +49,20 @@ User selected **Option B: Standard** on 2026-11-22.
 - Specific sort keys, default ordering, search matching fields, view-preference persistence, number formatting and empty-state copy are **still design details to settle**, not implicitly approved.
 - Any previous example Project names and paper counts are dummy UI data, not actual user statistics.
 
+### UI-D004 — Project Literature List responsive layout: APPROVED
+
+The user selected **Option B: responsive table on desktop / compact paper cards on phone / adaptive tablet** on 2026-11-22.
+
+- **Desktop:** the Project Literature page uses a table/list with structured bibliographic fields and reading status. Clicking a paper opens the single global Literature Detail record (D001), not a Project-specific duplicate.
+- **Phone:** switch to compact literature cards with readable title, core metadata and reading-state access; no forced horizontal table scroll for normal reading.
+- **Tablet:** adapt table density or switch to compact cards according to available width and legibility; the breakpoint and exact responsive rules remain to be designed.
+- Table and mobile cards display the same underlying Project-to-literature associations and globally shared reading statuses. A status change in one Project must be reflected in every Project containing the same paper.
+- Previous sample papers, years, authors and reading states are illustrative UI fixtures, not actual Zotero records.
+- Search, filtering, sorting, selection/bulk operations, Zotero import interaction, table columns and mobile action placement are **still pending** as **UI-D004.1**. The user's approval is for layout only.
+
 ## Pending decisions
 
-- **UI-D004:** Project Literature layout and Zotero import/search behavior.
+- **UI-D004.1:** Project Literature search/filter/sort, Zotero item selection and one-off Collection import, selection/bulk actions, and table/card information fields.
 - **UI-D005:** Literature Detail note sections, Key Quotes and PDF deep-link affordances.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
@@ -67,4 +78,4 @@ User selected **Option B: Standard** on 2026-11-22.
 
 ## Gate
 
-Only `UI-D001`, `UI-D002`, and `UI-D003` are approved so far. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+Only `UI-D001` through `UI-D004` (layout only) are approved so far. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
