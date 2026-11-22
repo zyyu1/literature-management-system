@@ -94,6 +94,8 @@
 
 | UI-D004.3e | Phone batch operations show Succeeded/Failed/Skipped summary with expandable failed-paper list and available reasons; Retry Failed only applies to failed records still eligible after authoritative revalidation, never confirmed successes; uncertain acknowledgments require verification before retry | APPROVED 2026-11-22; PARTIAL-FAILURE/IDEMPOTENCY QA PENDING |
 
+| UI-D004.3f | Before mobile bulk apply, show distinct total selected and hidden selected counts, target action and scope, and expandable full selected-paper list including hidden entries; global reading-status effect clear; all-Project unlink retains stronger affirmative confirmation; cancel never writes | APPROVED 2026-11-22; COPY/RESPONSIVE CONFIRMATION QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
