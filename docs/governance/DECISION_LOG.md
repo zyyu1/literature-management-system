@@ -44,6 +44,8 @@
 | UI-D004.3-R1 | Separate Important Papers view on each Project Literature page while default All Papers sorting remains newest-project-linked-first; Important is proposed per Project-literature membership, not a global reading state or Zotero mutation | APPROVED IN PRINCIPLE 2026-11-22; TAB LAYOUT APPROVED IN UI-D004.3-R1a |
 | UI-D004.3-R1a | Switchable All Papers / Important Papers tabs; All includes Important papers, Important filters subset without copying records; no permanently pinned panel; All preserves newest-project-linked-first default | APPROVED 2026-11-22; FLAG SCOPE/IMPORTANT SORT PENDING |
 
+| UI-D004.3-R1b | Important marker is stored per Project–Literature association, not as global literature metadata; each Project can independently mark the same paper; marking/unmarking never changes global reading state or notes; all-Project unlink removes association markers only | APPROVED 2026-11-22 |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
