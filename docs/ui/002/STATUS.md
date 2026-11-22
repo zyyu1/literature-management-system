@@ -59,10 +59,11 @@
 - **UI-D005.2i APPROVED:** Relink Source requires an old/current vs new Zotero highlight comparison before affirmative confirmation; if the original is unreachable, warn that deletion is unverified and access might be temporary. Confirmed writes update only active source plus provenance history; saved excerpt/comment stay unchanged; stale/failed/unknown writes are guarded.
 - **UI-D005.2j APPROVED:** On positive remote Relink acknowledgment, close the confirmation, return to the same Key Quote, update Current Source with brief success feedback, retain expandable Source History and restore focus to the quote's source region. Cancel never writes; failures/unknown outcomes never fake success.
 - **UI-D005.1l APPROVED:** On phones, show Bold, Italic, Heading, List and More; More exposes remaining approved academic Markdown tools, while desktop retains the complete toolbar. Preserve per-field caret/selection and undo/autosave, with keyboard and assistive-technology access; opening More never edits or saves.
-- **UI-D004.3-R1l / UI-D004.3g / UI-D005.1m / UI-D005.2k / UI-D006:** PENDING. Phone star mode transition, literature list copy/sort/search, More placement/shortcut policy and conflict dialog focus, Relink error/fallback behavior and responsive cross-device acceptance.
+- **UI-D005.1m APPROVED:** Local-draft recovery and remote-note conflict dialogs move focus inside, provide accessible comparison/navigation across all five Markdown fields, and restore focus to the original editor/caret or a safe fallback after close. Focus/navigation/Cancel/Not Now never save, resolve conflicts or discard drafts; remote writes remain revision-checked.
+- **UI-D004.3-R1l / UI-D004.3g / UI-D005.1n / UI-D005.2k / UI-D006:** PENDING. Phone Important/Select mode transition, list confirmation/sort/search details, Markdown shortcuts/More-menu overflow and long-dialog refinements, Relink failure fallbacks and cross-device accessibility.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D005.1m — Keyboard-accessible focus and conflict/recovery dialog behavior for the five Markdown note fields (then responsive list and Relink refinements).
+**Next Design decision:** UI-D005.1n — Markdown editor keyboard shortcut policy on desktop and mobile hardware keyboards (then More-menu and list refinements).

@@ -108,6 +108,8 @@
 
 | UI-D005.1l | On phone Edit fields show Bold/Italic/Heading/List plus More for remaining academic Markdown commands; desktop keeps full toolbar; all commands preserve the current field's valid caret/selection across toolbar/Menu focus and are keyboard/screen-reader accessible; opening More causes no write | APPROVED 2026-11-22; MOBILE TOOLBAR/IME/A11Y QA PENDING |
 
+| UI-D005.1m | Local-draft recovery and multi-device conflict dialogs use accessible per-field keyboard navigation across the five fixed Markdown fields; focus enters dialog, follows comparison field and returns to initiating editor/caret or safe fallback. Focus, tabbing, Cancel/Escape and Not Now never save, merge or delete drafts; version-guarded remote confirmation remains required | APPROVED 2026-11-22; DIALOG-FOCUS/SCREEN-READER QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
