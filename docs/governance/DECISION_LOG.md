@@ -34,6 +34,8 @@
 
 | UI-D005.2b | Progressive Key Quote source navigation: try precise Zotero annotation when supported, offer paper/PDF + recorded page fallback, then copy excerpt when unavailable; preserve global Key Quote/comment despite missing upstream source; never falsely infer app-launch success | APPROVED 2026-11-22; CROSS-DEVICE VALIDATION PENDING |
 
+| UI-D004.3 | Default Project Literature List sort uses the Project–Literature association creation time descending (newest linked to this Project first), distinct from Zotero import timestamp; all four sort criteria remain selectable | APPROVED 2026-11-22 |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

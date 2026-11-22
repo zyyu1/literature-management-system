@@ -21,10 +21,11 @@
 - **UI-D004.2 APPROVED:** Title, authors, publication year, global reading status and Actions menu on desktop; essential title/authors/year/status plus reachable actions on mobile; sort by year, title, reading status or date added to current Project.
 - **UI-D005.1b APPROVED:** Each of the five Markdown fields independently switches between Edit and Preview, defaulting to Edit; switching preserves source/draft and never bypasses safe saving.
 - **UI-D005.2b APPROVED:** Progressive Zotero source-open fallback: precise highlight if supported, then paper/PDF with page hint, then copy excerpt; retain Key Quote/comment even if source unavailable. External navigation success cannot be assumed.
-- **UI-D004.3 / UI-D005.1c / UI-D005.2c / UI-D006:** PENDING. Default sort/list errors, Markdown draft/conflict UI, highlight picker/source change details, and accessibility need further design.
+- **UI-D004.3 APPROVED:** Default Project Literature sorting is Date Added to the Current Project descending (newest project association first); other approved sort choices remain available.
+- **UI-D004.3a / UI-D005.1c / UI-D005.2c / UI-D006:** PENDING. Search/sort refinements and list error states, Markdown draft/conflict UI, highlight picker/source change details, and accessibility need further design.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D004.3 — Literature List default sorting and search behavior.
+**Next Design decision:** UI-D004.3a — Project Literature List search matching fields and search scope.

@@ -75,7 +75,7 @@ The user chose **Option B: Standard Management** on 2026-11-22.
 
 ### Still to detail after UI-D004.1
 
-Bibliographic fields and four sorting criteria are now approved in UI-D004.2. Search matching details, default sort, bulk action placement on mobile, confirmation text/undo policy, import loading/error/permission states and count display remain pending. No live Zotero integration has been tested by this design approval.
+Bibliographic fields and four sorting criteria are approved in UI-D004.2, and the default descending Project-added sort in UI-D004.3. Search matching details, bulk action placement on mobile, confirmation text/undo policy, import loading/error/permission states and count display remain pending. No live Zotero integration has been tested by this design approval.
 
 ### UI-D005 — Literature Detail main responsive layout: APPROVED
 
@@ -154,7 +154,7 @@ On 2026-11-22, the user selected **Option B: standard bibliography table/card de
 - **Sorting controls must include:** **Publication Year**, **Title**, **Reading Status**, and **Date Added to the Current Project**. Project-added time refers to the Project–Literature association timestamp, **not** Zotero's library-added or last-modified timestamp.
 - **Source of truth:** metadata fields originate in Zotero; reading status is the one global status across Projects. The Actions menu must respect UI-D004.1: removing an item from this Project only removes its association and never erases the paper, PDF, shared notes or quotes.
 - **No custom column editor** or extra mandatory columns for journal, DOI or citation metrics are approved under this standard-density choice.
-- **Still pending:** default sort, ascending/descending control and null-year behavior, detailed search matching, mobile bulk-selection affordances, confirmation and loading/error states; resolve these later in UI-D006 or implementation acceptance specification without inventing defaults.
+- **Default sort is approved in UI-D004.3:** current-Project association created time descending. Remaining: alternate sort direction/null-year behavior, search matching, mobile bulk-selection affordances and confirmation/loading/error states.
 
 ### UI-D005.1b — Per-field Markdown Edit / Preview: APPROVED
 
@@ -182,9 +182,20 @@ On 2026-11-22 the user selected **Option B: progressive fallback (precise highli
 
 **Unresolved UI-D005.2c details:** highlight picker ordering, loading/empty/permission/error states, upstream annotation change detection/relink behavior, and cross-device focus/return handling. Keep under a separate design refinement.
 
+### UI-D004.3 — Project Literature List default sort: APPROVED
+
+On 2026-11-22 the user chose **Option A: Date Added to the Current Project, newest first**.
+
+- On initial load of a Project's Literature List, the **default ordering** is the Project–Literature association's **date/time created descending** (most recently added to this Project first). This is distinct from Zotero library import time, Zotero metadata modification time and publication year.
+- All four previously approved sorting criteria remain available: **Date Added to this Project**, **Publication Year**, **Title** and **Global Reading Status**. A user may change sorting with the Sort control.
+- Date Added sorting concerns the **current Project**; the same canonical Zotero item can have different association timestamps in different Projects, without changing its global reading status or note.
+- Where item association times are equal, use a deterministic stable tie-breaker to avoid visible reordering across reloads; the exact tie-break rule remains an implementation/detail refinement.
+- Search matching fields, sort-direction controls for alternate keys, unavailable metadata, view preference persistence and import/batch loading/confirmation states are **not** implicitly approved by this default-sort choice. Track these under UI-D004.3a and UI-D006.
+- Approval applies to UX specification only; no feature implementation is authorized.
+
 ## Pending decisions
 
-- **UI-D004.3 (refinement):** Default ordering and sorting direction, search matching, import/batch confirmation and empty/loading/error states.
+- **UI-D004.3a (refinement):** Search matching fields, sort direction/secondary ordering, import/batch confirmations and empty/loading/error states.
 - **UI-D005.1c (refinement):** Markdown toolbar details, focus/caret restoration, safe export filename/content and offline-draft/conflict-resolution UI states.
 - **UI-D005.2c (refinement):** Highlight picker order, empty/loading/permission/error states, annotation change/relink handling, and cross-device focus behavior.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
@@ -201,4 +212,4 @@ On 2026-11-22 the user selected **Option B: progressive fallback (precise highli
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3, UI-D005.1c, UI-D005.2c and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3a, UI-D005.1c, UI-D005.2c and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
