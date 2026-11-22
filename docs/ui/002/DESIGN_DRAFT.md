@@ -241,9 +241,9 @@ On 2026-11-22 the user requested a distinct **Important Papers / 重点文献** 
 - **Project Literature hierarchy:** provide a distinct Important Papers view alongside All Papers. **UI-D004.3-R1a approves tab navigation**: show only one tab at a time, not an always-visible pinned section. All standard list/search/filter/sort/Add Papers/bulk features remain available.
 - **Mark/unmark:** allow a paper linked to the current Project to be marked **Important** and subsequently unmarked through the Project Literature UI. Do not conflate Important with any of the three global reading statuses.
 - **Scope approved by UI-D004.3-R1b:** Important is a **per-Project, per-paper association property** (e.g., isImportant on the Project–Literature link), not a global property of the canonical Zotero paper. A paper can be Important for Project A and not Project B; do not alter global statuses or notes.
-- **Normal ordering preserved:** default regular literature ordering remains descending by the date the paper was linked to the current Project (UI-D004.3). Moving or marking a paper Important must not rewrite its original Project-added timestamp.
+- **Both tab defaults approved:** All Papers sorts by time linked to the current Project descending (UI-D004.3); Important Papers sorts by the per-Project time marked Important descending (UI-D004.3-R1c). Marking Important never rewrites the Project-added timestamp.
 - **Retention/deletion:** unmarking Important never removes the Project–Literature link; unlinking the paper from one Project also removes that Project-specific Important designation, but never deletes global paper/status/notes/quotes. Unlinking from all Projects removes all their associations and associated Important designations, leaving global paper data intact.
-- **Tab layout approved in UI-D004.3-R1a:** All Papers contains all project links (including important papers); Important Papers contains the important subset. Remaining: important-tab sort, mark/unmark placement and mobile/empty-state refinements.
+- **Tab layout approved in UI-D004.3-R1a:** All Papers contains all project links (including important papers); Important Papers contains the important subset. Important-tab default sort is approved by UI-D004.3-R1c; mark/unmark placement and mobile/empty-state refinements remain.
 - **Baseline protection:** this addition does not alter Zotero metadata ownership, one global research note per canonical Zotero item, one global reading status, or UI-D004.3b-R1 scoped unlink safety. No code is authorized by this Design addition.
 
 ### UI-D004.3-R1a — Important Papers tab navigation: APPROVED
@@ -257,7 +257,7 @@ On 2026-11-22 the user selected **Option C: two switchable tabs, All Papers / Im
 - Standard Project-scoped search (Title, Authors, Year, DOI), reading-state filters and approved sort choices remain available in both tabs, working on the respective tab subset. Specific persistence of search/filter when switching tabs remains an implementation/UI detail to validate.
 - Empty Important Papers tab provides a clear call to action to mark a paper Important from All Papers; it is not equivalent to having no literature in the Project.
 - No separate always-visible Important section at the top of All Papers. No mandatory duplication of the same paper within a single rendered tab.
-- **Still open:** Important-tab default ordering, preference persistence, mobile tab accessibility, mark/unmark shortcut, and count badges. Track these separately without claiming user approved them through selecting the navigation style.
+- **Important-tab default ordering is approved in UI-D004.3-R1c.** Still open: preference persistence, mobile tab accessibility, mark/unmark shortcut, and count badges. Track these separately without claiming user approved them through selecting the navigation style.
 
 ### UI-D004.3-R1b — Important flag scoped to each Project: APPROVED
 
@@ -269,11 +269,23 @@ On 2026-11-22 the user selected **Option A: per-Project Important marking**, rat
 - **All Papers** remains a complete listing of all papers linked to this Project, Important or not, default ordered by newest **Project association** as approved in UI-D004.3.
 - **Association removal:** unlinking a paper from the current Project also removes that Project's Important marker; unlinking it from all Projects (UI-D004.3b-R1) removes all association-level Important markers, while retaining the canonical item, global reading state, Research Note, Key Quotes, and Zotero source.
 - **Project archiving/restore:** association-level Important markers are retained through archive/restore. Permanent Project deletion removes the Project and its associations (including markers) but never cascades to global paper/note data.
-- **Unresolved:** Important-tab internal default sort, precise mark/unmark placement, any bulk Important management, count badges and tab preference persistence remain separate UI refinement decisions.
+- **Important-tab default ordering is approved in UI-D004.3-R1c.** Precise mark/unmark placement, any bulk Important management, count badges and tab preference persistence remain separate refinements.
+
+### UI-D004.3-R1c — Important Papers newest-marked-first default order: APPROVED
+
+On 2026-11-22, the user chose **Option A: most recently marked Important first**.
+
+- **Important Papers:** sort by the time a paper was most recently marked Important **in the current Project**, descending. The most recently marked paper appears first.
+- Each Project–Literature association must record its **Important marked-at timestamp** (or equivalent stable ordering key), independently of Zotero metadata and the Project link creation time.
+- **All Papers** retains its existing default: time added to the current Project descending (UI-D004.3). Marking or unmarking Important does **not** change that timestamp or reorder All Papers.
+- A first-time Important mark sets the association's marked-at time. Unmarking removes the paper from Important Papers but keeps it in All Papers. Marking it again sets the new marked-at time, placing it among the most recently marked papers.
+- Marking in Project A does not change any Important marker or marked-at timestamp in Project B. The one global reading status, global Research Note and Key Quotes are unchanged.
+- The approved sorting menu remains available; alternate sort selection never changes the stored marked-at time. Equal timestamps should have a stable deterministic tie-break.
+- Open decisions: mark/unmark action placement, count badges, tab preference persistence and mobile access. These belong to UI-D004.3-R1d/UI-D006, not this sorting approval.
 
 ## Pending decisions
 
-- **UI-D004.3-R1c (refinement):** Important-tab default ordering and mark/unmark placement, tab preference/count details.
+- **UI-D004.3-R1d (refinement):** Important mark/unmark placement, count badges, per-tab sort preference, and mobile controls.
 - **UI-D004.3c (refinement):** Exact confirmation/error copy and result display, alternate sort directions, query-match details and mobile bulk-selection affordances.
 - **UI-D005.1c (refinement):** Markdown toolbar details, focus/caret restoration, safe export filename/content and offline-draft/conflict-resolution UI states.
 - **UI-D005.2c (refinement):** Highlight picker order, empty/loading/permission/error states, annotation change/relink handling, and cross-device focus behavior.
@@ -291,4 +303,4 @@ On 2026-11-22 the user selected **Option A: per-Project Important marking**, rat
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1c, UI-D004.3c, UI-D005.1c, UI-D005.2c and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1d, UI-D004.3c, UI-D005.1c, UI-D005.2c and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
