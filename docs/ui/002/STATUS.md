@@ -66,10 +66,11 @@
 - **UI-D004.3g APPROVED:** Phone batch confirmation uses a scrollable modal bottom sheet with operation/scope, full and hidden selection counts, expandable list of all selected papers, and easily reached safe-area-aware Cancel/Confirm controls. All-Project unlink still requires a stronger affirmative acknowledgment; no write on dismissal.
 - **UI-D004.3h APPROVED:** In Project Literature desktop rows and phone cards, subtly highlight only actual search-matched title/author/year/DOI text spans with readable accessible contrast; reuse existing search matching semantics, preserving result membership, tab counts, sorting and Zotero original metadata. No extra match-summary row.
 - **UI-D004.3i APPROVED:** Both desktop and phone show Sort by field plus explicit Ascending/Descending controls. All Papers and Important Papers independently remember field+direction during the current page session; on fresh open defaults remain newest Project link first and newest Important mark first, respectively. Sorting is view-only, never changes counts, metadata, selections or remote state.
-- **UI-D004.3-R1m / UI-D004.3j / UI-D005.1p / UI-D005.2k / UI-D006:** PENDING. Select-mode Important status/focus, mobile batch result placement/confirmation copy and responsive sort/search details, Markdown More and long-dialog layout, Relink failure fallback and cross-device UI QA.
+- **UI-D004.3j APPROVED:** Phone pre-batch Bottom Sheet remains open for Review → Processing → Results; same sheet shows verified Succeeded/Failed/Skipped counts, expandable failed reasons, distinct unknown/pending verification state and guarded Retry Failed only. No duplicate submits or repeat of succeeded items; unresolved results stay truthful and recoverable.
+- **UI-D004.3-R1m / UI-D004.3k / UI-D005.1p / UI-D005.2k / UI-D006:** PENDING. Select-mode Important status/focus, exact batch result copy/unknown-outcome close behavior and sort/search details, Markdown More/long dialog responsiveness, Relink fallback and cross-device QA.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D004.3j — Where to display mobile batch Succeeded/Failed/Skipped results and expandable failure details after confirmation.
+**Next Design decision:** UI-D004.3-R1m — How to show an in-flight Important star Saving/error state on phone cards while Select mode hides the star and Actions menu.

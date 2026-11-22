@@ -122,6 +122,8 @@
 
 | UI-D004.3i | Desktop and phone expose sort field plus explicit Ascending/Descending switch; All and Important tabs remember independent field/direction only within current page session, with existing fresh defaults (newest Project link / newest Important mark) unchanged; no mutation of Zotero data, tab totals, selected papers or backend state | APPROVED 2026-11-23; RESPONSIVE SORT/FILTER QA PENDING |
 
+| UI-D004.3j | Retain original phone modal Bottom Sheet through Review → Processing → Results, showing verified Succeeded/Failed/Skipped totals, expandable per-paper failure reasons, separate unknown/pending verification and safe Retry Failed only after revalidation; never repeat successes or blindly retry unknown results | APPROVED 2026-11-23; BATCH PROCESSING/ACK-LOSS/A11Y QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
