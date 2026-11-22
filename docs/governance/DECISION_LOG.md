@@ -66,6 +66,8 @@
 
 | UI-D004.3c | Phone literature uses visible Select entry to a dedicated checkbox multi-select mode with selected-count bottom batch bar and exit action; bar supports only approved global reading-status and scoped Project-unlink operations with their confirmations | APPROVED 2026-11-22; MOBILE SELECTION PERSISTENCE/A11Y DETAILS PENDING |
 
+| UI-D005.1d | Standard academic Markdown source-edit toolbar for the five independent note fields: headings, bold, italic, lists, blockquotes, code, links and math insertion; safe preview, autosave and Typora-compatible export preserved; no rich-text editor or image upload | APPROVED 2026-11-22; RENDERING/CARET VALIDATION PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
