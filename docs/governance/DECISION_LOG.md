@@ -28,6 +28,8 @@
 | UI-D005.1a | Research Notes uses five independent Markdown sections with common formatting toolbar, preview and Typora-compatible Markdown export, subject to UI-D005.1 safe saving and conflict handling | APPROVED 2026-11-22 |
 | UI-D005.2a | Zotero highlight picker is right-side desktop panel and full-screen mobile picker, supporting on-demand search, multi-select, excerpt preview and linked-state marking; source jump remains technically unverified | APPROVED 2026-11-22 |
 
+| UI-D004.2 | Standard Literature List: title, authors, publication year, global reading status and Actions menu; mobile essentials; sort by year, title, status or date linked to current Project (not Zotero added date) | APPROVED 2026-11-22 |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

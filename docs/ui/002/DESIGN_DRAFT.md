@@ -58,7 +58,7 @@ The user selected **Option B: responsive table on desktop / compact paper cards 
 - **Tablet:** adapt table density or switch to compact cards according to available width and legibility; the breakpoint and exact responsive rules remain to be designed.
 - Table and mobile cards display the same underlying Project-to-literature associations and globally shared reading statuses. A status change in one Project must be reflected in every Project containing the same paper.
 - Previous sample papers, years, authors and reading states are illustrative UI fixtures, not actual Zotero records.
-- Search, reading-state filtering, sorting, one-off Zotero import, multi-select and bounded batch management are approved in **UI-D004.1**. Table columns, exact control details and mobile action placement remain to be refined.
+- Search, reading-state filtering, sorting, one-off Zotero import, multi-select and bounded batch management are approved in **UI-D004.1**. Table column fields and sorting are approved in UI-D004.2; default order, interaction-state details and precise mobile action placement remain to be refined.
 
 ### UI-D004.1 — Project Literature List standard management: APPROVED
 
@@ -75,7 +75,7 @@ The user chose **Option B: Standard Management** on 2026-11-22.
 
 ### Still to detail after UI-D004.1
 
-Exact bibliographic columns/card fields, search matching, sort menu entries, bulk action placement on mobile, confirmation text/undo policy, import loading/error/permission states and count display are design refinements that remain pending. No live Zotero integration has been tested by this design approval.
+Bibliographic fields and four sorting criteria are now approved in UI-D004.2. Search matching details, default sort, bulk action placement on mobile, confirmation text/undo policy, import loading/error/permission states and count display remain pending. No live Zotero integration has been tested by this design approval.
 
 ### UI-D005 — Literature Detail main responsive layout: APPROVED
 
@@ -144,9 +144,21 @@ The user selected **Option B: desktop right-side panel, mobile full-screen picke
 
 **Details still pending:** sort order for highlights, empty/loading/permission/error states, what happens if a linked Zotero annotation is deleted or edited upstream, exact source-link fallback copy, and keyboard/focus restoration and mobile safe-area behavior. Track these under UI-D005.2b/UI-D006, not as assumed approved behavior.
 
+### UI-D004.2 — Literature fields and sorting: APPROVED
+
+On 2026-11-22, the user selected **Option B: standard bibliography table/card density and four sorting criteria**.
+
+- **Desktop table:** display **paper Title**, **Authors**, **Publication Year**, **global Reading Status** and a per-paper **Actions menu**. Keep UI-D004.1 selection checkboxes/actions available without sacrificing title readability.
+- **Mobile compact cards:** display the essential paper information (title, author summary, year and global reading status) in a touch-friendly compact layout, with access to the Actions menu and selection/batch operations. Do not force horizontal scrolling to expose normal actions.
+- **Tablet:** adapt the desktop table or mobile card density as dictated by usable width (UI-D004), while keeping the same data identities and permissions.
+- **Sorting controls must include:** **Publication Year**, **Title**, **Reading Status**, and **Date Added to the Current Project**. Project-added time refers to the Project–Literature association timestamp, **not** Zotero's library-added or last-modified timestamp.
+- **Source of truth:** metadata fields originate in Zotero; reading status is the one global status across Projects. The Actions menu must respect UI-D004.1: removing an item from this Project only removes its association and never erases the paper, PDF, shared notes or quotes.
+- **No custom column editor** or extra mandatory columns for journal, DOI or citation metrics are approved under this standard-density choice.
+- **Still pending:** default sort, ascending/descending control and null-year behavior, detailed search matching, mobile bulk-selection affordances, confirmation and loading/error states; resolve these later in UI-D006 or implementation acceptance specification without inventing defaults.
+
 ## Pending decisions
 
-- **UI-D004.2 (refinement):** Exact literature table/card fields, search/sort defaults, interaction states and import/batch confirmation details.
+- **UI-D004.3 (refinement):** Default ordering and sorting direction, search matching, import/batch confirmation and empty/loading/error states.
 - **UI-D005.1b (refinement):** Specific Markdown toolbar/preview presentation, safe export details, offline-draft and conflict-resolution interaction states.
 - **UI-D005.2b (refinement):** Highlight sort/order, picker empty/loading/error states, source/deep-link fallback wording and changed/removed annotation behavior.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
@@ -163,4 +175,4 @@ The user selected **Option B: desktop right-side panel, mobile full-screen picke
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.2, UI-D005.1b, UI-D005.2b and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3, UI-D005.1b, UI-D005.2b and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
