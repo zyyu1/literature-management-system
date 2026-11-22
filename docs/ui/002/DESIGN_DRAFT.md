@@ -86,13 +86,26 @@ The user selected **Option B: two columns on desktop / a single column on mobile
 - Literature title, authors and other Zotero metadata remain **source-attributed**; do not imply the website edits original Zotero metadata.
 - Show an **Open in Zotero** entry point for the same canonical paper; precise deep-link support, annotation-focused navigation and fallbacks require device-level verification and later interaction design.
 - Research Note fields remain globally unique per canonical Zotero item (D001), including research question, arguments/content, theories/methods, innovations/contributions, and limitations. Key Quotes are source-linked excerpts of the same global paper rather than copies per Project.
-- **Not yet settled:** rich text vs Markdown note editor, explicit save vs autosave, draft/error/conflict states, quote linking/sorting, mobile stacking order, edit affordances and exact responsive breakpoints.
+- **Still to refine:** rich text vs Markdown note editor; concrete draft/error/conflict UI details, quote linking/sorting, mobile stacking order, edit affordances and exact responsive breakpoints. Autosave + Save Now was approved separately in UI-D005.1.
 - This is the **layout decision only**; do not expand its scope into unapproved UI-D005.1 / UI-D006 save behavior or implement code.
+
+### UI-D005.1 — Research Notes saving: APPROVED
+
+The user selected **Option C: Autosave + Save Now** on 2026-11-22. This decision governs the **saving experience**; the note editor content format (plain text, Markdown or rich text) remains to be designed.
+
+- While editing the five global Research Note fields, offer **automatic saving** after an appropriate pause in input, as well as an explicit **Save Now** action. The precise debounce duration is an implementation detail subject to QA and a practical UX review.
+- Display **unambiguous save status**: at minimum `Unsaved changes`, `Saving`, `Saved`, `Offline/local draft`, `Save failed` and `Conflict` when relevant. Do not claim `Saved` from a local cache or optimistic UI alone: only a confirmed remote write may show it.
+- **Network interruption:** protect edits as recoverable drafts rather than silently dropping text. Clearly disclose if a draft is only local or has not yet reached the remote store. The exact local persistence mechanism, encryption/privacy behavior, device/browser limits and recovery workflow require technical security review; do not promise cross-device availability of an unsynced draft.
+- **Reconnection:** safely retry saves after network recovery only with concurrency checks, or require review when a conflict is detected. Never silently overwrite a newer edit from another device.
+- **Multi-device safety:** detect stale revisions/ETag or equivalent version conflicts, block destructive overwrite, and offer a visible path to preserve and resolve both versions. Do not assume Nutstore WebDAV supports a particular conditional-write mechanism until **POC-001** demonstrates it.
+- **Save Now:** requests the same safe write pathway; it must not bypass revision checking or force the user into overwriting another device's changes.
+- One canonical Research Note is shared across Projects as required by D001; saving from one Project must not create separate Project-specific note copies.
+- Saved-state UI, conflict examples and error handling require independent QA after implementation. Approval of this UI behavior does **not** prove WebDAV feasibility or grant any live provider credentials.
 
 ## Pending decisions
 
 - **UI-D004.2 (refinement):** Exact literature table/card fields, search/sort defaults, interaction states and import/batch confirmation details.
-- **UI-D005.1:** Structured Research Notes editing and save behavior.
+- **UI-D005.1a (refinement):** Notes input format and text-editor controls (plain text / Markdown / rich text); technical offline-draft and conflict-resolution UI details.
 - **UI-D005.2:** Key Quotes source linking, Zotero deep-link and metadata interactions.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
@@ -108,4 +121,4 @@ The user selected **Option B: two columns on desktop / a single column on mobile
 
 ## Gate
 
-`UI-D001` through `UI-D005` (including UI-D004.1, and UI-D005 layout only) are approved so far; UI-D004.2, UI-D005.1, UI-D005.2 and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.1` (including UI-D004.1) are approved so far; UI-D004.2, UI-D005.1a, UI-D005.2 and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
