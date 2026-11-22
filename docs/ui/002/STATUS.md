@@ -1,6 +1,6 @@
 # Module 002 — UI and Interaction Design Status
 
-**Date:** 2026-11-22 (Europe/Berlin)  
+**Date:** 2026-11-23 (Europe/Berlin)  
 **Owner:** Design Window  
 **Stage:** DESIGN IN PROGRESS / NOT FROZEN  
 **Code implementation:** NOT AUTHORIZED / NOT STARTED  
@@ -75,10 +75,11 @@
 - **UI-D005.1p APPROVED:** Option B: choose Markdown More popover or keyboard-aware compact panel from actual visible viewport fit; retain complete tools, selection/IME, safe-area visibility and optional correct shortcut hints. On phone, long conflict/local-draft recovery uses a full-screen viewport-constrained dialog with independently scrollable five-field comparisons, reachable controls, guarded draft/concurrency behavior and safe focus return.
 - **UI-D005.2k APPROVED:** Option B: mobile viewport-aware full-screen Relink Source dialog presents separate existing/proposed source comparisons and scrollable long content. Definite failures, unknown acknowledgment and stale remote-source conflicts use distinct in-place messages and guarded review; uncertain outcomes retain a same-Key-Quote recovery entry after safe dismissal. Preserve quote/comment/last confirmed source/provenance, provide manual Zotero precise-highlight→paper/PDF/page→copy fallback, and restore accessible focus correctly. No blind retry or unsupported persistence/deep-link claims.
 - **UI-D006 APPROVED (ACCEPTANCE DESIGN ONLY):** Option B four-layer L1 layout/accessibility, L2 complete workflows, L3 safe failures/recovery, L4 cross-device authority and consistency with representative Windows/macOS desktop, iPhone/Android phone and iPad/Android tablet checks. P0/P1 block full acceptance; P2 is trackable with evidence. Device tests, POC-001, independent QA, design-consistency audit and freeze are NOT completed or implied.
-- **Module 002 consistency audit / final design freeze:** PENDING; UI decisions now have a proposed acceptance plan, not a frozen implementation specification.
+- **UI-FREEZE-PREP-01 APPROVED (DOCS ONLY):** 67 authoritative [DESIGN_DRAFT.md](DESIGN_DRAFT.md) subsections normalized, duplicates and broken Markdown repaired, [Consistency Audit](CONSISTENCY_AUDIT.md) and [Acceptance Traceability](ACCEPTANCE_TRACEABILITY.md) published. No functionality changed; scenarios NOT RUN.
+- **UI-FREEZE-01:** PENDING independent design-freeze disposition; no `DESIGN_APPROVED.md` or implementation authorization yet.
 
-See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
+See [DESIGN_DRAFT.md](DESIGN_DRAFT.md), [CONSISTENCY_AUDIT.md](CONSISTENCY_AUDIT.md), and [ACCEPTANCE_TRACEABILITY.md](ACCEPTANCE_TRACEABILITY.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** Module 002 consistency-audit disposition — resolve specification contradictions, historic superseded wording and freeze prerequisites before any separate design-freeze authorization.
+**Next Design decision:** UI-FREEZE-01 — Separate decision whether to freeze canonical Module 002 into `DESIGN_APPROVED.md`; POC-001 and runtime QA remain gated.

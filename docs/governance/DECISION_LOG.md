@@ -140,6 +140,8 @@
 
 | UI-D006 | Option B: approve a four-layer UI acceptance plan (L1 responsive/accessibility, L2 end-to-end operations, L3 failures/data recovery, L4 cross-device shared/global-versus-Project state and Zotero integration), representative desktop/tablet/iPhone/Android device and assistive-technology matrix, risk-based reproducible scenarios and P0 critical/P1 blocking/P2 trackable defect triage. Separate design criteria from independently executed QA and POC-001 proof; no code or automatic freeze authorized | APPROVED 2026-11-23; DESIGN CONSISTENCY AUDIT / POC / INDEPENDENT RUNTIME QA PENDING |
 
+| UI-FREEZE-PREP-01 | Option B: editorial normalization of Module 002 to one canonical section per 67 approved UI-D IDs; repair duplicated/split passages, preserve Git provenance and approved outcomes, update Handoff Index and add full L1–L4 decision traceability plus consistency audit. No application code, runtime QA or design freeze authorized | APPROVED 2026-11-23; UI-FREEZE-01 SEPARATE DECISION PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
