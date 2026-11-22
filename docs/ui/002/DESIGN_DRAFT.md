@@ -86,7 +86,7 @@ The user selected **Option B: two columns on desktop / a single column on mobile
 - Literature title, authors and other Zotero metadata remain **source-attributed**; do not imply the website edits original Zotero metadata.
 - Show an **Open in Zotero** entry point for the same canonical paper; precise deep-link support, annotation-focused navigation and fallbacks require device-level verification and later interaction design.
 - Research Note fields remain globally unique per canonical Zotero item (D001), including research question, arguments/content, theories/methods, innovations/contributions, and limitations. Key Quotes are source-linked excerpts of the same global paper rather than copies per Project.
-- **Still to refine:** Markdown editor toolbar/preview/export refinements; concrete draft/error/conflict UI details, quote-linking refinements/sorting, mobile stacking order, edit affordances and exact responsive breakpoints. Autosave + Save Now was approved separately in UI-D005.1.
+- **Still to refine:** Markdown toolbar/export refinements and per-field preview focus behavior; concrete draft/error/conflict UI details, quote-linking refinements/sorting, mobile stacking order, edit affordances and exact responsive breakpoints. Autosave + Save Now was approved separately in UI-D005.1.
 - This is the **layout decision only**; do not expand its scope into unapproved UI-D005.1 / UI-D006 save behavior or implement code.
 
 ### UI-D005.1 — Research Notes saving: APPROVED
@@ -156,10 +156,22 @@ On 2026-11-22, the user selected **Option B: standard bibliography table/card de
 - **No custom column editor** or extra mandatory columns for journal, DOI or citation metrics are approved under this standard-density choice.
 - **Still pending:** default sort, ascending/descending control and null-year behavior, detailed search matching, mobile bulk-selection affordances, confirmation and loading/error states; resolve these later in UI-D006 or implementation acceptance specification without inventing defaults.
 
+### UI-D005.1b — Per-field Markdown Edit / Preview: APPROVED
+
+On 2026-11-22, the user chose **Option A: independent Edit / Preview toggle for each of the five research note fields**.
+
+- Each of the five existing Markdown sections has its own **Edit** and **Preview** modes. Switching one field must not change the mode or contents of the other four fields.
+- **Edit** is the default mode; the field's Markdown toolbar remains usable for common formatting in Edit. **Preview** renders the field's current Markdown safely and read-only, without altering or replacing its underlying source text.
+- Returning to Edit restores the same source text and current draft, including text that has not yet been remotely saved; mode switching must not discard or silently submit edits.
+- Existing **autosave + Save Now** and the remote-acknowledged Saved rule from UI-D005.1 continue regardless of Edit/Preview mode. A preview render or toggle is not equivalent to confirmed persistence.
+- Full-note Markdown export (UI-D005.1a) remains supported and must export the five labeled fields without mutating them.
+- The switch must be keyboard accessible and discoverable on desktop, tablet and phone.
+- Exact toolbar design, focus/caret restoration, local draft persistence, conflict resolution and export filename are **still pending implementation/UX refinements**. UI approval does not verify Nutstore WebDAV feasibility or authorize code.
+
 ## Pending decisions
 
 - **UI-D004.3 (refinement):** Default ordering and sorting direction, search matching, import/batch confirmation and empty/loading/error states.
-- **UI-D005.1b (refinement):** Specific Markdown toolbar/preview presentation, safe export details, offline-draft and conflict-resolution interaction states.
+- **UI-D005.1c (refinement):** Markdown toolbar details, focus/caret restoration, safe export filename/content and offline-draft/conflict-resolution UI states.
 - **UI-D005.2b (refinement):** Highlight sort/order, picker empty/loading/error states, source/deep-link fallback wording and changed/removed annotation behavior.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
@@ -175,4 +187,4 @@ On 2026-11-22, the user selected **Option B: standard bibliography table/card de
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3, UI-D005.1b, UI-D005.2b and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3, UI-D005.1c, UI-D005.2b and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.

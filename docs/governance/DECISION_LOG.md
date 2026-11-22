@@ -30,6 +30,8 @@
 
 | UI-D004.2 | Standard Literature List: title, authors, publication year, global reading status and Actions menu; mobile essentials; sort by year, title, status or date linked to current Project (not Zotero added date) | APPROVED 2026-11-22 |
 
+| UI-D005.1b | Each of five Markdown note fields independently toggles Edit/Preview (default Edit), safely renders source without mutation and preserves local edits; autosave/Save Now and remote Saved acknowledgement stay mandatory | APPROVED 2026-11-22 |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
