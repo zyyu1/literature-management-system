@@ -32,6 +32,8 @@
 
 | UI-D005.1b | Each of five Markdown note fields independently toggles Edit/Preview (default Edit), safely renders source without mutation and preserves local edits; autosave/Save Now and remote Saved acknowledgement stay mandatory | APPROVED 2026-11-22 |
 
+| UI-D005.2b | Progressive Key Quote source navigation: try precise Zotero annotation when supported, offer paper/PDF + recorded page fallback, then copy excerpt when unavailable; preserve global Key Quote/comment despite missing upstream source; never falsely infer app-launch success | APPROVED 2026-11-22; CROSS-DEVICE VALIDATION PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

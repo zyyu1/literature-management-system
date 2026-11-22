@@ -142,7 +142,7 @@ The user selected **Option B: desktop right-side panel, mobile full-screen picke
 - **No full-library sync:** keep the prior UI-D005.2 rule: select highlights deliberately, no auto-import-all, no background listener or edit of original Zotero annotations.
 - **Technical qualifications:** exact annotation retrieval and source-link navigation require separate Zotero API/mobile-deep-link verification; if the API or a device does not support precise source jump, provide an honest fallback rather than asserting an unsupported action.
 
-**Details still pending:** sort order for highlights, empty/loading/permission/error states, what happens if a linked Zotero annotation is deleted or edited upstream, exact source-link fallback copy, and keyboard/focus restoration and mobile safe-area behavior. Track these under UI-D005.2b/UI-D006, not as assumed approved behavior.
+**Details still pending:** sort order for highlights, empty/loading/permission/error states, detailed detection/relink policy for changed Zotero annotations, exact fallback copy, and keyboard/focus restoration and mobile safe-area behavior. The progressive source-open fallback is approved as UI-D005.2b; track picker sorting, source changes and accessibility under UI-D005.2c/UI-D006.
 
 ### UI-D004.2 — Literature fields and sorting: APPROVED
 
@@ -168,11 +168,25 @@ On 2026-11-22, the user chose **Option A: independent Edit / Preview toggle for 
 - The switch must be keyboard accessible and discoverable on desktop, tablet and phone.
 - Exact toolbar design, focus/caret restoration, local draft persistence, conflict resolution and export filename are **still pending implementation/UX refinements**. UI approval does not verify Nutstore WebDAV feasibility or authorize code.
 
+### UI-D005.2b — Key Quote source-opening fallback: APPROVED
+
+On 2026-11-22 the user selected **Option B: progressive fallback (precise highlight → paper/PDF with page hint → copy excerpt), retaining the Key Quote even if the source is unavailable**.
+
+- The Key Quote **Open Source** affordance prefers a validated device-supported link to the original Zotero annotation/highlight **when supported**. Do not imply every desktop/tablet/phone platform can navigate to an exact highlight.
+- If a precise destination is unavailable, provide a usable **Open Paper / Open in Zotero** alternative (and original PDF if accessible through the supported Zotero application) with the recorded page number where present, so the user can locate it manually. Do not host or duplicate the Zotero PDF as a workaround.
+- If even the original paper/attachment cannot be reached, keep the stored Key Quote, original excerpt, available citation/page metadata, and independent personal comment visible, provide **Copy Excerpt**, and show a truthful **Source unavailable / link not supported** message.
+- If the upstream Zotero annotation is removed or inaccessible, **never cascade-delete or silently clear** the local Key Quote. Mark its source-link availability and allow normal review and local management of the excerpt/comment. If Zotero metadata changes, do not claim the source highlight is still current without checking.
+- **Crucial browser constraint:** initiating an external Zotero/app deep link does not prove the target app opened or focused the correct annotation. Do not silently auto-launch a chain of fallback apps/URLs in response to guessed success/failure. Present clear **user-selectable fallback actions** when success cannot be observed reliably.
+- Preserve the previously approved UI-D005.2 rule: the Zotero annotation is never modified by website Key Quote editing/removal; no automatic import of all highlights.
+- Exact URL patterns, supported device combinations, annotation retrieval/error codes, actual link capability, and fallback phrasing require Zotero integration and multi-device verification; this UI choice is **not** evidence of that compatibility.
+
+**Unresolved UI-D005.2c details:** highlight picker ordering, loading/empty/permission/error states, upstream annotation change detection/relink behavior, and cross-device focus/return handling. Keep under a separate design refinement.
+
 ## Pending decisions
 
 - **UI-D004.3 (refinement):** Default ordering and sorting direction, search matching, import/batch confirmation and empty/loading/error states.
 - **UI-D005.1c (refinement):** Markdown toolbar details, focus/caret restoration, safe export filename/content and offline-draft/conflict-resolution UI states.
-- **UI-D005.2b (refinement):** Highlight sort/order, picker empty/loading/error states, source/deep-link fallback wording and changed/removed annotation behavior.
+- **UI-D005.2c (refinement):** Highlight picker order, empty/loading/permission/error states, annotation change/relink handling, and cross-device focus behavior.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
 
@@ -187,4 +201,4 @@ On 2026-11-22, the user chose **Option A: independent Edit / Preview toggle for 
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3, UI-D005.1c, UI-D005.2b and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3, UI-D005.1c, UI-D005.2c and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
