@@ -1,9 +1,18 @@
 # Module 002 — UI and Interaction Design Status
 
-**Owner:** Design window. **State:** DESIGN NOT STARTED / NOT FROZEN. **Coding:** NOT AUTHORIZED.
+**Date:** 2026-11-22 (Europe/Berlin)  
+**Owner:** Design Window  
+**Stage:** DESIGN IN PROGRESS / NOT FROZEN  
+**Code implementation:** NOT AUTHORIZED / NOT STARTED  
+**Independent QA:** NOT STARTED
 
-Planned surfaces: (1) Projects home, (2) Project literature list with three reading states and Zotero import, (3) Literature detail with manually authored research review fields and Zotero-linked quotes. Design responsive desktop/tablet/mobile navigation and current-device Zotero PDF launch.
+## Design decisions
 
-Must preserve global note/status identity across Projects and Personal Workspace's read-only API boundary. Resolve empty/error/loading states, editing and concurrent-write conflict UX, keyboard and mobile access.
+- **UI-D001 APPROVED:** Projects Home uses Cards / List switchable hybrid, cards as default and responsive single-column mobile presentation.
+- **UI-D002 onward:** NOT YET DECIDED. Project lifecycle, detailed fields/actions, literature list, notes layout, saving and accessibility need design review.
 
-Code implementation requires separately frozen approved design and explicit start authorization.
+See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
+
+**BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
+
+**Next Design decision:** UI-D002 — Project create/edit/archive/delete interactions.

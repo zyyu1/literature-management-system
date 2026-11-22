@@ -15,7 +15,8 @@
 | D007 | Lightweight standalone web site; second Nutstore account for JSON/Markdown notes behind secure API; MVP no PostgreSQL | CONDITIONALLY APPROVED, SUBJECT TO POC-001 |
 | OSS | Review Notero (MIT), Better Notes (AGPL), PaperPilot (MIT) for selective reuse | REFERENCE STRATEGY APPROVED; CODE COPYING NOT AUTHORIZED |
 | D007-A | Hosting/provider, domain, authentication method | UNDECIDED |
-| UI-002 | Detailed desktop/mobile UI interaction design | NOT FROZEN |
+| UI-002 | Detailed desktop/mobile UI interaction design | IN DESIGN; NOT FROZEN |
+| UI-D001 | Projects landing page uses switchable Cards / List layout; default cards; mobile single-column responsive layout | APPROVED 2026-11-22 |
 
 ## Guardrails
 
