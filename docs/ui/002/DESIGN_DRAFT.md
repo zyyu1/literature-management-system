@@ -381,7 +381,7 @@ On 2026-11-22 the user selected **Option B: allow the user to manually choose a 
 - **Fallback and devices:** absent a valid re-link, continue displaying the stored quote, comment, old provenance, copy and paper/page fallback per UI-D005.2b/UI-D005.2d. Use the PDF-grouped picker from UI-D005.2f and preserve desktop/mobile accessibility.
 - **Implementation feasibility:** exact annotation key availability, source-history storage, duplicate detection, version-safe persistence and permissions require validation; this approval is design-only and does not establish Zotero API or WebDAV support.
 
-**Remaining UI-D005.2h/UI-D006 detail refinements:** specific re-link confirmation copy, how to display previous-source history, ambiguous source-version messaging, focus restoration and cross-device error states; no automatic re-link is approved.
+**UI-D005.2h approves the current-source summary and expandable chronological provenance timeline, with reliably known metadata and honest unknowns.** Exact re-link confirmation copy, ambiguous source-version messaging, focus restoration and cross-device error states remain UI-D005.2i/UI-D006; no automatic re-link is approved.
 
 ### UI-D004.3-R1e — Tab counts and session-local independent sort preferences: APPROVED
 
@@ -1061,12 +1061,27 @@ On 2026-11-22 the user selected **Option A: when entering mobile Select mode, hi
 
 **Still pending (UI-D004.3-R1l/UI-D006):** exact focus/status messaging when switching mode during a pending Important write, whether other Actions controls remain available during Select mode, accessibility detail and responsive sizing. Other UI decisions remain pending separately.
 
+### UI-D005.2h — Expandable chronological Key Quote Source History with honest provenance: APPROVED
+
+On 2026-11-22 the user selected **Option B: show the Key Quote's active source by default; expand Source History to view chronological records of each explicitly confirmed manual re-link, including original PDF attachment, page, Zotero highlight identifier and reliably known operation time; mark unknown details as unknown**.
+
+- **Default view:** each saved Key Quote displays a concise **Current Source** summary when its source is known, including original Zotero PDF attachment identity/name, page or location and annotation/highlight identifier where available. Distinguish current linked source from the Key Quote's immutable saved excerpt and personal comment, which are **not live mirrors** of a Zotero highlight.
+- **Expandable timeline:** an accessible **Source History** disclosure expands an **ordered timeline** of original source and subsequent confirmed **manual Relink Source** transitions. Clearly distinguish **Original Source**, **Previous Source(s)** and **Current Source** so a user can reconstruct the relationship without implying that a replacement highlight was the initial research source. Show source attachment, page/locator, Zotero annotation/highlight ID and reliable change time when available. Timeline order must come from verified event ordering; do not fabricate dates or exact ordering where only partial provenance exists.
+- **Truthful unknowns:** missing PDF names, page positions, annotation keys, source status, event times or source versions are labeled **Unknown**, **Not recorded** or **Not verified** as appropriate. A current source that cannot be fetched because of offline/network/permission error is **Unavailable / cannot verify**, not automatically **Deleted**. Never synthesize metadata, imply the old Zotero annotation still exists or present locally cached data as freshly confirmed.
+- **Re-link semantics unchanged:** Source History records actual user-confirmed old-to-new source association updates under UI-D005.2g, retaining old provenance non-destructively. There is **no automatic re-link**, no similarity-based silent correction and no editing of Zotero source PDFs/highlights. The existing Key Quote excerpt and personal comments remain unchanged by a source re-link; user-reviewed source-text reconciliation (UI-D005.2e) is a separate explicit action.
+- **Safe persistence/concurrency:** append a verified history transition only when its new active source pointer is successfully remote-persisted with version/concurrency guard. Pending/failed/unknown saves do not appear as completed historical transitions; surface uncertain state without erasing the last confirmed history. Do not delete earlier provenance on later re-links or when the original annotation is missing.
+- **Privacy and display:** show historical source identifiers only as needed to disambiguate scholarly provenance; do not expose access tokens, WebDAV secrets, local filesystem paths or raw sensitive diagnostics. Expanded history can remain within the existing paper's Key Quotes section, without introducing a separate page, background import or unsupported source manager.
+- **Responsive and accessible:** current source and Source History remain readable on desktop and narrow phone screens; disclosure includes expanded/collapsed semantics, chronological labels and keyboard/screen-reader support. Exact confirmation wording, uncertain source-version warnings, focus restoration, long-record overflow and source deep-link fallback remain UI-D005.2i/UI-D006 refinements.
+- **QA/POC gate:** test zero/one/several re-links, duplicated or missing event timestamps, multiple PDFs, missing original highlight, disconnected backend, conflict/ack loss, very long quote/source IDs and mobile/assistive technology. The feasibility of durable provenance storage remains subject to backend/POC-001 validation; UI design approval does not certify it.
+
+**Still pending (UI-D005.2i/UI-D006):** exact manual re-link confirmation copy, warning when Zotero annotation state is unknown/changed, keyboard and phone focus after expanding history or confirmation, and source-opening fallback error messaging.
+
 ## Pending decisions
 
 - **UI-D004.3-R1l (refinement):** Important star save feedback/focus while switching mobile modes; other Actions availability in Select mode and responsive a11y details.
 - **UI-D004.3g (refinement):** Exact list confirmation/error copy and responsive placement; alternate sort directions, search-match highlighting and accessible result/focus details.
 - **UI-D005.1l (refinement):** Markdown toolbar shortcuts and mobile overflow, accessible note-conflict/recovery focus transitions.
-- **UI-D005.2h (refinement):** Re-link confirmation copy, source-history display, uncertain source-version messaging and cross-device focus.
+- **UI-D005.2i (refinement):** Exact Relink Source confirmation copy, uncertain original/highlight version warnings, focus restoration and source-open fallback.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
 
@@ -1081,4 +1096,4 @@ On 2026-11-22 the user selected **Option A: when entering mobile Select mode, hi
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1l, UI-D004.3g, UI-D005.1l, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1l, UI-D004.3g, UI-D005.1l, UI-D005.2i and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.

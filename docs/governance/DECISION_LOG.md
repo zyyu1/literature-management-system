@@ -100,6 +100,8 @@
 
 | UI-D004.3-R1k | On phone paper cards, entering Select mode hides the top-right Important star shortcut and presents the selection checkbox there; exit restores the current confirmed per-Project star. Checkbox only changes temporary Project selection, no accidental Important toggle; in-flight write states remain protected | APPROVED 2026-11-22; PHONE MODE SWITCH/A11Y QA PENDING |
 
+| UI-D005.2h | Show Current Source for each Key Quote and expandable chronological Source History with original/previous/current Zotero PDF, page and highlight identifiers and reliable re-link timestamps; explicitly mark missing/unverified source metadata, preserve prior provenance and saved quote/comments, no automatic re-link | APPROVED 2026-11-22; PROVENANCE STORAGE/SOURCE-VERSION QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
