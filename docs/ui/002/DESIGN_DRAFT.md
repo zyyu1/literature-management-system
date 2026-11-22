@@ -58,11 +58,28 @@ The user selected **Option B: responsive table on desktop / compact paper cards 
 - **Tablet:** adapt table density or switch to compact cards according to available width and legibility; the breakpoint and exact responsive rules remain to be designed.
 - Table and mobile cards display the same underlying Project-to-literature associations and globally shared reading statuses. A status change in one Project must be reflected in every Project containing the same paper.
 - Previous sample papers, years, authors and reading states are illustrative UI fixtures, not actual Zotero records.
-- Search, filtering, sorting, selection/bulk operations, Zotero import interaction, table columns and mobile action placement are **still pending** as **UI-D004.1**. The user's approval is for layout only.
+- Search, reading-state filtering, sorting, one-off Zotero import, multi-select and bounded batch management are approved in **UI-D004.1**. Table columns, exact control details and mobile action placement remain to be refined.
+
+### UI-D004.1 — Project Literature List standard management: APPROVED
+
+The user chose **Option B: Standard Management** on 2026-11-22.
+
+- **Search:** search within the current Project's linked literature.
+- **Filter:** filter by the three approved global reading states: To Read / Reading / Read, with an All view.
+- **Sort:** provide sorting control; the exact sort keys and default ordering remain to be specified.
+- **Add Papers via Zotero:** (1) search the user's Zotero library and select one or multiple paper items; (2) select a Zotero Collection for a **one-time** batch import. Re-importing an existing Zotero item does not create a duplicate global literature identity or duplicate Project association. No continuous Collection-to-Project synchronization.
+- **Multi-select:** select multiple literature rows/cards to operate on a batch within the current Project.
+- **Bulk change reading state:** update the *single global* reading status for the selected canonical papers, and make the scope clear to the user: the changed states will appear in **all** Projects containing those papers, not just the current Project.
+- **Bulk remove from Project:** remove only the selected Project–Literature associations in the current Project. **Do not delete** the canonical Zotero items, Zotero PDF/annotations, globally shared notes, quotes, or reading statuses. Do not imply this operation is a global deletion.
+- **No advanced bulk features in this approved scope:** do not infer bulk links to other Projects, bulk tag editing or complex faceted filters.
+
+### Still to detail after UI-D004.1
+
+Exact bibliographic columns/card fields, search matching, sort menu entries, bulk action placement on mobile, confirmation text/undo policy, import loading/error/permission states and count display are design refinements that remain pending. No live Zotero integration has been tested by this design approval.
 
 ## Pending decisions
 
-- **UI-D004.1:** Project Literature search/filter/sort, Zotero item selection and one-off Collection import, selection/bulk actions, and table/card information fields.
+- **UI-D004.2 (refinement):** Exact literature table/card fields, search/sort defaults, interaction states and import/batch confirmation details.
 - **UI-D005:** Literature Detail note sections, Key Quotes and PDF deep-link affordances.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
@@ -78,4 +95,4 @@ The user selected **Option B: responsive table on desktop / compact paper cards 
 
 ## Gate
 
-Only `UI-D001` through `UI-D004` (layout only) are approved so far. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D004` and `UI-D004.1` are approved so far; UI-D004.2 and subsequent decisions remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
