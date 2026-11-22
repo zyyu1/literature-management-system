@@ -58,6 +58,8 @@
 
 | UI-D005.2e | Retain saved Key Quote after upstream Zotero highlight text changes; when same annotation can be verified, compare saved vs latest and offer explicit Keep Saved Quote or Update Quote from Zotero; preserve personal comments, never auto-sync, never infer deletion from access failure | APPROVED 2026-11-22; ZOTERO ANNOTATION ID/REVISION VERIFICATION PENDING |
 
+| UI-D005.2f | Highlight picker groups annotations by originating Zotero PDF attachment, labels each group, supports expand/collapse and per-attachment ascending PDF page order; selections and exact attachment/annotation identity remain intact | APPROVED 2026-11-22; MULTI-ATTACHMENT API VALIDATION PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

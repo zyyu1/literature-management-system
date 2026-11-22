@@ -34,10 +34,11 @@
 - **UI-D005.2c APPROVED:** Highlight picker defaults to PDF page order ascending; same-page highlights remain distinct and missing/unreliable page metadata must be represented honestly.
 - **UI-D005.2d APPROVED:** Classified highlight-picker UI for loading, no highlights, no search matches, network failure, access/permission failure and missing upstream source, each with truthful targeted recovery actions and Key Quote preservation.
 - **UI-D005.2e APPROVED:** Existing Key Quote remains unchanged by Zotero source edits until explicit review; compare saved/current highlight, choose Keep or Update excerpt only, preserve personal comment and source identity; never infer deletion from transient failure.
-- **UI-D004.3-R1e / UI-D004.3c / UI-D005.1d / UI-D005.2f / UI-D006:** PENDING. Important count/persistence/feedback, list confirmation/search/errors, Markdown toolbar/export and draft privacy, optional missing-source re-link, multi-PDF UI and accessibility.
+- **UI-D005.2f APPROVED:** Zotero highlights grouped under their original PDF attachment names, with accessible expand/collapse and ascending PDF-page order inside each group; cross-group selections preserve annotation and attachment identity.
+- **UI-D004.3-R1e / UI-D004.3c / UI-D005.1d / UI-D005.2g / UI-D006:** PENDING. Important count/persistence/feedback, list confirmation/search/errors, Markdown toolbar/export and draft privacy, optional missing-source re-link and accessibility.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D005.2f — multiple-PDF attachment grouping and optional source re-link policy (then UI-D004.3-R1e).
+**Next Design decision:** UI-D005.2g — missing-source Key Quote explicit re-link policy (then UI-D004.3-R1e).
