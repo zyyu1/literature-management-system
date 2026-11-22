@@ -75,7 +75,7 @@ The user chose **Option B: Standard Management** on 2026-11-22.
 
 ### Still to detail after UI-D004.1
 
-Bibliographic fields and four sorting criteria are approved in UI-D004.2, and the default descending Project-added sort in UI-D004.3. Search matching details, bulk action placement on mobile, confirmation text/undo policy, import loading/error/permission states and count display remain pending. No live Zotero integration has been tested by this design approval.
+Bibliographic fields and four sorting criteria are approved in UI-D004.2, and the default descending Project-added sort in UI-D004.3. Search fields and scope are approved in UI-D004.3a; exact matching semantics, bulk action placement on mobile, confirmation text/undo policy, import loading/error/permission states and count display remain pending. No live Zotero integration has been tested by this design approval.
 
 ### UI-D005 — Literature Detail main responsive layout: APPROVED
 
@@ -190,12 +190,24 @@ On 2026-11-22 the user chose **Option A: Date Added to the Current Project, newe
 - All four previously approved sorting criteria remain available: **Date Added to this Project**, **Publication Year**, **Title** and **Global Reading Status**. A user may change sorting with the Sort control.
 - Date Added sorting concerns the **current Project**; the same canonical Zotero item can have different association timestamps in different Projects, without changing its global reading status or note.
 - Where item association times are equal, use a deterministic stable tie-breaker to avoid visible reordering across reloads; the exact tie-break rule remains an implementation/detail refinement.
-- Search matching fields, sort-direction controls for alternate keys, unavailable metadata, view preference persistence and import/batch loading/confirmation states are **not** implicitly approved by this default-sort choice. Track these under UI-D004.3a and UI-D006.
+- Search scope and fields are now approved in UI-D004.3a. Sort-direction controls for alternate keys, unavailable metadata, view preference persistence and import/batch loading/confirmation states remain pending under UI-D004.3b/UI-D006.
 - Approval applies to UX specification only; no feature implementation is authorized.
+
+### UI-D004.3a — Project Literature List standard metadata search: APPROVED
+
+On 2026-11-22 the user selected **Option B: search Title, Authors, Publication Year and DOI of papers already linked to the current Project; combine with reading-state filters**.
+
+- **Scope:** the Project Literature List search only matches literature items associated with the **currently open Project**, not all Zotero library items or other Projects. The separate **Add Papers from Zotero** picker retains its own library-wide search flow under D002/UI-D004.1.
+- **Searchable fields:** Zotero-owned **Title**, **Authors**, **Publication Year**, and **DOI**. DOI may be searchable even though it is not a default visible column in UI-D004.2.
+- **Combined filtering:** a query may be combined with the existing **All / To Read / Reading / Read** filter; both criteria are applied together to the current Project's literature rows/cards. Reading status remains global to each canonical Zotero paper.
+- **Consistency:** desktop table, phone cards, and adaptive tablet must show the same result set for equivalent input and filters. Sorting remains applied to the filtered result set; default is Project-added time descending (UI-D004.3).
+- **Out of scope:** searching the Markdown Research Notes, Key Quote excerpt/comment text, full PDF contents, or all Projects from this input is not approved in this MVP decision. Do not index private note content under the guise of simple metadata search.
+- **No-match experience:** clearly distinguish a Project with no linked papers from a populated Project with no papers matching the active query/filter; offer a visible way to clear the active search or filter.
+- **Still to specify:** query tokenization, case/diacritic normalization, partial DOI matching, Year matching semantics, request/debounce behavior for large libraries and inaccessible Zotero fields. These details cannot be claimed as decided by Option B alone.
 
 ## Pending decisions
 
-- **UI-D004.3a (refinement):** Search matching fields, sort direction/secondary ordering, import/batch confirmations and empty/loading/error states.
+- **UI-D004.3b (refinement):** Zotero import and batch-operation confirmations, retry/error states, alternative sort directions, search-match details and mobile selection affordances.
 - **UI-D005.1c (refinement):** Markdown toolbar details, focus/caret restoration, safe export filename/content and offline-draft/conflict-resolution UI states.
 - **UI-D005.2c (refinement):** Highlight picker order, empty/loading/permission/error states, annotation change/relink handling, and cross-device focus behavior.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
@@ -212,4 +224,4 @@ On 2026-11-22 the user chose **Option A: Date Added to the Current Project, newe
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3a, UI-D005.1c, UI-D005.2c and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3b, UI-D005.1c, UI-D005.2c and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.

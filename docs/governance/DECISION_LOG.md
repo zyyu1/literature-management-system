@@ -36,6 +36,8 @@
 
 | UI-D004.3 | Default Project Literature List sort uses the Project–Literature association creation time descending (newest linked to this Project first), distinct from Zotero import timestamp; all four sort criteria remain selectable | APPROVED 2026-11-22 |
 
+| UI-D004.3a | Search current Project literature metadata only (Zotero title, authors, publication year, DOI), combined with global three-state reading filter and current sorting; note, quote and PDF content excluded | APPROVED 2026-11-22 |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
