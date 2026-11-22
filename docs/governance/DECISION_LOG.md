@@ -74,6 +74,8 @@
 
 | UI-D005.1g | When unsynced research-note edits exist, the user explicitly chooses Export Local Draft or Export Saved Version; local draft is labeled unsynced and saved export requires a confirmed/candidly cached revision, both preserve five-field Typora Markdown, and neither triggers remote save or draft deletion | APPROVED 2026-11-22; OFFLINE CACHE/DOWNLOAD VERIFICATION PENDING |
 
+| UI-D005.1h | Auto-clean only the exact local draft copy whose remote save is acknowledged and content/version verified with no newer edits or unresolved conflicts; retain offline/failed/unsynced/conflicting drafts; manual discard needs explicit user confirmation; no time-based expiration | APPROVED 2026-11-22; STORAGE PRIVACY/POC-001 RACE VALIDATION PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

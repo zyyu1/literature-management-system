@@ -42,10 +42,11 @@
 - **UI-D005.1e APPROVED:** Typora-compatible UTF-8 .md export filename from sanitized Zotero paper title and item key; include available bibliographic details and all five intact Markdown Research Note sections in canonical order, no PDF or Key Quotes, and distinguish unsynced draft from remote saved version.
 - **UI-D005.1f APPROVED:** On detecting an available unsynced local Markdown draft, show explicit recovery dialog comparing local/remote version status and affected fields; Review & Recover opens per-field comparison, Not Now/close never deletes draft; Save requires remote revision recheck and acknowledgment.
 - **UI-D005.1g APPROVED:** When unsynced note edits exist, explicitly offer Export Local Draft or Export Saved Version with accurate available/cached revision status; exporting preserves five-field Markdown and does not upload, mark Saved, resolve conflict or delete drafts.
-- **UI-D004.3-R1f / UI-D004.3d / UI-D005.1h / UI-D005.2h / UI-D006:** PENDING. Important count/feedback visual details, selection persistence and list confirmation/search/errors, Markdown caret, local-draft privacy/cleanup and filename distinctions, source-history presentation and accessibility.
+- **UI-D005.1h APPROVED:** Clear only the precisely identified, confirmed-remote-saved and content-equivalent local draft copy when no newer edits/conflicts exist; preserve unsynced and conflict drafts; manual Discard Local Draft requires explicit confirmation, no time-based expiration.
+- **UI-D004.3-R1f / UI-D004.3d / UI-D005.1i / UI-D005.2h / UI-D006:** PENDING. Important count/feedback visual details, mobile selection and list errors, Markdown caret/focus and local privacy/discard copy, source-history presentation and accessibility. Important count/feedback visual details, selection persistence and list confirmation/search/errors, Markdown caret, local-draft privacy/cleanup and filename distinctions, source-history presentation and accessibility.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D005.1h — Retention and cleanup of local drafts after successful remote synchronization (then caret/privacy and cross-device refinements).
+**Next Design decision:** UI-D005.1i — Markdown toolbar selection and caret/focus restoration (then privacy, source history and cross-device refinements).

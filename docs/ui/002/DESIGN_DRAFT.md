@@ -855,7 +855,7 @@ On 2026-11-22 the user selected **Option B: show an explicit recovery dialog on 
 - **Desktop/mobile/a11y:** recovery dialog must be usable on narrow screens, identify affected fields clearly and provide keyboard/screen-reader focus and Escape/close semantics that never delete drafts. Specific field diff/scroll/focus details remain UI-D005.1h/UI-D006.
 - **Technical gate:** verify reload recovery, interrupted writes, stale remote versions, browser storage limitations, cross-device conflict recheck, and security in POC-001. This is a UI and safety approval, **not** proof of WebDAV concurrency or a guaranteed permanent offline backup.
 
-**UI-D005.1g approves explicit Export Local Draft vs Export Saved Version selection, without any save side effect.** Local draft privacy/expiration, toolbar selection/caret restoration, exact conflict dialog focus and failure recovery remain UI-D005.1h/UI-D006. Final responsive/accessibility coverage remains UI-D006.
+**UI-D005.1g approves explicit Export Local Draft vs Export Saved Version selection without save side effects; UI-D005.1h approves safe cleanup of only verified-synchronized local copies.** Toolbar selection/caret, detailed privacy indicators, conflict-dialog focus and failure recovery remain UI-D005.1i/UI-D006. Final responsive/accessibility coverage remains UI-D006.
 
 ### UI-D005.1g — Explicit choice of Local Draft vs Saved Version for Markdown export: APPROVED
 
@@ -870,13 +870,28 @@ On 2026-11-22 the user selected **Option B: when unsynced edits exist, explicitl
 - **Availability and errors:** if draft recovery storage has been cleared/blocked or the download operation fails, show a truthful error and a safe retry/copy alternative where supported; do not claim a download succeeded without confirmation. In offline state, preserve the locally available draft and surface uncertainty of the remote snapshot.
 - **Access and privacy:** filenames and content may contain sensitive unpublished research; do not send export text or bibliographic content to unrelated services, embed credentials or expose private storage paths. The browser/device storage and download behavior require testing, not assumptions.
 
-**Still pending (UI-D005.1h/UI-D006):** retention/secure disposal of **successfully synchronized** versus **still-unsynced** local drafts, draft filename disambiguation and user controls; toolbar caret/selection restoration, field-conflict dialog focus and exact mobile export UI. This approval does not replace POC-001 or authorize implementation.
+**UI-D005.1h approves clearing only the verified-synchronized local draft copy and retaining every unsynced/conflicting draft, with confirmed manual discard.** Draft filename disambiguation, toolbar caret/selection restoration, detailed privacy copy, field-conflict dialog focus and exact mobile export UI remain UI-D005.1i/UI-D006. This approval does not replace POC-001 or authorize implementation.
+
+### UI-D005.1h — Clear only verified-synchronized local draft copies: APPROVED
+
+On 2026-11-22 the user selected **Option B: automatically clean up only the specific already-synchronized local draft copy after a confirmed remote save, content equivalence, and no outstanding edits; retain unsynced/conflicting drafts, and require explicit confirmation for manual discard**.
+
+- **Strict cleanup preconditions:** for this canonical Zotero paper's one global, five-field Research Note, a candidate local draft revision can be retired only **after the backend positively acknowledges a revision-guarded remote write**, the relevant remote-confirmed content/revision is demonstrably consistent with that specific local draft snapshot, and there are **no uncommitted subsequent local edits or unresolved local/remote conflicts** in that revision. An in-flight request or optimistic UI state is not sufficient.
+- **Concurrent editing safety:** make the cleanup decision against a stable snapshot/version, not against mutable editor state. If another keystroke, device conflict, timeout, concurrent write, or unclear acknowledgment arrives between preparing and confirming the save, preserve any unsynced/latest draft and re-evaluate safely; never remove data based merely on a global “Saved” label or a possibly stale success event.
+- **Precise cleanup scope:** after all preconditions hold, the app may remove only the **matching redundant locally retained unsynced-draft copy** that was fully synchronized. This is not permission to remove newer unsynced revisions, unresolved field choices, deliberately preserved source snapshots, or unrelated papers' drafts. Clearing an eligible local draft never deletes remote Research Notes, Key Quotes, Zotero records or PDF annotations.
+- **Always retain unfinished work:** if offline, remote save failed/timed out, the local content differs from the confirmed remote state, or a multi-device conflict is unresolved, keep the recoverable local draft and surface accurate **Unsaved / Offline / Failed / Conflict** state. UI-D005.1f **Not Now** and UI-D005.1g **Export Local Draft** never count as consent to discard.
+- **Manual discard:** provide a deliberate **Discard Local Draft** flow where appropriate, explaining that the selected local unsynced changes may be permanently lost and whether a remote saved copy exists. Require an explicit confirmation and limit deletion to that selected paper's specified draft; **never** silently treat closing a dialog, switching Projects, logging out, reload or navigating away as authorization to discard.
+- **Retention policy and privacy:** do **not** introduce a timer-based auto-expiration of unsynced/conflicted drafts under this option. Minimize local research text exposure, avoid personal research content and credentials in logs, and clearly convey any limitations of private browsing, storage eviction and multi-user/shared devices. Browser storage cleanup is **not guaranteed secure physical erasure**; the chosen storage mechanism, access controls and any privacy settings need security review.
+- **Recoverability limitations:** this is a promise about app-controlled cleanup only, not a guarantee against operating-system/browser eviction, cache deletion, storage exhaustion or device loss. Do not falsely claim indefinite offline backup.
+- **POC-001/QA:** verify crash/reload after remote acknowledgment, ack-loss vs actual commit, same-note simultaneous writes, local edits racing confirmation, per-field merge, failed cleanup/retry, privacy and safe storage behavior before marking implementation ready. This is a documentation approval, not proof that the backend supports the required atomicity.
+
+**Remaining UI-D005.1i/UI-D006 refinements:** toolbar selection/caret/focus restoration, exact local draft privacy indicators and user-facing discard copy, filename suffixes distinguishing draft vs saved exports, cross-device conflict dialog focus and accessibility.
 
 ## Pending decisions
 
 - **UI-D004.3-R1f (refinement):** Exact star position/feedback, count badge styling and filtered-match semantics, and mobile accessibility.
 - **UI-D004.3d (refinement):** Mobile selection persistence across tab/filter changes, exact confirmation/error copy and result display, alternative sort directions and query-match details.
-- **UI-D005.1h (refinement):** Local draft retention/secure cleanup and privacy controls, export draft filename disambiguation, toolbar caret restoration and accessible conflict dialog details.
+- **UI-D005.1i (refinement):** Markdown toolbar caret/focus restoration, local draft privacy indicator and manual-discard copy, unsynced export filename distinction, accessible conflict dialog behavior.
 - **UI-D005.2h (refinement):** Re-link confirmation copy, source-history display, uncertain source-version messaging and cross-device focus.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
@@ -892,4 +907,4 @@ On 2026-11-22 the user selected **Option B: when unsynced edits exist, explicitl
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1f, UI-D004.3d, UI-D005.1h, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1f, UI-D004.3d, UI-D005.1i, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
