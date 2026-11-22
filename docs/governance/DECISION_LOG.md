@@ -102,6 +102,8 @@
 
 | UI-D005.2h | Show Current Source for each Key Quote and expandable chronological Source History with original/previous/current Zotero PDF, page and highlight identifiers and reliable re-link timestamps; explicitly mark missing/unverified source metadata, preserve prior provenance and saved quote/comments, no automatic re-link | APPROVED 2026-11-22; PROVENANCE STORAGE/SOURCE-VERSION QA PENDING |
 
+| UI-D005.2i | Before manual Relink Source, show Existing/Current vs New PDF/page/annotation provenance and warn that unreachable old highlight may not be deleted; explicit Cancel/Confirm; confirmed save updates only active source and append-only history while preserving saved quote/comment; concurrency- and uncertainty-safe | APPROVED 2026-11-22; RELINK CONFIRMATION/CONFLICT QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

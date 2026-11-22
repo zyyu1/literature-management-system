@@ -56,10 +56,11 @@
 - **UI-D004.3-R1j APPROVED:** Important star shows Saving beside the row/card shortcut and brief local success confirmation after acknowledged remote write; definite failures appear with reasons and Retry inside that exact paper row/card. Accessible status announcements, previous confirmed state and count preserved until success; uncertain results require reconciliation.
 - **UI-D004.3-R1k APPROVED:** On phone paper cards, Select mode replaces the top-right Important star shortcut with a selection checkbox; exiting Select mode restores the true confirmed Project-scoped star. Checking/selecting never changes Important, pending saves remain truthful, no bulk Important operation added.
 - **UI-D005.2h APPROVED:** Each Key Quote shows its current Zotero highlight provenance by default; Source History expands a chronological original/previous/current source timeline of confirmed manual re-links, showing known PDF/page/annotation ID/reliable time and explicitly labeling unavailable or unknown metadata. No automatic re-link or rewriting saved excerpt/comments.
-- **UI-D004.3-R1l / UI-D004.3g / UI-D005.1l / UI-D005.2i / UI-D006:** PENDING. Phone star mode-transition focus, precise list copy/sort/search, Markdown toolbar and conflict accessibility, manual re-link confirmation/uncertain source-version details and cross-device acceptance.
+- **UI-D005.2i APPROVED:** Relink Source requires an old/current vs new Zotero highlight comparison before affirmative confirmation; if the original is unreachable, warn that deletion is unverified and access might be temporary. Confirmed writes update only active source plus provenance history; saved excerpt/comment stay unchanged; stale/failed/unknown writes are guarded.
+- **UI-D004.3-R1l / UI-D004.3g / UI-D005.1l / UI-D005.2j / UI-D006:** PENDING. Phone star mode transition, list copy/sort/search, Markdown toolbar overflow/conflict focus, Relink success/failure focus and source-open fallbacks, cross-device accessibility.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D005.2i — Relink Source confirmation when original Zotero highlight is unavailable or uncertain (then note and responsive refinements).
+**Next Design decision:** UI-D005.2j — Focus and Source History presentation after a successful manual Relink Source (then remaining UI refinements).
