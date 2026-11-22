@@ -50,6 +50,8 @@
 
 | UI-D005.1c | Recover unsynced offline drafts; compare five Markdown fields local vs remote; per-field use local/use remote/manual merge; revalidate whole-note remote revision atomically before confirmed save; never silently overwrite, full version history not required | APPROVED 2026-11-22; POC-001 CONCURRENCY/DRAFT FEASIBILITY PENDING |
 
+| UI-D004.3-R1d | Per-paper Important star button on desktop list row and phone card, same mark/unmark action in per-paper Actions menu; Project-specific only, not global state, no bulk marking; confirm authoritative write before claiming persistence | APPROVED 2026-11-22 |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

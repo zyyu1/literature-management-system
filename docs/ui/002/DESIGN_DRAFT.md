@@ -281,7 +281,7 @@ On 2026-11-22, the user chose **Option A: most recently marked Important first**
 - A first-time Important mark sets the association's marked-at time. Unmarking removes the paper from Important Papers but keeps it in All Papers. Marking it again sets the new marked-at time, placing it among the most recently marked papers.
 - Marking in Project A does not change any Important marker or marked-at timestamp in Project B. The one global reading status, global Research Note and Key Quotes are unchanged.
 - The approved sorting menu remains available; alternate sort selection never changes the stored marked-at time. Equal timestamps should have a stable deterministic tie-break.
-- Open decisions: mark/unmark action placement, count badges, tab preference persistence and mobile access. These belong to UI-D004.3-R1d/UI-D006, not this sorting approval.
+- Star and menu mark/unmark entry points are approved in UI-D004.3-R1d; exact control placement, count badges, tab preference persistence and mobile access details remain in UI-D004.3-R1e/UI-D006.
 
 ### UI-D005.1c — Offline draft recovery and field-level note conflict resolution: APPROVED
 
@@ -298,9 +298,21 @@ On 2026-11-22 the user selected **Option B: recover offline drafts, compare loca
 
 **Still pending:** exact Markdown toolbar/export filename, fine-grained focus restoration, local-draft privacy/expiration and recovery prompts, conflict resolution copy, accessible focus and mobile handling (UI-D005.1d/UI-D006).
 
+### UI-D004.3-R1d — Important star shortcut plus Actions menu: APPROVED
+
+On 2026-11-22 the user selected **Option B: a star control on each desktop literature row and mobile paper card, with the same mark/unmark command in the Actions menu**.
+
+- **Desktop and mobile:** every paper linked to the currently open Project has a clearly identifiable, keyboard- and touch-accessible **Mark Important / Unmark Important** star control on its table row or compact card. The paper's Actions (`···`) menu offers the same command.
+- **One state, two entry points:** the star and menu reflect the **same per-Project Project–Literature Important flag** (UI-D004.3-R1b) and must stay consistent after a successful update. Active/inactive appearance and a meaningful accessible label communicate the current state; color alone is insufficient.
+- **Immediate scope:** toggling the star in Project A changes **only Project A's** Important flag. It does not change the same canonical Zotero paper's Important state in Project B, nor its global reading status, Research Note, Key Quotes or Zotero annotations.
+- **Tab behavior:** All Papers always retains the paper. Once marked it becomes eligible for Important Papers; when unmarked from Important Papers it disappears from that subset but remains in All Papers. Its Project-added timestamp does not change. Marking again refreshes its Project-specific marked-at timestamp and the Important Papers default order (UI-D004.3-R1c).
+- **Feedback:** do not present the remote change as completed until its authoritative write has succeeded; show an actionable error and retain/restore the verified state if the write fails. Avoid duplicate or racing updates from rapid taps and preserve the original state on unconfirmed changes. Exact visual feedback is a UI-D006 refinement.
+- **No bulk-marking authorization:** this selection approves the single-paper star shortcut plus menu access only, **not** a new mass Mark Important / Unmark Important action. Existing separate batch actions retain their approved behavior.
+- **Layout:** touch target and keyboard focus must work without forcing mobile horizontal scrolling or conflicting with row navigation/selection. Precise placement, count badges and preference persistence remain for UI-D004.3-R1e/UI-D006.
+
 ## Pending decisions
 
-- **UI-D004.3-R1d (refinement):** Important mark/unmark placement, count badges, per-tab sort preference, and mobile controls.
+- **UI-D004.3-R1e (refinement):** Exact star position/feedback, count badges, per-tab sort preference persistence and mobile accessibility.
 - **UI-D004.3c (refinement):** Exact confirmation/error copy and result display, alternate sort directions, query-match details and mobile bulk-selection affordances.
 - **UI-D005.1d (refinement):** Markdown toolbar/export filename, focus/caret restoration, offline-draft privacy/recovery prompt and accessible conflict resolution details.
 - **UI-D005.2c (refinement):** Highlight picker order, empty/loading/permission/error states, annotation change/relink handling, and cross-device focus behavior.
@@ -318,4 +330,4 @@ On 2026-11-22 the user selected **Option B: recover offline drafts, compare loca
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1d, UI-D004.3c, UI-D005.1d, UI-D005.2c and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1e, UI-D004.3c, UI-D005.1d, UI-D005.2c and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
