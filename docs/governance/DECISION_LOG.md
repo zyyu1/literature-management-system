@@ -148,6 +148,8 @@
 
 | POC-001-ACCESS-01 | Option B: approve **two-stage real Nutstore access policy only**; isolated disposable second test account, app-specific password, server-side secret injection, HTTPS host and test-namespace allowlist, at most 20 synthetic files/1 MiB each/100 requests per rolling 30 min and initially two independent writers, atomic conditional-write validation, timeout/unknown handling, isolated audited cleanup/revocation and P0 STOP. Local mock execution authorization unchanged. Any actual Nutstore credential/configuration or remote request requires separately reviewed independent local QA and explicit POC-001-ACCESS-02 approval | APPROVED 2026-11-23 — POLICY ONLY; REAL ACCOUNT ACCESS BLOCKED; NO LIVE TEST OR QA PASS |
 
+| D007-A1 | Option B: approve **logical split** into a static responsive web frontend and an independently deployable lightweight secure API, with authenticated server-side authorization, keys isolated from browser/static builds, scoped Zotero read integration and provider-neutral website-owned storage adapter; require truthful confirmed/failed/unknown writes, concurrency guards and explicit QA/POC gates. Exact hosting vendor, region, domain, cost, identity provider and runtime technology remain undecided. POC-001 local-only execution/ACCESS-01 block unchanged; no code or deployment authorized | APPROVED 2026-11-23; LOGICAL DEPLOYMENT DESIGN ONLY; D007-A2 PROVIDER/TCO EVALUATION PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
