@@ -68,6 +68,8 @@
 
 | UI-D005.1d | Standard academic Markdown source-edit toolbar for the five independent note fields: headings, bold, italic, lists, blockquotes, code, links and math insertion; safe preview, autosave and Typora-compatible export preserved; no rich-text editor or image upload | APPROVED 2026-11-22; RENDERING/CARET VALIDATION PENDING |
 
+| UI-D005.1e | Export one Typora-compatible UTF-8 .md per canonical global Research Note, filename based on sanitized paper title plus Zotero item key; include available Zotero title/authors/year/DOI metadata and all five Markdown sections verbatim; distinguish unsynced draft vs remotely saved content; exclude PDF/Key Quotes | APPROVED 2026-11-22; TYPORA/EXPORT EDGE-CASE VALIDATION PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

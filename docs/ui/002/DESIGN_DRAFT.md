@@ -127,7 +127,7 @@ On 2026-11-22 the user selected **Option B: five independent Markdown fields wit
 - Provide an **Export Markdown** action for the complete structured research note, with labeled section headings and existing content preserved; the export must be suitable for opening in Typora. Export must truthfully distinguish locally unsynced text from remotely saved text and must not be misrepresented as a cloud backup.
 - Preserve each field as part of **one global Research Note per canonical Zotero item** (D001); do not create separate notes for each Project or overwrite other sections when editing one.
 - Inherit **UI-D005.1** autosave + Save Now, offline local draft, remote-acknowledged Saved and safe multi-device conflict detection. An editor change must not silently bypass conflict handling or drop Markdown source formatting.
-- The exact toolbar icons, edit/preview toggle design, export filename and file metadata are UI refinements. No rich-text/Notion-style editor or word-processor document formats are implied.
+- The academic toolbar is approved in UI-D005.1d; the Typora-compatible export filename/metadata and five section structure are approved in UI-D005.1e. Exact icon placement and caret recovery remain UI refinements. No rich-text/Notion-style editor or word-processor document formats are implied.
 - The planned second Nutstore WebDAV storage remains conditional on POC-001; this UI approval does not authorize live integration.
 
 ### UI-D005.2a — Zotero highlight picker presentation: APPROVED
@@ -166,7 +166,7 @@ On 2026-11-22, the user chose **Option A: independent Edit / Preview toggle for 
 - Existing **autosave + Save Now** and the remote-acknowledged Saved rule from UI-D005.1 continue regardless of Edit/Preview mode. A preview render or toggle is not equivalent to confirmed persistence.
 - Full-note Markdown export (UI-D005.1a) remains supported and must export the five labeled fields without mutating them.
 - The switch must be keyboard accessible and discoverable on desktop, tablet and phone.
-- Standard academic toolbar functions are approved in UI-D005.1d; exact icon layout, focus/caret restoration, local draft persistence, conflict UI and export filename are **still pending implementation/UX refinements**. UI approval does not verify Nutstore WebDAV feasibility or authorize code.
+- Standard academic toolbar functions are approved in UI-D005.1d and complete-note Typora export naming/structure in UI-D005.1e; exact icon layout, focus/caret restoration, local draft persistence and conflict UI remain **pending UX/technical refinements**. UI approval does not verify Nutstore WebDAV feasibility or authorize code.
 
 ### UI-D005.2b — Key Quote source-opening fallback: APPROVED
 
@@ -296,7 +296,7 @@ On 2026-11-22 the user selected **Option B: recover offline drafts, compare loca
 - **No historical timeline requirement:** this option does not approve complete version history or multi-snapshot restore. It approves recoverable offline drafts and a current local-vs-remote conflict comparison.
 - **POC-001 technical gate:** persistence, recovery after refresh/relaunch, WebDAV conditional writes, simultaneous editor races, partial network failures, privacy and safe local storage must be validated before implementation claims. The UI decision alone does not prove Nutstore WebDAV can satisfy these guarantees.
 
-**Still pending:** exact Markdown toolbar/export filename, fine-grained focus restoration, local-draft privacy/expiration and recovery prompts, conflict resolution copy, accessible focus and mobile handling (UI-D005.1d/UI-D006).
+**Export filename and Markdown structure are approved in UI-D005.1e.** Still pending: fine-grained focus restoration, local-draft privacy/expiration and recovery prompts, conflict resolution copy, accessible focus and mobile handling (UI-D005.1f/UI-D006).
 
 ### UI-D004.3-R1d — Important star shortcut plus Actions menu: APPROVED
 
@@ -826,14 +826,27 @@ On 2026-11-22 the user chose **Option B: a visible Select entry to a dedicated m
 - **Safe preview:** render Markdown/LaTeX without executing injected HTML/scripts or unsafe link schemes. Treat imported or pasted text as untrusted. Technical choice of parser/sanitizer and mathematical renderer requires a separate implementation review.
 - **Source format:** retain the five independent field values as Markdown and the already approved full-note **Typora-compatible `.md` export** (UI-D005.1a). Formatting actions must not change paper metadata or write Zotero notes/PDFs.
 - **Excluded from this decision:** no visual table designer, image hosting/upload, or full WYSIWYG rich-text editor is authorized. Users may still type other valid Markdown manually.
-- **Pending details:** toolbar icon arrangement, selection/caret and keyboard shortcut specifics, mobile horizontal/overflow behavior, exact export filename/section format, draft recovery privacy and conflict-dialog focus (UI-D005.1e/UI-D006). UI-D005.1c local-vs-remote field comparison and confirmed remote saves remain unchanged.
+- **Pending details:** toolbar icon arrangement, selection/caret and keyboard shortcut specifics, mobile horizontal/overflow behavior, exact draft recovery privacy and conflict-dialog focus (UI-D005.1f/UI-D006); export filename and section format are approved in UI-D005.1e. UI-D005.1c local-vs-remote field comparison and confirmed remote saves remain unchanged.
 - **Technical gate:** Typora compatibility for math, secure rendering and safe caret updates are requirements to verify, not implementation/QA evidence. POC-001 remains mandatory for secure persistence and concurrency.
+
+### UI-D005.1e — Typora-compatible complete-note Markdown export: APPROVED
+
+On 2026-11-22 the user selected **Option B: safe paper title plus Zotero Key in the filename, including available bibliographic information and all five structured Markdown Research Notes fields in one Typora-compatible file**.
+
+- **Single file and paper identity:** **Export Markdown** produces one downloadable UTF-8 `.md` file for the **single canonical Zotero paper's globally shared Research Note**, independent of which Project page initiated export. Do not create different content per Project, export the same global note twice due to multiple Project links, or mutate the saved note during export.
+- **Filename convention:** form `<safe-paper-title>_<zotero-item-key>.md` from a readable, sanitized and reasonably length-bounded title plus the Zotero item key. Remove/replace unsafe filesystem characters, path separators, control characters and reserved device names; trim unsafe trailing punctuation/whitespace. When title is unavailable, use a safe neutral fallback with the known Zotero Key. Do not invent missing bibliographic identifiers. Zotero Keys may not be globally unique across unrelated libraries; avoid claiming otherwise, and address any additional collision handling during implementation validation.
+- **Metadata header:** begin with the available **Zotero paper title, authors, publication year and DOI**, clearly labeled, derived from Zotero-owned bibliographic fields at export time. Skip unavailable metadata rather than filling placeholders that could be mistaken for verified facts. Render metadata as safe plain Markdown (escape problematic markup in bibliographic values) without inserting unsafe executable content, scripts or unsupported links.
+- **Five fixed note sections:** output all five independently edited fields in canonical order with explicit Markdown headings: **Research Question**, **Arguments & Content**, **Theories & Methods**, **Contributions & Innovations**, **Limitations**. Preserve the complete Markdown source content and paragraph structure of each field, including empty fields as labeled empty sections; do not flatten, paraphrase, silently transform, truncate or convert user-entered Markdown into HTML.
+- **Typora/LaTeX compatibility:** retain ordinary CommonMark-style text, headings, lists, blockquotes, links, fenced code, and inline/display LaTeX as source; preserve existing math delimiters (including `$...`/`$...`) verbatim wherever possible. Validate generated files in Typora before claiming perfect compatibility.
+- **Unsynced draft honesty:** Export is a local file operation, not confirmation of remote persistence or a backup on the server. If the editor has unsynced changes, clearly distinguish **draft content** from **remotely saved content** in the export interaction; never silently label local-only text as Saved. Exact export-version prompt is a later UI-D005.1f/UI-D006 refinement.
+- **Scope:** the deliverable is the **five-field Research Note** plus bibliographic context. Key Quotes and the Zotero PDF/annotations are separate objects and are not silently included in this export. Zotero authority for paper metadata remains unchanged.
+- **Feasibility and remaining UI:** exact download failure handling, metadata escaping, filename edge cases and Typora/math round-trip testing remain part of QA; toolbar caret management, draft-recovery prompt/privacy and conflict focus remain UI-D005.1f/UI-D006. This docs-only approval neither bypasses POC-001 nor authorizes code.
 
 ## Pending decisions
 
 - **UI-D004.3-R1f (refinement):** Exact star position/feedback, count badge styling and filtered-match semantics, and mobile accessibility.
 - **UI-D004.3d (refinement):** Mobile selection persistence across tab/filter changes, exact confirmation/error copy and result display, alternative sort directions and query-match details.
-- **UI-D005.1e (refinement):** Toolbar icon layout/caret behavior, Typora export filename and section headings, offline-draft privacy/recovery prompt and accessible conflict dialog details.
+- **UI-D005.1f (refinement):** Offline-draft recovery prompt/privacy/expiration, toolbar caret behavior, unsynced export-version prompt and accessible conflict dialog details.
 - **UI-D005.2h (refinement):** Re-link confirmation copy, source-history display, uncertain source-version messaging and cross-device focus.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
@@ -849,4 +862,4 @@ On 2026-11-22 the user chose **Option B: a visible Select entry to a dedicated m
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1f, UI-D004.3d, UI-D005.1e, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1f, UI-D004.3d, UI-D005.1f, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.

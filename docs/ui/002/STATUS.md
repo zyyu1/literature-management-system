@@ -39,10 +39,11 @@
 - **UI-D004.3-R1e APPROVED:** Show counts on All Papers and Important Papers; preserve separate user-selected sorts when switching tabs within an open page session; a new page visit restores the existing per-tab default sorts; no cross-device/persistent preference storage.
 - **UI-D004.3c APPROVED:** Phone literature cards enter explicit Select mode, exposing checkboxes, selected-count bottom batch bar for global status change and scope-confirmed association removal, plus an exit action; no permanent checkboxes or new bulk Important action.
 - **UI-D005.1d APPROVED:** Five Markdown fields use a standard academic source-editing toolbar for headings, bold, italic, lists, blockquotes, code, links and math snippets, retaining secure preview, autosave and Typora-compatible export.
-- **UI-D004.3-R1f / UI-D004.3d / UI-D005.1e / UI-D005.2h / UI-D006:** PENDING. Important count/feedback visual details, selection persistence and list confirmation/search/errors, Markdown export/caret and draft privacy, source-history presentation and accessibility.
+- **UI-D005.1e APPROVED:** Typora-compatible UTF-8 .md export filename from sanitized Zotero paper title and item key; include available bibliographic details and all five intact Markdown Research Note sections in canonical order, no PDF or Key Quotes, and distinguish unsynced draft from remote saved version.
+- **UI-D004.3-R1f / UI-D004.3d / UI-D005.1f / UI-D005.2h / UI-D006:** PENDING. Important count/feedback visual details, selection persistence and list confirmation/search/errors, Markdown caret and draft recovery/privacy/export version prompts, source-history presentation and accessibility.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D005.1e — Typora Markdown export naming and content format (then draft/privacy and cross-device refinements).
+**Next Design decision:** UI-D005.1f — Offline Markdown draft recovery prompt and privacy behavior (then caret/conflict and cross-device refinements).
