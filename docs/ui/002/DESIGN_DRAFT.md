@@ -86,12 +86,12 @@ The user selected **Option B: two columns on desktop / a single column on mobile
 - Literature title, authors and other Zotero metadata remain **source-attributed**; do not imply the website edits original Zotero metadata.
 - Show an **Open in Zotero** entry point for the same canonical paper; precise deep-link support, annotation-focused navigation and fallbacks require device-level verification and later interaction design.
 - Research Note fields remain globally unique per canonical Zotero item (D001), including research question, arguments/content, theories/methods, innovations/contributions, and limitations. Key Quotes are source-linked excerpts of the same global paper rather than copies per Project.
-- **Still to refine:** rich text vs Markdown note editor; concrete draft/error/conflict UI details, quote-linking refinements/sorting, mobile stacking order, edit affordances and exact responsive breakpoints. Autosave + Save Now was approved separately in UI-D005.1.
+- **Still to refine:** Markdown editor toolbar/preview/export refinements; concrete draft/error/conflict UI details, quote-linking refinements/sorting, mobile stacking order, edit affordances and exact responsive breakpoints. Autosave + Save Now was approved separately in UI-D005.1.
 - This is the **layout decision only**; do not expand its scope into unapproved UI-D005.1 / UI-D006 save behavior or implement code.
 
 ### UI-D005.1 — Research Notes saving: APPROVED
 
-The user selected **Option C: Autosave + Save Now** on 2026-11-22. This decision governs the **saving experience**; the note editor content format (plain text, Markdown or rich text) remains to be designed.
+The user selected **Option C: Autosave + Save Now** on 2026-11-22. This decision governs the **saving experience**; the Markdown editing format is now independently approved in UI-D005.1a.
 
 - While editing the five global Research Note fields, offer **automatic saving** after an appropriate pause in input, as well as an explicit **Save Now** action. The precise debounce duration is an implementation detail subject to QA and a practical UX review.
 - Display **unambiguous save status**: at minimum `Unsaved changes`, `Saving`, `Saved`, `Offline/local draft`, `Save failed` and `Conflict` when relevant. Do not claim `Saved` from a local cache or optimistic UI alone: only a confirmed remote write may show it.
@@ -117,10 +117,23 @@ On 2026-11-22 the user chose **Option B: manual Key Quotes plus selective attach
 
 **Still open for UI-D005.2a detail:** the Zotero annotation picker presentation, ordering and filtering, handling removed/edited Zotero annotations, import retry states, and source-link fallback wording. No automatic synchronization is authorized.
 
+### UI-D005.1a — Research Notes Markdown editor: APPROVED
+
+On 2026-11-22 the user selected **Option B: five independent Markdown fields with a toolbar, preview and Markdown export**.
+
+- Exactly five separately editable Markdown sections: **Research Question**, **Arguments & Content**, **Theories & Methods**, **Contributions & Innovations**, and **Limitations**.
+- Each section accepts Markdown text and provides simple editing controls for common formatting (such as headings, bold, italics, lists and links). The controls must affect the section currently being edited, not another field.
+- Provide a preview of the rendered Markdown without changing the source. It must safely render untrusted Markdown, without executing embedded HTML/scripts or unsafe links.
+- Provide an **Export Markdown** action for the complete structured research note, with labeled section headings and existing content preserved; the export must be suitable for opening in Typora. Export must truthfully distinguish locally unsynced text from remotely saved text and must not be misrepresented as a cloud backup.
+- Preserve each field as part of **one global Research Note per canonical Zotero item** (D001); do not create separate notes for each Project or overwrite other sections when editing one.
+- Inherit **UI-D005.1** autosave + Save Now, offline local draft, remote-acknowledged Saved and safe multi-device conflict detection. An editor change must not silently bypass conflict handling or drop Markdown source formatting.
+- The exact toolbar icons, edit/preview toggle design, export filename and file metadata are UI refinements. No rich-text/Notion-style editor or word-processor document formats are implied.
+- The planned second Nutstore WebDAV storage remains conditional on POC-001; this UI approval does not authorize live integration.
+
 ## Pending decisions
 
 - **UI-D004.2 (refinement):** Exact literature table/card fields, search/sort defaults, interaction states and import/batch confirmation details.
-- **UI-D005.1a (refinement):** Notes input format and text-editor controls (plain text / Markdown / rich text); technical offline-draft and conflict-resolution UI details.
+- **UI-D005.1b (refinement):** Specific Markdown toolbar/preview presentation, safe export details, offline-draft and conflict-resolution interaction states.
 - **UI-D005.2a (refinement):** Zotero highlight picker, quote ordering, source/deep-link fallback behavior, and handling changed/removed source annotations.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
@@ -136,4 +149,4 @@ On 2026-11-22 the user chose **Option B: manual Key Quotes plus selective attach
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1) are approved so far; UI-D004.2, UI-D005.1a, UI-D005.2a and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.2, UI-D005.1b, UI-D005.2a and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.

@@ -25,6 +25,7 @@
 | UI-D005 | Literature Detail layout: desktop two columns (Research Notes left; Key Quotes/Zotero metadata right), mobile single column and adaptive tablet; global note identity unchanged | APPROVED 2026-11-22; NOTES FORMAT AND QUOTE DETAILS PENDING |
 | UI-D005.1 | Research Notes autosave plus Save Now; offline recoverable local draft and clearly marked sync status; Saved only after remote acknowledgement; multi-device revision conflict detection with no silent overwrite, conditional on POC-001 | APPROVED 2026-11-22; IMPLEMENTATION FEASIBILITY PENDING |
 | UI-D005.2 | Manually add Key Quotes OR selectively link/import Zotero highlights from the current canonical paper; keep source annotation and page references where available; no automatic all-highlight sync | APPROVED 2026-11-22; ZOTERO API/DEEP LINK VALIDATION PENDING |
+| UI-D005.1a | Research Notes uses five independent Markdown sections with common formatting toolbar, preview and Typora-compatible Markdown export, subject to UI-D005.1 safe saving and conflict handling | APPROVED 2026-11-22 |
 
 ## Guardrails
 

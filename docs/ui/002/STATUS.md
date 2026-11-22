@@ -16,10 +16,11 @@
 - **UI-D005 APPROVED (LAYOUT ONLY):** Desktop two columns (left: structured Research Notes; right: Key Quotes + Zotero metadata); mobile single column; tablet adaptive. One global note per canonical paper.
 - **UI-D005.1 APPROVED (SAVE BEHAVIOR):** Autosave plus Save Now, remote-acknowledged Saved state, explicit local-draft/offline/failure/conflict states and no silent multi-device overwrite; WebDAV support requires POC-001.
 - **UI-D005.2 APPROVED:** Key Quotes can be entered manually or created by selectively choosing existing Zotero highlights; preserve annotation/page reference when available; no bulk automatic synchronization or source-edit side effects.
-- **UI-D004.2 / UI-D005.1a / UI-D005.2a / UI-D006:** PENDING. Exact list details, note editor format, Key Quotes picker/deep-link details and accessibility need design review.
+- **UI-D005.1a APPROVED:** Five independent Markdown note fields, common formatting toolbar, safe preview and Typora-compatible full-note Markdown export; retains autosave/Save Now and concurrency rules.
+- **UI-D004.2 / UI-D005.1b / UI-D005.2a / UI-D006:** PENDING. Exact list details, editor refinement, Key Quotes picker/deep-link details and accessibility need design review.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D005.1a — Research Notes input/editor format (followed by Key Quotes picker and detail refinements).
+**Next Design decision:** UI-D005.2a — Zotero highlight picker and original-source navigation details.
