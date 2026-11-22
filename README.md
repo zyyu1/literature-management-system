@@ -15,7 +15,7 @@ This is an **independent responsive website**, not a Zotero replacement. Zotero 
 ## Current gate
 
 - **Module 001 product requirements:** approved baseline, but technical feasibility pending.
-- **D007 note storage:** second Nutstore account via safe API and JSON/Markdown is a **conditional proposal**, pending POC-001.
+- **D007 note storage:** second Nutstore account via safe API and JSON/Markdown remains a **conditional proposal**, pending independent POC-001 evidence. **POC-001-SCOPE-01** authorizes only [isolated local/synthetic technical work](docs/handoffs/POC-001/EXECUTION_INSTRUCTION.md); real Nutstore account access is **BLOCKED** until separately approved secure configuration.
 - **BOOTSTRAP-000:** *documentation/repository initialization only*. This handoff does **not** authorize application source code, Zotero API credentials, cloud deployment, production data or UI implementation.
 - **Module 002:** [frozen UI design](docs/ui/002/DESIGN_APPROVED.md) is approved as specification only (67 UI decisions; 26 planned, unrun scenarios). Implementation is **NOT AUTHORIZED**; separate POC-001 and execution gates are required.
 - **QA:** none completed for this repository; no PR or CI pass is implied by these documents.

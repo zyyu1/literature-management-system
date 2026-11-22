@@ -144,6 +144,8 @@
 
 | UI-FREEZE-01 | Option B: freeze Module 002 in a canonical DESIGN_APPROVED.md with exact SHA-pinned 67 UI-D decisions and 26 L1–L4 planned QA scenarios; explicitly distinguish UI design approval from POC-001, Zotero deep-link/attachment verification, secure WebDAV concurrency, implementation, deployment and independent QA. Any behavior change needs a separately approved amendment, with no automatic code-start permission | APPROVED 2026-11-23; DESIGN FROZEN ONLY, POC/CODE/QA NOT AUTHORIZED OR NOT RUN |
 
+| POC-001-SCOPE-01 | Option B: authorize strictly isolated synthetic/local technical POC for a server-side safe API, WebDAV CRUD, five-field JSON/Markdown round trip, two-client consistency, atomic concurrency/ETag conditional write proof, failures/unknowns and backup/restore. Compare 3 GitHub candidates (Stars, recency, license, stack, deployment); allow only isolated execution branch and POC-specific paths, with independent exact-SHA QA. Real second Nutstore account/access/secrets require separate explicit user secure-configuration approval; no Zotero/private data, site UI, production hosting, alternative backend choice, independent QA PASS or merge authority | APPROVED 2026-11-23; LOCAL/SYNTHETIC EXECUTION AUTHORIZED; REAL ACCOUNT BLOCKED; QA NOT STARTED |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
