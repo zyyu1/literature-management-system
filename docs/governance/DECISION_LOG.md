@@ -150,6 +150,8 @@
 
 | D007-A1 | Option B: approve **logical split** into a static responsive web frontend and an independently deployable lightweight secure API, with authenticated server-side authorization, keys isolated from browser/static builds, scoped Zotero read integration and provider-neutral website-owned storage adapter; require truthful confirmed/failed/unknown writes, concurrency guards and explicit QA/POC gates. Exact hosting vendor, region, domain, cost, identity provider and runtime technology remain undecided. POC-001 local-only execution/ACCESS-01 block unchanged; no code or deployment authorized | APPROVED 2026-11-23; LOGICAL DEPLOYMENT DESIGN ONLY; D007-A2 PROVIDER/TCO EVALUATION PENDING |
 
+| D007-A2 | Option B: document provider-neutral comparison of Cloudflare Pages+Workers, Cloudflare Pages+Render API and Cloudflare Pages+Hetzner Germany VPS using **current official price/limits/regions**, 3 synthetic traffic/egress/CPU scenarios with **monthly and annual cash-cost + separate modeled operator time**, weighted 30% security/25% WebDAV fit/20% cost/15% operations/10% EU regional controls. Provisional shortlist CF-R 4.10/5, CF-W 3.90/5, CF-H 3.75/5; explicit unknown EU localization, concurrency/POC-001 and platform runtime gates. No supplier selection, purchase, account, hosting, code or change to current POC-001 permissions | APPROVED 2026-11-23; EVALUATION ONLY — D007-A3 SEPARATE SELECTION GATE PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

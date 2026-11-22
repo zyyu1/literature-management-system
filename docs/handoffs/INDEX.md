@@ -7,8 +7,10 @@
 | [Module 002](002/STATUS.md) | Web UI and interactions | UI-FREEZE-01 DESIGN_APPROVED / FROZEN; [canonical spec](../ui/002/DESIGN_APPROVED.md) | NOT AUTHORIZED | NOT STARTED |
 | [POC-001](POC-001/STATUS.md) | Bounded synthetic WebDAV + secure API feasibility; [scope](POC-001/DESIGN_APPROVED.md), [execution instruction](POC-001/EXECUTION_INSTRUCTION.md) | POC-001-SCOPE-01 + [ACCESS-01 security policy](POC-001/ACCESS_POLICY.md) APPROVED; **REAL ACCOUNT ACCESS BLOCKED** pending ACCESS-02 | **LOCAL MOCK/SYNTHETIC ONLY EXECUTION AUTHORIZED**, NO CODE STARTED | NOT STARTED |
 
-| [D007 architecture](../architecture/STATUS.md) | Static frontend + independent lightweight safe API | D007-A1 Option B APPROVED; [logical design](../architecture/D007_A1_LOGICAL_DEPLOYMENT.md); D007-A2 provider/cost PENDING | NO CLOUD OR APPLICATION CODE AUTHORIZATION | NOT STARTED |
+| [D007 architecture](../architecture/STATUS.md) | Static frontend + independent lightweight safe API | D007-A1 split topology APPROVED; [D007-A2 cost/risk evaluation](../architecture/D007_A2_PROVIDER_COST_EVALUATION.md) APPROVED; **D007-A3 provider choice PENDING** | NO CLOUD OR APPLICATION CODE AUTHORIZATION | NOT STARTED |
 
 Module 002: [canonical draft](../ui/002/DESIGN_DRAFT.md), [consistency audit](../ui/002/CONSISTENCY_AUDIT.md), [acceptance traceability](../ui/002/ACCEPTANCE_TRACEABILITY.md). Canonical [DESIGN_APPROVED.md](../ui/002/DESIGN_APPROVED.md) is **approved as frozen UI design only**. The independent **POC-001 local-only scope/start instruction remains APPROVED**. The new [ACCESS_POLICY.md](POC-001/ACCESS_POLICY.md) fixes future security requirements **without permitting live Nutstore login**, widening the running execution scope or asserting QA. **Module 002 application implementation is NOT AUTHORIZED; independent QA remains NOT STARTED**.
+
+D007-A2 platform pricing and risk scores are **planning estimates**, not an actual bill, supplier commitment, regional compliance certification, POC-001 result or cloud runtime QA.
 
 This record is not evidence that functional tests or CI have passed.
