@@ -110,6 +110,8 @@
 
 | UI-D005.1m | Local-draft recovery and multi-device conflict dialogs use accessible per-field keyboard navigation across the five fixed Markdown fields; focus enters dialog, follows comparison field and returns to initiating editor/caret or safe fallback. Focus, tabbing, Cancel/Escape and Not Now never save, merge or delete drafts; version-guarded remote confirmation remains required | APPROVED 2026-11-22; DIALOG-FOCUS/SCREEN-READER QA PENDING |
 
+| UI-D005.1n | In focused Research Note Markdown Edit fields, enable Ctrl/Cmd+B bold, Ctrl/Cmd+I italic and Ctrl/Cmd+K link insertion while preserving valid per-field selection/caret; defer to OS/browser/assistive-tech reserved shortcuts, prevent unsafe IME/repeat handling, retain toolbar/More access for all formatting | APPROVED 2026-11-23; PLATFORM SHORTCUT/IME QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

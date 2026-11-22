@@ -60,10 +60,11 @@
 - **UI-D005.2j APPROVED:** On positive remote Relink acknowledgment, close the confirmation, return to the same Key Quote, update Current Source with brief success feedback, retain expandable Source History and restore focus to the quote's source region. Cancel never writes; failures/unknown outcomes never fake success.
 - **UI-D005.1l APPROVED:** On phones, show Bold, Italic, Heading, List and More; More exposes remaining approved academic Markdown tools, while desktop retains the complete toolbar. Preserve per-field caret/selection and undo/autosave, with keyboard and assistive-technology access; opening More never edits or saves.
 - **UI-D005.1m APPROVED:** Local-draft recovery and remote-note conflict dialogs move focus inside, provide accessible comparison/navigation across all five Markdown fields, and restore focus to the original editor/caret or a safe fallback after close. Focus/navigation/Cancel/Not Now never save, resolve conflicts or discard drafts; remote writes remain revision-checked.
-- **UI-D004.3-R1l / UI-D004.3g / UI-D005.1n / UI-D005.2k / UI-D006:** PENDING. Phone Important/Select mode transition, list confirmation/sort/search details, Markdown shortcuts/More-menu overflow and long-dialog refinements, Relink failure fallbacks and cross-device accessibility.
+- **UI-D005.1n APPROVED:** In an active Markdown Edit field, Ctrl/Cmd+B toggles Markdown bold, Ctrl/Cmd+I italic, and Ctrl/Cmd+K link insertion; all preserve the field's valid selection/caret, honor IME and undo, and never hijack browser, OS or assistive-tech reserved shortcuts. Other commands remain in toolbar/More.
+- **UI-D004.3-R1l / UI-D004.3g / UI-D005.1o / UI-D005.2k / UI-D006:** PENDING. Phone Important/Select transition, list confirmation/sort/search details, More menu placement/virtual-keyboard overflow, Relink failure/fallback handling and responsive cross-device acceptance.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D005.1n — Markdown editor keyboard shortcut policy on desktop and mobile hardware keyboards (then More-menu and list refinements).
+**Next Design decision:** UI-D005.1o — Phone More-menu positioning around the virtual keyboard while protecting selection and accessible navigation (then remaining list and Relink refinements).
