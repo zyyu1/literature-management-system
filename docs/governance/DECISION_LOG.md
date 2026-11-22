@@ -76,6 +76,8 @@
 
 | UI-D005.1h | Auto-clean only the exact local draft copy whose remote save is acknowledged and content/version verified with no newer edits or unresolved conflicts; retain offline/failed/unsynced/conflicting drafts; manual discard needs explicit user confirmation; no time-based expiration | APPROVED 2026-11-22; STORAGE PRIVACY/POC-001 RACE VALIDATION PENDING |
 
+| UI-D005.1i | Markdown source toolbar wraps active selection or inserts at caret; per-field caret/selection and edit scroll restored after Edit/Preview toggle across five independent fields; stale ranges never overwrite drafts, no cross-page/cross-device cursor sync | APPROVED 2026-11-22; CARET/IME/A11Y QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

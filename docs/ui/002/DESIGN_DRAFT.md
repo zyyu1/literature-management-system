@@ -870,7 +870,7 @@ On 2026-11-22 the user selected **Option B: when unsynced edits exist, explicitl
 - **Availability and errors:** if draft recovery storage has been cleared/blocked or the download operation fails, show a truthful error and a safe retry/copy alternative where supported; do not claim a download succeeded without confirmation. In offline state, preserve the locally available draft and surface uncertainty of the remote snapshot.
 - **Access and privacy:** filenames and content may contain sensitive unpublished research; do not send export text or bibliographic content to unrelated services, embed credentials or expose private storage paths. The browser/device storage and download behavior require testing, not assumptions.
 
-**UI-D005.1h approves clearing only the verified-synchronized local draft copy and retaining every unsynced/conflicting draft, with confirmed manual discard.** Draft filename disambiguation, toolbar caret/selection restoration, detailed privacy copy, field-conflict dialog focus and exact mobile export UI remain UI-D005.1i/UI-D006. This approval does not replace POC-001 or authorize implementation.
+**UI-D005.1h approves clearing only the verified-synchronized local draft copy and retaining every unsynced/conflicting draft, with confirmed manual discard.** Draft filename disambiguation, toolbar caret/selection restoration is approved in UI-D005.1i; detailed privacy copy, field-conflict dialog focus and exact mobile export UI remain UI-D005.1j/UI-D006. This approval does not replace POC-001 or authorize implementation.
 
 ### UI-D005.1h — Clear only verified-synchronized local draft copies: APPROVED
 
@@ -885,13 +885,28 @@ On 2026-11-22 the user selected **Option B: automatically clean up only the spec
 - **Recoverability limitations:** this is a promise about app-controlled cleanup only, not a guarantee against operating-system/browser eviction, cache deletion, storage exhaustion or device loss. Do not falsely claim indefinite offline backup.
 - **POC-001/QA:** verify crash/reload after remote acknowledgment, ack-loss vs actual commit, same-note simultaneous writes, local edits racing confirmation, per-field merge, failed cleanup/retry, privacy and safe storage behavior before marking implementation ready. This is a documentation approval, not proof that the backend supports the required atomicity.
 
-**Remaining UI-D005.1i/UI-D006 refinements:** toolbar selection/caret/focus restoration, exact local draft privacy indicators and user-facing discard copy, filename suffixes distinguishing draft vs saved exports, cross-device conflict dialog focus and accessibility.
+**UI-D005.1i approves per-field selection/caret/scroll restoration while editing and returning from Preview.** Local draft privacy indicators, manual-discard copy, filename suffixes distinguishing draft vs saved exports, cross-device conflict dialog focus and accessibility remain UI-D005.1j/UI-D006.
+
+### UI-D005.1i — Per-field Markdown selection, caret and scroll restoration: APPROVED
+
+On 2026-11-22 the user selected **Option B: toolbar commands accurately operate on the current selection/caret, Edit / Preview switches restore that field's caret and scroll position, and the five Markdown fields are independent**.
+
+- **Selected text:** when a Markdown toolbar command is invoked in Edit mode, the editor applies the requested syntax **to the selection that existed before toolbar focus/pointer interaction**. Surround selected text where appropriate (e.g., bold, italic, link, code); insert well-formed syntax at the caret when no text is selected. Never substitute a selection from another Research Notes field or silently replace the entire field.
+- **Caret after insertion:** keep the editor's content source as Markdown and place the caret/selection at a predictable position (inside a newly inserted placeholder or around the transformed selection, as relevant). The action participates in undo/redo, marks that field unsaved, and follows UI-D005.1 autosave/Save Now guards; it does **not** imply a completed remote write.
+- **Independent field state:** track ephemeral selection/caret and edit-scroll positions **per each of the five fields** of the one canonical Zotero paper; switching between fields does not apply a position from another field. Existing single global note ownership, Markdown contents and per-field Edit/Preview state remain unchanged.
+- **Edit / Preview:** on entering Preview, retain the field's last valid Markdown edit caret/selection and scroll anchor. Returning to Edit restores that field's prior caret and reasonable scroll position so the user can continue where they left off. Do not force focus into a hidden or read-only Preview input; preview must remain safe and non-destructive.
+- **Concurrent version safety:** if an offline draft recovery, local undo or a multi-device conflict resolution changes the underlying field text so the saved offset is stale, **never apply an arbitrary stale range**. Validate/rebase the range when feasible, or fall back to a safe position and explain when needed; no source mutation purely from focus restoration. Preserve unsynced drafts and the five-field version comparison (UI-D005.1c/UI-D005.1f).
+- **Access and touch:** toolbar controls are operable by keyboard and touch. Preserve IME composition and screen-reader interaction, do not lose selection merely on toolbar press, and avoid unexpected page jump when an editor returns from Preview. Exact shortcuts, mobile toolbar overflow, scroll-anchor heuristics and detailed accessibility behavior are still UI-D005.1j/UI-D006 refinements.
+- **No persistent cursor tracking:** this option does **not** require persisting selection/caret/scroll across full page reload, subsequent browsing sessions or different devices. No remote storage of caret/selection is required.
+- **Verification:** QA must cover multi-line selections, empty-selection insertion, repeated toolbar clicks, lists, links, formulas, Unicode/IME input, undo/redo, mobile viewport changes, switching among all five fields, unsynced recovery and version-conflict transitions. This is a docs-only approval, not technical validation.
+
+**Still pending (UI-D005.1j/UI-D006):** exact local-draft privacy indicators and manual-discard wording; export filename suffix for local draft vs saved version; toolbar shortcut/overflow details and conflict-dialog focus/accessible mobile behavior.
 
 ## Pending decisions
 
 - **UI-D004.3-R1f (refinement):** Exact star position/feedback, count badge styling and filtered-match semantics, and mobile accessibility.
 - **UI-D004.3d (refinement):** Mobile selection persistence across tab/filter changes, exact confirmation/error copy and result display, alternative sort directions and query-match details.
-- **UI-D005.1i (refinement):** Markdown toolbar caret/focus restoration, local draft privacy indicator and manual-discard copy, unsynced export filename distinction, accessible conflict dialog behavior.
+- **UI-D005.1j (refinement):** Local-draft privacy indicators and manual discard confirmation copy; local draft versus saved export suffix; toolbar shortcut/overflow and accessible conflict dialog details.
 - **UI-D005.2h (refinement):** Re-link confirmation copy, source-history display, uncertain source-version messaging and cross-device focus.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
@@ -907,4 +922,4 @@ On 2026-11-22 the user selected **Option B: automatically clean up only the spec
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1f, UI-D004.3d, UI-D005.1i, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1f, UI-D004.3d, UI-D005.1j, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
