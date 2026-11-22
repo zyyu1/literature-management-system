@@ -88,6 +88,8 @@
 
 | UI-D004.3-R1g | Important shortcut star at the right of each desktop literature row and top-right of each phone literature card; keep equivalent Actions-menu Mark/Unmark per paper, scoped to this Project link; do not conflate with card navigation or mobile Select checkbox | APPROVED 2026-11-22; WRITE FEEDBACK/BADGE AND RESPONSIVE QA PENDING |
 
+| UI-D004.3-R1h | Show Saving and suppress duplicate Important mark/unmark requests for the Project–paper association; update star state and Important count only after confirmed remote success; failed writes keep previous confirmed state with Retry; ambiguous/stale outcomes require remote reconciliation | APPROVED 2026-11-22; WRITE-STATE/CONCURRENT-UPDATE QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
