@@ -106,6 +106,8 @@
 
 | UI-D005.2j | After confirmed remote Relink write, dismiss confirmation, return to the original Key Quote, update Current Source and show brief success, retain accessible expandable Source History and restore focus to source region; cancel or uncertain/failed writes never claim success or mutate confirmed quote/provenance | APPROVED 2026-11-22; FOCUS/ACK-LOSS AND MOBILE QA PENDING |
 
+| UI-D005.1l | On phone Edit fields show Bold/Italic/Heading/List plus More for remaining academic Markdown commands; desktop keeps full toolbar; all commands preserve the current field's valid caret/selection across toolbar/Menu focus and are keyboard/screen-reader accessible; opening More causes no write | APPROVED 2026-11-22; MOBILE TOOLBAR/IME/A11Y QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

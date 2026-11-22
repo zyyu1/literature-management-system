@@ -58,10 +58,11 @@
 - **UI-D005.2h APPROVED:** Each Key Quote shows its current Zotero highlight provenance by default; Source History expands a chronological original/previous/current source timeline of confirmed manual re-links, showing known PDF/page/annotation ID/reliable time and explicitly labeling unavailable or unknown metadata. No automatic re-link or rewriting saved excerpt/comments.
 - **UI-D005.2i APPROVED:** Relink Source requires an old/current vs new Zotero highlight comparison before affirmative confirmation; if the original is unreachable, warn that deletion is unverified and access might be temporary. Confirmed writes update only active source plus provenance history; saved excerpt/comment stay unchanged; stale/failed/unknown writes are guarded.
 - **UI-D005.2j APPROVED:** On positive remote Relink acknowledgment, close the confirmation, return to the same Key Quote, update Current Source with brief success feedback, retain expandable Source History and restore focus to the quote's source region. Cancel never writes; failures/unknown outcomes never fake success.
-- **UI-D004.3-R1l / UI-D004.3g / UI-D005.1l / UI-D005.2k / UI-D006:** PENDING. Phone Select-mode star transition, remaining literature list copy/sort/search, Markdown toolbar/mobile conflict focus, Relink error focus/deep-link fallbacks and responsive cross-device acceptance.
+- **UI-D005.1l APPROVED:** On phones, show Bold, Italic, Heading, List and More; More exposes remaining approved academic Markdown tools, while desktop retains the complete toolbar. Preserve per-field caret/selection and undo/autosave, with keyboard and assistive-technology access; opening More never edits or saves.
+- **UI-D004.3-R1l / UI-D004.3g / UI-D005.1m / UI-D005.2k / UI-D006:** PENDING. Phone star mode transition, literature list copy/sort/search, More placement/shortcut policy and conflict dialog focus, Relink error/fallback behavior and responsive cross-device acceptance.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D005.1l — Markdown toolbar on narrow phone screens: overflow and keyboard-accessible commands (then Relink failure handling and responsive refinements).
+**Next Design decision:** UI-D005.1m — Keyboard-accessible focus and conflict/recovery dialog behavior for the five Markdown note fields (then responsive list and Relink refinements).
