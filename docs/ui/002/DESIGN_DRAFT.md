@@ -75,7 +75,7 @@ The user chose **Option B: Standard Management** on 2026-11-22.
 
 ### Still to detail after UI-D004.1
 
-Bibliographic fields and four sorting criteria are approved in UI-D004.2, and the default descending Project-added sort in UI-D004.3. Search fields and scope are approved in UI-D004.3a; exact matching semantics, bulk action placement on mobile, confirmation text/undo policy, import loading/error/permission states and count display remain pending. No live Zotero integration has been tested by this design approval.
+Bibliographic fields and four sorting criteria are approved in UI-D004.2, and the default descending Project-added sort in UI-D004.3. Search fields and scope are approved in UI-D004.3a; exact matching semantics, bulk action placement on mobile, exact confirmation wording, uncertain-outcome and import loading/error/permission state presentations remain pending; graded confirmations and result counts are approved in UI-D004.3b. No live Zotero integration has been tested by this design approval.
 
 ### UI-D005 — Literature Detail main responsive layout: APPROVED
 
@@ -190,7 +190,7 @@ On 2026-11-22 the user chose **Option A: Date Added to the Current Project, newe
 - All four previously approved sorting criteria remain available: **Date Added to this Project**, **Publication Year**, **Title** and **Global Reading Status**. A user may change sorting with the Sort control.
 - Date Added sorting concerns the **current Project**; the same canonical Zotero item can have different association timestamps in different Projects, without changing its global reading status or note.
 - Where item association times are equal, use a deterministic stable tie-breaker to avoid visible reordering across reloads; the exact tie-break rule remains an implementation/detail refinement.
-- Search scope and fields are now approved in UI-D004.3a. Sort-direction controls for alternate keys, unavailable metadata, view preference persistence and import/batch loading/confirmation states remain pending under UI-D004.3b/UI-D006.
+- Search scope and fields are now approved in UI-D004.3a. Graded import/batch confirmations and partial result feedback are approved in UI-D004.3b. Sort-direction controls for alternate keys, unavailable metadata and view-preference persistence remain pending under UI-D004.3c/UI-D006.
 - Approval applies to UX specification only; no feature implementation is authorized.
 
 ### UI-D004.3a — Project Literature List standard metadata search: APPROVED
@@ -205,9 +205,24 @@ On 2026-11-22 the user selected **Option B: search Title, Authors, Publication Y
 - **No-match experience:** clearly distinguish a Project with no linked papers from a populated Project with no papers matching the active query/filter; offer a visible way to clear the active search or filter.
 - **Still to specify:** query tokenization, case/diacritic normalization, partial DOI matching, Year matching semantics, request/debounce behavior for large libraries and inaccessible Zotero fields. These details cannot be claimed as decided by Option B alone.
 
+### UI-D004.3b — Graded confirmations and result feedback for import/bulk actions: APPROVED
+
+On 2026-11-22 the user selected **Option B: graded confirmations and result feedback**.
+
+- **Add from Zotero (manual item selection or one-time Collection import):** show the selected/import-eligible item count before initiating the import; do not add unnecessary second confirmation for ordinary import. On completion, report **newly linked, already linked/skipped, failed** (and any other explicitly distinguishable results) accurately; do not treat skipped duplicates as errors or create duplicate canonical papers/Project links. The selected Collection is not subscribed for ongoing background sync.
+- **Bulk change global Reading Status:** before applying, present a clear confirmation containing the selected paper count and intended destination status, explicitly stating that **the single global status changes across all Projects containing these papers**, not just the current Project. A user must affirm before mutation.
+- **Bulk remove from current Project:** before applying, present a clear confirmation containing the count and **current Project name**, explicitly stating that this action only unlinks those papers from the current Project and **does not delete Zotero items, PDFs, global research notes, Key Quotes, annotations or global reading status**. A user must affirm before mutation. This is separate from UI-D002 permanent Project deletion.
+- **Partial success:** show accurate per-operation totals (succeeded, failed, and skipped where applicable) and retain enough information to identify/retry **only genuinely failed items** without reapplying successful operations or duplicating links. Acknowledging the UI result must not erase unresolved failures.
+- **Uncertain outcome:** do not claim success or blindly retry if a request timed out after a possible remote write. Reconcile against authoritative state or use an idempotent/revision-safe method before offering retry. Global status changes must not overwrite concurrent updates silently.
+- **Progress, errors and cancellation:** show a visible in-progress state and clear completion/failure feedback. Do not imply that closing a dialog cancels a server-side action unless cancellation is actually guaranteed.
+- **Cross-device consistency:** batch actions follow the same canonical-literature and many-to-many Project association rules as D001/UI-D004.1, including on mobile.
+- **Feasibility gate:** batch retry safety, Zotero API rate limits, partial persistence, secure credential handling and concurrency semantics must be validated during implementation/QA and are **not** deemed proven by this UI approval.
+
+**Still pending:** exact wording/layout of confirmation modals and result summaries, accessible focus behavior, alternate sort directions, detail-level search matching and loading/permission/empty-state variants. Track under UI-D004.3c/UI-D006.
+
 ## Pending decisions
 
-- **UI-D004.3b (refinement):** Zotero import and batch-operation confirmations, retry/error states, alternative sort directions, search-match details and mobile selection affordances.
+- **UI-D004.3c (refinement):** Exact confirmation/error copy and result display, alternate sort directions, query-match details and mobile bulk-selection affordances.
 - **UI-D005.1c (refinement):** Markdown toolbar details, focus/caret restoration, safe export filename/content and offline-draft/conflict-resolution UI states.
 - **UI-D005.2c (refinement):** Highlight picker order, empty/loading/permission/error states, annotation change/relink handling, and cross-device focus behavior.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
@@ -224,4 +239,4 @@ On 2026-11-22 the user selected **Option B: search Title, Authors, Publication Y
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3b, UI-D005.1c, UI-D005.2c and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3c, UI-D005.1c, UI-D005.2c and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.

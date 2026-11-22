@@ -23,10 +23,11 @@
 - **UI-D005.2b APPROVED:** Progressive Zotero source-open fallback: precise highlight if supported, then paper/PDF with page hint, then copy excerpt; retain Key Quote/comment even if source unavailable. External navigation success cannot be assumed.
 - **UI-D004.3 APPROVED:** Default Project Literature sorting is Date Added to the Current Project descending (newest project association first); other approved sort choices remain available.
 - **UI-D004.3a APPROVED:** Search only literature linked to the current Project, matching Zotero Title, Authors, Publication Year and DOI; compose with the existing global reading-state filter and current sort.
-- **UI-D004.3b / UI-D005.1c / UI-D005.2c / UI-D006:** PENDING. Import/batch confirmations and list error states, Markdown draft/conflict UI, highlight picker/source change details, and accessibility need further design.
+- **UI-D004.3b APPROVED:** Graded confirmation/feedback: import count and result without extra mandatory confirmation; confirm global impact before bulk reading status change; confirm Project-only unlink before bulk removal; show partial outcomes and safe failed-only retry.
+- **UI-D004.3c / UI-D005.1c / UI-D005.2c / UI-D006:** PENDING. Fine-grained list confirmation/sort/search and error UI, Markdown draft/conflict UI, highlight picker/source change details, and accessibility need further design.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D004.3b — Zotero import and bulk-action confirmation/feedback workflow.
+**Next Design decision:** UI-D005.1c — Offline draft recovery and multi-device note conflict interaction.

@@ -38,6 +38,8 @@
 
 | UI-D004.3a | Search current Project literature metadata only (Zotero title, authors, publication year, DOI), combined with global three-state reading filter and current sorting; note, quote and PDF content excluded | APPROVED 2026-11-22 |
 
+| UI-D004.3b | Graded import/bulk action confirmations: show Zotero import count/results without superfluous confirm; explicit global-impact confirmation for bulk reading-status change and Project-only unlink confirmation for bulk removal; partial successes and safe failed-item retry | APPROVED 2026-11-22; CONCURRENCY/RETRY TECHNICAL VALIDATION PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
