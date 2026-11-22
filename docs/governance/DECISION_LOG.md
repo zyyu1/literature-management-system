@@ -114,6 +114,8 @@
 
 | UI-D005.1o | Phone More menu adapts from a button-anchored popover when room allows to a compact keyboard-aware bottom action panel when virtual keyboard constrains space; same full Markdown commands, preserve active field selection/IME/focus, accessible touch/keyboard/screen-reader access and no write on menu open/close/layout switch | APPROVED 2026-11-23; MOBILE VIEWPORT/KEYBOARD QA PENDING |
 
+| UI-D004.3-R1l | In phone Select mode hide individual Actions menus and Important star shortcuts; only checkbox selection and the bottom approved batch-action bar act on papers, with normal menus/star restored on exit. Preserve ongoing per-paper Saving, failure and unknown states through transition; expose truthful read-only status in Select mode and restore recovery/Retry after exit, never fabricate success | APPROVED 2026-11-23; MOBILE MODE-TRANSITION/STATUS A11Y QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

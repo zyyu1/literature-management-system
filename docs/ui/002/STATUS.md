@@ -62,10 +62,11 @@
 - **UI-D005.1m APPROVED:** Local-draft recovery and remote-note conflict dialogs move focus inside, provide accessible comparison/navigation across all five Markdown fields, and restore focus to the original editor/caret or a safe fallback after close. Focus/navigation/Cancel/Not Now never save, resolve conflicts or discard drafts; remote writes remain revision-checked.
 - **UI-D005.1n APPROVED:** In an active Markdown Edit field, Ctrl/Cmd+B toggles Markdown bold, Ctrl/Cmd+I italic, and Ctrl/Cmd+K link insertion; all preserve the field's valid selection/caret, honor IME and undo, and never hijack browser, OS or assistive-tech reserved shortcuts. Other commands remain in toolbar/More.
 - **UI-D005.1o APPROVED:** Phone Markdown More uses a button-anchored menu when space allows, switching to a compact keyboard-aware bottom action panel when the virtual keyboard constrains the viewport. Both expose the full remaining toolset and preserve per-field selection/caret, touch/keyboard/screen-reader use; opening, closing or adapting never edits or saves.
-- **UI-D004.3-R1l / UI-D004.3g / UI-D005.1p / UI-D005.2k / UI-D006:** PENDING. Important star mode transition, literature list copy/sort/search, exact More viewport/focus and conflict dialog responsiveness, Relink failure fallback, and cross-device acceptance.
+- **UI-D004.3-R1l APPROVED:** During phone Select mode, hide individual Actions menus as well as star shortcuts; keep checkbox selection and the bottom approved batch-action bar as the available paper actions. Exit restores current verified star and per-paper Actions. In-flight Important writes, failures and uncertain results remain tracked, truthfully indicated and recoverable after exit, without accidental retry/success claims.
+- **UI-D004.3-R1m / UI-D004.3g / UI-D005.1p / UI-D005.2k / UI-D006:** PENDING. Phone mode transition status/focus detail, literature list confirmation/sort/search, adaptive More viewport/long-dialog detail, Relink error/fallback handling and cross-device QA.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D004.3-R1l — Phone Select-mode Actions-menu availability while stars are hidden (then list, note and Relink refinements).
+**Next Design decision:** UI-D004.3g — Phone pre-batch confirmation presentation (bottom sheet, centered dialog or full-screen review) with full and hidden selection counts.
