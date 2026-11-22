@@ -46,10 +46,11 @@
 - **UI-D005.1i APPROVED:** Markdown toolbar preserves the active selected text/caret; Edit / Preview restores the same field's edit caret and scroll position independently of the other four fields; stale positions cannot corrupt drafts or conflict decisions.
 - **UI-D005.1j APPROVED:** Clearly display locally unsynced draft status, actual local edit time and affected fields; targeted Discard Local Draft warns of lost changes/remote saved-copy availability and offers Export Local Draft; only explicit confirmation may delete that identified draft.
 - **UI-D005.1k APPROVED:** Export Local Draft uses `<safe-title>_<zotero-key>_LOCAL-DRAFT.md`; Export Saved Version uses `<safe-title>_<zotero-key>_SAVED.md`. Suffix reflects selected source; an offline cached confirmed-saved revision is not necessarily latest; no export writes.
-- **UI-D004.3-R1f / UI-D004.3d / UI-D005.1l / UI-D005.2h / UI-D006:** PENDING. Important badge/filter semantics and accessible star feedback, mobile selection/list errors, Markdown toolbar overflow and conflict focus, Key Quote source-history presentation and cross-device acceptance.
+- **UI-D004.3-R1f APPROVED:** Tab badges show current Project's unfiltered All Papers and Important Papers totals; active search/status-filter matches display as a separate N results label in the list area, with truthful loading/zero/error states.
+- **UI-D004.3-R1g / UI-D004.3d / UI-D005.1l / UI-D005.2h / UI-D006:** PENDING. Star feedback and mobile/count styling, selection persistence and list errors, Markdown toolbar overflow/conflict focus, Key Quote source-history presentation and cross-device acceptance.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D004.3-R1f — Important Papers tab count badges under active search/filter (then remaining list and source-history refinements).
+**Next Design decision:** UI-D004.3d — Mobile selection persistence when switching tabs, changing search or filters (then Important star and source-history refinements).

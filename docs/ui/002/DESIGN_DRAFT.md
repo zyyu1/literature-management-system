@@ -391,8 +391,8 @@ On 2026-11-22 the user selected **Option B: show each Project Literature tab's p
 - **Tab independence:** a user's temporary sort selection in All Papers and in Important Papers is remembered **separately** while navigating back and forth between tabs in the same open page/session. Tab switching does not reset the other tab's selected sort.
 - **Fresh open/reset:** opening the Project Literature page anew (including a reload/new page session) can restore **All Papers: most recently linked to this Project first** (UI-D004.3), and **Important Papers: most recently marked Important in this Project first** (UI-D004.3-R1c). This design does **not** request persistent user sort preferences in the backend or cross-device synchronization.
 - **Other sorting:** the previously approved sort criteria remain available to the user in both tabs. Merely changing sort view must never rewrite Project association or Important-mark timestamps, nor Zotero metadata.
-- **Filters/search:** existing search and global reading-state filtering operate on each tab's proper Project-scoped subset. The precise choice of whether tab badges represent the unfiltered total versus the active filtered match count, and how to show both if needed, remains for UI-D004.3d/UI-D006; ensure no double-counting or falsely presented totals.
-- **Pending UI refinements:** precise star placement, confirmation/loading/failure feedback, count badge styling/accessibility, mobile tab and keyboard focus behavior under UI-D004.3-R1f/UI-D006. User did not approve long-term preference storage or batch Important marking.
+- **Filters/search:** existing search and global reading-state filtering operate on each tab's proper Project-scoped subset. UI-D004.3-R1f confirms tab badges show unfiltered Project totals; active search/filter matches appear separately in the list area, with no double-counting or falsely presented totals.
+- **Pending UI refinements:** precise star placement, confirmation/loading/failure feedback, count badge styling/accessibility, mobile tab and keyboard focus behavior under UI-D004.3-R1g/UI-D006. User did not approve long-term preference storage or batch Important marking.
 
 ### UI-D004.3c — Phone literature dedicated Select mode: APPROVED
 
@@ -931,9 +931,23 @@ On 2026-11-22 the user selected **Option B: retain the safe paper title plus Zot
 
 **Remaining UI-D005.1l/UI-D006 refinements:** exact Markdown toolbar keyboard shortcuts/phone overflow and accessible conflict/recovery focus sequencing; other responsive and security details await cross-device acceptance work.
 
+### UI-D004.3-R1f — Fixed unfiltered tab totals and separate filtered result count: APPROVED
+
+On 2026-11-22 the user selected **Option B: All Papers and Important Papers tab count badges always show the current Project's genuine unfiltered totals; the list area independently displays the number of search/filter matches**.
+
+- **Unfiltered tab totals:** the **All Papers** tab badge counts every distinct canonical paper linked to the active Project, including Important papers; the **Important Papers** badge counts only that Project's Important-marked linked papers. These two tab totals are **not changed by search text, global reading-state filters, or list sort choices**. Do not count one paper twice due to other Project memberships or duplicate import attempts.
+- **Filtered matches in the list:** when a search or reading-state filter is active, show a separate and clearly labeled **N results** summary in the current tab's literature-list region, reflecting the **intersection** of that tab's membership, active search and active filters. This is the total number of matching literature records for the query (not merely the number loaded on the current page or viewport). If no filter is active, a duplicate N-results label need not be shown.
+- **Project and Important updates:** authoritative Project link/unlink and per-Project Important mark/unmark operations refresh the corresponding real tab totals after acknowledgment. Removing Important changes the Important total but not All Papers; removing the current Project link changes All and, if marked, Important. Shared reading status changes can affect filtered result count but do not change either unfiltered tab total.
+- **Zero, loading and errors:** display `0` only when reliable data confirms there are zero linked/matching papers; while count data is loading or cannot be verified, use a clearly distinguishable loading/unknown/error state rather than a fabricated zero, stale total described as live, or invented number. An active filter with zero matches shows an honest **0 results** and a clear/reset-filters affordance without suggesting that the Project has no literature.
+- **Sorting and session state:** UI-D004.3-R1e per-tab session-local sort selections remain independent and intact when switching tabs, and the approved per-tab defaults remain the same. Sorting affects display order only, not either count.
+- **Desktop and mobile:** present both tab total labels and the separate list-region results label in compact, accessible text. Count badges must not rely on color alone; screen readers must distinguish e.g. **Important Papers, 8 total** from **5 matching results**. Exact placement/responsive wrapping, keyboard focus and star feedback remain UI-D004.3-R1g/UI-D006.
+- **No implied features:** this approval does not create persistent search or sort preferences, global Important marking, bulk Important actions, extra analytics or unverified backend count claims.
+
+**Still pending (UI-D004.3-R1g):** exact Important star placement and save/failure feedback, visual count badge styling and accessible phone/desktop interaction details.
+
 ## Pending decisions
 
-- **UI-D004.3-R1f (refinement):** Exact star position/feedback, count badge styling and filtered-match semantics, and mobile accessibility.
+- **UI-D004.3-R1g (refinement):** Exact Important star position/feedback, count badge styling and mobile accessibility.
 - **UI-D004.3d (refinement):** Mobile selection persistence across tab/filter changes, exact confirmation/error copy and result display, alternative sort directions and query-match details.
 - **UI-D005.1l (refinement):** Markdown toolbar shortcuts and mobile overflow, accessible note-conflict/recovery focus transitions.
 - **UI-D005.2h (refinement):** Re-link confirmation copy, source-history display, uncertain source-version messaging and cross-device focus.
@@ -951,4 +965,4 @@ On 2026-11-22 the user selected **Option B: retain the safe paper title plus Zot
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1f, UI-D004.3d, UI-D005.1l, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1g, UI-D004.3d, UI-D005.1l, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.

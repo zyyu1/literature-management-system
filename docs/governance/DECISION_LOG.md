@@ -82,6 +82,8 @@
 
 | UI-D005.1k | Export Local Draft named `<safe-title>_<zotero-key>_LOCAL-DRAFT.md` and Export Saved Version named `<safe-title>_<zotero-key>_SAVED.md`; suffix reflects actual selected draft/confirmed-saved content, cached saved revisions disclosed honestly, no save/cleanup side effects | APPROVED 2026-11-22; FILENAME/CACHED-REVISION QA PENDING |
 
+| UI-D004.3-R1f | All Papers and Important Papers badges always show unfiltered, distinct per-Project totals; active search or reading-state filter shows a separate matching N results count within the current tab list; sort cannot change counts, no fake zero or stale numbers presented as live | APPROVED 2026-11-22; COUNT/FILTER RESPONSIVE QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
