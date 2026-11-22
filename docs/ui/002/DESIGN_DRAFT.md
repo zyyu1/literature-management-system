@@ -320,7 +320,7 @@ On 2026-11-22 the user selected **Option A: default ordering by PDF page from be
 - **Zotero metadata caveat:** printed page labels, PDF viewer page indices, annotation position details and multiple attached PDFs may differ. The mapping and cross-attachment ordering must be investigated using actual Zotero API data and tested before claiming precise page-order support; the UI must degrade honestly if unavailable.
 - **Scope unchanged:** selecting an original highlight for a Key Quote remains manual and explicit with multi-select and Add Selected (UI-D005.2a); already-linked state/dedup remain in place; no automatic import of all highlights and no mutation of original Zotero annotations.
 - **Sort controls:** this decision defines the **default** page order; it does not approve a mandatory latest-created sort toggle or new feature. Additional controls can be considered separately.
-- **Classified loading/empty/permission/error and retry states are approved in UI-D005.2d.** Changed original annotations are handled by user-reviewed comparison in UI-D005.2e; multi-PDF attachment grouping is approved in UI-D005.2f; missing-source re-link remains UI-D005.2g and mobile focus/safe-area details remain UI-D006.
+- **Classified loading/empty/permission/error and retry states are approved in UI-D005.2d.** Changed original annotations are handled by user-reviewed comparison in UI-D005.2e; multi-PDF attachment grouping is approved in UI-D005.2f and deliberate missing-source re-link in UI-D005.2g; mobile focus/safe-area and source-history presentation remain UI-D005.2h/UI-D006.
 
 ### UI-D005.2d — Classified Zotero highlight-picker feedback and recovery: APPROVED
 
@@ -336,7 +336,7 @@ On 2026-11-22 the user selected **Option B: distinguish loading, no highlights, 
 - **Device layout/accessibility:** the same six states and appropriate actions must work in the desktop right-hand panel and phone full-screen picker. Present accessible status text, focusable actions and clear recovery paths; exact focus behavior belongs to UI-D006.
 - **Technical verification:** Zotero API availability, returned response codes, authorization/permission handling, multi-PDF distinctions, and the ability to distinguish missing annotations from transient errors require integration validation. No error classification may falsely assert a confirmed upstream deletion.
 
-**UI-D005.2e approves user-reviewed comparison/retention or explicit excerpt update for a confirmed changed original annotation.** Missing-source protection remains; multi-PDF grouping is approved in UI-D005.2f; optional re-link after removal, uncertain source versions, focus management and styling remain UI-D005.2g/UI-D006 details.
+**UI-D005.2e approves user-reviewed comparison/retention or explicit excerpt update for a confirmed changed original annotation.** Missing-source protection remains; multi-PDF grouping is approved in UI-D005.2f and user-confirmed re-link with provenance retention in UI-D005.2g; uncertain-source wording, focus management and styling remain UI-D005.2h/UI-D006 details.
 
 ### UI-D005.2e — Manual reconciliation of changed Zotero source highlights: APPROVED
 
@@ -366,14 +366,29 @@ On 2026-11-22 the user selected **Option B: group available highlights by their 
 - **Desktop and mobile:** show collapsible attachment groups in both the desktop right-side panel and mobile full-screen picker; support keyboard and touch interaction. Exact narrow-screen spacing, focus restoration and safe-area behavior remain UI-D006 refinements.
 - **Feasibility:** Zotero attachment/annotation parent relationships, permissions, usable page positions and per-attachment annotation access need to be checked in the real Zotero API integration. This approval does not authorize a PDF reader or automatic background annotation sync.
 
-**Remaining UI-D005.2g:** if an original annotation has truly become unavailable, decide whether the user may explicitly link the saved Key Quote to a **different** Zotero highlight and how to preserve its prior source provenance; handle uncertain source versions and exact recovery copy without assuming automatic re-link.
+**UI-D005.2g approves manual, explicitly confirmed re-link to a different Zotero highlight while retaining original Key Quote text/comment and old-source provenance.** Uncertain source-version messaging and exact confirmation/history UI remain UI-D005.2h.
+
+### UI-D005.2g — Explicit manual source re-link with provenance retention: APPROVED
+
+On 2026-11-22 the user selected **Option B: allow the user to manually choose a replacement Zotero highlight and confirm re-linking when the original Key Quote source is unavailable, preserving the saved excerpt, personal comments, and old-source provenance**.
+
+- **User-initiated only:** when the original annotation for a saved Key Quote is unavailable, offer **Relink Source** as an optional deliberate action. The user opens the existing Zotero highlight picker, selects a specific candidate annotation and explicitly confirms the old-to-new source change. A text-similarity match is **never** sufficient for automatic re-linking.
+- **Preserve scholarly content:** the **same canonical Key Quote** stays intact; its previously saved excerpt and personal comment do not change during re-linking. A newly selected highlight's text must not silently replace the excerpt; updating quote text is a separate explicit review action under UI-D005.2e.
+- **Provenance:** retain the **prior source association** in a non-destructive, inspectable source history (previous Zotero annotation key, attachment ID and page/locator metadata as available) along with the new active attachment/annotation reference. Label the current source clearly; do not rewrite history to pretend the Key Quote originally came from the new highlight. Avoid storing source data that was never actually known.
+- **Identity and duplication:** verify the selected new highlight belongs to the intended canonical Zotero paper / correct attachment; use source annotation identity rather than text to distinguish it. If the candidate is already associated with another Key Quote under the existing dedup policy, explain the conflict and block automatic duplicate association rather than silently merging research artifacts.
+- **Uncertain availability:** the source might be temporarily unreachable because of network or authorization errors. Do not declare it deleted without reliable evidence; if **Relink Source** is offered for an unavailable source, display the uncertainty and require the user's deliberate confirmation before changing the active pointer.
+- **Remote persistence:** the re-link is a protected website-owned write, not a mutation of Zotero. Show confirmation and **Saved** only after authoritative remote acknowledgment; guard against concurrent edits to the same Key Quote and retain old references and unsynced user decisions if saving fails or the outcome is uncertain.
+- **Fallback and devices:** absent a valid re-link, continue displaying the stored quote, comment, old provenance, copy and paper/page fallback per UI-D005.2b/UI-D005.2d. Use the PDF-grouped picker from UI-D005.2f and preserve desktop/mobile accessibility.
+- **Implementation feasibility:** exact annotation key availability, source-history storage, duplicate detection, version-safe persistence and permissions require validation; this approval is design-only and does not establish Zotero API or WebDAV support.
+
+**Remaining UI-D005.2h/UI-D006 detail refinements:** specific re-link confirmation copy, how to display previous-source history, ambiguous source-version messaging, focus restoration and cross-device error states; no automatic re-link is approved.
 
 ## Pending decisions
 
 - **UI-D004.3-R1e (refinement):** Exact star position/feedback, count badges, per-tab sort preference persistence and mobile accessibility.
 - **UI-D004.3c (refinement):** Exact confirmation/error copy and result display, alternate sort directions, query-match details and mobile bulk-selection affordances.
 - **UI-D005.1d (refinement):** Markdown toolbar/export filename, focus/caret restoration, offline-draft privacy/recovery prompt and accessible conflict resolution details.
-- **UI-D005.2g (refinement):** Optional manual re-link after missing original annotation, source-provenance retention, uncertain source-version copy and cross-device focus.
+- **UI-D005.2h (refinement):** Re-link confirmation copy, source-history display, uncertain source-version messaging and cross-device focus.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
 
@@ -388,4 +403,4 @@ On 2026-11-22 the user selected **Option B: group available highlights by their 
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1e, UI-D004.3c, UI-D005.1d, UI-D005.2g and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1e, UI-D004.3c, UI-D005.1d, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.

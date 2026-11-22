@@ -60,6 +60,8 @@
 
 | UI-D005.2f | Highlight picker groups annotations by originating Zotero PDF attachment, labels each group, supports expand/collapse and per-attachment ascending PDF page order; selections and exact attachment/annotation identity remain intact | APPROVED 2026-11-22; MULTI-ATTACHMENT API VALIDATION PENDING |
 
+| UI-D005.2g | User-initiated replacement Zotero annotation linking for unavailable original Key Quote source, explicitly confirmed; keep Key Quote excerpt/comment unchanged and old attachment/annotation/page provenance inspectable, no similarity auto-link; remote/version safety required | APPROVED 2026-11-22; SOURCE HISTORY AND CONCURRENCY VALIDATION PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
