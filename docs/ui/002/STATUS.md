@@ -54,10 +54,11 @@
 - **UI-D004.3e APPROVED:** Phone bulk operations show Succeeded/Failed/Skipped outcome counts and expandable failed-paper reasons, including honest unknown statuses when writes are uncertain. Retry Failed only revalidates and resubmits eligible failed papers; previously succeeded items are never repeated.
 - **UI-D004.3f APPROVED:** Before a phone batch write, confirm unique total selected, number hidden by current tab/search/filter, operation and scope; expandable list covers all selected papers including hidden entries. Global reading-state impact is stated; all-Project unlink gets strengthened affirmative confirmation; cancel has no write side effects.
 - **UI-D004.3-R1j APPROVED:** Important star shows Saving beside the row/card shortcut and brief local success confirmation after acknowledged remote write; definite failures appear with reasons and Retry inside that exact paper row/card. Accessible status announcements, previous confirmed state and count preserved until success; uncertain results require reconciliation.
-- **UI-D004.3-R1k / UI-D004.3g / UI-D005.1l / UI-D005.2h / UI-D006:** PENDING. Star visibility in mobile Select mode and exact feedback timing/focus; list confirmation copy and sort/search details; Markdown toolbar overflow/conflict focus; Key Quote provenance history and cross-device accessibility.
+- **UI-D004.3-R1k APPROVED:** On phone paper cards, Select mode replaces the top-right Important star shortcut with a selection checkbox; exiting Select mode restores the true confirmed Project-scoped star. Checking/selecting never changes Important, pending saves remain truthful, no bulk Important operation added.
+- **UI-D004.3-R1l / UI-D004.3g / UI-D005.1l / UI-D005.2h / UI-D006:** PENDING. Phone mode-transition focus/pending status and Actions availability, exact list confirmation/sort/search refinements, Markdown toolbar overflow/conflict focus, Key Quote provenance history and cross-device accessibility.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D004.3-R1k — Important star shortcut behavior while mobile Select mode is active (then list, note and Key Quote refinements).
+**Next Design decision:** UI-D005.2h — How to display a Key Quote's original Zotero highlight provenance and re-link history (then remaining list and accessibility refinements).
