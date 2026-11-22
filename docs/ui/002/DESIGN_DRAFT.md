@@ -115,7 +115,7 @@ On 2026-11-22 the user chose **Option B: manual Key Quotes plus selective attach
 - **Global ownership:** Quotes belong to the canonical literature record across all Projects (D001). Removing a paper from a Project, or deleting the Project, must not delete its Key Quotes.
 - **Feasibility gate:** Zotero Web API highlight retrieval, annotation identity fields, pagination/permissions, attachment and cross-device deep links need a separate integration check. User approval of this UI flow is not an assertion those checks have passed.
 
-**Still open for UI-D005.2a detail:** the Zotero annotation picker presentation, ordering and filtering, handling removed/edited Zotero annotations, import retry states, and source-link fallback wording. No automatic synchronization is authorized.
+**Picker presentation is now approved as UI-D005.2a.** Sorting, changed/removed Zotero annotations, retry/error states, and source-link fallback wording remain UI-D005.2b/UI-D006 refinements. No automatic synchronization is authorized.
 
 ### UI-D005.1a — Research Notes Markdown editor: APPROVED
 
@@ -130,11 +130,25 @@ On 2026-11-22 the user selected **Option B: five independent Markdown fields wit
 - The exact toolbar icons, edit/preview toggle design, export filename and file metadata are UI refinements. No rich-text/Notion-style editor or word-processor document formats are implied.
 - The planned second Nutstore WebDAV storage remains conditional on POC-001; this UI approval does not authorize live integration.
 
+### UI-D005.2a — Zotero highlight picker presentation: APPROVED
+
+The user selected **Option B: desktop right-side panel, mobile full-screen picker, with search, multi-select and original-text preview** on 2026-11-22.
+
+- **Desktop:** Add from Zotero opens a side panel on the right of Literature Detail, preserving visible reading/note context where practical. The side panel is transient and does not replace or duplicate the paper detail page.
+- **Phone:** use a full-screen picker optimized for touch, with a clear Back/Close affordance returning to the same paper. Tablet presentation adapts to available width.
+- **Selection workflow:** load available highlights associated with the current canonical Zotero paper on demand, search among available highlights, preview their quoted text and available page/source details, select multiple items, then invoke an explicit **Add Selected** action to create Key Quotes.
+- **Already linked:** mark an existing linked annotation clearly (ideally not selectable for duplicate import). Dedupe by source annotation identity where available, **not by excerpt-text equality alone**.
+- **Review/cancel:** closing without Add Selected must not create Key Quotes. Preserve pending selections during temporary panel viewing where appropriate, but do not imply a committed import.
+- **No full-library sync:** keep the prior UI-D005.2 rule: select highlights deliberately, no auto-import-all, no background listener or edit of original Zotero annotations.
+- **Technical qualifications:** exact annotation retrieval and source-link navigation require separate Zotero API/mobile-deep-link verification; if the API or a device does not support precise source jump, provide an honest fallback rather than asserting an unsupported action.
+
+**Details still pending:** sort order for highlights, empty/loading/permission/error states, what happens if a linked Zotero annotation is deleted or edited upstream, exact source-link fallback copy, and keyboard/focus restoration and mobile safe-area behavior. Track these under UI-D005.2b/UI-D006, not as assumed approved behavior.
+
 ## Pending decisions
 
 - **UI-D004.2 (refinement):** Exact literature table/card fields, search/sort defaults, interaction states and import/batch confirmation details.
 - **UI-D005.1b (refinement):** Specific Markdown toolbar/preview presentation, safe export details, offline-draft and conflict-resolution interaction states.
-- **UI-D005.2a (refinement):** Zotero highlight picker, quote ordering, source/deep-link fallback behavior, and handling changed/removed source annotations.
+- **UI-D005.2b (refinement):** Highlight sort/order, picker empty/loading/error states, source/deep-link fallback wording and changed/removed annotation behavior.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
 
@@ -149,4 +163,4 @@ On 2026-11-22 the user selected **Option B: five independent Markdown fields wit
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.2, UI-D005.1b, UI-D005.2a and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.2, UI-D005.1b, UI-D005.2b and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.

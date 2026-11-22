@@ -26,6 +26,7 @@
 | UI-D005.1 | Research Notes autosave plus Save Now; offline recoverable local draft and clearly marked sync status; Saved only after remote acknowledgement; multi-device revision conflict detection with no silent overwrite, conditional on POC-001 | APPROVED 2026-11-22; IMPLEMENTATION FEASIBILITY PENDING |
 | UI-D005.2 | Manually add Key Quotes OR selectively link/import Zotero highlights from the current canonical paper; keep source annotation and page references where available; no automatic all-highlight sync | APPROVED 2026-11-22; ZOTERO API/DEEP LINK VALIDATION PENDING |
 | UI-D005.1a | Research Notes uses five independent Markdown sections with common formatting toolbar, preview and Typora-compatible Markdown export, subject to UI-D005.1 safe saving and conflict handling | APPROVED 2026-11-22 |
+| UI-D005.2a | Zotero highlight picker is right-side desktop panel and full-screen mobile picker, supporting on-demand search, multi-select, excerpt preview and linked-state marking; source jump remains technically unverified | APPROVED 2026-11-22 |
 
 ## Guardrails
 
