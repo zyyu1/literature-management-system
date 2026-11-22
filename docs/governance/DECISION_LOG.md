@@ -84,6 +84,8 @@
 
 | UI-D004.3-R1f | All Papers and Important Papers badges always show unfiltered, distinct per-Project totals; active search or reading-state filter shows a separate matching N results count within the current tab list; sort cannot change counts, no fake zero or stale numbers presented as live | APPROVED 2026-11-22; COUNT/FILTER RESPONSIVE QA PENDING |
 
+| UI-D004.3d | Keep current Project phone Select-mode selections across All/Important tabs, search and reading-status filters even when rows are hidden; show full selected total and warn batch effects include hidden entries; clear on leaving Project or explicit Exit without writing, no cross-Project carryover; revalidate before scoped/global bulk actions | APPROVED 2026-11-22; MOBILE SELECTION AND HIDDEN-ITEM QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

@@ -405,7 +405,7 @@ On 2026-11-22 the user chose **Option B: a visible Select entry to a dedicated m
 - **Unlink safety:** Remove Associations still offers both approved UI-D004.3b-R1 scopes: **Current Project only (default)** or **All Projects including current**; confirm scope and count, with the stronger warning for all-Project unlink. Never delete canonical Zotero literature/PDFs, original annotations, global notes, Key Quotes or shared reading statuses.
 - **Compatibility:** All Papers and Important Papers retain their approved tabs, counts, Project-only Important star, search/status filter and sort behavior. Do not add a new bulk-important-mark feature as a side effect of the selected multi-select UI.
 - **Robust state:** make an unfinished selection visually distinct from a successful operation. A failed/partially successful batch action must keep actionable feedback and cannot be presented as full success; failure retry follows UI-D004.3b. An exit from selection mode cannot itself mutate data.
-- **Still pending (UI-D004.3d/UI-D006):** exact selection persistence/clearing rules when changing tabs, filters or Project; precise bottom-bar/button placement, confirmation copy, screen-reader focus, per-item loading and mobile empty/error states. These details are not silently decided by this approval.
+- **Selection persistence/clearing across tabs, search, filters and leaving Project is approved in UI-D004.3d.** Exact bottom-bar placement, confirmation copy, screen-reader focus, per-item loading and mobile empty/error states remain UI-D004.3e/UI-D006.
 
 ### UI-D005.1d — Standard academic Markdown toolbar: APPROVED
 
@@ -945,10 +945,23 @@ On 2026-11-22 the user selected **Option B: All Papers and Important Papers tab 
 
 **Still pending (UI-D004.3-R1g):** exact Important star placement and save/failure feedback, visual count badge styling and accessible phone/desktop interaction details.
 
+### UI-D004.3d — Project-scoped multi-selection persists across tabs and filters: APPROVED
+
+On 2026-11-22 the user selected **Option B: while phone Select mode remains active in the current Project, keep selected papers across All Papers / Important Papers tab switches, search changes and reading-status filters, including temporarily invisible selections; show the total selection count; clear selection when leaving the Project or explicitly exiting Select mode**.
+
+- **Scope and identity:** store temporary selections by **canonical Zotero paper identity plus the current Project context**, never by visible row/card index, title, current search match or sort position. The same paper present in both All Papers and Important Papers counts as **one selected paper**, not two. No selection transfers into another Project.
+- **Keep hidden selections:** changing tab, search text, reading-state filter or sort must **not silently deselect** already selected papers linked to the current Project, even when hidden from the current list. When the user returns to a view where a selected paper is shown, its checkbox remains selected.
+- **Selection counts and visibility:** the bottom Select-mode batch bar always shows the **full selected-paper count** for the current Project, including papers hidden by the active tab/filter. Explain that the batch action will also affect hidden selected papers; when applicable, show a separate hidden-selection count or clear notice rather than implying the operation concerns only visible results. Distinguish this selected count from UI-D004.3-R1f's unfiltered tab counts and filtered **N results** count.
+- **Explicit clearing:** leaving/navigating away from the current Project, switching to another Project, or deliberately choosing **Done / Cancel / Exit selection** ends Select mode and clears the temporary selection without making any data change. Do not persist selections across page reload/session or into a different Project. Within the same Project, tab/filter changes alone do not end Select mode.
+- **Batch confirmation and scope:** before **Change global Reading Status** or **Remove Project associations**, show the actual number of **all selected papers including hidden items**, the target action, and the effect across Projects where relevant. Existing UI-D004.3b and UI-D004.3b-R1 confirmation rules still apply: global reading status impacts other Projects; unlink defaults to Current Project only with a separately confirmed All Projects option.
+- **Server revalidation:** verify selected papers' current canonical identity, Project association and permission/operation eligibility when preparing and applying any batch operation. If an external update or other device has removed/changed a previously selected Project association, do not act on stale data, silently target unrelated papers, or claim full success; report affected/failed/skipped outcomes truthfully with already approved safe-retry behavior.
+- **Control safety:** the phone Select control and bottom action bar remain accessible and do not block phone navigation. Switching tabs, hiding selected rows or exiting without confirmation never starts a batch write. This does **not** introduce bulk Important marking or remove the per-paper Important star.
+- **Remaining refinements (UI-D004.3e/UI-D006):** precise batch dialog wording and partial-result presentation; whether/how to offer a **Clear selection** shortcut beyond the already approved Exit; empty/loading states, keyboard/focus order and safe-area layout. The chosen preservation/clearing semantics are fixed by this decision.
+
 ## Pending decisions
 
 - **UI-D004.3-R1g (refinement):** Exact Important star position/feedback, count badge styling and mobile accessibility.
-- **UI-D004.3d (refinement):** Mobile selection persistence across tab/filter changes, exact confirmation/error copy and result display, alternative sort directions and query-match details.
+- **UI-D004.3e (refinement):** Exact mobile batch confirmation/error copy and partial-result display, alternate sort direction and search-match behavior.
 - **UI-D005.1l (refinement):** Markdown toolbar shortcuts and mobile overflow, accessible note-conflict/recovery focus transitions.
 - **UI-D005.2h (refinement):** Re-link confirmation copy, source-history display, uncertain source-version messaging and cross-device focus.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
@@ -965,4 +978,4 @@ On 2026-11-22 the user selected **Option B: All Papers and Important Papers tab 
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1g, UI-D004.3d, UI-D005.1l, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1g, UI-D004.3e, UI-D005.1l, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
