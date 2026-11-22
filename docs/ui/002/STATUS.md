@@ -71,10 +71,11 @@
 - **UI-D004.3k APPROVED:** A phone batch Results Bottom Sheet may close even with Unknown/Pending verification items; current Project Literature retains a visible accessible notice and Review batch results entry for the same operation, with no fake outcome, automatic background verification, blind Retry or replayed success. Cross-reload recovery/storage still requires backend/QA proof.
 - **UI-D004.3l APPROVED:** Place a dedicated Pending verification status bar and Review batch results action immediately below the current Project Literature title, visible across All/Important tabs, search, filters and Select mode. Keep it separate from the Select-mode Important write-status summary; reopening the same batch results is read-only with unknown outcomes still unresolved.
 - **UI-D004.3m APPROVED:** Option B: for one unresolved batch, header directly opens its Results; for multiple, show verified N distinct batches and an expandable separate row per original operation/scope/identity with individual read-only Results reopen. Never merge outcomes, blind-retry unknowns or falsely clear the notice; preserve accessible focus and responsive presentation. Cross-reload/multi-device recovery and independent QA remain unproven.
-- **UI-D004.3-R1n / UI-D005.1p / UI-D005.2k / UI-D006:** PENDING. Select-mode Important status focus/announcements, Markdown More/long-dialog responsive details, Relink failure fallback and cross-device UI QA.
+- **UI-D004.3-R1n APPROVED:** Phone Select mode puts a compact Important Saving/Failed/Unknown summary directly below its Select toolbar and above the paper list, in normal flow and separate from Project batch verification and bottom bulk actions. Wrapped text/icon counts include hidden current-Project papers; announce meaningful changes politely without stealing focus. Enter/exit restores relevant checkbox/star/Select focus with fallback; unknowns never become false successes or blind retries.
+- **UI-D005.1p / UI-D005.2k / UI-D006:** PENDING. Markdown More/long-dialog responsive details, Relink failure fallback and cross-device UI QA.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D004.3-R1n — Exact phone Select-mode Important status summary placement, announcements and focus/viewport restoration.
+**Next Design decision:** UI-D005.1p — Adaptive Markdown More menu/panel breakpoint and long conflict-dialog responsive focus/accessibility.
