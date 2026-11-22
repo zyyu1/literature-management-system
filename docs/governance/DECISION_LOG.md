@@ -112,6 +112,8 @@
 
 | UI-D005.1n | In focused Research Note Markdown Edit fields, enable Ctrl/Cmd+B bold, Ctrl/Cmd+I italic and Ctrl/Cmd+K link insertion while preserving valid per-field selection/caret; defer to OS/browser/assistive-tech reserved shortcuts, prevent unsafe IME/repeat handling, retain toolbar/More access for all formatting | APPROVED 2026-11-23; PLATFORM SHORTCUT/IME QA PENDING |
 
+| UI-D005.1o | Phone More menu adapts from a button-anchored popover when room allows to a compact keyboard-aware bottom action panel when virtual keyboard constrains space; same full Markdown commands, preserve active field selection/IME/focus, accessible touch/keyboard/screen-reader access and no write on menu open/close/layout switch | APPROVED 2026-11-23; MOBILE VIEWPORT/KEYBOARD QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
