@@ -54,6 +54,8 @@
 
 | UI-D005.2c | Zotero highlight picker defaults to ascending PDF page order; preserve multiple highlights on a page; retain and identify missing-page highlights without inventing positions; mapping and multiple attachments require verification | APPROVED 2026-11-22; ZOTERO PAGE METADATA VALIDATION PENDING |
 
+| UI-D005.2d | Classify highlight-picker loading, no highlights, no search matches, network failures, permission/access issues and unavailable original annotations; provide targeted retry/clear/reconnect/manual alternatives; never delete existing Key Quotes or silently submit selections | APPROVED 2026-11-22; API RESPONSE VALIDATION PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

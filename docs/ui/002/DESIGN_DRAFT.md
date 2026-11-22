@@ -142,7 +142,7 @@ The user selected **Option B: desktop right-side panel, mobile full-screen picke
 - **No full-library sync:** keep the prior UI-D005.2 rule: select highlights deliberately, no auto-import-all, no background listener or edit of original Zotero annotations.
 - **Technical qualifications:** exact annotation retrieval and source-link navigation require separate Zotero API/mobile-deep-link verification; if the API or a device does not support precise source jump, provide an honest fallback rather than asserting an unsupported action.
 
-**Highlight default page order is approved in UI-D005.2c.** Still pending: empty/loading/permission/error states, detailed detection/relink policy for changed Zotero annotations, exact fallback copy, and keyboard/focus restoration and mobile safe-area behavior. The progressive source-open fallback is approved as UI-D005.2b; track picker sorting, source changes and accessibility under UI-D005.2c/UI-D006.
+**Highlight default page order is approved in UI-D005.2c.** Classified empty/loading/permission/error states are approved in UI-D005.2d. Still pending: detailed detection/relink policy for changed Zotero annotations, exact fallback copy, keyboard/focus restoration and mobile safe-area behavior. The progressive source-open fallback is approved as UI-D005.2b; track picker sorting, source changes and accessibility under UI-D005.2c/UI-D006.
 
 ### UI-D004.2 — Literature fields and sorting: APPROVED
 
@@ -180,7 +180,7 @@ On 2026-11-22 the user selected **Option B: progressive fallback (precise highli
 - Preserve the previously approved UI-D005.2 rule: the Zotero annotation is never modified by website Key Quote editing/removal; no automatic import of all highlights.
 - Exact URL patterns, supported device combinations, annotation retrieval/error codes, actual link capability, and fallback phrasing require Zotero integration and multi-device verification; this UI choice is **not** evidence of that compatibility.
 
-**UI-D005.2c approves PDF-page-ascending default ordering.** Loading/empty/permission/error states, upstream annotation change detection/relink behavior and cross-device focus/return handling remain under UI-D005.2d.
+**UI-D005.2c approves PDF-page-ascending default ordering.** Classified loading/empty/permission/error states are approved in UI-D005.2d. Upstream annotation change detection/relink behavior and cross-device focus/return details remain UI-D005.2e/UI-D006.
 
 ### UI-D004.3 — Project Literature List default sort: APPROVED
 
@@ -320,14 +320,30 @@ On 2026-11-22 the user selected **Option A: default ordering by PDF page from be
 - **Zotero metadata caveat:** printed page labels, PDF viewer page indices, annotation position details and multiple attached PDFs may differ. The mapping and cross-attachment ordering must be investigated using actual Zotero API data and tested before claiming precise page-order support; the UI must degrade honestly if unavailable.
 - **Scope unchanged:** selecting an original highlight for a Key Quote remains manual and explicit with multi-select and Add Selected (UI-D005.2a); already-linked state/dedup remain in place; no automatic import of all highlights and no mutation of original Zotero annotations.
 - **Sort controls:** this decision defines the **default** page order; it does not approve a mandatory latest-created sort toggle or new feature. Additional controls can be considered separately.
-- **Still pending (UI-D005.2d):** loading/empty/permission/error and retry states; changed/deleted original annotation handling, source-link fallback wording, multiple-attachment presentation and mobile focus/safe area refinements.
+- **Classified loading/empty/permission/error and retry states are approved in UI-D005.2d.** Changed/removed original annotations and multi-attachment presentation remain UI-D005.2e; mobile focus/safe-area details remain UI-D006.
+
+### UI-D005.2d — Classified Zotero highlight-picker feedback and recovery: APPROVED
+
+On 2026-11-22 the user selected **Option B: distinguish loading, no highlights, no search matches, network failure, insufficient access and missing/unavailable original annotations, with targeted recovery actions**.
+
+- **Loading:** show progress/skeleton or a clear loading indicator while fetching this paper's available Zotero PDF annotations. Do not claim the list is empty until loading has actually finished. Keep the selection action disabled when the relevant data is not ready; avoid clearing prior confirmed Key Quotes.
+- **No highlights:** when a successful authenticated read finds no eligible annotations for the paper/attachment, show **No highlights found**; suggest opening the source in Zotero or adding a Key Quote manually. Do not display a network-error message.
+- **No search matches:** when available highlights exist but the picker query matches none, show **No matching highlights** and a **Clear search** action. Preserve the existing search input and other available results.
+- **Network/transient failure:** show **Unable to load highlights** with an explicit **Retry** control and, where appropriate, the manual Key Quote route. A failed request must not be mislabeled as an empty annotation collection, and previously saved Key Quotes must remain visible elsewhere.
+- **Permission/authentication issue:** show **Zotero access required / permission insufficient** and offer an appropriate **Reconnect / Review permissions** user-controlled action when supported. Do not display or log credentials, invent a successful reauthorization, silently modify access scopes, or classify permission failure as no highlights.
+- **Source annotation unavailable/removed:** if a previously linked original Zotero annotation is not retrievable, clearly indicate **Original highlight unavailable**; allow opening the paper/page (where possible) or copying the stored excerpt as approved in UI-D005.2b. **Never delete or overwrite** a previously saved Key Quote or its manually added comment. Do not assume temporary failure proves upstream deletion.
+- **Recoverable picker state:** preserve chosen highlights and in-progress local text whenever reasonably possible during retry/reconnect; never silently submit selections. The **Add Selected** action remains explicit; deduplicate by source annotation identity as in UI-D005.2/UI-D005.2a.
+- **Device layout/accessibility:** the same six states and appropriate actions must work in the desktop right-hand panel and phone full-screen picker. Present accessible status text, focusable actions and clear recovery paths; exact focus behavior belongs to UI-D006.
+- **Technical verification:** Zotero API availability, returned response codes, authorization/permission handling, multi-PDF distinctions, and the ability to distinguish missing annotations from transient errors require integration validation. No error classification may falsely assert a confirmed upstream deletion.
+
+**Still pending under UI-D005.2e:** how to identify that an already-linked Zotero source annotation has been **edited versus removed**, whether/how to review changed source text and re-associate it, and handling uncertain source versions. Multi-attachment presentation, precise focus management and styling remain UI-D005.2e/UI-D006 details.
 
 ## Pending decisions
 
 - **UI-D004.3-R1e (refinement):** Exact star position/feedback, count badges, per-tab sort preference persistence and mobile accessibility.
 - **UI-D004.3c (refinement):** Exact confirmation/error copy and result display, alternate sort directions, query-match details and mobile bulk-selection affordances.
 - **UI-D005.1d (refinement):** Markdown toolbar/export filename, focus/caret restoration, offline-draft privacy/recovery prompt and accessible conflict resolution details.
-- **UI-D005.2d (refinement):** Highlight picker empty/loading/permission/error/retry states, changed or removed annotations, multi-attachment presentation and cross-device focus behavior.
+- **UI-D005.2e (refinement):** Changed/removed Zotero annotation reconciliation and re-link choices; multi-attachment presentation, exact focus and mobile navigation.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
 
@@ -342,4 +358,4 @@ On 2026-11-22 the user selected **Option A: default ordering by PDF page from be
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1e, UI-D004.3c, UI-D005.1d, UI-D005.2d and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1e, UI-D004.3c, UI-D005.1d, UI-D005.2e and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
