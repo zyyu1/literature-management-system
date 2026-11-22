@@ -104,6 +104,8 @@
 
 | UI-D005.2i | Before manual Relink Source, show Existing/Current vs New PDF/page/annotation provenance and warn that unreachable old highlight may not be deleted; explicit Cancel/Confirm; confirmed save updates only active source and append-only history while preserving saved quote/comment; concurrency- and uncertainty-safe | APPROVED 2026-11-22; RELINK CONFIRMATION/CONFLICT QA PENDING |
 
+| UI-D005.2j | After confirmed remote Relink write, dismiss confirmation, return to the original Key Quote, update Current Source and show brief success, retain accessible expandable Source History and restore focus to source region; cancel or uncertain/failed writes never claim success or mutate confirmed quote/provenance | APPROVED 2026-11-22; FOCUS/ACK-LOSS AND MOBILE QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
