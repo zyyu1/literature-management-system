@@ -50,10 +50,11 @@
 - **UI-D004.3d APPROVED:** Phone Select-mode selection persists within the current Project across All/Important tabs, search and status filters, even when selected cards are hidden. Bottom bar counts all selected; leaving Project or exiting Select mode clears without writing; batch confirmation includes hidden selections and honors approved scoped safeguards.
 - **UI-D004.3-R1g APPROVED:** Project-scoped Important star shortcut appears at desktop paper row right and phone paper card top-right, with equivalent Mark/Unmark Important action retained in Actions menu. Selection, navigation and other Projects' state remain separate; no new bulk Important action.
 - **UI-D004.3-R1h APPROVED:** Important star and equivalent Actions menu show Saving with duplicate action suppression; update per-Project star and Important total only after confirmed remote success; on failure keep prior confirmed state and show Retry; uncertain/stale responses require reconciliation.
-- **UI-D004.3-R1i / UI-D004.3e / UI-D005.1l / UI-D005.2h / UI-D006:** PENDING. Count badge and Important star visual/accessibility details; batch confirmations/error results; Markdown toolbar overflow/conflict focus; Key Quote source history and cross-device acceptance.
+- **UI-D004.3-R1i APPROVED:** Desktop and phone use the same subtle neutral gray rounded numeric badge directly beside each All/Important tab label, showing only verified unfiltered current-Project totals; separate N results for filters, nonnumeric loading/unknown states, accessible tab count labels.
+- **UI-D004.3-R1j / UI-D004.3e / UI-D005.1l / UI-D005.2h / UI-D006:** PENDING. Star Saving/error icon placement and announcements; batch confirmation/partial-result UI; Markdown toolbar overflow/conflict focus; Key Quote source-history display and cross-device acceptance.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D004.3-R1i — All/Important tab count badge styling on desktop and mobile (then list batch and source-history refinements).
+**Next Design decision:** UI-D004.3e — Mobile bulk-operation partial-failure results and Retry presentation (then star feedback and source-history refinements).
