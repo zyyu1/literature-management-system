@@ -52,6 +52,8 @@
 
 | UI-D004.3-R1d | Per-paper Important star button on desktop list row and phone card, same mark/unmark action in per-paper Actions menu; Project-specific only, not global state, no bulk marking; confirm authoritative write before claiming persistence | APPROVED 2026-11-22 |
 
+| UI-D005.2c | Zotero highlight picker defaults to ascending PDF page order; preserve multiple highlights on a page; retain and identify missing-page highlights without inventing positions; mapping and multiple attachments require verification | APPROVED 2026-11-22; ZOTERO PAGE METADATA VALIDATION PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

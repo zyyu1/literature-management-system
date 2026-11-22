@@ -115,7 +115,7 @@ On 2026-11-22 the user chose **Option B: manual Key Quotes plus selective attach
 - **Global ownership:** Quotes belong to the canonical literature record across all Projects (D001). Removing a paper from a Project, or deleting the Project, must not delete its Key Quotes.
 - **Feasibility gate:** Zotero Web API highlight retrieval, annotation identity fields, pagination/permissions, attachment and cross-device deep links need a separate integration check. User approval of this UI flow is not an assertion those checks have passed.
 
-**Picker presentation is now approved as UI-D005.2a.** Sorting, changed/removed Zotero annotations, retry/error states, and source-link fallback wording remain UI-D005.2b/UI-D006 refinements. No automatic synchronization is authorized.
+**Picker presentation is now approved as UI-D005.2a.** Page-order sorting is approved in UI-D005.2c; changed/removed Zotero annotations and retry/error states remain UI-D005.2d/UI-D006 refinements; source-link fallback is approved in UI-D005.2b. No automatic synchronization is authorized.
 
 ### UI-D005.1a — Research Notes Markdown editor: APPROVED
 
@@ -142,7 +142,7 @@ The user selected **Option B: desktop right-side panel, mobile full-screen picke
 - **No full-library sync:** keep the prior UI-D005.2 rule: select highlights deliberately, no auto-import-all, no background listener or edit of original Zotero annotations.
 - **Technical qualifications:** exact annotation retrieval and source-link navigation require separate Zotero API/mobile-deep-link verification; if the API or a device does not support precise source jump, provide an honest fallback rather than asserting an unsupported action.
 
-**Details still pending:** sort order for highlights, empty/loading/permission/error states, detailed detection/relink policy for changed Zotero annotations, exact fallback copy, and keyboard/focus restoration and mobile safe-area behavior. The progressive source-open fallback is approved as UI-D005.2b; track picker sorting, source changes and accessibility under UI-D005.2c/UI-D006.
+**Highlight default page order is approved in UI-D005.2c.** Still pending: empty/loading/permission/error states, detailed detection/relink policy for changed Zotero annotations, exact fallback copy, and keyboard/focus restoration and mobile safe-area behavior. The progressive source-open fallback is approved as UI-D005.2b; track picker sorting, source changes and accessibility under UI-D005.2c/UI-D006.
 
 ### UI-D004.2 — Literature fields and sorting: APPROVED
 
@@ -180,7 +180,7 @@ On 2026-11-22 the user selected **Option B: progressive fallback (precise highli
 - Preserve the previously approved UI-D005.2 rule: the Zotero annotation is never modified by website Key Quote editing/removal; no automatic import of all highlights.
 - Exact URL patterns, supported device combinations, annotation retrieval/error codes, actual link capability, and fallback phrasing require Zotero integration and multi-device verification; this UI choice is **not** evidence of that compatibility.
 
-**Unresolved UI-D005.2c details:** highlight picker ordering, loading/empty/permission/error states, upstream annotation change detection/relink behavior, and cross-device focus/return handling. Keep under a separate design refinement.
+**UI-D005.2c approves PDF-page-ascending default ordering.** Loading/empty/permission/error states, upstream annotation change detection/relink behavior and cross-device focus/return handling remain under UI-D005.2d.
 
 ### UI-D004.3 — Project Literature List default sort: APPROVED
 
@@ -310,12 +310,24 @@ On 2026-11-22 the user selected **Option B: a star control on each desktop liter
 - **No bulk-marking authorization:** this selection approves the single-paper star shortcut plus menu access only, **not** a new mass Mark Important / Unmark Important action. Existing separate batch actions retain their approved behavior.
 - **Layout:** touch target and keyboard focus must work without forcing mobile horizontal scrolling or conflicting with row navigation/selection. Precise placement, count badges and preference persistence remain for UI-D004.3-R1e/UI-D006.
 
+### UI-D005.2c — Zotero highlight picker default page order: APPROVED
+
+On 2026-11-22 the user selected **Option A: default ordering by PDF page from beginning to end**, instead of latest-created-first or a mandatory sort-mode switch.
+
+- When the user opens the existing **Zotero highlight picker** for a paper, list source highlights **in ascending PDF page order** (earlier pages first), wherever reliable page-position metadata is available.
+- Preserve every eligible original highlight for selective review, including **multiple highlights on the same page**; give same-page items a deterministic stable secondary order without arbitrarily discarding or merging them.
+- **Unknown / unusable page positions:** keep those highlights accessible and clearly labeled as lacking a reliably sortable page, rather than fabricating page numbers or hiding them. Present them after reliably positioned highlights by default, with a stable fallback order.
+- **Zotero metadata caveat:** printed page labels, PDF viewer page indices, annotation position details and multiple attached PDFs may differ. The mapping and cross-attachment ordering must be investigated using actual Zotero API data and tested before claiming precise page-order support; the UI must degrade honestly if unavailable.
+- **Scope unchanged:** selecting an original highlight for a Key Quote remains manual and explicit with multi-select and Add Selected (UI-D005.2a); already-linked state/dedup remain in place; no automatic import of all highlights and no mutation of original Zotero annotations.
+- **Sort controls:** this decision defines the **default** page order; it does not approve a mandatory latest-created sort toggle or new feature. Additional controls can be considered separately.
+- **Still pending (UI-D005.2d):** loading/empty/permission/error and retry states; changed/deleted original annotation handling, source-link fallback wording, multiple-attachment presentation and mobile focus/safe area refinements.
+
 ## Pending decisions
 
 - **UI-D004.3-R1e (refinement):** Exact star position/feedback, count badges, per-tab sort preference persistence and mobile accessibility.
 - **UI-D004.3c (refinement):** Exact confirmation/error copy and result display, alternate sort directions, query-match details and mobile bulk-selection affordances.
 - **UI-D005.1d (refinement):** Markdown toolbar/export filename, focus/caret restoration, offline-draft privacy/recovery prompt and accessible conflict resolution details.
-- **UI-D005.2c (refinement):** Highlight picker order, empty/loading/permission/error states, annotation change/relink handling, and cross-device focus behavior.
+- **UI-D005.2d (refinement):** Highlight picker empty/loading/permission/error/retry states, changed or removed annotations, multi-attachment presentation and cross-device focus behavior.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
 
@@ -330,4 +342,4 @@ On 2026-11-22 the user selected **Option B: a star control on each desktop liter
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1e, UI-D004.3c, UI-D005.1d, UI-D005.2c and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1e, UI-D004.3c, UI-D005.1d, UI-D005.2d and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
