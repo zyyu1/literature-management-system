@@ -86,7 +86,7 @@ The user selected **Option B: two columns on desktop / a single column on mobile
 - Literature title, authors and other Zotero metadata remain **source-attributed**; do not imply the website edits original Zotero metadata.
 - Show an **Open in Zotero** entry point for the same canonical paper; precise deep-link support, annotation-focused navigation and fallbacks require device-level verification and later interaction design.
 - Research Note fields remain globally unique per canonical Zotero item (D001), including research question, arguments/content, theories/methods, innovations/contributions, and limitations. Key Quotes are source-linked excerpts of the same global paper rather than copies per Project.
-- **Still to refine:** rich text vs Markdown note editor; concrete draft/error/conflict UI details, quote linking/sorting, mobile stacking order, edit affordances and exact responsive breakpoints. Autosave + Save Now was approved separately in UI-D005.1.
+- **Still to refine:** rich text vs Markdown note editor; concrete draft/error/conflict UI details, quote-linking refinements/sorting, mobile stacking order, edit affordances and exact responsive breakpoints. Autosave + Save Now was approved separately in UI-D005.1.
 - This is the **layout decision only**; do not expand its scope into unapproved UI-D005.1 / UI-D006 save behavior or implement code.
 
 ### UI-D005.1 — Research Notes saving: APPROVED
@@ -102,11 +102,26 @@ The user selected **Option C: Autosave + Save Now** on 2026-11-22. This decision
 - One canonical Research Note is shared across Projects as required by D001; saving from one Project must not create separate Project-specific note copies.
 - Saved-state UI, conflict examples and error handling require independent QA after implementation. Approval of this UI behavior does **not** prove WebDAV feasibility or grant any live provider credentials.
 
+### UI-D005.2 — Key Quotes manual entry + selective Zotero highlight linking: APPROVED
+
+On 2026-11-22 the user chose **Option B: manual Key Quotes plus selective attachment of existing Zotero highlights**.
+
+- **Manual entry:** Add a Key Quote by entering the excerpt text, optional original PDF page number, optional source/annotation link, and optional user-written commentary. Retain a stable local quote identity.
+- **Selective highlight import:** Offer a user-invoked picker of **existing highlights/annotations from the current canonical Zotero paper**; users choose which specific highlights become Key Quotes. Preserve source linkage (Zotero item/attachment and annotation identity where available), exact text and PDF page/position data where the Zotero API provides them. Show clear source attribution.
+- **No blanket sync:** Do **not** automatically import every Zotero highlight, watch Zotero annotations in the background, or silently create new Key Quotes on subsequent page loads. The Zotero annotation library remains Zotero's source of truth.
+- **No duplication:** Selecting the same Zotero annotation again must not silently create duplicate Key Quotes for that global paper. Multiple manually authored quotes may share text; text equality alone is not a reliable annotation deduplication key.
+- **Optional personal commentary:** A Key Quote may include an independent personal research comment. Do not modify the source Zotero highlight when the user edits this website's comment or decides to remove a Key Quote.
+- **Open Source:** Provide an action to open the original item/annotation in Zotero where supported, with a visible fallback when the device cannot deep-link precisely. Do **not** claim exact-page/highlight navigation is proven before cross-device testing.
+- **Global ownership:** Quotes belong to the canonical literature record across all Projects (D001). Removing a paper from a Project, or deleting the Project, must not delete its Key Quotes.
+- **Feasibility gate:** Zotero Web API highlight retrieval, annotation identity fields, pagination/permissions, attachment and cross-device deep links need a separate integration check. User approval of this UI flow is not an assertion those checks have passed.
+
+**Still open for UI-D005.2a detail:** the Zotero annotation picker presentation, ordering and filtering, handling removed/edited Zotero annotations, import retry states, and source-link fallback wording. No automatic synchronization is authorized.
+
 ## Pending decisions
 
 - **UI-D004.2 (refinement):** Exact literature table/card fields, search/sort defaults, interaction states and import/batch confirmation details.
 - **UI-D005.1a (refinement):** Notes input format and text-editor controls (plain text / Markdown / rich text); technical offline-draft and conflict-resolution UI details.
-- **UI-D005.2:** Key Quotes source linking, Zotero deep-link and metadata interactions.
+- **UI-D005.2a (refinement):** Zotero highlight picker, quote ordering, source/deep-link fallback behavior, and handling changed/removed source annotations.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
 
@@ -121,4 +136,4 @@ The user selected **Option C: Autosave + Save Now** on 2026-11-22. This decision
 
 ## Gate
 
-`UI-D001` through `UI-D005.1` (including UI-D004.1) are approved so far; UI-D004.2, UI-D005.1a, UI-D005.2 and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1) are approved so far; UI-D004.2, UI-D005.1a, UI-D005.2a and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
