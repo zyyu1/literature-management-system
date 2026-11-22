@@ -70,6 +70,8 @@
 
 | UI-D005.1e | Export one Typora-compatible UTF-8 .md per canonical global Research Note, filename based on sanitized paper title plus Zotero item key; include available Zotero title/authors/year/DOI metadata and all five Markdown sections verbatim; distinguish unsynced draft vs remotely saved content; exclude PDF/Key Quotes | APPROVED 2026-11-22; TYPORA/EXPORT EDGE-CASE VALIDATION PENDING |
 
+| UI-D005.1f | On reopening a note with recoverable unsynced local edits, display an explicit dialog showing available local/remote statuses, timestamps and changed fields; Review & Recover opens five-field comparison; Not Now/close preserves local draft; never overwrite or mark Saved before version-guarded acknowledged remote commit | APPROVED 2026-11-22; LOCAL DRAFT PRIVACY/POC-001 VALIDATION PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
