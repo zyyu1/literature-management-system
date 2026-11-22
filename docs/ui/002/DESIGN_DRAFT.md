@@ -970,7 +970,7 @@ On 2026-11-22 the user selected **Option A: show an Important star action at the
 - **Status correctness:** initial star state must be based on the verified current Project association. Do not claim a write succeeded before remote acknowledgement; on failure, preserve or restore the authoritative state and surface an actionable indication. **Confirmed-only star update, Saving status and failure/Retry behavior are approved in UI-D004.3-R1h; exact star spinner placement remains UI-D004.3-R1j/UI-D006, and neutral count-pill styling is approved in UI-D004.3-R1i.**
 - **Accessibility:** star state must be distinguishable by icon shape/accessible label (e.g., **Mark Important** versus **Unmark Important for this Project**), not color alone. Provide keyboard/screen-reader and touch access; precise star feedback focus placement and announcements require UI-D004.3-R1j/UI-D006 validation.
 
-**UI-D004.3-R1h approves Saving, confirmed-only success, unchanged-on-failure and Retry behavior.** Exact feedback rendering remains UI-D004.3-R1j and neutral tab count badges are approved in UI-D004.3-R1i; list-operation confirmation copy remains UI-D004.3f; partial failure and safe Retry Failed are approved in UI-D004.3e and cross-device accessibility remains UI-D006. This decision is design-only, not an implementation/QA authorization.
+**UI-D004.3-R1h approves Saving, confirmed-only success, unchanged-on-failure and Retry behavior.** Inline star feedback is approved in UI-D004.3-R1j and neutral tab count badges in UI-D004.3-R1i; list-operation confirmation copy remains UI-D004.3f; partial failure and safe Retry Failed are approved in UI-D004.3e and cross-device accessibility remains UI-D006. This decision is design-only, not an implementation/QA authorization.
 
 ### UI-D004.3-R1h — Confirmed-only Important star updates with Saving/Retry feedback: APPROVED
 
@@ -981,7 +981,7 @@ On 2026-11-22 the user selected **Option B: show Saving after pressing the Impor
 - **Failure behavior:** if the request fails or is rejected, remove the Saving presentation, keep the **previous confirmed Important state** (no false optimistic change), report the failure near the affected paper and provide **Retry** of the intended operation. Do not change Important totals on failed writes; do not silently retry a possibly non-idempotent request.
 - **Unknown or conflicting result:** timeout, lost acknowledgment, other-device edits, or an outdated association/version must not automatically be interpreted as a definite failure or success. Recheck authoritative remote state if possible before offering a write retry, and reconcile/reload as appropriate; avoid overwriting newer cross-device state or incorrectly incrementing/decrementing totals.
 - **Controls stay synchronized:** the star shortcut and Actions-menu entry represent the same operation, share the same pending/disabled state and reflect the same confirmed value. Avoid a second request from double taps, menu commands or repeated keyboard activation. Do not hijack card navigation or mobile Select checkboxes.
-- **A11y and responsive:** communicate Saving, confirmed state and failure/Retry with accessible text/live feedback rather than color alone. Keep touch targets usable on mobile and preserve keyboard/screen-reader focus where possible. Specific icon/spinner styling, live-announcement copy and error message placement remain UI-D004.3-R1i/UI-D006.
+- **A11y and responsive:** communicate Saving, confirmed state and failure/Retry with accessible text/live feedback rather than color alone. Keep touch targets usable on mobile and preserve keyboard/screen-reader focus where possible. Inline Saving/success by star and row/card error with Retry are approved in UI-D004.3-R1j; exact announcement timing and focus remain UI-D004.3-R1k/UI-D006.
 - **No new capability:** Important remains scoped to the current Project–paper link, with no global/bulk Important operation; global Reading Status, Zotero content, Key Quotes, global Research Notes and other Projects' Important flags are unaffected.
 - **QA/technical gate:** test slow network, failure, ack loss, stale revisions, concurrent devices, repeated taps from both star and Actions menu, switching tabs during Saving, count consistency and inaccessible/disabled controls. This is a docs-only UI approval, not evidence of backend concurrency, POC-001 or QA completion.
 
@@ -999,7 +999,7 @@ On 2026-11-22 the user selected **Option B: on both desktop and phone, display t
 - **No data-side effects:** badge rendering never changes the Item's Important mark, global Reading Status, Zotero information, global notes or project membership. The previously approved UI-D004.3-R1h Saving/remote-confirmation/Retry semantics still determine when the Important count updates.
 - **Technical QA:** check 0/1/large counts, loading/failed counts, active filters, mobile long translations, font scaling, dark mode, screen readers and stale concurrent updates. This docs-only decision does not certify implementation or authorize code.
 
-**Still pending (UI-D004.3-R1j/UI-D006):** specific star saving spinner/success/failure icon/notification placement, screen-reader announcements and focus after remote state changes; other responsive navigation/interaction details.
+**UI-D004.3-R1j approves star-adjacent Saving and brief confirmed-success feedback, per-paper inline error/Retry and accessible status feedback.** Star visibility in mobile Select mode and exact focus/announcement timing remain UI-D004.3-R1k/UI-D006.
 
 ### UI-D004.3e — Mobile batch results summary with expandable failures and safe Retry Failed: APPROVED
 
@@ -1033,9 +1033,23 @@ On 2026-11-22 the user selected **Option B: before a mobile bulk operation, show
 
 **Still pending (UI-D004.3g/UI-D006):** exact localization/copy and responsive placement for scope controls, confirmation and result messages; optional sort-direction toggles, search-match highlighting, and accessibility/error refinements.
 
+### UI-D004.3-R1j — Inline Important-star Saving/success status and per-paper failure with Retry: APPROVED
+
+On 2026-11-22 the user selected **Option B: show Saving beside the Important star and a brief success confirmation in the same vicinity; on failure show a clear reason and Retry within the affected desktop literature row or mobile card, with accessible status feedback**.
+
+- **Local feedback placement:** the Project-scoped Important star remains at the **right of the desktop paper row** and **top-right of the phone card** per UI-D004.3-R1g. A concise **Saving** indication appears **adjacent to that specific paper's star** while the remote write is pending. In the same nearby area, show a brief, nonintrusive **Saved / Important updated** acknowledgment **only after confirmed remote success**. Keep the paper title and actions legible; do not introduce attention-grabbing badges or a page-wide success modal for every star tap.
+- **Failure presentation:** if a write definitely fails, keep the previous confirmed star state and Important tab count per UI-D004.3-R1h. Show an **inline error message and Retry affordance in that exact paper's row/card**, explaining the actual known reason where available (network, permission, stale version, etc.). If the reason is unknown, say so; do not invent an explanation. Do not place an unrelated global toast as the only error signal.
+- **Safe repeat and ambiguity handling:** disable duplicate commands for that Project–paper association while Saving, including the mirrored **Actions** menu entry. On Retry, revalidate the remote association/version and permission; a timeout/lost acknowledgment is **unknown outcome**, not assumed failure, and must be reconciled before a new write. Prevent an older request's response from overwriting a newer confirmed state or updating counts twice.
+- **A11y:** announce **Saving**, confirmed success, and error/Retry via accessible textual state or appropriate live-region feedback; preserve keyboard focus and screen-reader context for the affected row/card as far as feasible. Error reason and Retry must remain perceivable without color, animation, hover or sound alone. The star itself retains meaningful Mark/Unmark labels and a usable phone touch target. Precise announcement timing/copy, focus choreography and responsive spacing require UI-D004.3-R1k/UI-D006 validation.
+- **Relationship to Select mode:** the star and its feedback must never be confused with the phone's Select checkbox or cause a card navigation. Whether to hide/disable the star shortcut during phone multi-select, to avoid conflicting gestures, remains an explicit UI-D004.3-R1k/UI-D006 refinement; this approval does **not** authorize bulk Important marking.
+- **Scope and count correctness:** only the current Project–paper Important association changes on confirmed save; no global Reading Status, Zotero item, Research Note or Key Quote writes. After acknowledged success, update the correct current-Project Important total shown in its neutral pill (UI-D004.3-R1f/R1i); do not alter All Papers total. On failure or pending, retain confirmed counts.
+- **QA:** test desktop and narrow phone widths, keyboard/screen readers, long error messages, status timing, rapid double taps, Actions-menu parity, changing tabs/filters during request, retries, stale multi-device writes and unknown outcomes. This is design-only; POC-001, independent QA and implementation authorization remain separate.
+
+**Still pending (UI-D004.3-R1k/UI-D006):** star shortcut behavior/visibility while mobile Select mode is active, exact focus/announcement sequencing and short success/status display timing; remaining responsive accessibility acceptance.
+
 ## Pending decisions
 
-- **UI-D004.3-R1j (refinement):** Important star spinner/error icon and screen-reader announcements/focus behavior; responsive button visibility in Select mode.
+- **UI-D004.3-R1k (refinement):** Important-star visibility during mobile Select mode; exact success-display timing, focus and announcements.
 - **UI-D004.3g (refinement):** Exact list confirmation/error copy and responsive placement; alternate sort directions, search-match highlighting and accessible result/focus details.
 - **UI-D005.1l (refinement):** Markdown toolbar shortcuts and mobile overflow, accessible note-conflict/recovery focus transitions.
 - **UI-D005.2h (refinement):** Re-link confirmation copy, source-history display, uncertain source-version messaging and cross-device focus.
@@ -1053,4 +1067,4 @@ On 2026-11-22 the user selected **Option B: before a mobile bulk operation, show
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1j, UI-D004.3g, UI-D005.1l, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1k, UI-D004.3g, UI-D005.1l, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.

@@ -96,6 +96,8 @@
 
 | UI-D004.3f | Before mobile bulk apply, show distinct total selected and hidden selected counts, target action and scope, and expandable full selected-paper list including hidden entries; global reading-status effect clear; all-Project unlink retains stronger affirmative confirmation; cancel never writes | APPROVED 2026-11-22; COPY/RESPONSIVE CONFIRMATION QA PENDING |
 
+| UI-D004.3-R1j | Beside each Important star show Saving and brief post-acknowledgment success feedback; on definite failure show that paper row/card's reason and Retry; accessible status announcements and safe focus, no false optimistic state, duplicate write or blind retry on unknown outcomes | APPROVED 2026-11-22; INLINE FEEDBACK/A11Y QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
