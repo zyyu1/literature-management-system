@@ -92,6 +92,8 @@
 
 | UI-D004.3-R1i | Desktop and phone All Papers / Important Papers tabs use subtle neutral-gray rounded numeric pills immediately beside tab labels, showing verified unfiltered Project-scoped totals only; active filtered N results shown separately in list; no colorful status styling or fabricated zeros | APPROVED 2026-11-22; RESPONSIVE BADGE/A11Y QA PENDING |
 
+| UI-D004.3e | Phone batch operations show Succeeded/Failed/Skipped summary with expandable failed-paper list and available reasons; Retry Failed only applies to failed records still eligible after authoritative revalidation, never confirmed successes; uncertain acknowledgments require verification before retry | APPROVED 2026-11-22; PARTIAL-FAILURE/IDEMPOTENCY QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
