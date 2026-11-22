@@ -124,6 +124,8 @@
 
 | UI-D004.3j | Retain original phone modal Bottom Sheet through Review → Processing → Results, showing verified Succeeded/Failed/Skipped totals, expandable per-paper failure reasons, separate unknown/pending verification and safe Retry Failed only after revalidation; never repeat successes or blindly retry unknown results | APPROVED 2026-11-23; BATCH PROCESSING/ACK-LOSS/A11Y QA PENDING |
 
+| UI-D004.3-R1m | Phone Select mode displays read-only per-visible-card Important Saving/Failed/Unknown state and a top current-Project summary counting affected papers even if tab/search/filter-hidden. No per-paper Retry/menu while selecting; exit restores latest confirmed Important star, inline failures and guarded Retry; unknown states reconcile before resolution and never masquerade as success | APPROVED 2026-11-23; PHONE STATUS ANNOUNCEMENT/FOCUS QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
