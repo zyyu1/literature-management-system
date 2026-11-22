@@ -86,6 +86,8 @@
 
 | UI-D004.3d | Keep current Project phone Select-mode selections across All/Important tabs, search and reading-status filters even when rows are hidden; show full selected total and warn batch effects include hidden entries; clear on leaving Project or explicit Exit without writing, no cross-Project carryover; revalidate before scoped/global bulk actions | APPROVED 2026-11-22; MOBILE SELECTION AND HIDDEN-ITEM QA PENDING |
 
+| UI-D004.3-R1g | Important shortcut star at the right of each desktop literature row and top-right of each phone literature card; keep equivalent Actions-menu Mark/Unmark per paper, scoped to this Project link; do not conflate with card navigation or mobile Select checkbox | APPROVED 2026-11-22; WRITE FEEDBACK/BADGE AND RESPONSIVE QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

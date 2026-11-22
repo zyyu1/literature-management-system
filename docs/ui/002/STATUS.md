@@ -48,10 +48,11 @@
 - **UI-D005.1k APPROVED:** Export Local Draft uses `<safe-title>_<zotero-key>_LOCAL-DRAFT.md`; Export Saved Version uses `<safe-title>_<zotero-key>_SAVED.md`. Suffix reflects selected source; an offline cached confirmed-saved revision is not necessarily latest; no export writes.
 - **UI-D004.3-R1f APPROVED:** Tab badges show current Project's unfiltered All Papers and Important Papers totals; active search/status-filter matches display as a separate N results label in the list area, with truthful loading/zero/error states.
 - **UI-D004.3d APPROVED:** Phone Select-mode selection persists within the current Project across All/Important tabs, search and status filters, even when selected cards are hidden. Bottom bar counts all selected; leaving Project or exiting Select mode clears without writing; batch confirmation includes hidden selections and honors approved scoped safeguards.
-- **UI-D004.3-R1g / UI-D004.3e / UI-D005.1l / UI-D005.2h / UI-D006:** PENDING. Star feedback and mobile/count styling, exact batch confirmation/partial-result and list error copy, Markdown toolbar overflow/conflict focus, Key Quote source-history presentation and cross-device acceptance.
+- **UI-D004.3-R1g APPROVED:** Project-scoped Important star shortcut appears at desktop paper row right and phone paper card top-right, with equivalent Mark/Unmark Important action retained in Actions menu. Selection, navigation and other Projects' state remain separate; no new bulk Important action.
+- **UI-D004.3-R1h / UI-D004.3e / UI-D005.1l / UI-D005.2h / UI-D006:** PENDING. Important star save/failure feedback and badge/responsive details; precise batch confirmations/partial results, Markdown toolbar overflow/conflict focus, Key Quote history and cross-device acceptance.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D004.3-R1g — Important star placement and write-failure feedback on desktop and mobile (then detailed list and source-history refinements).
+**Next Design decision:** UI-D004.3-R1h — Important star pending, success and failure feedback (then badge styling and remaining UI refinements).

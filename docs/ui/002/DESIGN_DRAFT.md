@@ -940,10 +940,10 @@ On 2026-11-22 the user selected **Option B: All Papers and Important Papers tab 
 - **Project and Important updates:** authoritative Project link/unlink and per-Project Important mark/unmark operations refresh the corresponding real tab totals after acknowledgment. Removing Important changes the Important total but not All Papers; removing the current Project link changes All and, if marked, Important. Shared reading status changes can affect filtered result count but do not change either unfiltered tab total.
 - **Zero, loading and errors:** display `0` only when reliable data confirms there are zero linked/matching papers; while count data is loading or cannot be verified, use a clearly distinguishable loading/unknown/error state rather than a fabricated zero, stale total described as live, or invented number. An active filter with zero matches shows an honest **0 results** and a clear/reset-filters affordance without suggesting that the Project has no literature.
 - **Sorting and session state:** UI-D004.3-R1e per-tab session-local sort selections remain independent and intact when switching tabs, and the approved per-tab defaults remain the same. Sorting affects display order only, not either count.
-- **Desktop and mobile:** present both tab total labels and the separate list-region results label in compact, accessible text. Count badges must not rely on color alone; screen readers must distinguish e.g. **Important Papers, 8 total** from **5 matching results**. Exact placement/responsive wrapping, keyboard focus and star feedback remain UI-D004.3-R1g/UI-D006.
+- **Desktop and mobile:** present both tab total labels and the separate list-region results label in compact, accessible text. Count badges must not rely on color alone; screen readers must distinguish e.g. **Important Papers, 8 total** from **5 matching results**. Star shortcut placement is approved in UI-D004.3-R1g; exact count badge wrapping, focus and write feedback remain UI-D004.3-R1h/UI-D006.
 - **No implied features:** this approval does not create persistent search or sort preferences, global Important marking, bulk Important actions, extra analytics or unverified backend count claims.
 
-**Still pending (UI-D004.3-R1g):** exact Important star placement and save/failure feedback, visual count badge styling and accessible phone/desktop interaction details.
+**UI-D004.3-R1g approves the right-side desktop row star and top-right phone-card star with Actions-menu parity.** Save/failure feedback, count badge styling and detailed accessible phone/desktop interaction remain UI-D004.3-R1h/UI-D006.
 
 ### UI-D004.3d — Project-scoped multi-selection persists across tabs and filters: APPROVED
 
@@ -958,9 +958,23 @@ On 2026-11-22 the user selected **Option B: while phone Select mode remains acti
 - **Control safety:** the phone Select control and bottom action bar remain accessible and do not block phone navigation. Switching tabs, hiding selected rows or exiting without confirmation never starts a batch write. This does **not** introduce bulk Important marking or remove the per-paper Important star.
 - **Remaining refinements (UI-D004.3e/UI-D006):** precise batch dialog wording and partial-result presentation; whether/how to offer a **Clear selection** shortcut beyond the already approved Exit; empty/loading states, keyboard/focus order and safe-area layout. The chosen preservation/clearing semantics are fixed by this decision.
 
+### UI-D004.3-R1g — Fixed Important star shortcut positions with Actions-menu parity: APPROVED
+
+On 2026-11-22 the user selected **Option A: show an Important star action at the right edge of each desktop literature table row and at the top-right corner of each phone literature card; retain the equivalent action in that paper's Actions menu**.
+
+- **Desktop placement:** in both All Papers and Important Papers, place a dedicated Mark/Unmark Important **star shortcut on the right side** of the row in the existing actions region. Keep the paper title and metadata readable and do not replace the already approved Actions menu.
+- **Phone placement:** show a discoverable, sufficiently large touch target **at the card's top-right**, separate from the card's paper-opening gesture, menu and reading-status controls. Avoid overlaying or truncating key bibliographic text. A star tap must act only on that paper and must not open the detail page.
+- **Actions-menu parity:** retain an identically scoped **Mark Important / Unmark Important** item in the paper's Actions menu for both screen sizes, synchronized with the star's current per-Project state. This is one logical Project–paper association action exposed by two controls, **not** two distinct flags.
+- **Scope and semantics:** Important remains **per Project–Literature link** (UI-D004.3-R1b); toggling a paper in one Project does not change its Important state in any other Project, the paper's global Reading Status, notes, Key Quotes or Zotero source data. The star represents the same state from either All Papers or Important Papers. No bulk-Important control is introduced.
+- **Multi-select compatibility:** UI-D004.3c/UI-D004.3d mobile Select mode uses explicit checkboxes and retains selections across tab/search/filter changes. The Important star and selection checkbox must remain distinct, with no accidental star action when toggling selection. Exact controls' availability or presentation during Select mode remains a responsive refinement; Select mode must not silently change Importance.
+- **Status correctness:** initial star state must be based on the verified current Project association. Do not claim a write succeeded before remote acknowledgement; on failure, preserve or restore the authoritative state and surface an actionable indication. **Exact pending/success/failure feedback, rollback behavior, spinner placement and count badge visual styling are pending UI-D004.3-R1h/UI-D006**, not approved by this placement decision.
+- **Accessibility:** star state must be distinguishable by icon shape/accessible label (e.g., **Mark Important** versus **Unmark Important for this Project**), not color alone. Provide keyboard/screen-reader and touch access; precise focus placement, responsive spacing and announcements require UI-D004.3-R1h/UI-D006 validation.
+
+**Still pending:** exact star save/failure feedback and total badge styling (UI-D004.3-R1h); list-operation confirmations/errors (UI-D004.3e) and cross-device accessibility (UI-D006). This decision is design-only, not an implementation/QA authorization.
+
 ## Pending decisions
 
-- **UI-D004.3-R1g (refinement):** Exact Important star position/feedback, count badge styling and mobile accessibility.
+- **UI-D004.3-R1h (refinement):** Important star pending/success/failure write feedback, tab count badge visual styling and responsive accessibility.
 - **UI-D004.3e (refinement):** Exact mobile batch confirmation/error copy and partial-result display, alternate sort direction and search-match behavior.
 - **UI-D005.1l (refinement):** Markdown toolbar shortcuts and mobile overflow, accessible note-conflict/recovery focus transitions.
 - **UI-D005.2h (refinement):** Re-link confirmation copy, source-history display, uncertain source-version messaging and cross-device focus.
@@ -978,4 +992,4 @@ On 2026-11-22 the user selected **Option B: while phone Select mode remains acti
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1g, UI-D004.3e, UI-D005.1l, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1h, UI-D004.3e, UI-D005.1l, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
