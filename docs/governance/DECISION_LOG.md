@@ -136,6 +136,8 @@
 
 | UI-D005.1p | Option B: adapt phone Markdown More between button-anchored popover and keyboard-aware bottom action panel by actual visible viewport/keyboard fit, preserving all commands, field selection/IME, focus and undo without writes on open/dismiss/resize; show accurate optional shortcut hints. Phone long note conflict/recovery uses accessible full-screen viewport-constrained dialog with independently scrolling five-field comparisons and available safe actions; preserve unsynced drafts, revision-checked saving, accessible focus/safe areas and recovery | APPROVED 2026-11-23; MOBILE VIEWPORT/IME/DIALOG/CONFLICT QA PENDING |
 
+| UI-D005.2k | Option B: phone visible-viewport-adaptive full-screen Relink Source compares last confirmed old vs proposed new highlight with scrollable long-content body and safe controls; definite failure, unknown acknowledgment and concurrent source change appear in place with guarded re-review, honest Key Quote recovery entry on dismissal, preserved excerpt/comment/last confirmed source/history and no blind retry. User-selectable verified Zotero highlight→paper/PDF/page→copy fallback, accessible error/focus return, cross-device/POC QA gate | APPROVED 2026-11-23; RELINK FAILURE/DEVICE DEEP-LINK/RECOVERY QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.
