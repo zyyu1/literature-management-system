@@ -68,10 +68,11 @@
 - **UI-D004.3i APPROVED:** Both desktop and phone show Sort by field plus explicit Ascending/Descending controls. All Papers and Important Papers independently remember field+direction during the current page session; on fresh open defaults remain newest Project link first and newest Important mark first, respectively. Sorting is view-only, never changes counts, metadata, selections or remote state.
 - **UI-D004.3j APPROVED:** Phone pre-batch Bottom Sheet remains open for Review → Processing → Results; same sheet shows verified Succeeded/Failed/Skipped counts, expandable failed reasons, distinct unknown/pending verification state and guarded Retry Failed only. No duplicate submits or repeat of succeeded items; unresolved results stay truthful and recoverable.
 - **UI-D004.3-R1m APPROVED:** In phone Select mode, visible affected cards show read-only Important Saving/Failed/Unknown status while a compact top summary counts these states across all current-Project papers including hidden ones. No individual Actions/Retry in Select, no misleading success; exiting restores latest verified stars, full errors and safe Retry while unresolved requests remain tracked.
-- **UI-D004.3-R1n / UI-D004.3k / UI-D005.1p / UI-D005.2k / UI-D006:** PENDING. Precise Important Select status announcements/placement/focus, batch unknown-outcome close/result copy and responsive list details, Markdown More/long-dialog layout, Relink failure fallback and cross-device UI QA.
+- **UI-D004.3k APPROVED:** A phone batch Results Bottom Sheet may close even with Unknown/Pending verification items; current Project Literature retains a visible accessible notice and Review batch results entry for the same operation, with no fake outcome, automatic background verification, blind Retry or replayed success. Cross-reload recovery/storage still requires backend/QA proof.
+- **UI-D004.3-R1n / UI-D004.3l / UI-D005.1p / UI-D005.2k / UI-D006:** PENDING. Select-mode Important status/focus, placement and multi-batch behavior of Pending verification entry, Markdown More/long-dialog responsiveness, Relink failure fallback and cross-device UI QA.
 
 See [DESIGN_DRAFT.md](DESIGN_DRAFT.md) for the current non-frozen design. This is a partial decision, not a final UI specification and not permission to implement.
 
 **BOOTSTRAP-000 QA:** Pending; do not claim approval without independently published evidence.
 
-**Next Design decision:** UI-D004.3k — How to handle closing the batch-result Bottom Sheet while some per-paper outcomes are still Unknown / pending verification.
+**Next Design decision:** UI-D004.3l — Placement of the Pending verification notice and Review batch results entry on Project Literature after closing unresolved batch results.
