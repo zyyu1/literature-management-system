@@ -1,0 +1,10 @@
+$ node scripts/mutation-check.mjs
+# exit 0 · 5599 ms
+
+M1 KILLED (suite exit 1) — adapter treats 5xx as committed
+M2 KILLED (suite exit 1) — API forwards writes without If-Match (naive overwrite)
+M3 KILLED (suite exit 1) — API re-sends an operation whose outcome is Unknown
+M4 KILLED (suite exit 1) — API access log records request headers (session token leak)
+M5 KILLED (suite exit 1) — restore allowed into the active namespace
+M6 KILLED (suite exit 1) — path id allowlist removed (traversal possible)
+MUTATION CHECK: all mutants killed

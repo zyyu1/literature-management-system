@@ -1,0 +1,6 @@
+$ npm ls --all
+# exit 0 · 219 ms
+
+lms-poc-001-webdav-feasibility@0.0.0-poc /home/claude/literature-management-system/poc/001
+`-- (empty)
+
