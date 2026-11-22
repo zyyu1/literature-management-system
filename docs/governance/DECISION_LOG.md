@@ -78,6 +78,8 @@
 
 | UI-D005.1i | Markdown source toolbar wraps active selection or inserts at caret; per-field caret/selection and edit scroll restored after Edit/Preview toggle across five independent fields; stale ranges never overwrite drafts, no cross-page/cross-device cursor sync | APPROVED 2026-11-22; CARET/IME/A11Y QA PENDING |
 
+| UI-D005.1j | Display Local Draft / Not Synced with verified last local edit time and affected Markdown fields; before a specifically targeted manual discard show possible loss, remote saved-version status and Export Local Draft alternative; cancel/export never deletes, explicit confirm required; no independent draft manager | APPROVED 2026-11-22; STORAGE PRIVACY/STALE DISCARD QA PENDING |
+
 ## Guardrails
 
 - Zotero remains authoritative for bibliographic metadata, PDF content and original annotations. Existing Nutstore WebDAV remains the Zotero attachment-sync backend.

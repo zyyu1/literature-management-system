@@ -885,7 +885,7 @@ On 2026-11-22 the user selected **Option B: automatically clean up only the spec
 - **Recoverability limitations:** this is a promise about app-controlled cleanup only, not a guarantee against operating-system/browser eviction, cache deletion, storage exhaustion or device loss. Do not falsely claim indefinite offline backup.
 - **POC-001/QA:** verify crash/reload after remote acknowledgment, ack-loss vs actual commit, same-note simultaneous writes, local edits racing confirmation, per-field merge, failed cleanup/retry, privacy and safe storage behavior before marking implementation ready. This is a documentation approval, not proof that the backend supports the required atomicity.
 
-**UI-D005.1i approves per-field selection/caret/scroll restoration while editing and returning from Preview.** Local draft privacy indicators, manual-discard copy, filename suffixes distinguishing draft vs saved exports, cross-device conflict dialog focus and accessibility remain UI-D005.1j/UI-D006.
+**UI-D005.1i approves per-field selection/caret/scroll restoration while editing and returning from Preview.** Local draft privacy indicators and manual-discard copy are approved in UI-D005.1j; filename suffixes distinguishing draft vs saved exports, cross-device conflict dialog focus and accessibility remain UI-D005.1k/UI-D006.
 
 ### UI-D005.1i — Per-field Markdown selection, caret and scroll restoration: APPROVED
 
@@ -900,13 +900,28 @@ On 2026-11-22 the user selected **Option B: toolbar commands accurately operate 
 - **No persistent cursor tracking:** this option does **not** require persisting selection/caret/scroll across full page reload, subsequent browsing sessions or different devices. No remote storage of caret/selection is required.
 - **Verification:** QA must cover multi-line selections, empty-selection insertion, repeated toolbar clicks, lists, links, formulas, Unicode/IME input, undo/redo, mobile viewport changes, switching among all five fields, unsynced recovery and version-conflict transitions. This is a docs-only approval, not technical validation.
 
-**Still pending (UI-D005.1j/UI-D006):** exact local-draft privacy indicators and manual-discard wording; export filename suffix for local draft vs saved version; toolbar shortcut/overflow details and conflict-dialog focus/accessible mobile behavior.
+**UI-D005.1j approves local-draft status/privacy indicators and targeted, explicitly confirmed manual discard with a chance to export first.** Export filename suffix for local draft vs saved version, toolbar shortcut/overflow details and conflict-dialog focus/accessible mobile behavior remain UI-D005.1k/UI-D006.
+
+### UI-D005.1j — Local unsynced draft privacy display and explicit manual discard confirmation: APPROVED
+
+On 2026-11-22 the user selected **Option B: show the locally unsynced status, last local modification time and affected Markdown fields; before Discard Local Draft explain what would be lost, whether a confirmed remotely saved version exists, and offer Export Local Draft, with a deliberate confirmation**.
+
+- **Visible draft identity/status:** identify the current canonical Zotero paper and show **Local Draft / Not Synced**, clearly different from **Saved**, **Saving**, **Offline**, **Save failed** and **Conflict**. Display an actual known **last local edit time** and the affected subset of the five Research Notes fields; if timestamps or a reliable field comparison are unavailable, say **Unknown / Not verified**, never fabricate precision.
+- **Privacy context:** label the data as a copy retained **on this browser/device**, **not** a remotely saved version or a guaranteed private/encrypted backup. Avoid displaying raw unpublished note text, secrets or personally identifying data in non-essential notifications or diagnostic logs. A shared device, browser storage clearing and private-browsing limitations may expose or erase the draft; storage access, encryption and logout semantics need security and POC-001 review.
+- **Initiating discard:** **Discard Local Draft** must be an explicit action targeted at a clearly identified **paper and specific local draft/revision**, not an automatic consequence of opening/closing a dialog, navigation, Project switching, logging out, changing tabs, Save Now or Export.
+- **Confirmation content:** before any deletion, show (a) which local unsynced changes / affected fields will be lost, (b) the local draft's known modification time, (c) whether a **confirmed remote-saved version** is available and its verifiable status/time (or state unknown/offline uncertainty), and (d) an accessible **Export Local Draft** alternative consistent with UI-D005.1g. Warn that discarding may irreversibly lose unsynced work; do not imply the cloud contains those changes.
+- **Explicit choices:** provide a clearly distinguishable **Cancel / Keep Draft** action and a deliberate **Confirm Discard Local Draft** action; cancellation, Escape, dialog dismiss, or export leave the draft untouched. Export completion does **not** imply permission to discard, does not upload and does not close the recovery path by itself.
+- **Safety after confirmation:** delete only the identified local draft after successful confirmation, not a newer locally edited revision, another paper's draft, the last remote-saved Research Note, any Key Quotes or Zotero content. If a new edit or unexpected version change arrives before deletion, prevent stale discard and require the user to review/confirm the current draft; if deletion fails, show an accurate error rather than falsely claiming success.
+- **No new management module:** this choice adds clear state and confirmation to the existing note/recovery UI, **not** a standalone all-drafts management page, forced periodic expiry or new cross-device draft synchronization. UI-D005.1h confirmed-remote-and-content-equivalent cleanup remains separately permitted without discarding unsynced revisions.
+- **Accessibility and implementation gate:** dialog and Export alternative must work with phone/desktop layouts, keyboard, screen readers and visible focus; detailed focus choreography remains UI-D006. Verify local-storage isolation, stale-event races, error states and browser privacy limitations during POC-001/QA. Browser deletion cannot promise irreversible physical erasure.
+
+**Still pending (UI-D005.1k/UI-D006):** visible filename suffixes distinguishing Local Draft and Saved Version exports, exact toolbar shortcut/overflow details, mobile layout and accessible multi-device conflict dialog focus. No code-start or QA-pass authorization follows from this UI approval.
 
 ## Pending decisions
 
 - **UI-D004.3-R1f (refinement):** Exact star position/feedback, count badge styling and filtered-match semantics, and mobile accessibility.
 - **UI-D004.3d (refinement):** Mobile selection persistence across tab/filter changes, exact confirmation/error copy and result display, alternative sort directions and query-match details.
-- **UI-D005.1j (refinement):** Local-draft privacy indicators and manual discard confirmation copy; local draft versus saved export suffix; toolbar shortcut/overflow and accessible conflict dialog details.
+- **UI-D005.1k (refinement):** Export filename distinction for local draft versus saved revision, toolbar shortcut/overflow and accessible conflict dialog details.
 - **UI-D005.2h (refinement):** Re-link confirmation copy, source-history display, uncertain source-version messaging and cross-device focus.
 - **UI-D006:** Responsive interaction, accessibility, save/error/conflict and cross-device behaviors.
 - Final UI acceptance matrix and independent design freeze.
@@ -922,4 +937,4 @@ On 2026-11-22 the user selected **Option B: toolbar commands accurately operate 
 
 ## Gate
 
-`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1f, UI-D004.3d, UI-D005.1j, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
+`UI-D001` through `UI-D005.2` (including UI-D004.1 and UI-D005.1a) are approved so far; UI-D004.3-R1f, UI-D004.3d, UI-D005.1k, UI-D005.2h and UI-D006 remain pending. **Do not start implementation, publish a code-start authorization, or imply independent QA passed.** Continue Design review one decision at a time, then publish frozen `DESIGN_APPROVED.md` and a separate scoped execution authorization only when explicitly approved.
