@@ -1,23 +1,23 @@
 $ node --test --test-reporter=spec test/poc06-faults.test.mjs
-# exit 0 · 1886 ms
+# exit 0 · 1942 ms
 
-✔ POC-06 upstream 401: definite not_saved (upstream_auth), single attempt, data intact (46.34401ms)
-✔ POC-06 upstream 403: definite not_saved (upstream_forbidden), single attempt, data intact (15.433276ms)
-✔ POC-06 upstream 409: definite not_saved (upstream_conflict), single attempt, data intact (14.637698ms)
-✔ POC-06 upstream 423: definite not_saved (locked), single attempt, data intact (13.202991ms)
-✔ POC-06 upstream 429: definite not_saved (rate_limited), single attempt, data intact (16.635168ms)
-✔ POC-06 upstream 412 (stale): conflict with current content, nothing written (12.086074ms)
-✔ POC-06 hang: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat (325.347829ms)
-✔ POC-06 status 500: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat (19.222416ms)
-✔ POC-06 status 503: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat (20.358922ms)
-✔ POC-06 commit-then-drop: Unknown → verify → committed; no blind repeat (9.90448ms)
-✔ POC-06 commit-then-hang: Unknown → verify → committed; no blind repeat (312.016226ms)
-✔ POC-06 commit-then-status 502: Unknown → verify → committed; no blind repeat (9.544466ms)
-✔ POC-06 Unknown, then another writer changes the record → verify says indeterminate (not guessed) (315.362588ms)
-✔ POC-06 identical text from another writer is NOT treated as proof our op landed (314.489588ms)
-✔ POC-06 corrupt write: storage acknowledges but bytes differ → verification_failed, never saved (14.508025ms)
-✔ POC-06 offline (storage down): writes definite not_saved/offline, reads unavailable, verify unavailable (316.850133ms)
-✔ POC-06 read-path errors (401 expired creds, 429, 500) are surfaced, not masked as empty data (10.683274ms)
+✔ POC-06 upstream 401: definite not_saved (upstream_auth), single attempt, data intact (59.067128ms)
+✔ POC-06 upstream 403: definite not_saved (upstream_forbidden), single attempt, data intact (14.02311ms)
+✔ POC-06 upstream 409: definite not_saved (upstream_conflict), single attempt, data intact (16.105461ms)
+✔ POC-06 upstream 423: definite not_saved (locked), single attempt, data intact (11.827138ms)
+✔ POC-06 upstream 429: definite not_saved (rate_limited), single attempt, data intact (14.142642ms)
+✔ POC-06 upstream 412 (stale): conflict with current content, nothing written (13.727585ms)
+✔ POC-06 hang: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat (332.725901ms)
+✔ POC-06 status 500: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat (27.178252ms)
+✔ POC-06 status 503: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat (21.269187ms)
+✔ POC-06 commit-then-drop: Unknown → verify → committed; no blind repeat (14.49025ms)
+✔ POC-06 commit-then-hang: Unknown → verify → committed; no blind repeat (312.40114ms)
+✔ POC-06 commit-then-status 502: Unknown → verify → committed; no blind repeat (14.740117ms)
+✔ POC-06 Unknown, then another writer changes the record → verify says indeterminate (not guessed) (314.055448ms)
+✔ POC-06 identical text from another writer is NOT treated as proof our op landed (315.633729ms)
+✔ POC-06 corrupt write: storage acknowledges but bytes differ → verification_failed, never saved (9.59145ms)
+✔ POC-06 offline (storage down): writes definite not_saved/offline, reads unavailable, verify unavailable (315.156677ms)
+✔ POC-06 read-path errors (401 expired creds, 429, 500) are surfaced, not masked as empty data (11.621891ms)
 ℹ tests 17
 ℹ suites 0
 ℹ pass 17
@@ -25,4 +25,4 @@ $ node --test --test-reporter=spec test/poc06-faults.test.mjs
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 1855.602037
+ℹ duration_ms 1908.934839

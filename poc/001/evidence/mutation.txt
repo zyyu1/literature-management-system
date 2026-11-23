@@ -1,5 +1,5 @@
 $ node scripts/mutation-check.mjs
-# exit 0 · 29231 ms
+# exit 0 · 257597 ms
 
 M1 KILLED (suite exit 1) — adapter treats 5xx as committed
 M2 KILLED (suite exit 1) — API forwards writes without If-Match (naive overwrite)
@@ -14,4 +14,14 @@ M10 KILLED (suite exit 1) — P1-4 regression: https accepted and sent over node
 M11 KILLED (suite exit 1) — P2-5 regression: kind lookup via plain object (prototype keys)
 M12 KILLED (suite exit 1) — P2-7 regression: export skips unrecognized entries silently
 M13 KILLED (suite exit 1) — P2-12 regression: refused-after-connect classified as not_sent
+M14 KILLED (suite exit 1) — P1-R1 regression: fence terminal without ETag-change guard
+M15 KILLED (suite exit 1) — P2-N1 regression: DAV elements matched by d: prefix instead of namespace URI
+M16 KILLED (suite exit 1) — P2-N2 regression: absolute deadline effectively disabled
+M17 KILLED (suite exit 1) — P2-N3 regression: tombstones ignored on replay
+M18 KILLED (suite exit 1) — P2-N4 regression: principal id from token array position
+M19 KILLED (suite exit 1) — P2-N4 regression: provenance not checked on read
+M20 KILLED (suite exit 1) — P2-N5 regression: no per-principal quota
+M21 KILLED (suite exit 1) — P2-N6 regression: concurrent fences not serialised
+M22 KILLED (suite exit 1) — P2-N7 regression: comma allowed in POC If-Match profile
+M23 KILLED (suite exit 1) — P2-N8 regression: weak ETag treated as trusted (W/ stripped)
 MUTATION CHECK: all mutants killed

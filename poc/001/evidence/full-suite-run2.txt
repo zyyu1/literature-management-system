@@ -1,339 +1,465 @@
 $ node --test test/*.test.mjs
-# exit 0 · 7541 ms
+# exit 0 · 13306 ms
 
 TAP version 13
 # Subtest: POC-01 adapter CRUD: exact payload, status codes, conditional update/delete
 ok 1 - POC-01 adapter CRUD: exact payload, status codes, conditional update/delete
   ---
-  duration_ms: 31.97909
+  duration_ms: 34.236365
   type: 'test'
   ...
 # Subtest: POC-01 API CRUD (create/read/update via safe API; delete intentionally not exposed)
 ok 2 - POC-01 API CRUD (create/read/update via safe API; delete intentionally not exposed)
   ---
-  duration_ms: 34.829957
+  duration_ms: 38.771493
   type: 'test'
   ...
 # Subtest: POC-02 authentication and request validation
 ok 3 - POC-02 authentication and request validation
   ---
-  duration_ms: 45.457482
+  duration_ms: 62.827352
   type: 'test'
   ...
 # Subtest: POC-02 path/kind allowlist, traversal, SSRF and origin
 ok 4 - POC-02 path/kind allowlist, traversal, SSRF and origin
   ---
-  duration_ms: 16.685194
+  duration_ms: 26.131048
   type: 'test'
   ...
 # Subtest: POC-02 credentials never leave the server side (responses, headers, logs, client code)
 ok 5 - POC-02 credentials never leave the server side (responses, headers, logs, client code)
   ---
-  duration_ms: 36.970688
+  duration_ms: 65.324204
   type: 'test'
   ...
 # Subtest: POC-02 default-deny real network and loopback-only listeners
 ok 6 - POC-02 default-deny real network and loopback-only listeners
   ---
-  duration_ms: 1.80485
+  duration_ms: 1.414275
   type: 'test'
   ...
 # Subtest: POC-03 codec: Markdown export parses back byte-identical for all five fields
 ok 7 - POC-03 codec: Markdown export parses back byte-identical for all five fields
   ---
-  duration_ms: 4.597483
+  duration_ms: 4.483108
   type: 'test'
   ...
 # Subtest: POC-03 envelope round trip through API and storage is byte-exact
 ok 8 - POC-03 envelope round trip through API and storage is byte-exact
   ---
-  duration_ms: 50.784901
+  duration_ms: 43.477442
   type: 'test'
   ...
 # Subtest: POC-03 identity: Zotero library+key mapping is unique; duplicate create refused
 ok 9 - POC-03 identity: Zotero library+key mapping is unique; duplicate create refused
   ---
-  duration_ms: 24.305018
+  duration_ms: 18.139172
   type: 'test'
   ...
 # Subtest: POC-04 client B observes client A's confirmed revision after explicit refresh
 ok 10 - POC-04 client B observes client A's confirmed revision after explicit refresh
   ---
-  duration_ms: 311.67695
+  duration_ms: 319.752393
   type: 'test'
   ...
 # Subtest: POC-05 50 forced-overlap rounds: exactly one stale writer wins, loser gets 412 with winner intact
 ok 11 - POC-05 50 forced-overlap rounds: exactly one stale writer wins, loser gets 412 with winner intact
   ---
-  duration_ms: 907.528025
+  duration_ms: 936.592356
   type: 'test'
   ...
-# winners: A=16 B=34 over 50 rounds
+# winners: A=26 B=24 over 50 rounds
 # Subtest: POC-05 concurrent create-only race: one create wins, other 412
 ok 12 - POC-05 concurrent create-only race: one create wins, other 412
   ---
-  duration_ms: 215.051095
+  duration_ms: 239.147631
   type: 'test'
   ...
 # Subtest: POC-05 negative control: naive GET-then-unconditional-PUT LOSES an update (why If-Match is mandatory)
 ok 13 - POC-05 negative control: naive GET-then-unconditional-PUT LOSES an update (why If-Match is mandatory)
   ---
-  duration_ms: 11.604029
+  duration_ms: 13.741337
   type: 'test'
   ...
 # naive mode: both writers told "committed", one update silently lost (final=naive A)
 # Subtest: POC-06 upstream 401: definite not_saved (upstream_auth), single attempt, data intact
 ok 14 - POC-06 upstream 401: definite not_saved (upstream_auth), single attempt, data intact
   ---
-  duration_ms: 45.403816
+  duration_ms: 53.626926
   type: 'test'
   ...
 # Subtest: POC-06 upstream 403: definite not_saved (upstream_forbidden), single attempt, data intact
 ok 15 - POC-06 upstream 403: definite not_saved (upstream_forbidden), single attempt, data intact
   ---
-  duration_ms: 17.549761
+  duration_ms: 16.863362
   type: 'test'
   ...
 # Subtest: POC-06 upstream 409: definite not_saved (upstream_conflict), single attempt, data intact
 ok 16 - POC-06 upstream 409: definite not_saved (upstream_conflict), single attempt, data intact
   ---
-  duration_ms: 20.011398
+  duration_ms: 15.91736
   type: 'test'
   ...
 # Subtest: POC-06 upstream 423: definite not_saved (locked), single attempt, data intact
 ok 17 - POC-06 upstream 423: definite not_saved (locked), single attempt, data intact
   ---
-  duration_ms: 12.144496
+  duration_ms: 12.364479
   type: 'test'
   ...
 # Subtest: POC-06 upstream 429: definite not_saved (rate_limited), single attempt, data intact
 ok 18 - POC-06 upstream 429: definite not_saved (rate_limited), single attempt, data intact
   ---
-  duration_ms: 18.098773
+  duration_ms: 20.141051
   type: 'test'
   ...
 # Subtest: POC-06 upstream 412 (stale): conflict with current content, nothing written
 ok 19 - POC-06 upstream 412 (stale): conflict with current content, nothing written
   ---
-  duration_ms: 17.743531
+  duration_ms: 18.463393
   type: 'test'
   ...
 # Subtest: POC-06 hang: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat
 ok 20 - POC-06 hang: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat
   ---
-  duration_ms: 334.421556
+  duration_ms: 347.370152
   type: 'test'
   ...
 # Subtest: POC-06 status 500: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat
 ok 21 - POC-06 status 500: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat
   ---
-  duration_ms: 30.79539
+  duration_ms: 33.035528
   type: 'test'
   ...
 # Subtest: POC-06 status 503: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat
 ok 22 - POC-06 status 503: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat
   ---
-  duration_ms: 30.704282
+  duration_ms: 34.38295
   type: 'test'
   ...
 # Subtest: POC-06 commit-then-drop: Unknown → verify → committed; no blind repeat
 ok 23 - POC-06 commit-then-drop: Unknown → verify → committed; no blind repeat
   ---
-  duration_ms: 14.788672
+  duration_ms: 21.285697
   type: 'test'
   ...
 # Subtest: POC-06 commit-then-hang: Unknown → verify → committed; no blind repeat
 ok 24 - POC-06 commit-then-hang: Unknown → verify → committed; no blind repeat
   ---
-  duration_ms: 313.793307
+  duration_ms: 318.489759
   type: 'test'
   ...
 # Subtest: POC-06 commit-then-status 502: Unknown → verify → committed; no blind repeat
 ok 25 - POC-06 commit-then-status 502: Unknown → verify → committed; no blind repeat
   ---
-  duration_ms: 13.23651
+  duration_ms: 18.918036
   type: 'test'
   ...
 # Subtest: POC-06 Unknown, then another writer changes the record → verify says indeterminate (not guessed)
 ok 26 - POC-06 Unknown, then another writer changes the record → verify says indeterminate (not guessed)
   ---
-  duration_ms: 317.80676
+  duration_ms: 319.071268
   type: 'test'
   ...
 # Subtest: POC-06 identical text from another writer is NOT treated as proof our op landed
 ok 27 - POC-06 identical text from another writer is NOT treated as proof our op landed
   ---
-  duration_ms: 312.583305
+  duration_ms: 319.603892
   type: 'test'
   ...
 # Subtest: POC-06 corrupt write: storage acknowledges but bytes differ → verification_failed, never saved
 ok 28 - POC-06 corrupt write: storage acknowledges but bytes differ → verification_failed, never saved
   ---
-  duration_ms: 11.93734
+  duration_ms: 10.50893
   type: 'test'
   ...
 # Subtest: POC-06 offline (storage down): writes definite not_saved/offline, reads unavailable, verify unavailable
 ok 29 - POC-06 offline (storage down): writes definite not_saved/offline, reads unavailable, verify unavailable
   ---
-  duration_ms: 315.421804
+  duration_ms: 315.414148
   type: 'test'
   ...
 # Subtest: POC-06 read-path errors (401 expired creds, 429, 500) are surfaced, not masked as empty data
 ok 30 - POC-06 read-path errors (401 expired creds, 429, 500) are surfaced, not masked as empty data
   ---
-  duration_ms: 11.384739
+  duration_ms: 11.341457
   type: 'test'
   ...
 # Subtest: POC-07 export → restore to fresh namespace → hashes, counts, identities match; source untouched
 ok 31 - POC-07 export → restore to fresh namespace → hashes, counts, identities match; source untouched
   ---
-  duration_ms: 248.100724
+  duration_ms: 265.598556
   type: 'test'
   ...
 # Subtest: POC-07 restore safety: tampered bundle, active namespace and non-restore targets refused before any write
 ok 32 - POC-07 restore safety: tampered bundle, active namespace and non-restore targets refused before any write
   ---
-  duration_ms: 95.8356
+  duration_ms: 109.36126
   type: 'test'
   ...
 # Subtest: POC-07 failures are honest: export during outage is incomplete (no partial bundle); restore write failure reported
 ok 33 - POC-07 failures are honest: export during outage is incomplete (no partial bundle); restore write failure reported
   ---
-  duration_ms: 117.342616
+  duration_ms: 116.495542
   type: 'test'
   ...
 # Subtest: P1-1 late commit after timeout: verify is non-terminal until observed; late commit → committed, never a prior false negative
 ok 34 - P1-1 late commit after timeout: verify is non-terminal until observed; late commit → committed, never a prior false negative
   ---
-  duration_ms: 312.889644
+  duration_ms: 340.362863
   type: 'test'
   ...
 # Subtest: P1-1 fence before late release: terminal not_committed stays true because the late request now fails CAS
 ok 35 - P1-1 fence before late release: terminal not_committed stays true because the late request now fails CAS
   ---
-  duration_ms: 326.001308
+  duration_ms: 322.726762
   type: 'test'
   ...
 # Subtest: P1-1 create-only Unknown cannot be fenced: stays Unknown (documented UNSUPPORTED)
 ok 36 - P1-1 create-only Unknown cannot be fenced: stays Unknown (documented UNSUPPORTED)
   ---
-  duration_ms: 266.886308
+  duration_ms: 274.142507
   type: 'test'
   ...
 # Subtest: P1-2 same Operation-Id concurrently: reserved before first await → exactly one upstream PUT
 ok 37 - P1-2 same Operation-Id concurrently: reserved before first await → exactly one upstream PUT
   ---
-  duration_ms: 415.557116
+  duration_ms: 419.238101
   type: 'test'
   ...
 # Subtest: P1-2 overlapping body arrival with the same Operation-Id: second request refused while first body still streaming
 ok 38 - P1-2 overlapping body arrival with the same Operation-Id: second request refused while first body still streaming
   ---
-  duration_ms: 49.344986
+  duration_ms: 50.458286
   type: 'test'
   ...
 # Subtest: P1-2 same Operation-Id with a different payload or target is refused; replay agrees with the real result
 ok 39 - P1-2 same Operation-Id with a different payload or target is refused; replay agrees with the real result
   ---
-  duration_ms: 13.810312
+  duration_ms: 22.427288
   type: 'test'
   ...
 # Subtest: P1-2/P2-8 exception after reservation never strands an entry as pending
 ok 40 - P1-2/P2-8 exception after reservation never strands an entry as pending
   ---
-  duration_ms: 18.336235
+  duration_ms: 21.583623
   type: 'test'
   ...
 # Subtest: P2-8 ledger is scoped per principal: another token cannot verify, fence or spoof an operation
 ok 41 - P2-8 ledger is scoped per principal: another token cannot verify, fence or spoof an operation
   ---
-  duration_ms: 269.086076
+  duration_ms: 275.531776
   type: 'test'
   ...
 # Subtest: P2-8 ledger is bounded and fails closed rather than evicting Unknown entries
 ok 42 - P2-8 ledger is bounded and fails closed rather than evicting Unknown entries
   ---
-  duration_ms: 796.899319
+  duration_ms: 791.885342
   type: 'test'
   ...
 # Subtest: P1-3 If-Match must be exactly one strong entity-tag; malformed variants never reach storage
 ok 43 - P1-3 If-Match must be exactly one strong entity-tag; malformed variants never reach storage
   ---
-  duration_ms: 33.014119
+  duration_ms: 27.393938
   type: 'test'
   ...
 # Subtest: P1-4 https base URL fails closed: zero connections, zero Authorization sent
 ok 44 - P1-4 https base URL fails closed: zero connections, zero Authorization sent
   ---
-  duration_ms: 107.441054
+  duration_ms: 105.93134
   type: 'test'
   ...
 # Subtest: P2-5 prototype-like kinds rejected on every path (records, verify, restore) before any upstream call
 ok 45 - P2-5 prototype-like kinds rejected on every path (records, verify, restore) before any upstream call
   ---
-  duration_ms: 20.949476
+  duration_ms: 20.876691
   type: 'test'
   ...
 # Subtest: P2-6 restore validates decoded envelopes, not just self-consistent hashes
 ok 46 - P2-6 restore validates decoded envelopes, not just self-consistent hashes
   ---
-  duration_ms: 18.821009
+  duration_ms: 14.897646
   type: 'test'
   ...
 # Subtest: P2-7 export fails closed on unrecognized or invalid entries (never a silently short ok)
 ok 47 - P2-7 export fails closed on unrecognized or invalid entries (never a silently short ok)
   ---
-  duration_ms: 21.045943
+  duration_ms: 30.062103
   type: 'test'
   ...
 # Subtest: P2-9 concurrent restores into the same target: exactly one restored (in-process and across instances)
 ok 48 - P2-9 concurrent restores into the same target: exactly one restored (in-process and across instances)
   ---
-  duration_ms: 23.83443
+  duration_ms: 31.632511
   type: 'test'
   ...
 # Subtest: P2-10 committed_unverified when the storage returns no ETag (never "saved")
 ok 49 - P2-10 committed_unverified when the storage returns no ETag (never "saved")
   ---
-  duration_ms: 9.616998
+  duration_ms: 12.475384
   type: 'test'
   ...
 # Subtest: P2-10 verify after API restart: caller restates target; results are never terminal
 ok 50 - P2-10 verify after API restart: caller restates target; results are never terminal
   ---
-  duration_ms: 15.872458
+  duration_ms: 21.916028
   type: 'test'
   ...
 # Subtest: P2-10 corrupt read is reported as corrupt, not returned as data
 ok 51 - P2-10 corrupt read is reported as corrupt, not returned as data
   ---
-  duration_ms: 13.542957
+  duration_ms: 11.35224
   type: 'test'
   ...
 # Subtest: P2-11 validators reject unexpected fields and non-string identifiers without coercion
 ok 52 - P2-11 validators reject unexpected fields and non-string identifiers without coercion
   ---
-  duration_ms: 16.421716
+  duration_ms: 18.49964
   type: 'test'
   ...
 # Subtest: P2-12 transport classification: never-connected → not_sent; connected-then-dropped → unknown
 ok 53 - P2-12 transport classification: never-connected → not_sent; connected-then-dropped → unknown
   ---
-  duration_ms: 204.670303
+  duration_ms: 203.790444
   type: 'test'
   ...
 # Subtest: P2-12 (QA probe G5/G6) redirects are never followed; truncated 2xx bodies are not data
 ok 54 - P2-12 (QA probe G5/G6) redirects are never followed; truncated 2xx bodies are not data
   ---
-  duration_ms: 3.188024
+  duration_ms: 3.206405
   type: 'test'
   ...
-1..54
-# tests 54
+# Subtest: P1-R1 content-hash ETags: identical-bytes fence keeps the ETag → fence_not_confirmed, never terminal; late commit then resolves to committed
+ok 55 - P1-R1 content-hash ETags: identical-bytes fence keeps the ETag → fence_not_confirmed, never terminal; late commit then resolves to committed
+  ---
+  duration_ms: 329.842578
+  type: 'test'
+  ...
+# Subtest: P1-R1 generation ETags, race order A (fence → late release): terminal not_committed holds; late write rejected
+ok 56 - P1-R1 generation ETags, race order A (fence → late release): terminal not_committed holds; late write rejected
+  ---
+  duration_ms: 337.359186
+  type: 'test'
+  ...
+# Subtest: P1-R1 generation ETags, race order B (late release → fence): fence observes our write → committed
+ok 57 - P1-R1 generation ETags, race order B (late release → fence): fence observes our write → committed
+  ---
+  duration_ms: 281.106347
+  type: 'test'
+  ...
+# Subtest: P1-R1 fence PUT without ETag / with untrusted ETag is not terminal
+ok 58 - P1-R1 fence PUT without ETag / with untrusted ETag is not terminal
+  ---
+  duration_ms: 275.193103
+  type: 'test'
+  ...
+# Subtest: P2-N1 PROPFIND namespace style "d": 2 stored records → export count 2
+ok 59 - P2-N1 PROPFIND namespace style "d": 2 stored records → export count 2
+  ---
+  duration_ms: 47.847061
+  type: 'test'
+  ...
+# Subtest: P2-N1 PROPFIND namespace style "D": 2 stored records → export count 2
+ok 60 - P2-N1 PROPFIND namespace style "D": 2 stored records → export count 2
+  ---
+  duration_ms: 29.019257
+  type: 'test'
+  ...
+# Subtest: P2-N1 PROPFIND namespace style "default": 2 stored records → export count 2
+ok 61 - P2-N1 PROPFIND namespace style "default": 2 stored records → export count 2
+  ---
+  duration_ms: 30.17993
+  type: 'test'
+  ...
+# Subtest: P2-N1 PROPFIND namespace style "z": 2 stored records → export count 2
+ok 62 - P2-N1 PROPFIND namespace style "z": 2 stored records → export count 2
+  ---
+  duration_ms: 32.344837
+  type: 'test'
+  ...
+# Subtest: P2-N1 malformed / foreign / incomplete listings fail closed (never 200 with a short or empty list)
+ok 63 - P2-N1 malformed / foreign / incomplete listings fail closed (never 200 with a short or empty list)
+  ---
+  duration_ms: 89.535177
+  type: 'test'
+  ...
+# Subtest: P2-N2 absolute deadline beats a byte-trickling peer: write → Unknown (not pending), read → unavailable
+ok 64 - P2-N2 absolute deadline beats a byte-trickling peer: write → Unknown (not pending), read → unavailable
+  ---
+  duration_ms: 1820.66974
+  type: 'test'
+  ...
+# Subtest: P2-N2 response bodies are bounded (no unbounded buffering)
+ok 65 - P2-N2 response bodies are bounded (no unbounded buffering)
+  ---
+  duration_ms: 2.221057
+  type: 'test'
+  ...
+# Subtest: P2-N3 evicted operations are tombstoned: replay refused (operation_expired), zero re-dispatch
+ok 66 - P2-N3 evicted operations are tombstoned: replay refused (operation_expired), zero re-dispatch
+  ---
+  duration_ms: 18.984458
+  type: 'test'
+  ...
+# Subtest: P2-N3 beyond the tombstone window / after restart: unsupported, but conditional writes still prevent a lost update
+ok 67 - P2-N3 beyond the tombstone window / after restart: unsupported, but conditional writes still prevent a lost update
+  ---
+  duration_ms: 30.895337
+  type: 'test'
+  ...
+# Subtest: P2-N4 stable principal ids across instances with reversed token order: no cross-principal poisoning
+ok 68 - P2-N4 stable principal ids across instances with reversed token order: no cross-principal poisoning
+  ---
+  duration_ms: 273.572727
+  type: 'test'
+  ...
+# Subtest: P2-N4 forged envelopes (well-formed tag, wrong/missing provenance) are rejected on read, export and restore
+ok 69 - P2-N4 forged envelopes (well-formed tag, wrong/missing provenance) are rejected on read, export and restore
+  ---
+  duration_ms: 35.121604
+  type: 'test'
+  ...
+# Subtest: P2-N4 reserved restore- prefix: an active namespace may not be restore-*
+ok 70 - P2-N4 reserved restore- prefix: an active namespace may not be restore-*
+  ---
+  duration_ms: 0.489745
+  type: 'test'
+  ...
+# Subtest: P2-N5 per-principal quota: one principal exhausting its slots does not block another
+ok 71 - P2-N5 per-principal quota: one principal exhausting its slots does not block another
+  ---
+  duration_ms: 527.120018
+  type: 'test'
+  ...
+# Subtest: P2-N6 concurrent fences are serialised; fence timeout stays Unknown; deleted record → record_missing
+ok 72 - P2-N6 concurrent fences are serialised; fence timeout stays Unknown; deleted record → record_missing
+  ---
+  duration_ms: 1181.349378
+  type: 'test'
+  ...
+# Subtest: P2-N7 POC If-Match profile: RFC-legal comma tag refused as out-of-profile; lists refused; zero upstream
+ok 73 - P2-N7 POC If-Match profile: RFC-legal comma tag refused as out-of-profile; lists refused; zero upstream
+  ---
+  duration_ms: 10.717003
+  type: 'test'
+  ...
+# Subtest: P2-N8 weak ETags (local negative fixture): never "saved", never stripped, updates refused explicitly
+ok 74 - P2-N8 weak ETags (local negative fixture): never "saved", never stripped, updates refused explicitly
+  ---
+  duration_ms: 14.452075
+  type: 'test'
+  ...
+# Subtest: P2-N8 differing strong ETag between PUT response and GET → committed_unverified (readback_mismatch)
+ok 75 - P2-N8 differing strong ETag between PUT response and GET → committed_unverified (readback_mismatch)
+  ---
+  duration_ms: 7.486736
+  type: 'test'
+  ...
+1..75
+# tests 75
 # suites 0
-# pass 54
+# pass 75
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 7508.836497
+# duration_ms 13271.170317
