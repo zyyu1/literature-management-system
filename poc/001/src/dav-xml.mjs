@@ -126,7 +126,13 @@ export function parseMultistatus(input) {
     if (hrefs.length !== 1) throw new DavXmlError('response must have exactly one href');
     const href = textOf(hrefs[0]).trim();
     if (!href.startsWith('/')) throw new DavXmlError('href must be an absolute path');
-    const statuses = [...kids(resp, 'status'), ...kids(resp, 'propstat').flatMap((p) => kids(p, 'status'))].map((s) => textOf(s).trim());
+    const direct = kids(resp, 'status');
+    const propstats = kids(resp, 'propstat');
+    // REMEDIATION-03 Q1: RFC 4918 allows either a response-level status OR propstat(s), not both.
+    if (direct.length > 0 && propstats.length > 0) throw new DavXmlError('response has both status and propstat');
+    if (direct.length > 1) throw new DavXmlError('multiple response-level statuses');
+    if (propstats.some((p) => kids(p, 'status').length !== 1)) throw new DavXmlError('propstat must have exactly one status');
+    const statuses = [...direct, ...propstats.flatMap((p) => kids(p, 'status'))].map((s) => textOf(s).trim());
     if (statuses.length === 0) throw new DavXmlError('response without status');
     const ok = statuses.some((s) => /^HTTP\/1\.[01] 2\d\d\b/.test(s));
     const collection = kids(resp, 'propstat').some((p) => kids(p, 'prop').some((pr) => kids(pr, 'resourcetype').some((rt) => kids(rt, 'collection').length > 0)));

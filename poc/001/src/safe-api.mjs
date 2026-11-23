@@ -335,14 +335,31 @@ export function createSafeApi({
       if (r.etag !== e.base) return json(res, 200, { outcome: 'indeterminate', terminal: false, operationId: opId, currentRevision: r.etag });
       const w = await adapter.put(recPath(namespace, e.kind, e.id), r.body, { ifMatch: e.base });
       if (w.outcome === 'committed') {
-        if (isTrustedEtag(w.etag) && w.etag !== e.base) {
-          e.verdict = 'not_committed';
-          e.fenced = true;
-          e.response = { status: 409, body: { outcome: 'not_committed', fenced: true, note: 'issue a NEW operation id to retry explicitly' } };
-          return json(res, 200, { outcome: 'not_committed', terminal: true, fenced: true, operationId: opId, currentRevision: w.etag });
+        if (!isTrustedEtag(w.etag) || w.etag === e.base) {
+          const reason = !w.etag ? 'no_etag' : !isTrustedEtag(w.etag) ? 'untrusted_etag' : 'etag_unchanged';
+          return json(res, 200, { outcome: 'fence_not_confirmed', reason, terminal: false, operationId: opId });
         }
-        const reason = !w.etag ? 'no_etag' : !isTrustedEtag(w.etag) ? 'untrusted_etag' : 'etag_unchanged';
-        return json(res, 200, { outcome: 'fence_not_confirmed', reason, terminal: false, operationId: opId });
+        // REMEDIATION-03 Q2: never trust the PUT-response ETag alone. A fresh GET of the same path
+        // must return a trusted strong ETag EXACTLY equal to the fence PUT's, still different from
+        // base, the identical fence bytes, a valid authenticated envelope for this target, and no
+        // trace of our own write. Anything else stays NON-terminal (original Unknown retained).
+        // This read-back is necessary, not sufficient: it is NOT a proof of provider atomic CAS.
+        const rb = await adapter.get(recPath(namespace, e.kind, e.id));
+        const notConfirmed = (reason) => json(res, 200, { outcome: 'fence_not_confirmed', reason, terminal: false, operationId: opId });
+        if (rb.outcome === 'not_found') return json(res, 200, { outcome: 'record_missing', terminal: false, operationId: opId });
+        if (rb.outcome !== 'ok') return notConfirmed(`readback_${rb.outcome}`);
+        let rbEnv;
+        try { rbEnv = decodeEnvelope(rb.body, { kind: e.kind, id: e.id }); } catch { return notConfirmed('readback_invalid_envelope'); }
+        if (!authentic(rbEnv)) return notConfirmed('readback_unauthenticated');
+        if (ourWrite(rbEnv, principal, opId, e)) return markCommitted(rb.etag);
+        if (!isTrustedEtag(rb.etag)) return notConfirmed('readback_untrusted_etag');
+        if (rb.etag !== w.etag) return notConfirmed('readback_etag_mismatch');
+        if (rb.etag === e.base) return notConfirmed('readback_etag_unchanged');
+        if (!rb.body.equals(r.body)) return notConfirmed('readback_bytes_changed');
+        e.verdict = 'not_committed';
+        e.fenced = true;
+        e.response = { status: 409, body: { outcome: 'not_committed', fenced: true, note: 'issue a NEW operation id to retry explicitly' } };
+        return json(res, 200, { outcome: 'not_committed', terminal: true, fenced: true, operationId: opId, currentRevision: rb.etag });
       }
       if (w.outcome === 'precondition_failed') {
         const again = await readRecord(namespace, e.kind, e.id);
@@ -355,26 +372,38 @@ export function createSafeApi({
     }
   }
 
-  /** P2-N1: fail closed on any listing that is malformed, foreign, unexpected or self-less. */
+  /**
+   * P2-N1 + REMEDIATION-03 Q1: fail closed unless the listing is complete and unambiguous
+   * under the POC profile: the namespace root exists with its self entry, contains EXACTLY one
+   * collection for each canonical kind (notes/projects/progress — a missing kind is never read
+   * as "empty"), nothing else, and every kind listing has its self entry and only well-named,
+   * non-collection record files. Duplicate hrefs and response/propstat conflicts are rejected
+   * by the adapter/parser. This does NOT prove a real provider listed every record or that the
+   * listing is a consistent multi-file snapshot (UNSUPPORTED: provider integrity dependency).
+   */
   async function listRecords(ns) {
     const root = await adapter.propfind(`/${ns}`, '1');
-    if (root.outcome === 'not_found') return { records: [] };
-    if (root.outcome === 'malformed') return { error: 'malformed_listing', at: `/${ns}` };
+    if (root.outcome === 'not_found') return { error: 'namespace_absent', at: `/${ns}` };
+    if (root.outcome === 'malformed') return { error: 'malformed_listing', at: `/${ns}`, detail: root.reason };
     if (root.outcome !== 'ok') return { error: 'storage_unavailable' };
-    if (!root.entries.some((x) => x.path === `/${ns}` && x.collection)) return { error: 'malformed_listing', at: `/${ns}` };
-    const kinds = [];
+    const selfRoot = root.entries.filter((x) => x.path === `/${ns}`);
+    if (selfRoot.length !== 1 || !selfRoot[0].collection) return { error: 'malformed_listing', at: `/${ns}`, detail: 'root self entry' };
+    const seenKinds = new Set();
     for (const x of root.entries) {
       if (x.path === `/${ns}`) continue;
       const m = new RegExp(`^/${ns}/([^/]+)$`).exec(x.path);
       if (!m || !isKind(m[1]) || !x.collection) return { error: 'unrecognized_entry', at: x.path };
-      kinds.push(m[1]);
+      if (seenKinds.has(m[1])) return { error: 'malformed_listing', at: x.path, detail: 'duplicate kind collection' };
+      seenKinds.add(m[1]);
     }
+    for (const k of KIND_NAMES) if (!seenKinds.has(k)) return { error: 'missing_kind_collection', at: `/${ns}/${k}` };
     const out = [];
-    for (const kind of kinds) {
+    for (const kind of KIND_NAMES) {
       const p = await adapter.propfind(`/${ns}/${kind}`, '1');
-      if (p.outcome === 'malformed') return { error: 'malformed_listing', at: `/${ns}/${kind}` };
-      if (p.outcome !== 'ok') return { error: 'storage_unavailable' };
-      if (!p.entries.some((x) => x.path === `/${ns}/${kind}` && x.collection)) return { error: 'malformed_listing', at: `/${ns}/${kind}` };
+      if (p.outcome === 'malformed') return { error: 'malformed_listing', at: `/${ns}/${kind}`, detail: p.reason };
+      if (p.outcome !== 'ok') return { error: p.outcome === 'not_found' ? 'missing_kind_collection' : 'storage_unavailable', at: `/${ns}/${kind}` };
+      const selfKind = p.entries.filter((x) => x.path === `/${ns}/${kind}`);
+      if (selfKind.length !== 1 || !selfKind[0].collection) return { error: 'malformed_listing', at: `/${ns}/${kind}`, detail: 'kind self entry' };
       for (const x of p.entries) {
         if (x.path === `/${ns}/${kind}`) continue;
         const m = new RegExp(`^/${ns}/${kind}/([^/]+)\\.json$`).exec(x.path);
@@ -382,6 +411,8 @@ export function createSafeApi({
         out.push({ kind, id: m[1] });
       }
     }
+    const ids = out.map((r) => `${r.kind}/${r.id}`);
+    if (new Set(ids).size !== ids.length) return { error: 'malformed_listing', detail: 'duplicate record' };
     return { records: out };
   }
 
@@ -389,7 +420,7 @@ export function createSafeApi({
 
   async function handleExport(res) {
     const list = await listRecords(namespace);
-    if (list.error) return json(res, 503, { outcome: 'export_incomplete', reason: list.error, at: list.at ?? null });
+    if (list.error) return json(res, 503, { outcome: 'export_incomplete', reason: list.error, at: list.at ?? null, detail: list.detail ?? null });
     const records = [];
     for (const { kind, id } of list.records) {
       const r = await adapter.get(recPath(namespace, kind, id));

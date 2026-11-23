@@ -133,6 +133,10 @@ export function createWebDavAdapter({ baseUrl, username, password, timeoutMs = 2
       const mapped = entries.map((e) => ({ ...e, rel: rel(e.href) }));
       if (mapped.some((e) => e.rel === null)) return { outcome: 'malformed', reason: 'foreign href' };
       if (mapped.some((e) => !e.ok)) return { outcome: 'malformed', reason: 'non-2xx response entry' };
+      // REMEDIATION-03 Q1: the same resource listed twice (after decoding and trailing-slash
+      // normalisation) is ambiguous — never silently de-duplicated or double-counted.
+      const norm = mapped.map((e) => e.rel.replace(/\/$/, '') || '/');
+      if (new Set(norm).size !== norm.length) return { outcome: 'malformed', reason: 'duplicate href' };
       return {
         outcome: 'ok',
         entries: mapped.map((e) => ({ path: e.rel.replace(/\/$/, '') || '/', collection: e.collection || e.rel.endsWith('/') })),

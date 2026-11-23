@@ -18,8 +18,12 @@ import { assertLoopbackHost, sha256Hex } from './util.mjs';
  *                        it normally (late commit after the client already gave up)
  *   'strip-etag'         apply normally but omit the ETag response header
  *   'corrupt-read'       GET returns the stored bytes with one middle byte flipped
- *   'bogus-etag'         apply normally but answer with a strong ETag that GET will not return
+ *   'bogus-etag'         PUT: apply normally but answer with a strong ETag GET will not return
+ *                        (a dishonest PUT response); GET: answer with a strong ETag ≠ stored
  *   'trickle'            send valid headers, then one body byte every 100ms (never completes)
+ *   'weaken-etag'        GET or PUT: answer with W/<stored etag>
+ *   'stale-body'         GET: serve the previous version's bytes under the current ETag
+ *   any fault may carry `skip: n` to let the first n matching requests through untouched
  */
 /**
  * Options (REMEDIATION-02):
@@ -68,6 +72,7 @@ export function createMockWebDav({ username, password, host = '127.0.0.1', etagM
     );
     if (i < 0) return null;
     const f = faults[i];
+    if (f.skip > 0) { f.skip--; return null; } // REMEDIATION-03: target the Nth matching request
     f.times = (f.times ?? 1) - 1;
     if (f.times <= 0) faults.splice(i, 1);
     return f;
@@ -95,7 +100,7 @@ export function createMockWebDav({ username, password, host = '127.0.0.1', etagM
         bytes[bytes.length - 1] ^= 0x01;
       }
       const etag = newEtag(bytes);
-      files.set(path, { bytes, etag });
+      files.set(path, { bytes, etag, prev: existing && !existing.bytes.equals(bytes) ? existing.bytes : (existing?.prev ?? null) }); // last DIFFERENT content
       return { status: existing ? 204 : 201, etag };
     }
     if (method === 'DELETE') {
@@ -164,9 +169,13 @@ export function createMockWebDav({ username, password, host = '127.0.0.1', etagM
       const f = files.get(path);
       if (!f) return send(res, 404);
       if (fault?.kind === 'trickle') return trickle(res, { status: 200, etag: f.etag });
+      let etag = f.etag;
+      if (fault?.kind === 'bogus-etag') etag = '"bogus-get-0"';
+      if (fault?.kind === 'weaken-etag') etag = `W/${f.etag}`;
       let out = f.bytes;
       if (fault?.kind === 'corrupt-read' && out.length > 2) { out = Buffer.from(out); out[out.length >> 1] ^= 0x01; }
-      res.writeHead(200, { ETag: f.etag, 'Content-Length': out.length, 'Content-Type': 'application/octet-stream' });
+      if (fault?.kind === 'stale-body' && f.prev) out = f.prev; // valid older bytes served under the CURRENT ETag
+      res.writeHead(200, { ETag: etag, 'Content-Length': out.length, 'Content-Type': 'application/octet-stream' });
       return res.end(method === 'HEAD' ? undefined : out);
     }
     if (method === 'PROPFIND') {
@@ -192,6 +201,7 @@ export function createMockWebDav({ username, password, host = '127.0.0.1', etagM
     if (res.destroyed || res.socket?.destroyed) return; // client gave up (e.g. late 'hold' release)
     let etagHeader = result.etag && fault?.kind !== 'strip-etag' ? { ETag: result.etag } : {};
     if (fault?.kind === 'bogus-etag' && result.etag) etagHeader = { ETag: '"bogus-0"' }; // differs from what GET will return
+    if (fault?.kind === 'weaken-etag' && result.etag) etagHeader = { ETag: `W/${result.etag}` };
     return send(res, result.status, '', etagHeader);
   }
 
