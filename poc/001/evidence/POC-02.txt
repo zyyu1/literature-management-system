@@ -1,10 +1,10 @@
 $ node --test --test-reporter=spec test/poc02-security.test.mjs
-# exit 0 · 209 ms
+# exit 0 · 237 ms
 
-✔ POC-02 authentication and request validation (42.685403ms)
-✔ POC-02 path/kind allowlist, traversal, SSRF and origin (18.59187ms)
-✔ POC-02 credentials never leave the server side (responses, headers, logs, client code) (47.082742ms)
-✔ POC-02 default-deny real network and loopback-only listeners (2.17498ms)
+✔ POC-02 authentication and request validation (54.581969ms)
+✔ POC-02 path/kind allowlist, traversal, SSRF and origin (20.335187ms)
+✔ POC-02 credentials never leave the server side (responses, headers, logs, client code) (49.214922ms)
+✔ POC-02 default-deny real network and loopback-only listeners (2.486336ms)
 ℹ tests 4
 ℹ suites 0
 ℹ pass 4
@@ -12,4 +12,4 @@ $ node --test --test-reporter=spec test/poc02-security.test.mjs
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 176.857597
+ℹ duration_ms 207.548165

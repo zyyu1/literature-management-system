@@ -1,9 +1,9 @@
 $ node --test --test-reporter=spec test/poc07-backup.test.mjs
-# exit 0 · 614 ms
+# exit 0 · 597 ms
 
-✔ POC-07 export → restore to fresh namespace → hashes, counts, identities match; source untouched (252.443586ms)
-✔ POC-07 restore safety: tampered bundle, active namespace and non-restore targets refused before any write (110.215838ms)
-✔ POC-07 failures are honest: export during outage is incomplete (no partial bundle); restore write failure reported (127.950509ms)
+✔ POC-07 export → restore to fresh namespace → hashes, counts, identities match; source untouched (243.036699ms)
+✔ POC-07 restore safety: tampered bundle, active namespace and non-restore targets refused before any write (102.875335ms)
+✔ POC-07 failures are honest: export during outage is incomplete (no partial bundle); restore write failure reported (127.864514ms)
 ℹ tests 3
 ℹ suites 0
 ℹ pass 3
@@ -11,4 +11,4 @@ $ node --test --test-reporter=spec test/poc07-backup.test.mjs
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 579.163719
+ℹ duration_ms 553.064565
