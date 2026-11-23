@@ -8,15 +8,14 @@ import os from 'node:os';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = join(root, 'evidence');
-rmSync(outDir, { recursive: true, force: true }); // no stale files from earlier runs
-mkdirSync(outDir, { recursive: true });
 const git = (c) => { try { return execSync(`git ${c}`, { cwd: root, encoding: 'utf8' }).trim(); } catch { return 'n/a'; } };
 
 const env = {
   generatedAt: new Date().toISOString(),
   gitHead: git('rev-parse HEAD'),
   gitBranch: git('rev-parse --abbrev-ref HEAD'),
-  gitDirtyPaths: git('status --short -- .') || '(clean)',
+  // Recorded BEFORE evidence/ is regenerated; evidence/ itself is excluded.
+  gitDirtyPaths: git("status --short -- . ':(exclude)evidence'") || '(clean)',
   node: process.version,
   npm: (() => { try { return execSync('npm --version', { encoding: 'utf8' }).trim(); } catch { return 'n/a'; } })(),
   os: `${os.type()} ${os.release()} ${os.arch()}`,
@@ -25,6 +24,9 @@ const env = {
   providerKind: 'MOCK (in-repo loopback test double, poc/001/src/mock-webdav.mjs)',
   realNutstore: 'BLOCKED_REAL_SERVICE — NOT RUN (no account access authorized)',
 };
+
+rmSync(outDir, { recursive: true, force: true }); // no stale files from earlier runs
+mkdirSync(outDir, { recursive: true });
 
 const STEPS = [
   ['env-node', 'node', ['--version']],
