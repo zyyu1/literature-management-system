@@ -3,6 +3,7 @@
 // is default-deny for anything but loopback during the local phase.
 import http from 'node:http';
 import { assertLoopbackHost } from './util.mjs';
+import { parseMultistatus } from './dav-xml.mjs';
 
 /**
  * Write outcomes (the API must never turn `unknown` into success or failure):
@@ -14,7 +15,7 @@ import { assertLoopbackHost } from './util.mjs';
  *   unknown              any error after the socket connected, timeout, reset, 5xx —
  *                        upstream MAY have committed (REMEDIATION-01 P2-12)
  */
-export function createWebDavAdapter({ baseUrl, username, password, timeoutMs = 2000 }) {
+export function createWebDavAdapter({ baseUrl, username, password, timeoutMs = 2000, deadlineMs = timeoutMs * 3, maxResponseBytes = 4_000_000 }) {
   const base = new URL(baseUrl);
   // REMEDIATION-01 P1-4: this adapter only implements plain node:http for the
   // loopback mock. An https: URL must FAIL CLOSED before any network activity;
@@ -31,9 +32,16 @@ export function createWebDavAdapter({ baseUrl, username, password, timeoutMs = 2
   const authHeader = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
   const basePath = base.pathname.replace(/\/$/, '');
 
+  // REMEDIATION-02 P2-N2: `timeoutMs` is the socket INACTIVITY timeout; `deadlineMs`
+  // is an absolute monotonic wall-clock budget for connect + headers + body. A
+  // byte-trickling peer can defeat the former but never the latter. Response bodies
+  // are bounded by `maxResponseBytes`. Every path settles exactly once.
   function request(method, path, { headers = {}, body } = {}) {
     if (!path.startsWith('/') || path.includes('..')) throw new Error('adapter: invalid path');
     return new Promise((resolve) => {
+      let settled = false;
+      let connected = false;
+      const settle = (v) => { if (!settled) { settled = true; clearTimeout(deadline); resolve(v); } };
       const req = http.request(
         {
           host: base.hostname,
@@ -49,18 +57,28 @@ export function createWebDavAdapter({ baseUrl, username, password, timeoutMs = 2
         },
         (res) => {
           const chunks = [];
-          res.on('data', (c) => chunks.push(c));
-          res.on('end', () => resolve({ transport: 'response', status: res.statusCode, headers: res.headers, body: Buffer.concat(chunks) }));
-          res.on('error', (e) => resolve({ transport: 'error', code: e.code ?? 'ERESPONSE', connected: true }));
+          let n = 0;
+          res.on('data', (c) => {
+            n += c.length;
+            if (n > maxResponseBytes) {
+              settle({ transport: 'error', code: 'ERESPONSETOOLARGE', connected: true }); // fail immediately, never return a truncated body
+              req.destroy();
+              return;
+            }
+            chunks.push(c);
+          });
+          res.on('end', () => settle({ transport: 'response', status: res.statusCode, headers: res.headers, body: Buffer.concat(chunks) }));
+          res.on('error', (e) => settle({ transport: 'error', code: e.code ?? 'ERESPONSE', connected: true }));
+          res.on('close', () => { if (!res.complete) settle({ transport: 'error', code: 'ERESPONSEINCOMPLETE', connected: true }); });
         },
       );
-      let connected = false;
+      const deadline = setTimeout(() => req.destroy(Object.assign(new Error('deadline'), { code: 'EDEADLINE' })), deadlineMs);
       req.on('socket', (s) => {
         if (!s.connecting) connected = true;
         else s.once('connect', () => { connected = true; });
       });
       req.setTimeout(timeoutMs, () => req.destroy(Object.assign(new Error('timeout'), { code: 'ETIMEDOUT' })));
-      req.on('error', (e) => resolve({ transport: 'error', code: e.code ?? 'EUNKNOWN', connected }));
+      req.on('error', (e) => settle({ transport: 'error', code: e.code ?? 'EUNKNOWN', connected }));
       if (body !== undefined) req.write(body);
       req.end();
     });
@@ -98,17 +116,26 @@ export function createWebDavAdapter({ baseUrl, username, password, timeoutMs = 2
       return classifyWrite(await request('PUT', path, { headers, body: bytes }));
     },
     async mkcol(path) { return classifyWrite(await request('MKCOL', path)); },
+    /**
+     * REMEDIATION-02 P2-N1: parsed by namespace URI (DAV:), never by prefix; any
+     * structural problem → outcome 'malformed' (callers must fail closed).
+     * hrefs are returned relative to the adapter base path; an href outside the
+     * base path is reported as foreign (also fail-closed for callers).
+     */
     async propfind(path, depth = '1') {
       const r = await request('PROPFIND', path, { headers: { Depth: depth } });
       if (r.transport === 'error') return { outcome: 'unavailable', code: r.code };
       if (r.status === 404) return { outcome: 'not_found' };
       if (r.status !== 207) return { outcome: 'error', status: r.status };
-      const xml = r.body.toString('utf8');
-      const hrefs = [...xml.matchAll(/<d:href>([^<]+)<\/d:href>/g)].map((m) => decodeURI(m[1]));
+      let entries;
+      try { entries = parseMultistatus(r.body); } catch (e) { return { outcome: 'malformed', reason: e.message }; }
+      const rel = (h) => (h === basePath || h.startsWith(basePath + '/') ? h.slice(basePath.length) : null);
+      const mapped = entries.map((e) => ({ ...e, rel: rel(e.href) }));
+      if (mapped.some((e) => e.rel === null)) return { outcome: 'malformed', reason: 'foreign href' };
+      if (mapped.some((e) => !e.ok)) return { outcome: 'malformed', reason: 'non-2xx response entry' };
       return {
         outcome: 'ok',
-        hrefs: hrefs.map((h) => (h.startsWith(basePath) ? h.slice(basePath.length) : h)),
-        collections: hrefs.filter((h) => h.endsWith('/')).map((h) => (h.startsWith(basePath) ? h.slice(basePath.length) : h).replace(/\/$/, '')),
+        entries: mapped.map((e) => ({ path: e.rel.replace(/\/$/, '') || '/', collection: e.collection || e.rel.endsWith('/') })),
       };
     },
     /** Protocol-level CRUD proof only (POC-01). Requires If-Match; the safe API never calls it. */

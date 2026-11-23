@@ -111,7 +111,7 @@ test('POC-02 credentials never leave the server side (responses, headers, logs, 
     clientSource: await readFile(SRC('client.mjs'), 'utf8'),
   };
   for (const [name, hay] of Object.entries(haystacks)) {
-    for (const secret of [s.secrets.davPass, s.secrets.davUser, basic, s.dav.url]) {
+    for (const secret of [s.secrets.davPass, s.secrets.davUser, basic, s.dav.url, s.secrets.provenanceKey]) {
       assert.ok(!hay.includes(secret), `${name} must not contain upstream credential/URL`);
     }
   }

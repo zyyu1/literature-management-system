@@ -5,7 +5,7 @@ import { createWebDavAdapter } from './webdav-adapter.mjs';
 import { createSafeApi } from './safe-api.mjs';
 
 const env = process.env;
-for (const k of ['POC_UPSTREAM_URL', 'POC_UPSTREAM_USER', 'POC_UPSTREAM_PASS', 'POC_API_TOKEN', 'POC_NAMESPACE']) {
+for (const k of ['POC_UPSTREAM_URL', 'POC_UPSTREAM_USER', 'POC_UPSTREAM_PASS', 'POC_API_TOKEN', 'POC_NAMESPACE', 'POC_PROVENANCE_KEY']) {
   if (!env[k]) { console.error(`missing ${k}`); process.exit(2); }
 }
 const adapter = createWebDavAdapter({
@@ -17,7 +17,8 @@ const adapter = createWebDavAdapter({
 const api = createSafeApi({
   adapter,
   namespace: env.POC_NAMESPACE,
-  apiTokens: [env.POC_API_TOKEN],
+  apiTokens: env.POC_API_TOKEN.split(','),
+  provenanceKey: env.POC_PROVENANCE_KEY,
   log: (e) => process.stderr.write(JSON.stringify(e) + '\n'),
 });
 const { port } = await api.start();

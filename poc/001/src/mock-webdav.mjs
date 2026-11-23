@@ -18,8 +18,20 @@ import { assertLoopbackHost, sha256Hex } from './util.mjs';
  *                        it normally (late commit after the client already gave up)
  *   'strip-etag'         apply normally but omit the ETag response header
  *   'corrupt-read'       GET returns the stored bytes with one middle byte flipped
+ *   'bogus-etag'         apply normally but answer with a strong ETag that GET will not return
+ *   'trickle'            send valid headers, then one body byte every 100ms (never completes)
  */
-export function createMockWebDav({ username, password, host = '127.0.0.1' } = {}) {
+/**
+ * Options (REMEDIATION-02):
+ *   etagMode   'generation'   (default) new strong ETag on every write, even identical bytes
+ *              'content-hash' RFC-legal strong ETag derived from content only: identical bytes
+ *                             keep the SAME ETag (the case behind QA finding P1-R1)
+ *              'weak'         weak validators W/"…" (P2-N8 negative fixture). Per RFC 9110 strong
+ *                             comparison, a weak tag never satisfies If-Match.
+ *   xmlStyle   'd' | 'D' | 'default' | 'z' — namespace prefix style for PROPFIND bodies
+ *   propfindOverride(path) → string | null — raw XML to return instead (malformed fixtures)
+ */
+export function createMockWebDav({ username, password, host = '127.0.0.1', etagMode = 'generation', xmlStyle = 'd', propfindOverride = null } = {}) {
   assertLoopbackHost(host);
   if (!username || !password) throw new Error('mock requires synthetic credentials');
   const expectedAuth = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
@@ -34,7 +46,13 @@ export function createMockWebDav({ username, password, host = '127.0.0.1' } = {}
   const holds = new Map(); // holdId -> release fn
   let server;
 
-  const newEtag = (bytes) => `"${sha256Hex(bytes).slice(0, 16)}-${++generation}"`;
+  const newEtag = (bytes) => {
+    if (etagMode === 'content-hash') return `"${sha256Hex(bytes).slice(0, 32)}"`;
+    if (etagMode === 'weak') return `W/"${sha256Hex(bytes).slice(0, 16)}-${++generation}"`;
+    return `"${sha256Hex(bytes).slice(0, 16)}-${++generation}"`;
+  };
+  // Strong comparison (RFC 9110 §8.8.3.2): weak tags never match.
+  const strongMatch = (header, etag) => !etag.startsWith('W/') && header.split(',').map((x) => x.trim()).some((t) => !t.startsWith('W/') && t === etag);
   const parentOf = (p) => p.replace(/\/[^/]+\/?$/, '') || '/';
 
   function normalize(rawUrl) {
@@ -63,7 +81,7 @@ export function createMockWebDav({ username, password, host = '127.0.0.1' } = {}
     const ifNoneMatch = headers['if-none-match'];
     if (method === 'PUT' || method === 'DELETE') {
       if (ifMatch !== undefined) {
-        const ok = ifMatch === '*' ? !!existing : !!existing && ifMatch.split(',').map((s) => s.trim()).includes(existing.etag);
+        const ok = ifMatch === '*' ? !!existing : !!existing && strongMatch(ifMatch, existing.etag);
         if (!ok) return { status: 412 };
       }
       if (ifNoneMatch !== undefined && ifNoneMatch.trim() === '*' && existing) return { status: 412 };
@@ -95,21 +113,22 @@ export function createMockWebDav({ username, password, host = '127.0.0.1' } = {}
   }
 
   function propfind(path, depth) {
+    const [p, decl] = { d: ['d:', 'xmlns:d="DAV:"'], D: ['D:', 'xmlns:D="DAV:"'], z: ['z:', 'xmlns:z="DAV:"'], default: ['', 'xmlns="DAV:"'] }[xmlStyle];
+    const el = (name, inner) => `<${p}${name}>${inner}</${p}${name}>`;
+    const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
     const entries = [];
-    const fileEntry = (p, f) =>
-      `<d:response><d:href>${encodeURI(p)}</d:href><d:propstat><d:prop><d:getetag>${f.etag.replace(/"/g, '&quot;')}</d:getetag><d:getcontentlength>${f.bytes.length}</d:getcontentlength><d:resourcetype/></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response>`;
-    const colEntry = (p) =>
-      `<d:response><d:href>${encodeURI(p.endsWith('/') ? p : p + '/')}</d:href><d:propstat><d:prop><d:resourcetype><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response>`;
+    const fileEntry = (fp, f) => el('response', el('href', esc(encodeURI(fp))) + el('propstat', el('prop', el('getetag', esc(f.etag)) + el('getcontentlength', String(f.bytes.length)) + `<${p}resourcetype/>`) + el('status', 'HTTP/1.1 200 OK')));
+    const colEntry = (cp) => el('response', el('href', esc(encodeURI(cp.endsWith('/') ? cp : cp + '/'))) + el('propstat', el('prop', el('resourcetype', `<${p}collection/>`)) + el('status', 'HTTP/1.1 200 OK')));
     if (files.has(path)) entries.push(fileEntry(path, files.get(path)));
     else if (collections.has(path)) {
       entries.push(colEntry(path));
       if (depth !== '0') {
         const prefix = path === '/' ? '/' : path + '/';
         for (const c of collections) if (c !== path && c.startsWith(prefix) && !c.slice(prefix.length).includes('/')) entries.push(colEntry(c));
-        for (const [p, f] of files) if (p.startsWith(prefix) && !p.slice(prefix.length).includes('/')) entries.push(fileEntry(p, f));
+        for (const [fp, f] of files) if (fp.startsWith(prefix) && !fp.slice(prefix.length).includes('/')) entries.push(fileEntry(fp, f));
       }
     } else return null;
-    return `<?xml version="1.0" encoding="utf-8"?><d:multistatus xmlns:d="DAV:">${entries.join('')}</d:multistatus>`;
+    return `<?xml version="1.0" encoding="utf-8"?><${p}multistatus ${decl}>${entries.join('')}</${p}multistatus>`;
   }
 
   async function handle(req, res) {
@@ -144,12 +163,15 @@ export function createMockWebDav({ username, password, host = '127.0.0.1' } = {}
     if (method === 'GET' || method === 'HEAD') {
       const f = files.get(path);
       if (!f) return send(res, 404);
+      if (fault?.kind === 'trickle') return trickle(res, { status: 200, etag: f.etag });
       let out = f.bytes;
       if (fault?.kind === 'corrupt-read' && out.length > 2) { out = Buffer.from(out); out[out.length >> 1] ^= 0x01; }
       res.writeHead(200, { ETag: f.etag, 'Content-Length': out.length, 'Content-Type': 'application/octet-stream' });
       return res.end(method === 'HEAD' ? undefined : out);
     }
     if (method === 'PROPFIND') {
+      const override = propfindOverride?.(path);
+      if (override != null) return send(res, 207, override, { 'Content-Type': 'application/xml; charset=utf-8' });
       const xml = propfind(path, req.headers.depth ?? '1');
       if (!xml) return send(res, 404);
       return send(res, 207, xml, { 'Content-Type': 'application/xml; charset=utf-8' });
@@ -166,9 +188,18 @@ export function createMockWebDav({ username, password, host = '127.0.0.1' } = {}
     if (fault?.kind === 'commit-then-drop') return req.socket.destroy();
     if (fault?.kind === 'commit-then-hang') return;
     if (fault?.kind === 'commit-then-status') return send(res, fault.status ?? 500);
+    if (fault?.kind === 'trickle') return trickle(res, result);
     if (res.destroyed || res.socket?.destroyed) return; // client gave up (e.g. late 'hold' release)
-    const etagHeader = result.etag && fault?.kind !== 'strip-etag' ? { ETag: result.etag } : {};
+    let etagHeader = result.etag && fault?.kind !== 'strip-etag' ? { ETag: result.etag } : {};
+    if (fault?.kind === 'bogus-etag' && result.etag) etagHeader = { ETag: '"bogus-0"' }; // differs from what GET will return
     return send(res, result.status, '', etagHeader);
+  }
+
+  // Byte-trickle: valid headers, then one body byte every `intervalMs` (defeats an inactivity timeout).
+  function trickle(res, result) {
+    res.writeHead(result.status === 405 ? 405 : 200, { 'Content-Length': 1_000_000, ...(result.etag ? { ETag: result.etag } : {}) });
+    const iv = setInterval(() => { if (res.destroyed) return clearInterval(iv); res.write('x'); }, 100);
+    res.on('close', () => clearInterval(iv));
   }
 
   function send(res, status, body = '', headers = {}) {

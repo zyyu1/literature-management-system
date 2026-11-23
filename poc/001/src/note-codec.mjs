@@ -69,10 +69,15 @@ function validateProgress(id, data) {
 }
 
 const OP_RE = /^[0-9a-f][0-9a-f-]{7,63}$/;
-const dataDigest = (data) => sha256Hex(Buffer.from(JSON.stringify(data), 'utf8'));
+export const dataDigest = (data) => sha256Hex(Buffer.from(JSON.stringify(data), 'utf8'));
 
-export function encodeEnvelope({ kind, id, operationId, data }) {
-  const env = { schema: 'lms.poc001/v1', kind, id, operationId, dataSha256: dataDigest(data), data };
+/**
+ * `operationId` holds the server's write tag; `provenance` (REMEDIATION-02 P2-N4) is an
+ * HMAC computed by the safe API with a server-held key. The codec only checks shape;
+ * the API authenticates it.
+ */
+export function encodeEnvelope({ kind, id, operationId, data, provenance }) {
+  const env = { schema: 'lms.poc001/v1', kind, id, operationId, dataSha256: dataDigest(data), ...(provenance ? { provenance } : {}), data };
   return Buffer.from(JSON.stringify(env, null, 2) + '\n', 'utf8');
 }
 
@@ -80,7 +85,8 @@ export function encodeEnvelope({ kind, id, operationId, data }) {
 export function decodeEnvelope(bytes, expect = {}) {
   const env = JSON.parse(Buffer.from(bytes).toString('utf8'));
   if (!isPlainObject(env) || env.schema !== 'lms.poc001/v1') throw new Error('unknown schema');
-  const extra = onlyFields(env, ['schema', 'kind', 'id', 'operationId', 'dataSha256', 'data']);
+  const extra = onlyFields(env, ['schema', 'kind', 'id', 'operationId', 'dataSha256', 'provenance', 'data']);
+  if (env.provenance !== undefined && !(typeof env.provenance === 'string' && /^[0-9a-f]{64}$/.test(env.provenance))) throw new Error('envelope: invalid provenance');
   if (extra.length) throw new Error(`envelope: ${extra.join(', ')}`);
   if (!isKind(env.kind) || !isId(env.id)) throw new Error('envelope: invalid kind/id');
   if (expect.kind !== undefined && env.kind !== expect.kind) throw new Error('envelope: kind mismatch');

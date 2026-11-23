@@ -20,7 +20,8 @@ const env = {
   npm: (() => { try { return execSync('npm --version', { encoding: 'utf8' }).trim(); } catch { return 'n/a'; } })(),
   os: `${os.type()} ${os.release()} ${os.arch()}`,
   authorizedBase: '1c084e5f14e4af8018ef5fe99710be7205cfbdf4',
-  remediation: 'POC-001-REMEDIATION-01 (Design commit f7e89c4d438fc30b54546ec0f27823604df7aaa2)',
+  remediation: 'POC-001-REMEDIATION-02 (Design commit f8cddd9cd7811adda28d4a7f2125dc7b5fb071e1); includes REMEDIATION-01 (f7e89c4)',
+  mockDefaults: 'etagMode=generation (r02 also runs content-hash and weak), xmlStyle=d (r02 also D/default/z), adapter timeoutMs=inactivity, deadlineMs=3x timeoutMs absolute, maxResponseBytes=4MB, PROPFIND parse limit 2MB, maxPerPrincipal=1000 (tests use 1-3), tombstones=4x per principal',
   providerKind: 'MOCK (in-repo loopback test double, poc/001/src/mock-webdav.mjs)',
   realNutstore: 'BLOCKED_REAL_SERVICE — NOT RUN (no account access authorized)',
 };
@@ -40,6 +41,7 @@ const STEPS = [
   ['POC-06', 'node', ['--test', '--test-reporter=spec', 'test/poc06-faults.test.mjs']],
   ['POC-07', 'node', ['--test', '--test-reporter=spec', 'test/poc07-backup.test.mjs']],
   ['R01-regressions', 'node', ['--test', '--test-reporter=spec', 'test/r01-regressions.test.mjs']],
+  ['R02-regressions', 'node', ['--test', '--test-reporter=spec', 'test/r02-regressions.test.mjs']],
   ...[1, 2, 3, 4, 5].map((i) => [`full-suite-run${i}`, 'node', ['--test', 'test/*.test.mjs']]),
   ['secret-scan', 'node', ['scripts/secret-scan.mjs', '1c084e5f14e4af8018ef5fe99710be7205cfbdf4']],
   ['mutation', 'node', ['scripts/mutation-check.mjs']],

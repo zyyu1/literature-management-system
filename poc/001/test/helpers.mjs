@@ -19,20 +19,22 @@ export function syntheticSecrets() {
     davUser: `synthetic-user-${randomId(4)}`,
     davPass: `SYNTH-PASS-${randomId(12)}`,
     apiToken: `synthetic-token-${randomId(16)}`,
+    provenanceKey: `SYNTH-PROVENANCE-KEY-${randomId(24)}`,
   };
 }
 
-export async function startStack({ namespace = 'poc-ns-a', timeoutMs = 800, maxLedgerEntries, extraTokens = 0 } = {}) {
+export async function startStack({ namespace = 'poc-ns-a', timeoutMs = 800, deadlineMs, maxLedgerEntries, maxPerPrincipal, maxTombstonesPerPrincipal, extraTokens = 0, mockOptions = {} } = {}) {
   const secrets = syntheticSecrets();
   secrets.extraTokens = Array.from({ length: extraTokens }, () => `synthetic-token-${randomId(16)}`);
-  const mock = createMockWebDav({ username: secrets.davUser, password: secrets.davPass });
+  const mock = createMockWebDav({ username: secrets.davUser, password: secrets.davPass, ...mockOptions });
   const dav = await mock.start();
   const logs = [];
-  const adapter = createWebDavAdapter({ baseUrl: `${dav.url}/lms-poc`, username: secrets.davUser, password: secrets.davPass, timeoutMs });
+  const mkAdapter = () => createWebDavAdapter({ baseUrl: `${dav.url}/lms-poc`, username: secrets.davUser, password: secrets.davPass, timeoutMs, ...(deadlineMs ? { deadlineMs } : {}) });
+  const adapter = mkAdapter();
   // base collection for the fixed basePath
   mock.collections.add('/lms-poc');
   const apiTokens = [secrets.apiToken, ...secrets.extraTokens];
-  const api = createSafeApi({ adapter, namespace, apiTokens, allowedOrigins: ['http://127.0.0.1:5173'], log: (e) => logs.push(e), maxLedgerEntries });
+  const api = createSafeApi({ adapter, namespace, apiTokens, provenanceKey: secrets.provenanceKey, allowedOrigins: ['http://127.0.0.1:5173'], log: (e) => logs.push(e), maxLedgerEntries, maxPerPrincipal, maxTombstonesPerPrincipal });
   const apiInfo = await api.start();
   const client = createClient({ apiUrl: apiInfo.url, token: secrets.apiToken });
   const extraClients = secrets.extraTokens.map((token) => createClient({ apiUrl: apiInfo.url, token }));
@@ -40,9 +42,9 @@ export async function startStack({ namespace = 'poc-ns-a', timeoutMs = 800, maxL
   return {
     secrets, mock, dav, adapter, api, apiUrl: apiInfo.url, client, extraClients, logs, namespace,
     /** Another independent API instance (fresh in-memory ledger) on the same storage, e.g. to simulate a restart. */
-    async newInstance({ adapterOverride } = {}) {
-      const a = adapterOverride ?? createWebDavAdapter({ baseUrl: `${dav.url}/lms-poc`, username: secrets.davUser, password: secrets.davPass, timeoutMs });
-      const inst = createSafeApi({ adapter: a, namespace, apiTokens });
+    async newInstance({ adapterOverride, tokens = apiTokens, provenanceKey = secrets.provenanceKey, ns = namespace } = {}) {
+      const a = adapterOverride ?? mkAdapter();
+      const inst = createSafeApi({ adapter: a, namespace: ns, apiTokens: tokens, provenanceKey });
       const info = await inst.start();
       instances.push(inst);
       return { api: inst, url: info.url, client: createClient({ apiUrl: info.url, token: secrets.apiToken }) };
@@ -84,6 +86,7 @@ export async function spawnApiProcess({ davUrl, secrets, namespace, timeoutMs = 
       POC_UPSTREAM_PASS: secrets.davPass,
       POC_API_TOKEN: secrets.apiToken,
       POC_NAMESPACE: namespace,
+      POC_PROVENANCE_KEY: secrets.provenanceKey,
       POC_TIMEOUT_MS: String(timeoutMs),
     },
     stdio: ['ignore', 'pipe', 'pipe'],

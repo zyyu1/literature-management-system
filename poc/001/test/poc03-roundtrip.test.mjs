@@ -35,7 +35,7 @@ test('POC-03 envelope round trip through API and storage is byte-exact', async (
   assert.equal(sha256Hex(stored.bytes), put.data.sha256, 'storage holds exactly the bytes the API hashed');
   const env = decodeEnvelope(stored.bytes);
   assert.deepEqual(env.data, note);
-  assert.equal(sha256Hex(encodeEnvelope({ kind: 'notes', id: note.literatureId, operationId: env.operationId, data: env.data })), put.data.sha256);
+  assert.equal(sha256Hex(encodeEnvelope({ kind: 'notes', id: note.literatureId, operationId: env.operationId, data: env.data, provenance: env.provenance })), put.data.sha256);
   const got = await s.client.get('notes', note.literatureId);
   assert.deepEqual(fieldDigests(got.data.record), fieldDigests(note));
   const md = await s.client.markdown('notes', note.literatureId);

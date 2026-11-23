@@ -220,13 +220,16 @@ test('P1-4 https base URL fails closed: zero connections, zero Authorization sen
   const port = listener.address().port;
   assert.throws(() => createWebDavAdapter({ baseUrl: `https://127.0.0.1:${port}/dav`, username: 'synthetic', password: 'SYNTH-x' }), /HTTPS_TRANSPORT_NOT_IMPLEMENTED/);
   const child = spawn(process.execPath, [SRC('api-main.mjs')], {
-    env: { PATH: process.env.PATH, POC_UPSTREAM_URL: `https://127.0.0.1:${port}/dav`, POC_UPSTREAM_USER: 'synthetic', POC_UPSTREAM_PASS: 'SYNTH-x', POC_API_TOKEN: 'synthetic-t', POC_NAMESPACE: 'n' },
+    env: { PATH: process.env.PATH, POC_UPSTREAM_URL: `https://127.0.0.1:${port}/dav`, POC_UPSTREAM_USER: 'synthetic', POC_UPSTREAM_PASS: 'SYNTH-x', POC_API_TOKEN: 'synthetic-t', POC_NAMESPACE: 'n', POC_PROVENANCE_KEY: 'SYNTH-PROVENANCE-KEY-000000000000000000' },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   let out = '';
+  let err = '';
   child.stdout.on('data', (d) => { out += d; });
+  child.stderr.on('data', (d) => { err += d; });
   const [code] = await once(child, 'exit');
   assert.notEqual(code, 0, 'API process refuses to start');
+  assert.match(err, /HTTPS_TRANSPORT_NOT_IMPLEMENTED/, 'and it is the https guard that stops it (not a missing env var)');
   assert.doesNotMatch(out, /LISTENING/);
   await new Promise((r) => setTimeout(r, 50));
   assert.equal(connections, 0); assert.deepEqual(seen, []);
