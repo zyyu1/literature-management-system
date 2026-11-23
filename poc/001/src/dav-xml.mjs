@@ -6,6 +6,16 @@
 // oversized input, missing structure) throws instead of yielding a partial list.
 const DAV = 'DAV:';
 export const MAX_PROPFIND_BYTES = 2_000_000;
+// REMEDIATION-05 (D007-A25) R05-1: deterministic resource bounds, enforced while parsing
+// (count-and-stop BEFORE allocating), never via stack overflow or the heap limit.
+export const LIMITS = Object.freeze({
+  maxDepth: 64,
+  maxElements: 10_000,
+  maxAttrsPerElement: 64,
+  maxTotalAttrs: 10_000,
+  maxNsDecls: 256,
+  maxBytes: MAX_PROPFIND_BYTES,
+});
 const PREDEF = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" };
 
 class DavXmlError extends Error {
@@ -25,7 +35,7 @@ function decodeText(t) {
   });
 }
 
-function parseTag(raw) {
+function parseTag(raw, budget) {
   // raw excludes '<' and '>'
   const selfClosing = raw.endsWith('/');
   const body = selfClosing ? raw.slice(0, -1) : raw;
@@ -37,6 +47,8 @@ function parseTag(raw) {
   for (;;) {
     const a = attrRe.exec(rest);
     if (!a) break;
+    if (attrs.size + 1 > LIMITS.maxAttrsPerElement) throw new DavXmlError(`resource limit: more than ${LIMITS.maxAttrsPerElement} attributes on one element`);
+    if (++budget.attributes > LIMITS.maxTotalAttrs) throw new DavXmlError(`resource limit: more than ${LIMITS.maxTotalAttrs} attributes in document`);
     if (attrs.has(a[1])) throw new DavXmlError('duplicate attribute');
     attrs.set(a[1], decodeText(a[3] ?? a[4]));
     rest = rest.slice(a[0].length);
@@ -45,10 +57,17 @@ function parseTag(raw) {
   return { qname: m[1], attrs, selfClosing };
 }
 
-/** Tokenise + build a tiny tree with resolved namespaces. */
-export function parseXml(input) {
+/**
+ * Tokenise + build a tiny tree with resolved namespaces.
+ * `stats` (optional, for tests/evidence) receives counters: elements, attributes,
+ * nsDecls, maxDepth, scopeMaps (namespace Maps allocated — one per DECLARING element, not
+ * one per element: inherited scopes are shared by reference).
+ */
+export function parseXml(input, stats = {}) {
   const xml = typeof input === 'string' ? input : Buffer.from(input).toString('utf8');
   if (Buffer.byteLength(xml, 'utf8') > MAX_PROPFIND_BYTES) throw new DavXmlError('body too large');
+  Object.assign(stats, { elements: 0, attributes: 0, nsDecls: 0, maxDepth: 0, scopeMaps: 1 });
+  const budget = stats;
   let i = 0;
   const root = { children: [] };
   const stack = [{ node: root, ns: new Map([['xml', 'http://www.w3.org/XML/1998/namespace']]) }];
@@ -89,14 +108,26 @@ export function parseXml(input) {
       continue;
     }
     if (stack.length === 1 && sawRoot) throw new DavXmlError('multiple roots');
-    const t = parseTag(raw);
-    const ns = new Map(stack.at(-1).ns);
+    // R05-1: depth and element-count gates BEFORE any allocation for the new element.
+    const depth = stack.length; // root element has depth 1
+    if (depth > LIMITS.maxDepth) throw new DavXmlError(`resource limit: nesting depth > ${LIMITS.maxDepth}`);
+    if (++budget.elements > LIMITS.maxElements) throw new DavXmlError(`resource limit: more than ${LIMITS.maxElements} elements`);
+    if (depth > budget.maxDepth) budget.maxDepth = depth;
+    const t = parseTag(raw, budget);
+    // R05-1: share the parent's scope by reference; copy ONLY if this element binds a namespace.
+    const parentNs = stack.at(-1).ns;
+    let ns = parentNs;
     for (const [k, v] of t.attrs) {
+      if (k !== 'xmlns' && !k.startsWith('xmlns:')) continue;
+      if (++budget.nsDecls > LIMITS.maxNsDecls) throw new DavXmlError(`resource limit: more than ${LIMITS.maxNsDecls} namespace declarations`);
+      if (ns === parentNs) { ns = new Map(parentNs); budget.scopeMaps++; }
       if (k === 'xmlns') ns.set('', v);
-      else if (k.startsWith('xmlns:')) { if (!v) throw new DavXmlError('empty prefix binding'); ns.set(k.slice(6), v); }
+      else { if (!v) throw new DavXmlError('empty prefix binding'); ns.set(k.slice(6), v); }
     }
-    const [prefix, local] = t.qname.includes(':') ? t.qname.split(':') : ['', t.qname];
-    if (local === undefined || local.includes(':')) throw new DavXmlError('bad qname');
+    const colon = t.qname.indexOf(':');
+    if (colon !== t.qname.lastIndexOf(':')) throw new DavXmlError('bad qname (more than one colon)');
+    const [prefix, local] = colon >= 0 ? [t.qname.slice(0, colon), t.qname.slice(colon + 1)] : ['', t.qname];
+    if (!local || (colon >= 0 && !prefix)) throw new DavXmlError('bad qname');
     const uri = ns.get(prefix);
     if (prefix && uri === undefined) throw new DavXmlError(`unbound prefix ${prefix}`);
     const node = { qname: t.qname, ns: uri ?? null, local, children: [] };

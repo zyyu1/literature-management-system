@@ -34,8 +34,15 @@ import { assertLoopbackHost, sha256Hex } from './util.mjs';
  *                             comparison, a weak tag never satisfies If-Match.
  *   xmlStyle   'd' | 'D' | 'default' | 'z' — namespace prefix style for PROPFIND bodies
  *   propfindOverride(path) → string | null — raw XML to return instead (malformed fixtures)
+ *   ignorePropSelection  (REMEDIATION-05) behave like a NON-conforming server: answer every
+ *                        PROPFIND as allprop, even when only DAV:resourcetype was requested
+ * PROPFIND (REMEDIATION-05 R05-2): an empty body or <allprop/> yields allprop-style entries
+ * (getetag, getcontentlength, resourcetype, current-user-principal and — for paths in `locks` —
+ * lockdiscovery; the last two legally contain nested DAV:href). A <prop> request returns only the
+ * requested supported properties. The raw request (headers + body) is kept in `requestLog`.
  */
-export function createMockWebDav({ username, password, host = '127.0.0.1', etagMode = 'generation', xmlStyle = 'd', propfindOverride = null } = {}) {
+export function createMockWebDav({ username, password, host = '127.0.0.1', etagMode = 'generation', xmlStyle = 'd', propfindOverride = null, ignorePropSelection = false } = {}) {
+  const locks = new Set(); // synthetic DAV locks (paths) — only visible through allprop/lockdiscovery
   assertLoopbackHost(host);
   if (!username || !password) throw new Error('mock requires synthetic credentials');
   const expectedAuth = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
@@ -117,13 +124,27 @@ export function createMockWebDav({ username, password, host = '127.0.0.1', etagM
     return { status: 405 };
   }
 
-  function propfind(path, depth) {
+  /** Which properties a PROPFIND body asks for: 'allprop' or a Set of DAV local names. */
+  function requestedProps(body) {
+    const text = body.toString('utf8');
+    if (!text.trim() || /<(?:[\w-]+:)?allprop\b/.test(text)) return 'allprop';
+    const prop = /<(?:[\w-]+:)?prop\b[^>]*>([\s\S]*?)<\/(?:[\w-]+:)?prop>/.exec(text);
+    return new Set(prop ? [...prop[1].matchAll(/<(?:[\w-]+:)?([\w-]+)\s*\/>/g)].map((m) => m[1]) : []);
+  }
+
+  function propfind(path, depth, wanted = 'allprop') {
     const [p, decl] = { d: ['d:', 'xmlns:d="DAV:"'], D: ['D:', 'xmlns:D="DAV:"'], z: ['z:', 'xmlns:z="DAV:"'], default: ['', 'xmlns="DAV:"'] }[xmlStyle];
     const el = (name, inner) => `<${p}${name}>${inner}</${p}${name}>`;
     const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+    const all = wanted === 'allprop';
+    const want = (n) => all || wanted.has(n);
+    const extras = (rp) => (all
+      ? el('current-user-principal', el('href', '/principals/synthetic-user/'))
+        + (locks.has(rp) ? el('lockdiscovery', el('activelock', `${el('locktype', `<${p}write/>`)}${el('lockscope', `<${p}exclusive/>`)}${el('depth', '0')}${el('locktoken', el('href', 'opaquelocktoken:synthetic-0001'))}${el('lockroot', el('href', esc(encodeURI(rp))))}`)) : '')
+      : '');
     const entries = [];
-    const fileEntry = (fp, f) => el('response', el('href', esc(encodeURI(fp))) + el('propstat', el('prop', el('getetag', esc(f.etag)) + el('getcontentlength', String(f.bytes.length)) + `<${p}resourcetype/>`) + el('status', 'HTTP/1.1 200 OK')));
-    const colEntry = (cp) => el('response', el('href', esc(encodeURI(cp.endsWith('/') ? cp : cp + '/'))) + el('propstat', el('prop', el('resourcetype', `<${p}collection/>`)) + el('status', 'HTTP/1.1 200 OK')));
+    const fileEntry = (fp, f) => el('response', el('href', esc(encodeURI(fp))) + el('propstat', el('prop', (want('getetag') ? el('getetag', esc(f.etag)) : '') + (want('getcontentlength') ? el('getcontentlength', String(f.bytes.length)) : '') + (want('resourcetype') ? `<${p}resourcetype/>` : '') + extras(fp)) + el('status', 'HTTP/1.1 200 OK')));
+    const colEntry = (cp) => el('response', el('href', esc(encodeURI(cp.endsWith('/') ? cp : cp + '/'))) + el('propstat', el('prop', (want('resourcetype') ? el('resourcetype', `<${p}collection/>`) : '') + extras(cp)) + el('status', 'HTTP/1.1 200 OK')));
     if (files.has(path)) entries.push(fileEntry(path, files.get(path)));
     else if (collections.has(path)) {
       entries.push(colEntry(path));
@@ -150,6 +171,13 @@ export function createMockWebDav({ username, password, host = '127.0.0.1', etagM
       ifNoneMatch: req.headers['if-none-match'] ?? null,
       authOk,
       host: req.headers.host,
+      ...(method === 'PROPFIND' ? {
+        depth: req.headers.depth ?? null,
+        contentType: req.headers['content-type'] ?? null,
+        contentLength: req.headers['content-length'] ?? null,
+        bodyBytes: body.length,
+        body: body.subarray(0, 4096).toString('utf8'),
+      } : {}),
     });
     if (path === null) return send(res, 400);
     if (!authOk) return send(res, 401, '', { 'WWW-Authenticate': 'Basic realm="mock"' });
@@ -181,7 +209,7 @@ export function createMockWebDav({ username, password, host = '127.0.0.1', etagM
     if (method === 'PROPFIND') {
       const override = propfindOverride?.(path);
       if (override != null) return send(res, 207, override, { 'Content-Type': 'application/xml; charset=utf-8' });
-      const xml = propfind(path, req.headers.depth ?? '1');
+      const xml = propfind(path, req.headers.depth ?? '1', ignorePropSelection ? 'allprop' : requestedProps(body));
       if (!xml) return send(res, 404);
       return send(res, 207, xml, { 'Content-Type': 'application/xml; charset=utf-8' });
     }
@@ -232,6 +260,7 @@ export function createMockWebDav({ username, password, host = '127.0.0.1', etagM
     /** Resolves once the held request is waiting; release() then applies it (late commit). */
     async waitHeld(holdId) { while (!holds.has(holdId)) await new Promise((r) => setTimeout(r, 5)); },
     release(holdId) { const r = holds.get(holdId); if (!r) throw new Error(`no held request ${holdId}`); r(); },
+    locks,
     revokeCredentials() { credentialsRevoked = true; },
     restoreCredentials() { credentialsRevoked = false; },
     snapshot() {

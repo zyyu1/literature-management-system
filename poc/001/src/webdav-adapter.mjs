@@ -5,6 +5,12 @@ import http from 'node:http';
 import { assertLoopbackHost } from './util.mjs';
 import { parseMultistatus } from './dav-xml.mjs';
 
+export const PROPFIND_RESOURCETYPE_BODY = Buffer.from(
+  '<?xml version="1.0" encoding="utf-8"?>\n<d:propfind xmlns:d="DAV:"><d:prop><d:resourcetype/></d:prop></d:propfind>\n',
+  'utf8',
+);
+export const PROPFIND_CONTENT_TYPE = 'application/xml; charset=utf-8';
+
 /**
  * Write outcomes (the API must never turn `unknown` into success or failure):
  *   committed            2xx from upstream
@@ -123,7 +129,12 @@ export function createWebDavAdapter({ baseUrl, username, password, timeoutMs = 2
      * base path is reported as foreign (also fail-closed for callers).
      */
     async propfind(path, depth = '1') {
-      const r = await request('PROPFIND', path, { headers: { Depth: depth } });
+      // REMEDIATION-05 R05-2: explicit minimal request — ONLY DAV:resourcetype. Never an empty
+      // (allprop) body, and no fallback to allprop on any error or unexpected response.
+      const r = await request('PROPFIND', path, {
+        headers: { Depth: depth, 'Content-Type': PROPFIND_CONTENT_TYPE },
+        body: PROPFIND_RESOURCETYPE_BODY,
+      });
       if (r.transport === 'error') return { outcome: 'unavailable', code: r.code };
       if (r.status === 404) return { outcome: 'not_found' };
       if (r.status !== 207) return { outcome: 'error', status: r.status };
