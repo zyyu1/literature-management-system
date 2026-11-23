@@ -1,6 +1,10 @@
-# POC-001 — Current Governance Status (authoritative D007-A24 overlay)
+# POC-001 — Current Governance Status (D007-A25 overlay; A24 G4 preserved)
 
-**Updated:** 2026-11-23 (Europe/Berlin). **This is the current consolidated status; earlier A22/A23 status documents and approval records are historical at their respective SHAs and remain valid as history, not current execution state.**
+**Updated:** 2026-11-23 (Europe/Berlin).
+
+**D007-A25 current overlay:** **Option B APPROVED — REMEDIATION-05 G1 AUTHORIZED_LOCAL_SYNTHETIC ONLY** ([A25 Design](../../architecture/D007_A25_POC001_REMEDIATION05_DISPOSITION.md), [R05 Execution](REMEDIATION_05.md), [independent G3 plan](REMEDIATION_05_QA_PLAN.md)). Preserve original branch `exec/POC-001-webdav-feasibility`, original base `1c084e5f14e4af8018ef5fe99710be7205cfbdf4`, exact pre-R05 start PR #2 HEAD `22dd9bd30900d9c7ca205a36c675fd47b2569feb`; changed paths only `poc/001/**` plus `docs/handoffs/POC-001/QA_HANDOFF.md`, **NO REBASE, NO MERGE MAIN, NO FORCE PUSH**. Scope is P2-R04-1 parser depth/element/namespace/attribute resource limits and P2-R04-2 minimal explicit `resourcetype` PROPFIND with tests/README and independent QA, **NOT broader WebDAV features**. **R05 Execution NOT_STARTED by Design; new R05 G3 QA NOT_RUN; P2-R04-1/2 STILL OPEN hard ACCESS-02 blockers.** Historical A24 G4 **ACCEPTED_EXACT_SHA / LOCAL_STAGE PASS SYNTHETIC ONLY** at `22dd9bd30900d9c7ca205a36c675fd47b2569feb` stays intact; **OVERALL POC BLOCKED_REAL_SERVICE**, G5 merge/G6 ACCESS-02/G7 cloud remain not authorized. The A24 table below is an immutable historical snapshot unless explicitly updated here; its old "NO R05 authorized" row is superseded by this A25 overlay.
+
+ **This is the current consolidated status; earlier A22/A23 status documents and approval records are historical at their respective SHAs and remain valid as history, not current execution state.**
 
 ## Current exact-SHA state
 

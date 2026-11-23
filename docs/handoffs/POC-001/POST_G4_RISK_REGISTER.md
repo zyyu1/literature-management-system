@@ -4,6 +4,8 @@
 **Exact original POC branch/base:** `exec/POC-001-webdav-feasibility` / `1c084e5f14e4af8018ef5fe99710be7205cfbdf4`. PR #2 remains OPEN/UNMERGED. Original cumulative path allowlist `poc/001/**` plus `docs/handoffs/POC-001/QA_HANDOFF.md`; **NO REBASE, MAIN MERGE or FORCE PUSH**.
 **Gate meaning:** `OPEN_HARD_PRE_ACCESS` means user may accept LOCAL_STAGE G4 with the risk recorded, but **ACCESS-02 authorization must be refused until independent evidence closes this item**. `UNSUPPORTED_PROVIDER_DEPENDENCY` means tests still needed under *separately authorized* real-provider G6; do not mark as passed based on a local mock. `RESIDUAL_POLICY_REQUIRED` means safe operating policy or new architecture decision needed before provider test/use.
 
+**D007-A25 updated authorization overlay (2026-11-23):** **Option B APPROVED, REMEDIATION-05 G1 LOCAL/SYNTHETIC ONLY** ([A25 decision](../../architecture/D007_A25_POC001_REMEDIATION05_DISPOSITION.md), [R05 instruction](REMEDIATION_05.md), [independent QA plan](REMEDIATION_05_QA_PLAN.md)). Exact R05 start HEAD `22dd9bd30900d9c7ca205a36c675fd47b2569feb` on original branch/base. **P2-R04-1 and P2-R04-2 remain OPEN_HARD_PRE_ACCESS pending fresh exact-head QA and A26 independent Design closure.** This approval changes **execution authorization**, not the previously accepted A24 G4 source SHA, not risk severity and **NOT** G6 real access. **No R05 tests run by Design, no real provider, merge or deployment permission.**
+
 ## 1. Findings/risk ledger
 
 | ID, QA finding | Severity / observed evidence | G4 local disposition | Required decision + evidence before G6/ACCESS-02 | Status |
@@ -28,6 +30,6 @@
 - **G5 merge:** still an independently user-authorized gate even if later G6 passes; no rebase of existing POC branch now.
 - **Cross-WP:** WP-01 D007-A21 existing local G1 is independent of this POC decision; no authority crossover.
 
-## 3. Recommended next independent decision
+## 3. D007-A25 authorization record and next independent D007-A26 decision
 
-**D007-A25: Option B recommended, NOT YET APPROVED** — authorize one scoped **REMEDIATION-05 LOCAL/SYNTHETIC** work package targeting only `P2-R04-1` depth/element/namespace/CPU/memory robustness and `P2-R04-2` explicit `resourcetype` PROPFIND compatibility/disclosure, on original branch/base and current exact R04 head if unchanged. Require tests including OOM-resistant bounded hostile input and legal locked/allprop fixture as negative/positive cases, targeted mutants and separate new exact-SHA independent QA. Preserve Q1a–e, Q2, Q3, Q4, Q5 and P1-R1. **NO R05 G1 granted by A24**.
+**D007-A25 Option B is NOW APPROVED as a limited LOCAL/SYNTHETIC G1** — one scoped **REMEDIATION-05 LOCAL/SYNTHETIC** work package targeting only `P2-R04-1` depth/element/namespace/CPU/memory robustness and `P2-R04-2` explicit `resourcetype` PROPFIND compatibility/disclosure, on original branch/base and current exact R04 head if unchanged. Require tests including OOM-resistant bounded hostile input and legal locked/allprop fixture as negative/positive cases, targeted mutants and separate new exact-SHA independent QA. Preserve Q1a–e, Q2, Q3, Q4, Q5 and P1-R1. **A24 itself granted no R05; new independent A25 now grants LOCAL/SYNTHETIC G1 only. Fresh G3 QA and A26 separate Design closure NOT_RUN/NOT_GRANTED.**
