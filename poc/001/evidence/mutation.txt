@@ -1,5 +1,5 @@
 $ node scripts/mutation-check.mjs
-# exit 0 · 5599 ms
+# exit 0 · 29231 ms
 
 M1 KILLED (suite exit 1) — adapter treats 5xx as committed
 M2 KILLED (suite exit 1) — API forwards writes without If-Match (naive overwrite)
@@ -7,4 +7,11 @@ M3 KILLED (suite exit 1) — API re-sends an operation whose outcome is Unknown
 M4 KILLED (suite exit 1) — API access log records request headers (session token leak)
 M5 KILLED (suite exit 1) — restore allowed into the active namespace
 M6 KILLED (suite exit 1) — path id allowlist removed (traversal possible)
+M7 KILLED (suite exit 1) — P1-1 regression: verify treats unchanged base as terminal not_committed
+M8 KILLED (suite exit 1) — P1-2 regression: ledger reservation moved after the body await
+M9 KILLED (suite exit 1) — P1-3 regression: If-Match syntax validation removed
+M10 KILLED (suite exit 1) — P1-4 regression: https accepted and sent over node:http
+M11 KILLED (suite exit 1) — P2-5 regression: kind lookup via plain object (prototype keys)
+M12 KILLED (suite exit 1) — P2-7 regression: export skips unrecognized entries silently
+M13 KILLED (suite exit 1) — P2-12 regression: refused-after-connect classified as not_sent
 MUTATION CHECK: all mutants killed
