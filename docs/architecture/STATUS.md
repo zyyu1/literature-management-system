@@ -11,8 +11,9 @@
 **POC-001 local execution:** AUTHORIZED by POC-001-SCOPE-01, unchanged; independent QA not run.  
 **POC-001 real Nutstore account access:** BLOCKED pending separately approved ACCESS-02.  
 **Frozen Module 002 UI:** UNCHANGED ([DESIGN_APPROVED.md](../ui/002/DESIGN_APPROVED.md)).  
+**D007-A4:** **APPROVED Option B — API-managed opaque session and server-side authentication/authorization contract**; [security design](D007_A4_AUTH_SESSION_SECURITY.md). Explicit HttpOnly/Secure host-only Cookie, CSRF/Origin/Fetch Metadata and credentialed exact-origin CORS, per-resource checks, multi-device revoke, browser cross-site test and Personal Workspace read-only isolation. Identity provider, session state store and numeric expiry configuration **NOT SELECTED**. No tests or implementation authorized.
 **Application implementation/production deployment:** NOT AUTHORIZED.
 
-See [D007-A1 logical architecture](D007_A1_LOGICAL_DEPLOYMENT.md), [D007-A2 cost/risk evaluation](D007_A2_PROVIDER_COST_EVALUATION.md), [D007-A3 conditional preference](D007_A3_CONDITIONAL_PROVIDER_PREFERENCE.md), [Module 001 baseline](../baseline/LMS_REQUIREMENTS_ARCHITECTURE_v0.1.md), [Decision Log](../governance/DECISION_LOG.md) and [Handoff Index](../handoffs/INDEX.md).
+See [D007-A1 logical architecture](D007_A1_LOGICAL_DEPLOYMENT.md), [D007-A2 cost/risk evaluation](D007_A2_PROVIDER_COST_EVALUATION.md), [D007-A3 conditional preference](D007_A3_CONDITIONAL_PROVIDER_PREFERENCE.md), [D007-A4 session/security contract](D007_A4_AUTH_SESSION_SECURITY.md), [Module 001 baseline](../baseline/LMS_REQUIREMENTS_ARCHITECTURE_v0.1.md), [Decision Log](../governance/DECISION_LOG.md) and [Handoff Index](../handoffs/INDEX.md).
 
-**Next design decision:** D007-A4 — provider-neutral identity, session, CSRF/CORS and static-frontend↔secure-API security contract. No provider procurement, deployment or new POC implementation authorization.
+**Next design decision:** D007-A5 — versioned provider-neutral API contract, resource permissions, confirmed/conflict/unknown mutation responses and safe request identity; design-only and no POC scope expansion.
