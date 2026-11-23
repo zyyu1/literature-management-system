@@ -17,7 +17,7 @@
 | Lineage | `22dd9bd → 5749383 (code) → ae547d2 (evidence-path sanitization) → 70f59d6 (evidence) → (this handoff commit)`; fast-forward only; **no rebase, no merge of `main`, no force-push, no Design docs cherry-picked** |
 | R05 code commits | `5749383ac617c5cbe9c0d638907a92264c41dfab`; `ae547d2b89ba17c9c9ba2cba337e887b8af4aacc` (the evidence runner maps the temp baseline path to `<tmp>`) |
 | R05 evidence commit | `70f59d61d6c231c989494114af0ffcbd89454001`, generated on a clean tree at `ae547d2` (`results.json`: `gitHead=ae547d2…`, `gitDirtyPaths=(clean)`) |
-| **Final PR head** | the commit adding this file (parent `70f59d6`). **Its true 40-char SHA is in the PR #2 update comment.** |
+| **Final PR head** | the commit adding this file (`0995739` + a one-line correction commit). **Its true 40-char SHA is in the PR #2 update comment.** |
 | `main` observed | `b1e11f9c6eeb7123e9ea03261446df3ab0d5780e` (A25). `git merge-tree --write-tree` reported no conflict at that moment |
 | Runtime | Node **v22.23.5**, npm 10.9.9, Linux 6.18 **x64**, **2 vCPU** (Intel Xeon @ 2.10 GHz), 127.0.0.1 only |
 | Dependencies | **none added**. `npm ls --all` → `(empty)`; `poc/001/package.json` and `package-lock.json` unchanged |
@@ -82,7 +82,7 @@ All current-code rows meet the A25 target: **< 2 s, no `Reached heap limit`, no 
 PROPFIND <path>
 Depth: 1                      (caller-supplied; Depth 0 also verified)
 Content-Type: application/xml; charset=utf-8
-Content-Length: 120
+Content-Length: 114           (= byte length of the body below; asserted in R05-2 tests)
 <?xml version="1.0" encoding="utf-8"?>
 <d:propfind xmlns:d="DAV:"><d:prop><d:resourcetype/></d:prop></d:propfind>
 ```
