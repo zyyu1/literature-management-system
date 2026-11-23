@@ -1,17 +1,40 @@
-# POC-001 — Current Status (D007-A22 Overlay)
+# POC-001 — Current Governance Status (authoritative D007-A24 overlay)
 
-**Updated:** 2026-11-23 (Europe/Berlin).
-**D007-A23:** **Option B APPROVED for LOCAL/SYNTHETIC REMEDIATION-04 ONLY**. [A23 Design](../../architecture/D007_A23_POC001_REMEDIATION04_DISPOSITION.md), [REMEDIATION-04 Execution](REMEDIATION_04.md), [R04 independent QA plan](REMEDIATION_04_QA_PLAN.md). **Current PR #2 HEAD `4bfa924af2d20cd383c4e49f982f55ac83423a42`** was independently reviewed in [QA 7090201835](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7090201835): **101/101 ×5**, 30/30 mutants, scan 49 paths/0 findings, Q2/Q3/Q1a/b/d pass, **R03-Q1c PARTIAL**, four nested/foreign response undercounts (P2-R03-1). P2-R03-2 broader applied-but-unconfirmed Fence liveness and held-quota gap in documentation; 404 propstat collection INFO. **LOCAL_STAGE PARTIAL / OVERALL BLOCKED_REAL_SERVICE; G4 NOT_ACCEPTED.**
-**R04 narrowly approved:** reject unexpected/misplaced DAV response/href/propstat/status + foreign wrappers in supported POC profile; only 2xx propstat gives collection flag; four adversarial fixtures, mutants, expand Q5 README and handoff. Existing branch `exec/POC-001-webdav-feasibility`, immutable base `1c084e5f14e4af8018ef5fe99710be7205cfbdf4`, **exact R04 start HEAD `4bfa924af2d20cd383c4e49f982f55ac83423a42`**, original allowlist only, **NO REBASE, NO MAIN MERGE, NO FORCE PUSH**. **R04 Execution AUTHORIZED_LOCAL_SYNTHETIC / NOT_STARTED; new QA NOT_RUN.**
-**Historic R03/D007-A22 text below is preserved as previous decision state, not the current G4 verdict.**
- This is a **newest-evidence status overlay**, not a rewrite of the original Design, Execution, REMEDIATION-01/02 or ACCESS policy.
-**Design / authorization:** POC-001-SCOPE-01 original local/synthetic authorization; REMEDIATION-01 and REMEDIATION-02 original approvals remain intact; **D007-A22 Option B authorizes only REMEDIATION-03 local Q1/Q2/Q3 remediation + Q4/Q5 documentation and independent QA handoff** ([REMEDIATION-03](REMEDIATION_03.md), [A22 Design](../../architecture/D007_A22_POC001_REMEDIATION03_DISPOSITION.md)).
-**Original branch/base (unchanged):** `exec/POC-001-webdav-feasibility` / `1c084e5f14e4af8018ef5fe99710be7205cfbdf4` / original execution allowlist. **NO REBASE, NO MERGE MAIN, NO FORCE PUSH**.
-**PR #2:** [OPEN / NOT MERGED](https://github.com/zyyu1/literature-management-system/pull/2); exact newest independently tested HEAD `74d00f2bf6d6be5a55f43b359a416437e7e3e0c3` (Execution REMEDIATION-03 has **NOT STARTED / no new HEAD yet** as of publication).
-**Latest independent QA:** [7089087597](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7089087597) independently reproduced **75/75 ×5, 23/23 mutants**, no observed P0/P1 in test scope, P1-R1 locally fixed but P2-Q1 export integrity, P2-Q2 Fence read-back, P2-Q3 README remains. **LOCAL_STAGE PARTIAL / OVERALL POC-001 BLOCKED_REAL_SERVICE**. Original historical independent QA: [7088088675](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7088088675), [7088521226](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7088521226).
-**REMEDIATION-03 required:** Q1 canonical three kind collections, unique href/record/status consistency, no false successful incomplete export; Q2 matching strong PUT/GET ETag and unchanged verified bytes before terminal fence; Q3 accurate per-process/tombstone claims, actual quotas, HMAC provenance; Q4/Q5 documented P2 residuals (Unknown-slot pressure, misconfigured global quota, inbound slow request, late fence liveness).
-**Current execution status:** **AUTHORIZED_LOCAL_SYNTHETIC / NOT_STARTED** for REMEDIATION-03 only; next implementation changes only `poc/001/**`, existing `docs/handoffs/POC-001/QA_HANDOFF.md` on original branch, PR then STOP.
-**Current independent REMEDIATION-03 QA:** **NOT RUN** (new exact PR SHA does not yet exist). [QA plan](REMEDIATION_03_QA_PLAN.md) requires full fresh repeated tests and adversarial proof, then separate Design G4 disposition.
-**Access:** [ACCESS-01 security rules](ACCESS_POLICY.md) are design-only, **ACCESS-02 BLOCKED / NEVER AUTHORIZED**; no real Nutstore, Zotero, WebDAV account, PDFs, TLS requests, cloud or provider-specific test.
-**Other non-authorizations:** no edits to original `EXECUTION_INSTRUCTION.md`, `REMEDIATION_02.md`, frozen Module 002 UI, WP-01 independent work, root code/CI, merge, architecture freeze, staging or production.
-**Next recommended independent design item:** **D007-A23** — **after** new REMEDIATION-03 exact-SHA independent QA, separately accept/reject LOCAL_STAGE; do not claim local acceptance until QA evidence exists. Do not interpret this as ACCESS-02 grant.
+**Updated:** 2026-11-23 (Europe/Berlin). **This is the current consolidated status; earlier A22/A23 status documents and approval records are historical at their respective SHAs and remain valid as history, not current execution state.**
+
+## Current exact-SHA state
+
+| Field | Current |
+| --- | --- |
+| Design decision | **D007-A24 Option B APPROVED** — [G4 bounded local acceptance](../../architecture/D007_A24_POC001_G4_LOCAL_ACCEPTANCE.md) |
+| Source PR | [POC-001 PR #2](https://github.com/zyyu1/literature-management-system/pull/2), **OPEN / NOT MERGED** at acceptance verification |
+| Branch | `exec/POC-001-webdav-feasibility`; **NO REBASE, NO MERGE MAIN, NO FORCE PUSH** |
+| Original approved execution base | `1c084e5f14e4af8018ef5fe99710be7205cfbdf4` (immutable) |
+| Exact accepted POC head | `22dd9bd30900d9c7ca205a36c675fd47b2569feb` (distinct from moving `main` Design docs) |
+| Cumulative allowlist | `poc/001/**` and `docs/handoffs/POC-001/QA_HANDOFF.md` only — independently checked 51 paths |
+| Execution status | **REMEDIATION-04 COMPLETED / EXECUTION STOP**; **NO REMEDIATION-05 authorized** |
+| G3 QA | **PASS_LOCAL** independently observed on `22dd9bd30900d9c7ca205a36c675fd47b2569feb`: [QA #7092575362](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7092575362) |
+| G4 Design | **ACCEPTED_EXACT_SHA / LOCAL_STAGE PASS (SYNTHETIC ONLY)** by user's D007-A24 Option B |
+| Overall POC | **BLOCKED_REAL_SERVICE** — real provider, TLS, application and production evidence NOT_RUN |
+| P2-R04-1 / P2-R04-2 | **OPEN HARD PRE-ACCESS-02 BLOCKERS**, not waivable by this G4 acceptance |
+| G5 merge | **NOT_AUTHORIZED**, no PR merge |
+| G6 ACCESS-02 | **BLOCKED / NEVER AUTHORIZED**, no Nutstore/Zotero/real WebDAV account or credentials |
+| G7 staging/production | **NOT_AUTHORIZED** |
+
+## Accepted local test proof and limitations
+
+The independent QA used a fresh checkout and its own local `qadav4` double; **25 checked files**, original POC-01..07 **2/4/3/1/3/17/3**, R01 **21/21**, R02 **21/21**, R03 **26/26**, R04 **17/17**, complete suite **118/118 × five separate runs**, **37/37** mutants killed, **123 PASS / 14 INFO / zero FAIL** independent probes plus 160 XML placement cells, and **51 changed files / 0 secret-scan findings**. No P0/P1 observed within test scope. Execution handoff's earlier scan count is historical before final evidence commits, not a discrepancy. All observed proof is **synthetic/loopback**; no provider/production conclusions.
+
+**Accepted as residuals for G4 local ONLY, not real readiness:** [risk register](POST_G4_RISK_REGISTER.md) — **P2-R04-1** parser depth/namespace copy CPU/OOM (442 KB → ~1.9 GB, 396 KB / 2 GB heap exit 134) and **P2-R04-2** valid DAV lockdiscovery/current-user-principal `href` 503 due to allprop conservative profile; both MUST CLOSE before any ACCESS-02 approval. **R03-Q1e** unknown record omitted by apparently legal kind listing and lack of consistent multi-file snapshot, **Q4** ledger/quota/inbound slow request, **Q5** applied-but-unconfirmed Fence indefinite `indeterminate` with held quota, provider atomic `If-Match`/PUT-GET-CAS ETag semantics, MKCOL, HTTPS, cross-instance durable ledger, credential/key handling and other provider UNSUPPORTED/NOT_RUN remain unproven.
+
+## History — not today's stage status
+
+- [REMEDIATION-02 QA #7089087597](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7089087597) at `74d00f2bf6d6be5a55f43b359a416437e7e3e0c3`: PARTIAL, Q1/Q2/Q3 remediation needed.
+- [REMEDIATION-03 QA #7090201835](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7090201835) at `4bfa924af2d20cd383c4e49f982f55ac83423a42`: PARTIAL, nested DAV response and broadened Q5 disclosure needed.
+- [REMEDIATION-04 QA #7092575362](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7092575362) at `22dd9bd30900d9c7ca205a36c675fd47b2569feb`: **PASS_LOCAL**; D007-A24 independently accepted the bounded G4 stage with explicit P2 risks. Earlier [A22](REMEDIATION_03.md), [A23](REMEDIATION_04.md) and original [EXECUTION_INSTRUCTION](EXECUTION_INSTRUCTION.md) are preserved unchanged.
+
+## Authorization firewall and next separate decision
+
+**No** R05 fix or fresh G1 permission, merge, rebase, ACCESS-02, real Nutstore/Zotero requests/PDF, app or frozen Module 002 UI edits, CI, cloud, staging or deployment authority. **Separate WP-01 D007-A21** branch/base/G1 stays independent.
+
+**Next recommended independent item: D007-A25 Option B (PROPOSED ONLY)** — scoped local/synthetic R05 repair of the two access blockers, with exact base/head/allowlist and fresh independent QA. The user must separately decide whether to authorize it. If approved later, any Execution-window instructions must be supplied as **complete LaTeX**; this A24 G4 decision is **NOT** an Execution instruction.
