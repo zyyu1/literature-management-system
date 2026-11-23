@@ -50,18 +50,19 @@ test('POC-06 upstream 412 (stale): conflict with current content, nothing writte
 });
 
 const UNKNOWN = [
-  // [fault, did upstream apply?, expected verification verdict]
-  [{ kind: 'hang' }, false, 'not_committed'],
-  [{ kind: 'status', status: 500 }, false, 'not_committed'],
-  [{ kind: 'status', status: 503 }, false, 'not_committed'],
-  [{ kind: 'commit-then-drop' }, true, 'committed'],
-  [{ kind: 'commit-then-hang' }, true, 'committed'],
-  [{ kind: 'commit-then-status', status: 502 }, true, 'committed'],
+  // [fault, did upstream apply?]
+  [{ kind: 'hang' }, false],
+  [{ kind: 'status', status: 500 }, false],
+  [{ kind: 'status', status: 503 }, false],
+  [{ kind: 'commit-then-drop' }, true],
+  [{ kind: 'commit-then-hang' }, true],
+  [{ kind: 'commit-then-status', status: 502 }, true],
 ];
 
-for (const [fault, applied, verdict] of UNKNOWN) {
+for (const [fault, applied] of UNKNOWN) {
   const label = fault.kind + (fault.status ? ` ${fault.status}` : '');
-  test(`POC-06 ${label}: outcome Unknown → explicit verify → ${verdict}; no blind repeat`, async (t) => {
+  const path = applied ? 'verify → committed' : 'verify → not_yet_observed (non-terminal) → fence → not_committed';
+  test(`POC-06 ${label}: Unknown → ${path}; no blind repeat`, async (t) => {
     const { s, note, rev, putCount, stored } = await seeded(t);
     s.mock.faults.push({ method: 'PUT', ...fault });
     const opId = s.client.newOperationId();
@@ -77,13 +78,24 @@ for (const [fault, applied, verdict] of UNKNOWN) {
     assert.equal(putCount() - before, 1, 'same operation is not re-sent while Unknown');
 
     const v = await s.client.verify(opId);
-    assert.equal(v.data.outcome, verdict);
+    if (applied) {
+      assert.equal(v.data.outcome, 'committed'); assert.equal(v.data.terminal, true);
+    } else {
+      assert.equal(v.data.outcome, 'not_yet_observed', 'unchanged base is NOT proof of failure (P1-1)');
+      assert.equal(v.data.terminal, false);
+      assert.equal((await s.client.put('notes', note.literatureId, v2, rev, opId)).data.outcome, 'verification_required', 'still Unknown after observation');
+      const f = await s.client.fence(opId);
+      assert.equal(f.data.outcome, 'not_committed'); assert.equal(f.data.fenced, true);
+      assert.deepEqual(stored(), note, 'fence rewrote identical content (only the ETag changed)');
+    }
     const replay = await s.client.put('notes', note.literatureId, v2, rev, opId);
     assert.equal(replay.headers['operation-replayed'], 'true');
     assert.equal(replay.data.outcome, applied ? 'saved' : 'not_committed');
-    assert.equal(putCount() - before, 1, 'verdict replayed without another upstream write');
+    const upstreamPuts = putCount() - before;
+    assert.equal(upstreamPuts, applied ? 1 : 2, 'only the original attempt (+ one fence write) reached storage');
     if (!applied) {
-      const fresh = await s.client.put('notes', note.literatureId, v2, rev); // NEW operation id = explicit user retry
+      const cur = await s.client.get('notes', note.literatureId);
+      const fresh = await s.client.put('notes', note.literatureId, v2, cur.data.revision); // NEW op id = explicit user retry
       assert.equal(fresh.data.outcome, 'saved');
     }
   });

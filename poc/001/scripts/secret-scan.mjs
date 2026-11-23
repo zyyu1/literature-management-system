@@ -4,7 +4,8 @@ import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
 const repo = execSync('git rev-parse --show-toplevel', { encoding: 'utf8' }).trim();
-const base = process.argv[2] ?? 'origin/main';
+// REMEDIATION-01: pinned to the authorized POC-001 base, never a floating origin/main.
+const base = process.argv[2] ?? '1c084e5f14e4af8018ef5fe99710be7205cfbdf4';
 const changed = execSync(`git diff --name-only ${base} -- .`, { cwd: repo, encoding: 'utf8' }).split('\n').filter(Boolean);
 const untracked = execSync('git ls-files --others --exclude-standard', { cwd: repo, encoding: 'utf8' }).split('\n').filter(Boolean);
 const files = [...new Set([...changed, ...untracked])];

@@ -22,20 +22,32 @@ export function syntheticSecrets() {
   };
 }
 
-export async function startStack({ namespace = 'poc-ns-a', timeoutMs = 800 } = {}) {
+export async function startStack({ namespace = 'poc-ns-a', timeoutMs = 800, maxLedgerEntries, extraTokens = 0 } = {}) {
   const secrets = syntheticSecrets();
+  secrets.extraTokens = Array.from({ length: extraTokens }, () => `synthetic-token-${randomId(16)}`);
   const mock = createMockWebDav({ username: secrets.davUser, password: secrets.davPass });
   const dav = await mock.start();
   const logs = [];
   const adapter = createWebDavAdapter({ baseUrl: `${dav.url}/lms-poc`, username: secrets.davUser, password: secrets.davPass, timeoutMs });
   // base collection for the fixed basePath
   mock.collections.add('/lms-poc');
-  const api = createSafeApi({ adapter, namespace, apiTokens: [secrets.apiToken], allowedOrigins: ['http://127.0.0.1:5173'], log: (e) => logs.push(e) });
+  const apiTokens = [secrets.apiToken, ...secrets.extraTokens];
+  const api = createSafeApi({ adapter, namespace, apiTokens, allowedOrigins: ['http://127.0.0.1:5173'], log: (e) => logs.push(e), maxLedgerEntries });
   const apiInfo = await api.start();
   const client = createClient({ apiUrl: apiInfo.url, token: secrets.apiToken });
+  const extraClients = secrets.extraTokens.map((token) => createClient({ apiUrl: apiInfo.url, token }));
+  const instances = [api];
   return {
-    secrets, mock, dav, adapter, api, apiUrl: apiInfo.url, client, logs, namespace,
-    async stop() { await api.stop(); await mock.stop(); },
+    secrets, mock, dav, adapter, api, apiUrl: apiInfo.url, client, extraClients, logs, namespace,
+    /** Another independent API instance (fresh in-memory ledger) on the same storage, e.g. to simulate a restart. */
+    async newInstance({ adapterOverride } = {}) {
+      const a = adapterOverride ?? createWebDavAdapter({ baseUrl: `${dav.url}/lms-poc`, username: secrets.davUser, password: secrets.davPass, timeoutMs });
+      const inst = createSafeApi({ adapter: a, namespace, apiTokens });
+      const info = await inst.start();
+      instances.push(inst);
+      return { api: inst, url: info.url, client: createClient({ apiUrl: info.url, token: secrets.apiToken }) };
+    },
+    async stop() { for (const i of instances) await i.stop(); await mock.stop(); },
   };
 }
 

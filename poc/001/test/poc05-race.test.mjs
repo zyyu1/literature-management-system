@@ -66,7 +66,7 @@ test('POC-05 negative control: naive GET-then-unconditional-PUT LOSES an update 
   await a.mkcol(`/${s.namespace}`); await a.mkcol(`/${s.namespace}/notes`);
   const note = syntheticNote();
   const p = `/${s.namespace}/notes/${note.literatureId}.json`;
-  const enc = (q) => encodeEnvelope({ kind: 'notes', id: note.literatureId, operationId: 'naive', data: { ...note, question: q } });
+  const enc = (q) => encodeEnvelope({ kind: 'notes', id: note.literatureId, operationId: 'deadbeef-0000-0000', data: { ...note, question: q } });
   await a.put(p, enc('v0'), { ifNoneMatch: '*' });
   await a.get(p); await a.get(p); // both naive writers "check" first
   s.mock.setBarrier({ method: 'PUT', pathIncludes: note.literatureId, count: 2 });

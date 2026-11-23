@@ -1,13 +1,14 @@
 // Runs the full POC-001 local evidence sequence and writes evidence/ files.
 // Every result here is LOCAL MOCK ONLY. Real Nutstore: BLOCKED / NOT RUN.
 import { spawnSync, execSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = join(root, 'evidence');
+rmSync(outDir, { recursive: true, force: true }); // no stale files from earlier runs
 mkdirSync(outDir, { recursive: true });
 const git = (c) => { try { return execSync(`git ${c}`, { cwd: root, encoding: 'utf8' }).trim(); } catch { return 'n/a'; } };
 
@@ -19,6 +20,8 @@ const env = {
   node: process.version,
   npm: (() => { try { return execSync('npm --version', { encoding: 'utf8' }).trim(); } catch { return 'n/a'; } })(),
   os: `${os.type()} ${os.release()} ${os.arch()}`,
+  authorizedBase: '1c084e5f14e4af8018ef5fe99710be7205cfbdf4',
+  remediation: 'POC-001-REMEDIATION-01 (Design commit f7e89c4d438fc30b54546ec0f27823604df7aaa2)',
   providerKind: 'MOCK (in-repo loopback test double, poc/001/src/mock-webdav.mjs)',
   realNutstore: 'BLOCKED_REAL_SERVICE — NOT RUN (no account access authorized)',
 };
@@ -34,8 +37,9 @@ const STEPS = [
   ['POC-05', 'node', ['--test', '--test-reporter=spec', 'test/poc05-race.test.mjs']],
   ['POC-06', 'node', ['--test', '--test-reporter=spec', 'test/poc06-faults.test.mjs']],
   ['POC-07', 'node', ['--test', '--test-reporter=spec', 'test/poc07-backup.test.mjs']],
-  ['full-suite', 'node', ['--test', 'test/*.test.mjs']],
-  ['secret-scan', 'node', ['scripts/secret-scan.mjs']],
+  ['R01-regressions', 'node', ['--test', '--test-reporter=spec', 'test/r01-regressions.test.mjs']],
+  ...[1, 2, 3, 4, 5].map((i) => [`full-suite-run${i}`, 'node', ['--test', 'test/*.test.mjs']]),
+  ['secret-scan', 'node', ['scripts/secret-scan.mjs', '1c084e5f14e4af8018ef5fe99710be7205cfbdf4']],
   ['mutation', 'node', ['scripts/mutation-check.mjs']],
 ];
 
@@ -45,7 +49,8 @@ for (const [id, cmd, args] of STEPS) {
   const r = spawnSync(cmd, args, { cwd: root, encoding: 'utf8', timeout: 600_000 });
   const ms = Date.now() - t0;
   const out = (r.stdout ?? '') + (r.stderr ? `\n[stderr]\n${r.stderr}` : '');
-  const clean = out.replace(/\x1b\[[0-9;]*m/g, '');
+  // REMEDIATION-01: strip ANSI codes and the local workspace path (portable, no user paths).
+  const clean = out.replace(/\x1b\[[0-9;]*m/g, '').split(root).join('<poc/001>');
   writeFileSync(join(outDir, `${id}.txt`), `$ ${cmd} ${args.join(' ')}\n# exit ${r.status} · ${ms} ms\n\n${clean}`);
   const summary = /# pass (\d+)[\s\S]*?# fail (\d+)/.exec(clean) ?? /ℹ pass (\d+)[\s\S]*?ℹ fail (\d+)/.exec(clean);
   results.push({ id, command: `${cmd} ${args.join(' ')}`, exit: r.status, ms, pass: summary?.[1] ?? null, fail: summary?.[2] ?? null });

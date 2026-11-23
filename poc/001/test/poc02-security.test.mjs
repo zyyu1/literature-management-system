@@ -121,7 +121,8 @@ test('POC-02 credentials never leave the server side (responses, headers, logs, 
 
 test('POC-02 default-deny real network and loopback-only listeners', async () => {
   const mk = (baseUrl) => () => createWebDavAdapter({ baseUrl, username: 'synthetic', password: 'synthetic' });
-  assert.throws(mk('https://dav.example.com/dav/'), /REAL_SERVICE_BLOCKED/);
+  assert.throws(mk('https://dav.example.com/dav/'), /HTTPS_TRANSPORT_NOT_IMPLEMENTED/, 'https fails closed before any host check or network');
+  assert.throws(mk('http://dav.example.com/dav/'), /REAL_SERVICE_BLOCKED/);
   assert.throws(mk('http://10.0.0.5/dav/'), /REAL_SERVICE_BLOCKED/);
   assert.throws(mk('http://user:pw@127.0.0.1:1/dav/'), /must not be embedded/);
   assert.throws(mk('file:///etc/passwd'), /unsupported protocol/);

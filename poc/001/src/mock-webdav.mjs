@@ -14,6 +14,10 @@ import { assertLoopbackHost, sha256Hex } from './util.mjs';
  *   'commit-then-status' apply the operation, then respond `status` (e.g. 500)
  *   'commit-then-hang'   apply the operation, then never respond
  *   'corrupt'            store bytes with one byte flipped, respond as success
+ *   'hold'               keep the request un-applied until release(holdId); THEN apply
+ *                        it normally (late commit after the client already gave up)
+ *   'strip-etag'         apply normally but omit the ETag response header
+ *   'corrupt-read'       GET returns the stored bytes with one middle byte flipped
  */
 export function createMockWebDav({ username, password, host = '127.0.0.1' } = {}) {
   assertLoopbackHost(host);
@@ -27,6 +31,7 @@ export function createMockWebDav({ username, password, host = '127.0.0.1' } = {}
   let generation = 0;
   let credentialsRevoked = false;
   let barrier = null;
+  const holds = new Map(); // holdId -> release fn
   let server;
 
   const newEtag = (bytes) => `"${sha256Hex(bytes).slice(0, 16)}-${++generation}"`;
@@ -131,12 +136,18 @@ export function createMockWebDav({ username, password, host = '127.0.0.1' } = {}
       return send(res, fault.status, '', h);
     }
     if (fault?.kind === 'hang') return; // never answer, nothing applied
+    if (fault?.kind === 'hold') {
+      await new Promise((r) => holds.set(fault.holdId, r));
+      holds.delete(fault.holdId);
+    }
 
     if (method === 'GET' || method === 'HEAD') {
       const f = files.get(path);
       if (!f) return send(res, 404);
-      res.writeHead(200, { ETag: f.etag, 'Content-Length': f.bytes.length, 'Content-Type': 'application/octet-stream' });
-      return res.end(method === 'HEAD' ? undefined : f.bytes);
+      let out = f.bytes;
+      if (fault?.kind === 'corrupt-read' && out.length > 2) { out = Buffer.from(out); out[out.length >> 1] ^= 0x01; }
+      res.writeHead(200, { ETag: f.etag, 'Content-Length': out.length, 'Content-Type': 'application/octet-stream' });
+      return res.end(method === 'HEAD' ? undefined : out);
     }
     if (method === 'PROPFIND') {
       const xml = propfind(path, req.headers.depth ?? '1');
@@ -155,7 +166,9 @@ export function createMockWebDav({ username, password, host = '127.0.0.1' } = {}
     if (fault?.kind === 'commit-then-drop') return req.socket.destroy();
     if (fault?.kind === 'commit-then-hang') return;
     if (fault?.kind === 'commit-then-status') return send(res, fault.status ?? 500);
-    return send(res, result.status, '', result.etag ? { ETag: result.etag } : {});
+    if (res.destroyed || res.socket?.destroyed) return; // client gave up (e.g. late 'hold' release)
+    const etagHeader = result.etag && fault?.kind !== 'strip-etag' ? { ETag: result.etag } : {};
+    return send(res, result.status, '', etagHeader);
   }
 
   function send(res, status, body = '', headers = {}) {
@@ -175,6 +188,9 @@ export function createMockWebDav({ username, password, host = '127.0.0.1' } = {}
       barrier = { method, pathIncludes, count, arrived: 0, promise, release };
       return promise;
     },
+    /** Resolves once the held request is waiting; release() then applies it (late commit). */
+    async waitHeld(holdId) { while (!holds.has(holdId)) await new Promise((r) => setTimeout(r, 5)); },
+    release(holdId) { const r = holds.get(holdId); if (!r) throw new Error(`no held request ${holdId}`); r(); },
     revokeCredentials() { credentialsRevoked = true; },
     restoreCredentials() { credentialsRevoked = false; },
     snapshot() {
