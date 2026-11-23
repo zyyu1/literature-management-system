@@ -1,8 +1,8 @@
 $ node --test --test-reporter=spec test/poc01-crud.test.mjs
-# exit 0 · 206 ms
+# exit 0 · 222 ms
 
-✔ POC-01 adapter CRUD: exact payload, status codes, conditional update/delete (33.378286ms)
-✔ POC-01 API CRUD (create/read/update via safe API; delete intentionally not exposed) (37.482149ms)
+✔ POC-01 adapter CRUD: exact payload, status codes, conditional update/delete (33.256356ms)
+✔ POC-01 API CRUD (create/read/update via safe API; delete intentionally not exposed) (30.697635ms)
 ℹ tests 2
 ℹ suites 0
 ℹ pass 2
@@ -10,4 +10,4 @@ $ node --test --test-reporter=spec test/poc01-crud.test.mjs
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 177.201084
+ℹ duration_ms 198.05613

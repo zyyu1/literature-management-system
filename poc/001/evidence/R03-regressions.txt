@@ -1,32 +1,32 @@
 $ node --test --test-reporter=spec test/r03-regressions.test.mjs
-# exit 0 · 6230 ms
+# exit 0 · 6244 ms
 
-✔ R03-Q1a well-formed root listing omitting projects/ while a project exists → 503 (not 200 count 2) (81.781995ms)
-✔ R03-Q1a missing canonical collection even when it would be empty (progress) → 503 (21.480105ms)
-✔ R03-Q1b duplicates: root kind href, record href, percent-encoded and trailing-slash variants → 503 (28.995178ms)
-✔ R03-Q1c conflicting response-level vs propstat status, all-non-2xx propstat, nested/unexpected entries → 503 (25.548631ms)
-✔ R03-Q1d absent namespace is unproven → 503 namespace_absent (not 200 count 0) (3.429921ms)
-✔ R03-Q1d valid zero-record managed namespace → 200 count 0; restores once into a fresh namespace (13.368998ms)
-✔ R03-Q1d valid two-record namespace → count 2, unique manifest, byte-identical one-time restore (27.719681ms)
-✔ R03-Q1e INFO / UNSUPPORTED: a record silently omitted by a well-formed kind listing is NOT detectable (23.412541ms)
-✔ R03-Q2a (QA R1l) dishonest fence PUT ETag + content-hash storage: non-terminal, then late original commits → committed (277.10646ms)
-✔ R03-Q2a same dishonest PUT ETag on generation storage: GET ETag ≠ PUT ETag → non-terminal (265.233867ms)
-✔ R03-Q2b conforming generation ETags: terminal only after matching PUT+GET strong ETags ≠ base and identical bytes (both race orders) (599.606033ms)
-✔ R03-Q2b content-hash identical bytes still non-terminal (P1-R1 preserved) (262.318403ms)
-✔ R03-Q2c GET 500 on read-back → fence_not_confirmed, original Unknown retained, no re-send (266.995531ms)
-✔ R03-Q2c GET hang on read-back (timeout) → fence_not_confirmed, original Unknown retained, no re-send (521.696402ms)
-✔ R03-Q2c GET weak ETag on read-back → fence_not_confirmed, original Unknown retained, no re-send (264.545601ms)
-✔ R03-Q2c GET strong ETag ≠ PUT ETag → fence_not_confirmed, original Unknown retained, no re-send (266.503836ms)
-✔ R03-Q2c GET body changed on read-back → fence_not_confirmed, original Unknown retained, no re-send (268.714584ms)
-✔ R03-Q2c read-back finds the object deleted → record_missing (non-terminal) (266.435654ms)
-✔ R03-Q2c third-party overwrite between fence PUT and read-back → non-terminal (269.638555ms)
-✔ R03-Q2c fence PUT 5xx / missing / weak ETag → non-terminal (784.538321ms)
-✔ R03-Q3a INFO: beyond the tombstone window a previously REJECTED op can be re-sent and save (documented) (24.128719ms)
-✔ R03-Q4 INFO: Unknown-saturated principal stays blocked; global cap below the sum of quotas starves others (520.194728ms)
-✔ R03-Q4 INFO: a slowly uploaded request body keeps its reservation pending (51.603753ms)
-✔ R03-Q5 INFO: an Unknown fence PUT that applies later strands the operation as indeterminate (719.139818ms)
-✔ R03-Q1b adapter level: duplicate normalized hrefs are reported malformed (not de-duplicated) (3.420929ms)
-✔ R03-Q2c read-back serves different (older, still authentic) bytes under the fence ETag → readback_bytes_changed (268.717181ms)
+✔ R03-Q1a well-formed root listing omitting projects/ while a project exists → 503 (not 200 count 2) (63.245926ms)
+✔ R03-Q1a missing canonical collection even when it would be empty (progress) → 503 (16.781337ms)
+✔ R03-Q1b duplicates: root kind href, record href, percent-encoded and trailing-slash variants → 503 (27.050625ms)
+✔ R03-Q1c conflicting response-level vs propstat status, all-non-2xx propstat, nested/unexpected entries → 503 (35.677483ms)
+✔ R03-Q1d absent namespace is unproven → 503 namespace_absent (not 200 count 0) (3.915812ms)
+✔ R03-Q1d valid zero-record managed namespace → 200 count 0; restores once into a fresh namespace (14.644462ms)
+✔ R03-Q1d valid two-record namespace → count 2, unique manifest, byte-identical one-time restore (27.875773ms)
+✔ R03-Q1e INFO / UNSUPPORTED: a record silently omitted by a well-formed kind listing is NOT detectable (19.044522ms)
+✔ R03-Q2a (QA R1l) dishonest fence PUT ETag + content-hash storage: non-terminal, then late original commits → committed (288.527519ms)
+✔ R03-Q2a same dishonest PUT ETag on generation storage: GET ETag ≠ PUT ETag → non-terminal (269.096197ms)
+✔ R03-Q2b conforming generation ETags: terminal only after matching PUT+GET strong ETags ≠ base and identical bytes (both race orders) (598.593472ms)
+✔ R03-Q2b content-hash identical bytes still non-terminal (P1-R1 preserved) (264.411597ms)
+✔ R03-Q2c GET 500 on read-back → fence_not_confirmed, original Unknown retained, no re-send (271.735082ms)
+✔ R03-Q2c GET hang on read-back (timeout) → fence_not_confirmed, original Unknown retained, no re-send (519.424561ms)
+✔ R03-Q2c GET weak ETag on read-back → fence_not_confirmed, original Unknown retained, no re-send (271.033403ms)
+✔ R03-Q2c GET strong ETag ≠ PUT ETag → fence_not_confirmed, original Unknown retained, no re-send (268.060945ms)
+✔ R03-Q2c GET body changed on read-back → fence_not_confirmed, original Unknown retained, no re-send (266.285044ms)
+✔ R03-Q2c read-back finds the object deleted → record_missing (non-terminal) (261.987222ms)
+✔ R03-Q2c third-party overwrite between fence PUT and read-back → non-terminal (276.12118ms)
+✔ R03-Q2c fence PUT 5xx / missing / weak ETag → non-terminal (785.038021ms)
+✔ R03-Q3a INFO: beyond the tombstone window a previously REJECTED op can be re-sent and save (documented) (25.663535ms)
+✔ R03-Q4 INFO: Unknown-saturated principal stays blocked; global cap below the sum of quotas starves others (528.7887ms)
+✔ R03-Q4 INFO: a slowly uploaded request body keeps its reservation pending (52.678946ms)
+✔ R03-Q5 INFO: an Unknown fence PUT that applies later strands the operation as indeterminate (722.882303ms)
+✔ R03-Q1b adapter level: duplicate normalized hrefs are reported malformed (not de-duplicated) (2.657917ms)
+✔ R03-Q2c read-back serves different (older, still authentic) bytes under the fence ETag → readback_bytes_changed (263.032923ms)
 ℹ tests 26
 ℹ suites 0
 ℹ pass 26
@@ -34,4 +34,4 @@ $ node --test --test-reporter=spec test/r03-regressions.test.mjs
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 6200.211836
+ℹ duration_ms 6213.158164

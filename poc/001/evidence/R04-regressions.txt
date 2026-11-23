@@ -1,0 +1,51 @@
+$ node --test --test-reporter=spec test/r04-regressions.test.mjs
+# exit 0 · 3345 ms
+
+✔ R04-Q1c-01 foreign wrapper: 3 stored records, one hidden → 503 export_incomplete, no bundle, zero write effects (82.705854ms)
+ℹ fixture: <?xml version="1.0"?><d:multistatus xmlns:d="DAV:" xmlns:x="urn:example:foreign"><d:response><d:href>/lms-poc/poc-ns-a/notes/</d:href><d:propstat><d:prop><d:resourcetype><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response><d:response><d:href>/lms-poc/poc-ns-a/notes/lit-9000001-s0000000.json</d:href><d:propstat><d:prop><d:resourcetype></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response><x:wrap><d:response><d:href>/lms-poc/poc-ns-a/notes/lit-9000001-s0000001.json</d:href><d:propstat><d:prop><d:resourcetype></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response></x:wrap></d:multistatus>
+ℹ R04-Q1c-01 foreign wrapper: fixture 710 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child x:wrap in DAV:multistatus"}
+✔ R04-Q1c-02 response nested in response: 3 stored records, one hidden → 503 export_incomplete, no bundle, zero write effects (35.866713ms)
+ℹ fixture: <?xml version="1.0"?><d:multistatus xmlns:d="DAV:"><d:response><d:href>/lms-poc/poc-ns-a/notes/</d:href><d:propstat><d:prop><d:resourcetype><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response><d:response><d:href>/lms-poc/poc-ns-a/notes/lit-9000001-s0000002.json</d:href><d:propstat><d:prop><d:resourcetype></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat><d:response><d:href>/lms-poc/poc-ns-a/notes/lit-9000001-s0000003.json</d:href><d:propstat><d:prop><d:resourcetype></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response></d:response></d:multistatus>
+ℹ R04-Q1c-02 response nested in response: fixture 663 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child d:response in DAV:response"}
+✔ R04-Q1c-03 response inside responsedescription: 3 stored records, one hidden → 503 export_incomplete, no bundle, zero write effects (31.530141ms)
+ℹ fixture: <?xml version="1.0"?><d:multistatus xmlns:d="DAV:"><d:response><d:href>/lms-poc/poc-ns-a/notes/</d:href><d:propstat><d:prop><d:resourcetype><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response><d:response><d:href>/lms-poc/poc-ns-a/notes/lit-9000001-s0000004.json</d:href><d:propstat><d:prop><d:resourcetype></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response><d:responsedescription><d:response><d:href>/lms-poc/poc-ns-a/notes/lit-9000001-s0000005.json</d:href><d:propstat><d:prop><d:resourcetype></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response></d:responsedescription></d:multistatus>
+ℹ R04-Q1c-03 response inside responsedescription: fixture 710 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: DAV:responsedescription must contain text only"}
+✔ R04-Q1c-04 foreign-namespace response: 3 stored records, one hidden → 503 export_incomplete, no bundle, zero write effects (25.510908ms)
+ℹ fixture: <?xml version="1.0"?><d:multistatus xmlns:d="DAV:" xmlns:x="urn:example:foreign"><d:response><d:href>/lms-poc/poc-ns-a/notes/</d:href><d:propstat><d:prop><d:resourcetype><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response><d:response><d:href>/lms-poc/poc-ns-a/notes/lit-9000001-s0000006.json</d:href><d:propstat><d:prop><d:resourcetype></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response><x:response><x:href>/lms-poc/poc-ns-a/notes/lit-9000001-s0000007.json</x:href><x:status>HTTP/1.1 200 OK</x:status></x:response></d:multistatus>
+ℹ R04-Q1c-04 foreign-namespace response: fixture 618 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child x:response in DAV:multistatus"}
+✔ R04-Q1c-05 misplaced DAV structure anywhere in the tree → parser throws and export fails closed (50.582122ms)
+ℹ href inside propstat: fixture 294 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child d:href in DAV:propstat"}
+ℹ propstat directly under multistatus: fixture 323 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child d:propstat in DAV:multistatus"}
+ℹ status inside prop: fixture 289 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: misplaced DAV:status under d:prop"}
+ℹ prop directly under response: fixture 287 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child d:prop in DAV:response"}
+ℹ resourcetype directly under propstat: fixture 270 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child d:resourcetype in DAV:propstat"}
+ℹ collection directly under prop: fixture 268 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: misplaced DAV:collection under d:prop"}
+ℹ multistatus nested in prop: fixture 269 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: misplaced DAV:multistatus under d:prop"}
+ℹ unknown DAV child of multistatus: fixture 283 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child d:sync-token in DAV:multistatus"}
+ℹ foreign wrapper at root with no response inside: fixture 292 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child x:wrap in DAV:multistatus"}
+ℹ foreign child of response: fixture 293 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child x:extra in DAV:response"}
+ℹ foreign child of propstat: fixture 293 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child x:extra in DAV:propstat"}
+ℹ foreign response-shaped element hidden inside a property: fixture 349 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: response-shaped element in foreign namespace: x:response"}
+ℹ element inside href: fixture 289 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: DAV:href must contain text only"}
+ℹ stray text in multistatus: fixture 264 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unexpected text in DAV:multistatus"}
+✔ R04-COL-01 collection marker only inside a 404 propstat is NOT a collection → required kind fails closed (23.517064ms)
+ℹ notes collection only via 404 propstat: fixture 946 chars → HTTP 503 {"outcome":"export_incomplete","reason":"unrecognized_entry","detail":null}
+✔ R04-COL-02 2xx collection plus a separate 404 for an unrelated property stays accepted (43.679347ms)
+✔ R04-COL-03 existing response-status vs propstat conflict check still effective (0.318617ms)
+✔ R04-POS-01 legitimate shapes still accepted: responsedescription text, foreign properties, prefixes, default namespace (72.49374ms)
+✔ R04-Q5-01 INFO missing PUT ETag: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay (295.575037ms)
+✔ R04-Q5-01 INFO weak PUT ETag: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay (294.895948ms)
+✔ R04-Q5-01 INFO dishonest PUT ETag: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay (297.597701ms)
+✔ R04-Q5-01 INFO read-back GET 500: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay (299.7622ms)
+✔ R04-Q5-01 INFO read-back GET mismatched ETag: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay (301.851956ms)
+✔ R04-Q5-01 INFO apply-then-503: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay (299.113104ms)
+✔ R04-Q5-01 INFO apply-then-hang: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay (553.441093ms)
+✔ R04-Q5-01 INFO sibling Unknown operations on the same record are stranded too (528.085567ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3313.578993

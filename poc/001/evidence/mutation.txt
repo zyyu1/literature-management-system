@@ -1,5 +1,5 @@
 $ node scripts/mutation-check.mjs
-# exit 0 · 475115 ms
+# exit 0 · 499862 ms
 
 M1 KILLED (suite exit 1) — adapter treats 5xx as committed
 M2 KILLED (suite exit 1) — API forwards writes without If-Match (naive overwrite)
@@ -31,4 +31,11 @@ M27 KILLED (suite exit 1) — Q1 regression: absent namespace exported as empty
 M28 KILLED (suite exit 1) — Q2 regression: fence trusts PUT-response ETag (no GET read-back)
 M29 KILLED (suite exit 1) — Q2 regression: read-back ETag not compared with PUT ETag
 M30 KILLED (suite exit 1) — Q2 regression: read-back bytes not compared with fence payload
+M31 KILLED (suite exit 1) — R04-1 regression: whole-tree structure validation not called (silent-ignore restored)
+M32 KILLED (suite exit 1) — R04-1 regression: DAV structural parent rule disabled
+M33 KILLED (suite exit 1) — R04-1 regression: container child allowlists disabled
+M34 KILLED (suite exit 1) — R04-1 regression: foreign response-shaped elements accepted
+M35 KILLED (suite exit 1) — R04-1 regression: element children allowed inside text-only DAV elements
+M36 KILLED (suite exit 1) — R04-2 regression: collection marker accepted from any propstat (incl. 404)
+M37 KILLED (suite exit 1) — R04-2 regression: adapter treats trailing-slash href as collection
 MUTATION CHECK: all mutants killed
