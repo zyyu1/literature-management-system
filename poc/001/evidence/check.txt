@@ -1,4 +1,4 @@
 $ node scripts/check.mjs
-# exit 0 · 610 ms
+# exit 0 · 542 ms
 
-node --check: 23 files, 0 failures
+node --check: 24 files, 0 failures
