@@ -11,9 +11,9 @@ Requires Node ≥ 22.21 and no install step: there are zero third-party dependen
 ```bash
 cd poc/001
 npm run check      # node --check on all .mjs files
-npm test           # node --test "test/*.test.mjs"  (POC-01..07 + REMEDIATION-01/02/03 regressions)
+npm test           # node --test "test/*.test.mjs"  (POC-01..07 + REMEDIATION-01/02/03/04 regressions)
 npm run scan       # heuristic secret / private-endpoint / data-file scan vs the pinned base 1c084e5
-npm run mutation   # injects 30 known defects into a temp copy; each must make its suite fail
+npm run mutation   # injects 37 known defects into a temp copy; each must make its suite fail
 npm run evidence   # per-area runs + 5 real full-suite repetitions; rewrites evidence/*.txt + results.json
 ```
 
@@ -94,13 +94,34 @@ Installed dependency tree: **empty** (`npm ls --all` → `lms-poc-001-webdav-fea
 7. **Replay protection is bounded.** Terminal entries evicted from the live ledger become per-principal **tombstones** (`maxTombstonesPerPrincipal`, default 4 × `maxPerPrincipal` = 4000). Replaying a tombstoned Operation-Id is refused (`409 operation_expired` plus `priorVerdict`) and never dispatched. **Beyond that window, or after a restart, protection is UNSUPPORTED:** a forgotten Operation-Id is treated as new. Its write is still conditional on its original base revision, so it cannot overwrite newer data (412). It can, however, turn a previously recorded definite `not_saved` into a save if the record is still at that base.
 8. **Provenance key portability.** Records carry an HMAC write tag and provenance under a server-held synthetic key (`POC_PROVENANCE_KEY`). Instances must share the key to read each other's records or restore each other's exports; a different key fails closed (`unauthenticated_record`). Cross-key restore portability, key management and production key rotation are UNSUPPORTED. Durable operation identity and storage-rollback protection are **not** proven (an attacker or provider restoring an older authentic version is not detected).
 9. **Export completeness (REMEDIATION-03 Q1).** An export is `200` only if all of these hold: the namespace root exists with exactly one self entry; it lists **exactly one collection for each canonical kind** (`notes`, `projects`, `progress`; a missing kind is never read as empty) and nothing else; each kind listing has exactly one self entry and only well-named, non-collection record files; there is no duplicate after decoding and trailing-slash normalisation; no response carries both a response-level status and propstat; and every record decodes and authenticates. Otherwise the result is `503 export_incomplete` with a reason (`namespace_absent`, `missing_kind_collection`, `malformed_listing`, `unrecognized_entry`, `invalid_record`, `unauthenticated_record`, …). **UNSUPPORTED / provider integrity dependency:** a record silently omitted by an otherwise well-formed kind listing cannot be detected (pinned by `R03-Q1e`), and no consistent multi-file snapshot is claimed.
-9a. **PROPFIND profile.** Elements are matched by namespace URI `DAV:`. `href` must be an absolute *path* inside the adapter base path; absolute-URL hrefs, DTD/entities, CDATA and bodies over 2 MB are refused (fail-closed `export_incomplete`). Real providers may use legal forms outside this profile; that is an ACCESS-02 probe item.
+9a. **PROPFIND profile.** Elements are matched by namespace URI `DAV:`. **Structure (REMEDIATION-04 R04-1)** is validated over the **whole tree**, so no subtree is skipped:
+    - Every structurally significant DAV element must sit under its expected direct parent: `response` under `multistatus`; `href` and `propstat` under `response`; `status` under `response` or `propstat`; `prop` under `propstat`; `resourcetype` under `prop`; `collection` under `resourcetype`; `responsedescription` under `multistatus`, `response` or `propstat`.
+    - Only allowlisted DAV children may appear in each container: `multistatus` → `response` and `responsedescription`; `response` → `href`, `status`, `propstat` and `responsedescription`; `propstat` → `prop`, `status` and `responsedescription`.
+    - `href`, `status` and `responsedescription` must contain text only.
+    - A `multistatus`, `response`, `propstat` or `href` element in a **foreign** namespace is refused anywhere.
+
+    So a response hidden in a foreign wrapper, nested in another response, placed in `responsedescription`, or written as a foreign-namespace `response` makes the export fail closed (`503 export_incomplete`) instead of being silently dropped. Foreign *properties* inside `DAV:prop` stay allowed. This is a **conservative POC profile**: some rejected shapes (e.g. `DAV:sync-token`, `DAV:error`, `DAV:location`, foreign extension elements) are legal RFC 4918 extensions. Refusing them does not claim they are invalid WebDAV. **(R04-2)** A `DAV:collection` marker counts only inside a propstat whose own status is 2xx; a 404 propstat never makes an entry a collection, and neither does a trailing slash on the href.
+
+    Further profile limits: `href` must be an absolute *path* inside the adapter base path; absolute-URL hrefs, DTD/entities, CDATA and bodies over 2 MB are refused (fail-closed `export_incomplete`). Real providers may use legal forms outside this profile; that is an ACCESS-02 probe item.
 10. **No durable or global idempotency.** The Operation-Id ledger is **per-process memory**, scoped per principal and bounded. Defaults: `maxPerPrincipal = 1000`; global cap `maxLedgerEntries` defaults to `maxPerPrincipal × number of principals` (**not** a fixed 10 000). A principal at its own quota gets `503 not_saved principal_ledger_full`. When the global cap is reached, the response is `503 not_saved operation_ledger_full`. Both are returned **before** any upstream dispatch, so the outcome is definite. Only terminal entries are evicted (into tombstones); pending and Unknown entries never are. A restart or a second API instance does **not** share it. After a restart, `verify` needs `?kind=&id=&base=`, returns only non-terminal or observation results, and cannot fence. Two API processes **can** each forward the same Operation-Id once. Exactly-once delivery is **not** claimed.
 11. **Residual P2 operational limitations (REMEDIATION-03 Q4, documented, not fixed):**
     - A principal whose quota is saturated with **Unknown** operations stays blocked (`principal_ledger_full`). It is unblocked only if those operations are resolved (observed or fenced) or the process restarts. No guaranteed recovery procedure is provided.
     - Configuring `maxLedgerEntries` **below the sum** of the per-principal quotas re-introduces cross-principal starvation (`operation_ledger_full` for an innocent principal; pinned by `R03-Q4`).
     - A client that uploads its request body slowly keeps its Operation-Id reservation `pending` until Node's server-side request timeout applies.
-12. **Fence liveness limitation (REMEDIATION-03 Q5, documented, not fixed):** a fence PUT can time out (Unknown) and then apply later. The ETag then moves away from `base`, so the operation remains `indeterminate` (verify and further fences), possibly indefinitely. No safe automatic resolution is supported, and the API never converts this into `saved` or `not_committed` (pinned by `R03-Q5`).
+12. **Fence liveness and availability limitation — P2 (REMEDIATION-03 Q5, widened by REMEDIATION-04 R04-3; documented, not fixed).** **Any fence that was applied at the storage but not authoritatively confirmed** can strand the original operation in a non-terminal state indefinitely. This is not only the "timed out, then applied later" case. It includes a fence PUT whose response:
+    - has no ETag;
+    - has a weak or otherwise untrusted ETag;
+    - has a misleading or ambiguous ETag;
+    - is followed by a read-back GET that errors, times out, or returns a mismatched ETag or different bytes;
+    - returned 503 after applying;
+    - hung after applying.
+
+    In each case the stored revision has moved away from `base` without confirmation, so `verify` and further fences return `outcome: indeterminate, terminal: false`. Consequences:
+    - the operation may stay unresolved indefinitely;
+    - its ledger entry **keeps occupying the principal's quota slot**, which can contribute to `principal_ledger_full` (see item 11);
+    - **sibling Unknown operations on the same record** (same `base`) become unresolvable too.
+
+    No recovery mechanism is provided. The slot is not freed automatically, because that could enable an unsafe replay. The API never reports `saved` or `not_committed` without authoritative evidence. Pinned by `R03-Q5` and the seven `R04-Q5-01` cases plus the sibling case.
 13. **Production concerns that are out of scope here:** real TLS transport (`https:` currently **fails closed**, see P1-4), auth stack, session issuance and expiry, request budget and circuit breaker, per-run remote namespaces, audit logs, browser offline drafts.
 
 ## Known limitations of the local evidence
@@ -160,3 +181,14 @@ Installed dependency tree: **empty** (`npm ls --all` → `lms-poc-001-webdav-fea
 **Defence in depth and mutation testing.** Several Q1 guards overlap: the adapter's duplicate-href check, `listRecords`' own duplicate checks and its self-entry checks. A mutant that removes only one of them could survive through another. Each guard therefore has a test that reaches it directly; for example, the adapter-level duplicate test and the `stale-body` fixture for the read-back byte comparison. Mutants M14, M24–M30 were then killed. M14's pattern was updated because the Q2 change rewrote the line it targets.
 
 **Not claimed:** any Nutstore behaviour (atomic `If-Match`, PUT/GET ETag consistency, complete PROPFIND listings, snapshot consistency); global or durable exactly-once; recovery from Q4 and Q5 situations.
+
+## Remediation 04 (D007-A23, Design commit `489c450`, re-QA comment 7090201835)
+
+| Item | Change | Regression (`test/r04-regressions.test.mjs`) | Mutant |
+|---|---|---|---|
+| **R04-1** hidden / misplaced DAV structure (P2-R03-1, Q1c) | `validateStructure` walks the whole parsed tree: direct-parent rules for DAV structural elements, child allowlists for `multistatus` / `response` / `propstat`, text-only `href` / `status` / `responsedescription`, foreign response-shaped elements refused | QA's 4 variants (foreign wrapper, nested response, inside `responsedescription`, foreign-namespace `response`): 3 stored records → 503, no bundle, zero write effects, storage snapshot unchanged; 14 misplaced or unsupported shapes (incl. foreign response inside a property, element in `href`, unknown DAV root child, stray text) | M31 (silent-ignore restored), M32 parent rule, M33 child allowlists, M34 foreign response-shaped, M35 text-only |
+| **R04-2** collection only from 2xx propstat | parser reads `resourcetype/collection` only from 2xx propstats; **adapter no longer treats a trailing-slash href as a collection** (found during R04: that fallback would have let a 404 marker pass) | COL-01 404-only marker → not a collection → 503; COL-02 2xx collection plus an unrelated 404 property → accepted; COL-03 status/propstat conflict still rejected | M36, M37 |
+| **R04-3** Q5 disclosure | README item 12 widened to every applied-but-unconfirmed fence path, quota slot retention and sibling stranding | `R04-Q5-01` × 7 classes + sibling case (INFO) | — |
+| Non-regression | — | `R04-POS-01`: `responsedescription` text, foreign properties, `D:` / default / other prefixes, export → restore | — |
+
+**Not claimed:** RFC-invalidity of rejected extensions; completeness of a well-formed listing that silently omits a record (Q1e, still UNSUPPORTED); any Nutstore behaviour; recovery from Q4 and Q5 situations.

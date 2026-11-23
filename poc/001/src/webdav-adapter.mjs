@@ -139,7 +139,8 @@ export function createWebDavAdapter({ baseUrl, username, password, timeoutMs = 2
       if (new Set(norm).size !== norm.length) return { outcome: 'malformed', reason: 'duplicate href' };
       return {
         outcome: 'ok',
-        entries: mapped.map((e) => ({ path: e.rel.replace(/\/$/, '') || '/', collection: e.collection || e.rel.endsWith('/') })),
+        // R04-2: collection status comes only from a 2xx propstat (parser); a trailing slash proves nothing.
+        entries: mapped.map((e) => ({ path: e.rel.replace(/\/$/, '') || '/', collection: e.collection })),
       };
     },
     /** Protocol-level CRUD proof only (POC-01). Requires If-Match; the safe API never calls it. */

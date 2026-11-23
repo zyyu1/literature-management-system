@@ -68,6 +68,20 @@ const MUTANTS = [
     from: "        if (rb.etag !== w.etag) return notConfirmed('readback_etag_mismatch');", to: "        // PUT/GET ETag equality check removed", suite: 'test/r03-regressions.test.mjs' },
   { id: 'M30', desc: "Q2 regression: read-back bytes not compared with fence payload", file: 'src/safe-api.mjs',
     from: "        if (!rb.body.equals(r.body)) return notConfirmed('readback_bytes_changed');", to: "        // read-back byte comparison removed", suite: 'test/r03-regressions.test.mjs' },
+  { id: 'M31', desc: "R04-1 regression: whole-tree structure validation not called (silent-ignore restored)", file: 'src/dav-xml.mjs',
+    from: "  validateStructure(root, null); // R04-1: whole-tree hierarchy check \u2014 nothing can be silently skipped", to: "  // structure validation removed", suite: 'test/r04-regressions.test.mjs' },
+  { id: 'M32', desc: "R04-1 regression: DAV structural parent rule disabled", file: 'src/dav-xml.mjs',
+    from: "    if (!STRUCTURAL_PARENT[davLocal].includes(parentLocal)) throw new DavXmlError(`misplaced DAV:${davLocal} under ${parent ? parent.qname : 'document'}`);", to: "    if (false) throw new DavXmlError(`misplaced DAV:${davLocal} under ${parent ? parent.qname : 'document'}`);", suite: 'test/r04-regressions.test.mjs' },
+  { id: 'M33', desc: "R04-1 regression: container child allowlists disabled", file: 'src/dav-xml.mjs',
+    from: "      if (c.ns !== DAV || !ALLOWED_CHILDREN[davLocal].has(c.local)) throw new DavXmlError(`unsupported child ${c.qname} in DAV:${davLocal}`);", to: "      if (false) throw new DavXmlError(`unsupported child ${c.qname} in DAV:${davLocal}`);", suite: 'test/r04-regressions.test.mjs' },
+  { id: 'M34', desc: "R04-1 regression: foreign response-shaped elements accepted", file: 'src/dav-xml.mjs',
+    from: "  if (node.ns !== DAV && RESPONSE_SHAPED.has(node.local)) throw new DavXmlError(`response-shaped element in foreign namespace: ${node.qname}`);", to: "  // foreign response-shaped check removed", suite: 'test/r04-regressions.test.mjs' },
+  { id: 'M35', desc: "R04-1 regression: element children allowed inside text-only DAV elements", file: 'src/dav-xml.mjs',
+    from: "  if (davLocal && TEXT_ONLY.has(davLocal) && node.children.some((c) => c.qname)) throw new DavXmlError(`DAV:${davLocal} must contain text only`);", to: "  // text-only check removed", suite: 'test/r04-regressions.test.mjs' },
+  { id: 'M36', desc: "R04-2 regression: collection marker accepted from any propstat (incl. 404)", file: 'src/dav-xml.mjs',
+    from: "    const collection = propstats.filter(is2xx).some((p) => kids(p, 'prop').some((pr) => kids(pr, 'resourcetype').some((rt) => kids(rt, 'collection').length > 0)));", to: "    const collection = propstats.some((p) => kids(p, 'prop').some((pr) => kids(pr, 'resourcetype').some((rt) => kids(rt, 'collection').length > 0)));", suite: 'test/r04-regressions.test.mjs' },
+  { id: 'M37', desc: "R04-2 regression: adapter treats trailing-slash href as collection", file: 'src/webdav-adapter.mjs',
+    from: "        entries: mapped.map((e) => ({ path: e.rel.replace(/\\/$/, '') || '/', collection: e.collection })),", to: "        entries: mapped.map((e) => ({ path: e.rel.replace(/\\/$/, '') || '/', collection: e.collection || e.rel.endsWith('/') })),", suite: 'test/r04-regressions.test.mjs' },
 ];
 
 let failures = 0;

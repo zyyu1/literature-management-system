@@ -113,6 +113,49 @@ const isDav = (n, local) => n && n.qname && n.ns === DAV && n.local === local;
 const kids = (n, local) => n.children.filter((c) => isDav(c, local));
 const textOf = (n) => n.children.map((c) => (c.text !== undefined ? c.text : textOf(c))).join('');
 
+// REMEDIATION-04 (D007-A23) R04-1: conservative POC profile for the multistatus STRUCTURE.
+// Every structurally significant DAV element must sit under its expected direct parent,
+// wherever it occurs in the tree; the three container levels accept only allowlisted
+// children; a response-shaped element in a foreign namespace is refused. Anything else
+// fails closed. Some rejected shapes are legal RFC 4918 extensions — they are outside this
+// restricted POC profile, not claimed to be invalid WebDAV.
+const STRUCTURAL_PARENT = {
+  multistatus: [null],
+  response: ['multistatus'],
+  href: ['response'],
+  propstat: ['response'],
+  status: ['response', 'propstat'],
+  prop: ['propstat'],
+  resourcetype: ['prop'],
+  collection: ['resourcetype'],
+  responsedescription: ['multistatus', 'response', 'propstat'],
+};
+const ALLOWED_CHILDREN = {
+  multistatus: new Set(['response', 'responsedescription']),
+  response: new Set(['href', 'status', 'propstat', 'responsedescription']),
+  propstat: new Set(['prop', 'status', 'responsedescription']),
+};
+const TEXT_ONLY = new Set(['href', 'status', 'responsedescription']);
+const RESPONSE_SHAPED = new Set(['multistatus', 'response', 'propstat', 'href']);
+
+function validateStructure(node, parent) {
+  if (!node.qname) return;
+  const davLocal = node.ns === DAV ? node.local : null;
+  if (davLocal && Object.hasOwn(STRUCTURAL_PARENT, davLocal)) {
+    const parentLocal = parent && parent.ns === DAV ? parent.local : (parent ? '#foreign' : null);
+    if (!STRUCTURAL_PARENT[davLocal].includes(parentLocal)) throw new DavXmlError(`misplaced DAV:${davLocal} under ${parent ? parent.qname : 'document'}`);
+  }
+  if (node.ns !== DAV && RESPONSE_SHAPED.has(node.local)) throw new DavXmlError(`response-shaped element in foreign namespace: ${node.qname}`);
+  if (davLocal && Object.hasOwn(ALLOWED_CHILDREN, davLocal)) {
+    for (const c of node.children) {
+      if (c.text !== undefined) { if (c.text.trim()) throw new DavXmlError(`unexpected text in DAV:${davLocal}`); continue; }
+      if (c.ns !== DAV || !ALLOWED_CHILDREN[davLocal].has(c.local)) throw new DavXmlError(`unsupported child ${c.qname} in DAV:${davLocal}`);
+    }
+  }
+  if (davLocal && TEXT_ONLY.has(davLocal) && node.children.some((c) => c.qname)) throw new DavXmlError(`DAV:${davLocal} must contain text only`);
+  for (const c of node.children) validateStructure(c, node);
+}
+
 /**
  * Returns [{ href, collection, ok }] for every DAV:response. Throws on anything
  * structurally ambiguous. `ok` means a 2xx status (response-level or a propstat).
@@ -120,6 +163,7 @@ const textOf = (n) => n.children.map((c) => (c.text !== undefined ? c.text : tex
 export function parseMultistatus(input) {
   const root = parseXml(input);
   if (!isDav(root, 'multistatus')) throw new DavXmlError('root is not DAV:multistatus');
+  validateStructure(root, null); // R04-1: whole-tree hierarchy check — nothing can be silently skipped
   const out = [];
   for (const resp of kids(root, 'response')) {
     const hrefs = kids(resp, 'href');
@@ -135,7 +179,9 @@ export function parseMultistatus(input) {
     const statuses = [...direct, ...propstats.flatMap((p) => kids(p, 'status'))].map((s) => textOf(s).trim());
     if (statuses.length === 0) throw new DavXmlError('response without status');
     const ok = statuses.some((s) => /^HTTP\/1\.[01] 2\d\d\b/.test(s));
-    const collection = kids(resp, 'propstat').some((p) => kids(p, 'prop').some((pr) => kids(pr, 'resourcetype').some((rt) => kids(rt, 'collection').length > 0)));
+    // R04-2: a collection marker counts ONLY inside a propstat whose own status is 2xx.
+    const is2xx = (p) => kids(p, 'status').some((st) => /^HTTP\/1\.[01] 2\d\d\b/.test(textOf(st).trim()));
+    const collection = propstats.filter(is2xx).some((p) => kids(p, 'prop').some((pr) => kids(pr, 'resourcetype').some((rt) => kids(rt, 'collection').length > 0)));
     out.push({ href: decodeURI(href), collection, ok });
   }
   if (out.length === 0) throw new DavXmlError('multistatus without responses');
