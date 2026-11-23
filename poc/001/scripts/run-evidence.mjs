@@ -62,10 +62,10 @@ for (const [id, cmd, args] of STEPS) {
   const ms = Date.now() - t0;
   const out = (r.stdout ?? '') + (r.stderr ? `\n[stderr]\n${r.stderr}` : '');
   // REMEDIATION-01: strip ANSI codes and the local workspace path (portable, no user paths).
-  const clean = out.replace(/\x1b\[[0-9;]*m/g, '').split(root).join('<poc/001>');
-  writeFileSync(join(outDir, `${id}.txt`), `$ ${cmd} ${args.join(' ')}\n# exit ${r.status} · ${ms} ms\n\n${clean}`);
+  const clean = out.replace(/\x1b\[[0-9;]*m/g, '').split(root).join('<poc/001>').split(os.tmpdir()).join('<tmp>');
+  writeFileSync(join(outDir, `${id}.txt`), `$ ${`${cmd} ${args.join(' ')}`.split(os.tmpdir()).join('<tmp>')}\n# exit ${r.status} · ${ms} ms\n\n${clean}`);
   const summary = /# pass (\d+)[\s\S]*?# fail (\d+)/.exec(clean) ?? /ℹ pass (\d+)[\s\S]*?ℹ fail (\d+)/.exec(clean);
-  results.push({ id, command: `${cmd} ${args.join(' ')}`, exit: r.status, ms, pass: summary?.[1] ?? null, fail: summary?.[2] ?? null });
+  results.push({ id, command: `${cmd} ${args.join(' ')}`.split(os.tmpdir()).join('<tmp>'), exit: r.status, ms, pass: summary?.[1] ?? null, fail: summary?.[2] ?? null });
   console.log(`${id.padEnd(12)} exit=${r.status} ${ms}ms${summary ? ` pass=${summary[1]} fail=${summary[2]}` : ''}`);
 }
 writeFileSync(join(outDir, 'results.json'), JSON.stringify({ env, results }, null, 2) + '\n');
