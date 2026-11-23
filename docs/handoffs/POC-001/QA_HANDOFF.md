@@ -1,89 +1,81 @@
-# POC-001 — Execution → QA Handoff (LOCAL MOCK ONLY)
+# POC-001 — Execution → QA Handoff · REMEDIATION-01 (LOCAL MOCK ONLY)
 
 **From:** Execution Window · 2026-11-23 (Europe/Berlin)
-**Authority:** [EXECUTION_INSTRUCTION.md](EXECUTION_INSTRUCTION.md), Option B, which authorizes the local/synthetic phase only.
-**Boundary:** every result below was produced against an **in-repo loopback mock WebDAV** with **synthetic data**. **Real Nutstore: `BLOCKED_REAL_SERVICE` / NOT RUN.** Overall POC-001 therefore **cannot PASS** at this stage. Execution does **not** claim QA PASS.
+**Authority:** [REMEDIATION_01.md @ `f7e89c4`](https://github.com/zyyu1/literature-management-system/blob/f7e89c4d438fc30b54546ec0f27823604df7aaa2/docs/handoffs/POC-001/REMEDIATION_01.md) within the original [EXECUTION_INSTRUCTION.md](EXECUTION_INSTRUCTION.md) (POC-001-SCOPE-01 Option B).
+**Boundary:** every result below comes from the **in-repo loopback mock WebDAV** with **synthetic data**. **Real Nutstore: `BLOCKED_REAL_SERVICE` / NOT RUN.** **OVERALL POC-001 cannot PASS.** Execution does **not** claim QA PASS.
+**Previous handoff:** the first version, for head `65e14af`, is preserved in Git history: [QA_HANDOFF.md @ 65e14af](https://github.com/zyyu1/literature-management-system/blob/65e14afc81e6de37ba5fac90c2937a27876c5614/docs/handoffs/POC-001/QA_HANDOFF.md). The independent QA report on it is [PR #2 comment 7088088675](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7088088675).
 
-## Provenance
+## 1. Provenance and no-rebase proof
 
 | Field | Value |
 |---|---|
-| Repository | `zyyu1/literature-management-system` (private) |
-| Branch | `exec/POC-001-webdav-feasibility` |
-| Base (accepted `main`) | `1c084e5f14e4af8018ef5fe99710be7205cfbdf4` |
-| Code commit | `f3e7b4702ca65db9db253c7d7c3cd4fa04ee86c0` (poc/001 source, tests, scripts) |
-| Evidence commit | `e1bb161` (adds `poc/001/evidence/**` only; generated on a clean tree at the code commit) |
-| PR head | the commit adding this file. **Use the exact head SHA stated in the PR description.** |
+| Branch | `exec/POC-001-webdav-feasibility` (unchanged) |
+| Authorized base | `1c084e5f14e4af8018ef5fe99710be7205cfbdf4`. `git merge-base HEAD 1c084e5` returns `1c084e5` |
+| History | fast-forward from previously reviewed head `65e14af` (`git merge-base --is-ancestor 65e14af HEAD` exits 0); **no rebase, no force-push** |
+| Remediation code commits | `726da2388d34295496925c401dd8c1bc153a4f06` (fixes + tests) → `bf6d65eef634a307697234a527e5e48130232df7` (evidence runner records git state before regenerating) |
+| Evidence commit | `7de17e1cd6e24a82f916cddd03764b548feb5c99`, generated on a clean tree at `bf6d65e` (`results.json → gitDirtyPaths: (clean)`) |
+| **PR head** | the commit adding this file. **Use the exact head SHA in the PR #2 update comment.** |
+| `main` observed at handoff | `8463f795749b99e3bfa5088ab41b2ce126203ed1`. `git merge-tree --write-tree origin/main HEAD` reported no conflict at that moment. This is not a claim about future `main`. |
+| Runtime | Node v22.23.5, npm 10.9.9, Linux x64. Dependencies: none (`npm ls --all` → empty) |
 | Commit identity | `LMS Execution Window <execution-window@users.noreply.github.com>` |
-| Runtime | Node `v22.23.5`, npm `10.9.9`, Linux 6.18 x64 |
-| Provider kind | `MOCK` (`poc/001/src/mock-webdav.mjs`) |
 
-## Changed paths (vs base)
+**Scope:** `git diff --name-only 1c084e5…HEAD`. Every path is under `poc/001/**`, plus this file. No `main` change, root file, workflow, other doc, `src/**` or `app/**`.
 
-All paths are inside the allowlist: `poc/001/**` (37 files: `src/` 7, `test/` 9, `scripts/` 4, `evidence/` 14, `README.md`, `package.json`, `package-lock.json`) plus this file. There are no changes to `main`, root files, existing docs, `src/**`, `app/**`, workflows or UI.
+## 2. Commands and exit codes (Execution run at `bf6d65e`)
 
-```bash
-git diff --name-only 1c084e5f14e4af8018ef5fe99710be7205cfbdf4 <PR_HEAD> | grep -vE '^(poc/001/|docs/handoffs/POC-001/QA_HANDOFF\.md$)' || echo "scope OK"
-```
+All from `cd poc/001`; raw output is in `evidence/*.txt` and `evidence/results.json`.
 
-## Dependencies
-
-- **Zero third-party packages.** `npm ls --all` lists `(empty)`, and the lockfile holds only the root package. The POC uses Node built-ins only: `http`, `crypto`, `test`, `child_process`, `net`, `fs`.
-- **None of the three reviewed candidates was installed** (webdav-client MIT, npm-WebDAV-Server Unlicense, sabre/dav BSD-3). The npm registry was unreachable (`getaddrinfo ENOTFOUND registry.npmjs.org`). `OPEN_SOURCE_REVIEW.md` permits a minimal local stub. Rationale: [`poc/001/README.md`](../../../poc/001/README.md#dependency--reuse-decision).
-- `npm audit`: **NOT RUN** (needs network; no dependencies to audit).
-
-## Commands, exit codes and results (Execution run at the code commit)
-
-| Step | Command (cwd `poc/001`) | Exit | Result |
+| Step | Command | Exit | Result |
 |---|---|---:|---|
-| syntax | `node scripts/check.mjs` | 0 | 20 files, 0 failures |
-| POC-01 | `node --test test/poc01-crud.test.mjs` | 0 | 2/2 pass |
-| POC-02 | `node --test test/poc02-security.test.mjs` | 0 | 4/4 pass |
-| POC-03 | `node --test test/poc03-roundtrip.test.mjs` | 0 | 3/3 pass |
-| POC-04 | `node --test test/poc04-multiclient.test.mjs` | 0 | 1/1 pass |
-| POC-05 | `node --test test/poc05-race.test.mjs` | 0 | 3/3 pass (50 forced-overlap rounds; A won 28, B won 22) |
-| POC-06 | `node --test test/poc06-faults.test.mjs` | 0 | 17/17 pass |
-| POC-07 | `node --test test/poc07-backup.test.mjs` | 0 | 3/3 pass |
-| full | `node --test "test/*.test.mjs"` | 0 | 33/33 pass; also 5 consecutive extra runs, all 33/33 |
-| scan | `node scripts/secret-scan.mjs` | 0 | 0 findings (heuristic) |
-| mutation | `node scripts/mutation-check.mjs` | 0 | 6/6 injected defects killed |
-| deps | `npm ls --all` | 0 | `(empty)` |
+| syntax | `node scripts/check.mjs` | 0 | 21 files, 0 failures |
+| POC-01…07 | `node --test test/poc0N-*.test.mjs` | 0 each | 2 / 4 / 3 / 1 / 3 / 17 / 3 pass |
+| REMEDIATION-01 | `node --test test/r01-regressions.test.mjs` | 0 | 21 / 21 pass |
+| full suite ×5 | `node --test "test/*.test.mjs"` (five **real** runs, each logged separately) | 0 ×5 | 54 / 54 each |
+| secret scan | `node scripts/secret-scan.mjs 1c084e5f14e4af8018ef5fe99710be7205cfbdf4` | 0 | 0 findings (heuristic) |
+| mutation | `node scripts/mutation-check.mjs` | 0 | 13 / 13 killed (M1–M6 original, M7–M13 one per remediation) |
+| deps | `npm ls --all` | 0 | empty (path sanitized as `<poc/001>`) |
 
-Raw output is in `poc/001/evidence/*.txt` and `poc/001/evidence/results.json`. To reproduce everything at once, run `cd poc/001 && npm run evidence`. Note that this rewrites `evidence/`, so compare the results rather than committing them.
+POC-05: in this run, A won 26 rounds and B won 24 over 50 forced-overlap rounds.
 
-## Acceptance matrix — Execution self-assessment (NOT independent QA)
+## 3. Finding disposition (before → after)
 
-| ID | Local synthetic evidence | Execution status | Real Nutstore |
-|---|---|---|---|
-| POC-01 CRUD | Adapter create (201) / read (byte-exact sha256) / update (204, new ETag, no ABA on identical bytes) / conditional delete (stale → 412, current → 204, then 404); unconditional writes and deletes refused; missing parent → 409; API create/read/update; API exposes no DELETE (405) | `PASS_LOCAL` | `BLOCKED_REAL_SERVICE` |
-| POC-02 API boundary | Bearer auth (no, wrong, Basic and query tokens all → 401); 428 without precondition; 400 without Operation-Id; 415, 413, 422 (smuggled `target`, identity mismatch); traversal/encoded/backslash/uppercase/long IDs, `__proto__`/unknown kinds, absolute-form request lines, `?url=`, Host spoof, foreign Origin all refused with no CORS headers; upstream traffic only to the configured mock and namespace; credentials, Basic header and upstream URL absent from responses, headers, logs, serialized adapter and client source; session token absent from logs; non-loopback upstream/bind and URL-embedded credentials refused (`REAL_SERVICE_BLOCKED`) | `PASS_LOCAL` | `BLOCKED_REAL_SERVICE` |
-| POC-03 JSON/Markdown | Five fields with Chinese, emoji, LaTeX, code fences, CRLF, tabs, NFD (no normalization), zero-width, RTL, surrogate pairs, a marker look-alike and >15 kB text; Markdown export parses back byte-identical and is deterministic; tampering detected; stored bytes equal the API-hashed bytes; Zotero identity mapping is unique and validated; duplicate create → 412; duplicate Project association and a 4th status → 422 | `PASS_LOCAL` | `BLOCKED_REAL_SERVICE` |
-| POC-04 multi-client | Two client **processes**, each behind its own API **process**, share one storage. B sees A's confirmed revision only after an explicit refresh (no push claimed); a definite failed write (423) never becomes visible | `PASS_LOCAL` | `BLOCKED_REAL_SERVICE` (desktop/tablet/phone) |
-| POC-05 concurrent writes | 50 rounds where both stale PUTs are held in flight at storage (barrier) via different API processes: exactly one `saved`, the other 412 with the winning revision and content; storage holds the winner; every upstream write is conditional; create-only race behaves the same; **negative control**: naive GET + unconditional PUT reports both "committed" and silently loses one | `PASS_LOCAL` (logic only) | **`BLOCKED_REAL_SERVICE`** — Nutstore atomic `If-Match` unproven; this is the backend blocker |
-| POC-06 faults | 401/403/409/423/429 (Retry-After surfaced) → definite `not_saved`, one attempt, data intact; 412 → conflict; hang/500/503 (not applied) and commit-then-drop/hang/502 (applied) → `unknown`, same op blocked (`verification_required`) and not re-sent; verify gives the correct `committed` / `not_committed`; replay never re-sends; a retry needs a new op id; another writer changed the record → `indeterminate`; identical text is **not** treated as proof; corrupt bytes → `verification_failed`; offline → `not_saved/offline`, reads 503, verify `unavailable` and Unknown preserved; read-path 401/429/500 → 503, not "not found" | `PASS_LOCAL` | `BLOCKED_REAL_SERVICE` |
-| POC-07 export/restore | 19 synthetic records exported with sha256 manifest; restored into fresh `restore-*` namespace, byte-identical; source bytes and ETags untouched; repeat into same target → 409; repeat into another fresh target OK; tampered or truncated bundle, active namespace, non-`restore-*`/traversal targets refused before any write; export during outage → `export_incomplete` with no partial bundle; restore write failure → `restore_incomplete`; zero DELETE requests overall | `PASS_LOCAL` | `BLOCKED_REAL_SERVICE` |
-| Privacy/credential | Only synthetic data (library `9000001`, keys `S…`); per-run random synthetic credentials, never written to disk; no real URLs, PDFs, Zotero data or notes; evidence contains no synthetic credentials | `PASS_LOCAL` (heuristic scan) | n/a |
+| Finding | Before (QA @ 65e14af) | Fix | Evidence | Status claimed |
+|---|---|---|---|---|
+| **P1-1** late commit after timeout | verify returned a terminal `not_committed` that a late commit then contradicted | Verify only observes: `not_yet_observed` is **non-terminal**. A terminal `not_committed` comes only from `POST /operations/:id/fence`, which rewrites the current bytes with `If-Match: base`, so the stale in-flight request then fails CAS. | `r01`: late release → `committed` (terminal), replay `saved`, no extra PUT; fence then release → storage rejects the late request, verdict stays `not_committed`; POC-06 ×3 not-applied cases → non-terminal, then fence | **FIXED locally.** Fence correctness depends on provider atomic CAS (unproven). **Create-only Unknown fence: UNSUPPORTED**: returns 422 and stays Unknown until observed. |
+| **P1-2** same-op TOCTOU | 2 upstream PUTs for one Operation-Id | Synchronous reservation before the first `await`; target + payload fingerprint; `try/catch` (sent → Unknown, not sent → released) | `r01`: held upstream + duplicate → 409 `operation_in_progress`, 1 PUT; slow-body overlap → 409; different payload or target → 422; exceptions before and after send | **FIXED within one API instance.** Cross-instance exactly-once is **NOT claimed** (see §4). |
+| **P1-3** If-Match pass-through | lists, weak and `*` lists forwarded | Exactly one strong ETag (`"…"`, %x21/%x23-7E, ≤128); `If-None-Match` only `*`; both → 400 | `r01`: 10 malformed variants + duplicate header lines → 400, **0 upstream PUTs**; stale valid tag → 412 | **FIXED** |
+| **P1-4** https sent as http | Basic credentials in cleartext | `https:` → `HTTPS_TRANSPORT_NOT_IMPLEMENTED` before any network; `api-main` refuses to start | `r01`: local listener sees **0 connections and 0 Authorization headers** | **FIXED (fail closed).** Real TLS transport is **not** implemented or authorized. |
+| P2-5 prototype kinds | `constructor` reached upstream | `Map`-based `isKind` on every path | `r01`: 5 prototype names across records, verify and restore → refused, 0 upstream | FIXED |
+| P2-6 restore envelope | arbitrary self-hashed bytes restorable | strict `decodeEnvelope(expected kind/id)` + inner data digest + validator; duplicate records refused | `r01`: forged, wrong-id, inner-tamper and duplicate bundles → 422, 0 PUTs | FIXED. A hash does not prove an archive's **authenticity** (not claimed). |
+| P2-7 silent export omission | `ok` with a short count | unrecognized file or collection, or invalid record → `503 export_incomplete` | `r01`: stray file, stray collection, invalid record | FIXED |
+| P2-8 ledger scope/bounds/errors | global, unbounded, stuck pending | principal-scoped keys **and** principal-bound write tags; bounded, fail-closed (`503 operation_ledger_full`, Unknown never evicted); exception handling | `r01`: another token cannot verify, fence or spoof; full ledger; exception cases | FIXED for one in-memory instance (see §4) |
+| P2-9 restore freshness race | PROPFIND-then-MKCOL | in-process lock + storage-level `MKCOL` acquisition | `r01`: same-process race and cross-instance race (MKCOL barrier) → exactly one `restored` | FIXED locally. Provider `MKCOL` atomicity is unproven. |
+| P2-10 test self-proof | no late-apply, restart, committed_unverified or corrupt-read tests | mock `hold` / `strip-etag` / `corrupt-read`; envelope digest on every read | `r01`: committed_unverified 202; verify after restart (non-terminal, no fence); corrupt read → 502 | FIXED (tests added) |
+| P2-11 loose validators | extra fields, coerced ids | own-field allowlists, plain-object bodies, type check before regex | `r01`: 8 negative bodies incl. `__proto__` and nested arrays → 422 | FIXED |
+| P2-12 transport classification | `not_sent` decided by error code | `not_sent` **only** if the socket never connected; everything after connect → Unknown; 3xx → Unknown (not followed) | `r01`: closed port → not_sent; accept-then-reset and silent → unknown; redirect not followed; truncated 2xx not returned as data | FIXED |
 
-## Known limitations and risks
+## 4. Explicitly unresolved / unsupported / not claimed
 
-1. **The mock is the reference for the semantics it tests.** Local passes cannot show that Nutstore supports atomic `If-Match`, strong ETags on PUT, PROPFIND shape, lock/quota/429 behaviour, or acceptable latency. DESIGN_APPROVED §3 makes a missing atomic CAS a **STOP for provider acceptance**.
-2. **The operation ledger is in memory and per API process.** After a restart, `verify` needs `?kind=&id=&base=`. Multi-instance deployments would need a shared durable ledger. Not production-ready.
-3. **ETag dependence.** If a provider omits the ETag on a PUT response, the API returns `committed_unverified` (202), not `saved`. This is correct but would degrade the UX.
-4. **The secret scan is heuristic** and skips two files that deliberately contain credential-shaped negative-test strings: `secret-scan.mjs` and `poc02-security.test.mjs`. QA should review those two by eye.
-5. **No linter or type-checker**, because the POC has zero dependencies. `node --check` is the only static check.
-6. **The race uses a mock barrier** to guarantee overlap. Real-network interleavings were not exercised.
-7. The evidence was produced by Execution. QA must regenerate it independently.
+1. **Provider semantics (BLOCKED_REAL_SERVICE):** these remain unproven: atomic `If-Match` on Nutstore, strong ETag on PUT, a new ETag for identical bytes, atomic `MKCOL`, real error, quota and lock behaviour. Fence, race and restore guarantees all depend on them.
+2. **Create-only Unknown resolution:** UNSUPPORTED. A create stays Unknown until our write tag is observed. A placeholder-writing fence was deliberately not implemented.
+3. **Durability and multi-instance:** the ledger is **per-process memory**. A restart loses it: verify then needs `?kind=&id=&base=`, is never terminal, and cannot fence. Two API processes can each forward the same Operation-Id once. **No exactly-once, no durable replay, no global idempotency is claimed.**
+4. **Fence side effect:** a fence changes the record ETag without changing content, so other clients' next write with the old revision gets 412.
+5. **Static checks:** only `node --check`; no linter or type-checker (zero-dependency POC). The secret scan is heuristic and skips `scripts/secret-scan.mjs` and `test/poc02-security.test.mjs`, which deliberately contain credential-shaped negative strings. QA should review those two by eye.
+6. **ACCESS-02 prerequisites are not started:** TLS transport, request budget and circuit breaker, per-run remote namespace and per-file cleanup, redacted audit log, provider probe plan.
 
-## Outstanding approvals (Design)
+## 5. Corrected claims (per REMEDIATION-01 §3)
 
-- **Real Nutstore test-account access:** NOT AUTHORIZED. Execution has stopped here and requests **no** credentials. A separate Design-reviewed, least-privilege, server-side secret procedure is required first.
-- Local-stage acceptance, any merge, and the next scope are decided by Design only.
+- The original evidence (`e1bb161`) committed **one** full-suite run. The earlier "+5 repeat runs" was an uncommitted Execution observation; QA independently ran five. This handoff's five runs are **committed** (`evidence/full-suite-run1..5.txt`).
+- The earlier claims "replay never re-sends" and "verify verdicts correct" held only under the old mock fault model, and QA probes A and B refuted them. Current claims are limited to the scenarios in §3.
+- `evidence/deps-tree.txt` and all evidence are path-sanitized (`<poc/001>`), and the evidence was checked for synthetic credentials and workspace paths.
+- The secret scan default base is pinned to `1c084e5`, not `origin/main`.
 
-## QA instructions
+## 6. QA instructions
 
-1. Check out the **exact PR head SHA** from the PR description: `git checkout --detach <SHA>`, then confirm with `git rev-parse HEAD` and a clean `git status --short`.
-2. Run the scope check above. Then in `poc/001`: `node --version` (≥ 22.21), `npm ls --all`, `node scripts/check.mjs`, each `node --test test/pocNN-*.test.mjs`, `node scripts/secret-scan.mjs 1c084e5f14e4af8018ef5fe99710be7205cfbdf4`, `node scripts/mutation-check.mjs`.
-3. Review the source independently: credential isolation, the allowlist, the outcome classification, ledger/verify logic, restore safety, and the mock's atomicity claims.
-4. Report **LOCAL_STAGE PASS/PARTIAL/FAIL** per POC-01..07 and **OVERALL POC-001: BLOCKED (REAL SERVICE NOT RUN)**, with P0/P1/P2 findings, in the PR. Do not modify the code. STOP for Design.
+1. Take the exact PR head SHA from the PR #2 update comment: `git checkout --detach <SHA>`, then check `git rev-parse HEAD` and that `git status --short` is clean. Verify there was no rebase: `git merge-base HEAD 1c084e5…` = `1c084e5…` and `git merge-base --is-ancestor 65e14af HEAD`.
+2. Scope: `git diff --name-only 1c084e5f14e4af8018ef5fe99710be7205cfbdf4 HEAD | grep -vE '^(poc/001/|docs/handoffs/POC-001/QA_HANDOFF\.md$)'` should print nothing.
+3. In `poc/001`, run: `node --version`, `npm ls --all`, `node scripts/check.mjs`, each `test/poc0N-*.test.mjs`, `test/r01-regressions.test.mjs`, the full suite ×5, `node scripts/secret-scan.mjs 1c084e5f14e4af8018ef5fe99710be7205cfbdf4` and `node scripts/mutation-check.mjs`. Do **not** run `npm run evidence` inside the checkout, because it rewrites committed files.
+4. Re-run QA's own **probes A–G** against the new SHA, plus your own new probes, especially: fence racing a late release, verify/fence across two API instances, and ledger behaviour under restart.
+5. Report **LOCAL_STAGE PASS/PARTIAL/FAIL**, per-area PASS_LOCAL/PARTIAL/BLOCKED, residual P0/P1/P2, and **OVERALL POC-001: BLOCKED (REAL SERVICE NOT RUN)** in PR #2. Do not modify code. STOP for Design.
 
-**EXECUTION STOP — awaiting independent QA and Design disposition.**
+**EXECUTION STOP — awaiting independent re-QA at the new exact head and a separate Design disposition. No merge, no rebase, no live Nutstore, no credentials requested.**
