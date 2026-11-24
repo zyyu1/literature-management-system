@@ -47,12 +47,19 @@ const isTrustedEtag = (t) => typeof t === 'string' && STRONG_ETAG_RE.test(t);
 const MAX_BODY = 1_000_000;
 const MAX_RESTORE_BODY = 20_000_000;
 const TERMINAL = new Set(['saved', 'not_saved', 'conflict', 'committed_unverified', 'verification_failed', 'not_committed']);
+const BODY_TIMEOUT = Symbol('body_timeout');
+const BODY_ABORTED = Symbol('body_aborted');
 
 export function createSafeApi({
   adapter, namespace, apiTokens, provenanceKey, allowedOrigins = [], host = '127.0.0.1', log = () => {},
   maxPerPrincipal = 1_000, maxLedgerEntries, maxTombstonesPerPrincipal,
+  // REMEDIATION-08 (D007-A30) Q4: optional ABSOLUTE inbound-body deadline in ms, measured from the
+  // moment the request is routed. Unset keeps the pre-R08 behaviour. The R08 QA fixture uses 1000 ms
+  // with two principals, maxPerPrincipal=2 and maxLedgerEntries=4 — fixture values, not a production SLA.
+  bodyDeadlineMs,
 }) {
   assertLoopbackHost(host);
+  if (bodyDeadlineMs !== undefined && !(Number.isInteger(bodyDeadlineMs) && bodyDeadlineMs > 0)) throw new Error('bodyDeadlineMs must be a positive integer');
   if (!NS_RE.test(namespace)) throw new Error('invalid namespace');
   if (namespace.startsWith('restore-')) throw new Error('active namespace may not use the reserved restore- prefix');
   if (!apiTokens?.length) throw new Error('apiTokens required');
@@ -125,16 +132,38 @@ export function createSafeApi({
     return found;
   }
 
-  async function readBody(req, limit) {
-    const chunks = [];
-    let n = 0;
-    for await (const c of req) {
-      n += c.length;
-      if (n > limit) return null;
-      chunks.push(c);
-    }
-    return Buffer.concat(chunks);
+  /**
+   * Resolves to the body Buffer, `null` (over `limit`), BODY_TIMEOUT (absolute deadline passed) or
+   * BODY_ABORTED (client went away). On TIMEOUT/ABORTED the stream is detached: chunks that arrive later
+   * are never read, so they can never become a write (R08 Q4).
+   */
+  function readBody(req, limit) {
+    return new Promise((resolve) => {
+      const chunks = [];
+      let n = 0;
+      let done = false;
+      const remaining = req.bodyDeadlineAt === undefined ? null : Math.max(0, req.bodyDeadlineAt - Date.now());
+      const timer = remaining === null ? null : setTimeout(() => fin(BODY_TIMEOUT), remaining);
+      function fin(v) {
+        if (done) return;
+        done = true;
+        if (timer) clearTimeout(timer);
+        req.off('data', onData); req.off('end', onEnd); req.off('error', onAbort); req.off('close', onClose);
+        resolve(v);
+      }
+      function onData(c) { n += c.length; if (n > limit) fin(null); else chunks.push(c); }
+      function onEnd() { fin(Buffer.concat(chunks)); }
+      function onAbort() { fin(BODY_ABORTED); }
+      function onClose() { if (!req.complete) fin(BODY_ABORTED); }
+      req.on('data', onData); req.on('end', onEnd); req.on('error', onAbort); req.on('close', onClose);
+    });
   }
+  /** After a body deadline: answer (if still possible) and drop the connection so no late chunk is read. */
+  const bodyTimedOut = (req, res, extra = {}) => {
+    const r = json(res, 408, { outcome: 'not_saved', reason: 'body_deadline_exceeded', ...extra }, { Connection: 'close' });
+    res.once('finish', () => req.socket?.destroy());
+    return r;
+  };
 
   const json = (res, status, obj, headers = {}) => {
     const body = JSON.stringify(obj);
@@ -190,6 +219,8 @@ export function createSafeApi({
       if (prior.kind !== kind || prior.id !== id || prior.base !== base) return json(res, 422, { error: 'operation_id_reused_for_other_target' });
       if (prior.verdict === 'pending') return json(res, 409, { outcome: 'operation_in_progress', operationId: opId });
       const raw = await readBody(req, MAX_BODY);
+      if (raw === BODY_TIMEOUT) return bodyTimedOut(req, res, { operationId: opId, replay: true });
+      if (raw === BODY_ABORTED) return json(res, 400, { error: 'body_aborted' });
       if (raw === null || sha256Hex(raw) !== prior.fingerprint) return json(res, 422, { error: 'operation_id_reused_with_different_payload' });
       if (prior.verdict === 'unknown') return json(res, 409, { outcome: 'verification_required', operationId: opId });
       if (!ledger.has(key)) {
@@ -212,6 +243,10 @@ export function createSafeApi({
 
     try {
       const raw = await readBody(req, MAX_BODY);
+      // R08 Q4: a stalled or aborted body ends BEFORE any dispatch — the reservation is released and nothing
+      // was sent upstream, so the verdict is a definite not_saved, never pending/unknown.
+      if (raw === BODY_TIMEOUT) { ledger.delete(key); return bodyTimedOut(req, res, { operationId: opId }); }
+      if (raw === BODY_ABORTED) return release(400, { error: 'body_aborted' });
       if (raw === null) return release(413, { error: 'body_too_large' });
       let data;
       try { data = JSON.parse(raw.toString('utf8')); } catch { return release(400, { error: 'invalid_json' }); }
@@ -436,6 +471,8 @@ export function createSafeApi({
 
   async function handleRestore(req, res) {
     const raw = await readBody(req, MAX_RESTORE_BODY);
+    if (raw === BODY_TIMEOUT) return bodyTimedOut(req, res);
+    if (raw === BODY_ABORTED) return json(res, 400, { error: 'body_aborted' });
     if (raw === null) return json(res, 413, { error: 'body_too_large' });
     let body;
     try { body = JSON.parse(raw.toString('utf8')); } catch { return json(res, 400, { error: 'invalid_json' }); }
@@ -535,6 +572,7 @@ export function createSafeApi({
     async start() {
       server = http.createServer(async (req, res) => {
         const t0 = Date.now();
+        if (bodyDeadlineMs !== undefined) req.bodyDeadlineAt = t0 + bodyDeadlineMs; // R08 Q4 absolute deadline
         let r;
         try { r = await route(req, res); } catch {
           r = res.headersSent ? { status: res.statusCode, outcome: 'internal_error' } : json(res, 500, { error: 'internal_error' });

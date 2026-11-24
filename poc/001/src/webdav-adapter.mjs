@@ -2,8 +2,22 @@
 // Credentials live only in this closure. Base URL is fixed at construction and
 // is default-deny for anything but loopback during the local phase.
 import http from 'node:http';
-import { assertLoopbackHost } from './util.mjs';
+import https from 'node:https';
+import tls from 'node:tls';
+import dns from 'node:dns';
+import { assertLoopbackHost, isAllowedLoopbackAddress } from './util.mjs';
 import { parseMultistatus } from './dav-xml.mjs';
+
+// REMEDIATION-08 (D007-A30) path canonicalisation: every base-path and request-path segment must be a
+// plain name. No dot segments, empty segments (`//`), percent-encoding, backslashes, query/fragment
+// characters, whitespace or controls — so nothing can be re-interpreted by a decoder or normaliser.
+const SAFE_SEGMENT_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
+const safePath = (p) => typeof p === 'string' && p.startsWith('/') && p.length <= 1024
+  && p.slice(1).split('/').every((s) => SAFE_SEGMENT_RE.test(s));
+const blocked = (code, msg) => Object.assign(new Error(`${code}: ${msg}`), { code });
+// The only keys a caller may pass for local TLS. Anything else (rejectUnauthorized, checkServerIdentity,
+// secureOptions, minVersion, pfx, …) is an attempt to weaken or re-route verification and is refused.
+const LOCAL_TLS_KEYS = new Set(['ca']);
 
 export const PROPFIND_RESOURCETYPE_BODY = Buffer.from(
   '<?xml version="1.0" encoding="utf-8"?>\n<d:propfind xmlns:d="DAV:"><d:prop><d:resourcetype/></d:prop></d:propfind>\n',
@@ -21,20 +35,62 @@ export const PROPFIND_CONTENT_TYPE = 'application/xml; charset=utf-8';
  *   unknown              any error after the socket connected, timeout, reset, 5xx —
  *                        upstream MAY have committed (REMEDIATION-01 P2-12)
  */
-export function createWebDavAdapter({ baseUrl, username, password, timeoutMs = 2000, deadlineMs = timeoutMs * 3, maxResponseBytes = 4_000_000 }) {
+export function createWebDavAdapter({
+  baseUrl, username, password, timeoutMs = 2000, deadlineMs = timeoutMs * 3, maxResponseBytes = 4_000_000,
+  localTls, budget, lookup = dns.lookup,
+}) {
   const base = new URL(baseUrl);
-  // REMEDIATION-01 P1-4: this adapter only implements plain node:http for the
-  // loopback mock. An https: URL must FAIL CLOSED before any network activity;
-  // it must never be sent as cleartext HTTP with Basic credentials. A real TLS
-  // transport is a separately gated future change (ACCESS-02 preflight).
-  if (base.protocol === 'https:') {
+  // REMEDIATION-01 P1-4: an https: URL FAILS CLOSED before any network activity and is never sent as
+  // cleartext HTTP. REMEDIATION-08 (D007-A30): the single exception is an EXPLICIT local synthetic TLS
+  // test mode — `localTls: { ca }` with a test-only CA — and only towards a loopback host. Without it
+  // the R01 behaviour is unchanged. This is NOT a real-upstream TLS transport (ACCESS-02 remains BLOCKED).
+  if (base.protocol === 'https:' && localTls === undefined) {
     const err = new Error('HTTPS_TRANSPORT_NOT_IMPLEMENTED: refusing to send credentials; TLS transport is not part of the local POC');
     err.code = 'HTTPS_TRANSPORT_NOT_IMPLEMENTED';
     throw err;
   }
-  if (base.protocol !== 'http:') throw new Error('unsupported protocol');
+  if (base.protocol !== 'http:' && base.protocol !== 'https:') throw new Error('unsupported protocol');
+  if (base.protocol === 'http:' && localTls !== undefined) throw blocked('TLS_CONFIG_REFUSED', 'localTls given for a non-https URL');
   assertLoopbackHost(base.hostname);
   if (base.username || base.password) throw new Error('credentials must not be embedded in URL');
+  // R08 SSRF/origin: the upstream origin is pinned at construction to an explicit loopback host:port.
+  // No implicit default port, no query/fragment, no path a normaliser could rewrite (the WHATWG URL
+  // parser silently resolves `..` and decodes nothing, so the RAW string is checked as well).
+  const portOk = /^[0-9]{1,5}$/.test(base.port) && Number(base.port) >= 1 && Number(base.port) <= 65535;
+  if (!portOk) throw blocked('UNSAFE_TARGET', 'explicit upstream port required');
+  // The authority must already be canonical: shorthand/obfuscated hosts (127.1, 0x7f.0.0.1, …) that the
+  // URL parser would silently rewrite are refused rather than trusted.
+  const rawAuthority = (/^[a-z]+:\/\/([^/\\?#]*)/i.exec(String(baseUrl)) ?? [])[1] ?? '';
+  const originOk = rawAuthority.toLowerCase() === `${base.hostname}:${base.port}`;
+  if (!originOk) throw blocked('UNSAFE_TARGET', 'upstream authority must be a canonical loopback host:port');
+  const raw = String(baseUrl);
+  const rawPath = raw.replace(/^[a-z]+:\/\/[^/\\]*/i, '');
+  const basePathOk = !base.search && !base.hash && !/[?#%\\\s]/.test(raw) && !/(^|[/\\])\.\.?([/\\]|$)/.test(rawPath)
+    && (base.pathname === '/' || safePath(base.pathname.replace(/\/$/, '')));
+  if (!basePathOk) throw blocked('UNSAFE_TARGET', 'base path must be a canonical plain path');
+  let tlsOptions = null;
+  if (base.protocol === 'https:') {
+    if (localTls === null || typeof localTls !== 'object') throw blocked('TLS_CONFIG_REFUSED', 'localTls must be { ca }');
+    for (const k of Object.keys(localTls)) if (!LOCAL_TLS_KEYS.has(k)) throw blocked('TLS_CONFIG_REFUSED', `option "${k}" is not permitted (no verification overrides)`);
+    if (!(typeof localTls.ca === 'string' || Buffer.isBuffer(localTls.ca)) || !String(localTls.ca).includes('BEGIN CERTIFICATE')) throw blocked('TLS_CONFIG_REFUSED', 'a PEM test CA is required');
+    // Only this CA is trusted (Node's public root store is replaced, not extended). Verification and
+    // hostname/IP checking are forced on explicitly, so NODE_TLS_REJECT_UNAUTHORIZED=0 cannot weaken them.
+    tlsOptions = { ca: localTls.ca, rejectUnauthorized: true, checkServerIdentity: tls.checkServerIdentity, minVersion: 'TLSv1.2' };
+  }
+  const transport = tlsOptions ? https : http;
+  const connectHost = base.hostname.replace(/^\[(.*)\]$/, '$1');
+  // R08: a host NAME (`localhost`) is resolved here and the result must be an allowed loopback address;
+  // otherwise the connection is refused before a socket exists (classified not_sent: no byte left).
+  const checkedLookup = (hostname, opts, cb) => {
+    const all = !!opts?.all; // Node 22 (autoSelectFamily) asks for all addresses
+    lookup(hostname, { ...opts, all: true }, (err, list) => {
+      if (err) return cb(err);
+      const addrs = Array.isArray(list) ? list : [];
+      // Every resolved address must be allowed — one non-loopback answer refuses the name outright.
+      if (!addrs.length || !addrs.every((a) => isAllowedLoopbackAddress(a.address))) return cb(blocked('REAL_SERVICE_BLOCKED', 'resolved address is not loopback'));
+      return all ? cb(null, addrs) : cb(null, addrs[0].address, addrs[0].family);
+    });
+  };
   const authHeader = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
   const basePath = base.pathname.replace(/\/$/, '');
 
@@ -43,14 +99,27 @@ export function createWebDavAdapter({ baseUrl, username, password, timeoutMs = 2
   // byte-trickling peer can defeat the former but never the latter. Response bodies
   // are bounded by `maxResponseBytes`. Every path settles exactly once.
   function request(method, path, { headers = {}, body } = {}) {
-    if (!path.startsWith('/') || path.includes('..')) throw new Error('adapter: invalid path');
+    // R08: canonical plain path only (no dot/empty/encoded segments) — refused before any budget or socket.
+    if (!safePath(path)) throw blocked('UNSAFE_TARGET', 'adapter: invalid path');
+    // R08 test-only ACCESS-01 budget: admission is decided BEFORE dispatch; a refusal never reaches the
+    // network and is reported like an unreachable peer (writes: not_sent, reads: unavailable).
+    if (budget) {
+      const adm = budget.admitRequest(method === 'DELETE' ? 'cleanup' : 'request');
+      if (!adm.ok) return Promise.resolve({ transport: 'error', code: adm.code, connected: false });
+    }
     return new Promise((resolve) => {
       let settled = false;
       let connected = false;
-      const settle = (v) => { if (!settled) { settled = true; clearTimeout(deadline); resolve(v); } };
-      const req = http.request(
+      const settle = (v) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(deadline);
+        if (budget && v.transport === 'response') budget.observeStatus(v.status);
+        resolve(v);
+      };
+      const req = transport.request(
         {
-          host: base.hostname,
+          host: connectHost,
           port: base.port,
           method,
           path: encodeURI(basePath + path),
@@ -60,6 +129,8 @@ export function createWebDavAdapter({ baseUrl, username, password, timeoutMs = 2
             ...headers,
           },
           agent: false,
+          lookup: checkedLookup,
+          ...(tlsOptions ?? {}),
         },
         (res) => {
           const chunks = [];
@@ -79,9 +150,15 @@ export function createWebDavAdapter({ baseUrl, username, password, timeoutMs = 2
         },
       );
       const deadline = setTimeout(() => req.destroy(Object.assign(new Error('deadline'), { code: 'EDEADLINE' })), deadlineMs);
+      // `connected` means "an application byte (request line/Authorization) may have reached the peer".
+      // Over TLS that is only possible after a VERIFIED handshake: a TCP connect followed by a certificate
+      // rejection sent nothing of the request, so it stays not_sent (R08), never Unknown.
+      const readyEvent = tlsOptions ? 'secureConnect' : 'connect';
       req.on('socket', (s) => {
-        if (!s.connecting) connected = true;
-        else s.once('connect', () => { connected = true; });
+        // A socket already destroyed before this event (e.g. a synchronous resolver refusal) never connected.
+        if (!tlsOptions && !s.connecting && !s.destroyed) connected = true;
+        else if (tlsOptions && s.authorized) connected = true;
+        else s.once(readyEvent, () => { connected = true; });
       });
       req.setTimeout(timeoutMs, () => req.destroy(Object.assign(new Error('timeout'), { code: 'ETIMEDOUT' })));
       req.on('error', (e) => settle({ transport: 'error', code: e.code ?? 'EUNKNOWN', connected }));
@@ -119,6 +196,11 @@ export function createWebDavAdapter({ baseUrl, username, password, timeoutMs = 2
       if (cond?.ifMatch) headers['If-Match'] = cond.ifMatch;
       else if (cond?.ifNoneMatch === '*') headers['If-None-Match'] = '*';
       else if (!cond?.unsafeUnconditional) throw new Error('adapter: conditional write required');
+      if (budget) {
+        if (!safePath(path)) throw blocked('UNSAFE_TARGET', 'adapter: invalid path');
+        const adm = budget.admitWrite(path, Buffer.byteLength(bytes)); // file count / size caps, before dispatch
+        if (!adm.ok) return { outcome: 'not_sent', code: adm.code };
+      }
       return classifyWrite(await request('PUT', path, { headers, body: bytes }));
     },
     async mkcol(path) { return classifyWrite(await request('MKCOL', path)); },
@@ -159,7 +241,7 @@ export function createWebDavAdapter({ baseUrl, username, password, timeoutMs = 2
       if (!ifMatch) throw new Error('adapter: conditional delete required');
       return classifyWrite(await request('DELETE', path, { headers: { 'If-Match': ifMatch } }));
     },
-    toJSON() { return { kind: 'webdav-adapter', baseHost: base.hostname, credentials: '[REDACTED]' }; },
+    toJSON() { return { kind: 'webdav-adapter', baseHost: base.hostname, tls: !!tlsOptions, credentials: '[REDACTED]' }; },
     [Symbol.for('nodejs.util.inspect.custom')]() { return '[WebDavAdapter credentials=REDACTED]'; },
   };
   return Object.freeze(adapter);
