@@ -1,39 +1,30 @@
-<!-- BUS from=MANAGEMENT to=EXECUTION seq=4 re=DECISION_BOARD.md@4 status=OPEN updated=2026-11-24T17:38+01:00 -->
+<!-- BUS from=MANAGEMENT to=EXECUTION seq=5 re=DECISION_BOARD.md@5 status=OPEN updated=2026-11-24T18:12+01:00 -->
 # Management → Execution
 
-**来源:** `docs/DECISION_BOARD.md` seq 4（R4，2026-11-24 17:30）§3 —— Design 指示 Management 直接重派，无需再问用户。
+**来源:** `docs/DECISION_BOARD.md` seq 5（R5，2026-11-24 18:00）。用户在 Management 窗口逐项选定。
 
-## 重派 WP-01（DEC-3=A + A54 修正）
+## DEC-4 = A（合并 WP-01，G5）
 
-- **决策链:** DEC-1=A（开工 WP-01）→ DEC-3=A（云端 Linux 执行）→ **A54**（egress 边界修正）
-- **授权文件:** `docs/architecture/D007_A21_WP01_G1_DECISION.md`
-- **执行指令:** `docs/handoffs/WP-01/EXECUTION_INSTRUCTION.md`
-- **egress 修正:** `docs/architecture/D007_A54_WP01_EGRESS_BOUNDARY_AMENDMENT.md` §3（必读，按此执行）
-- **Base:** `9cfc1d7375f81ab35921a02eebf1a1c9d941476a`
-- **新分支:** `exec/WP-01-synthetic-auth-api`
-- **白名单:** `packages/wp-01-synthetic-auth-api/**`、`docs/handoffs/WP-01/QA_HANDOFF.md`
-- **QA 计划:** `docs/handoffs/WP-01/QA_INSTRUCTION.md`（QA 另开独立云端会话，同样按 A54 执行）
-- **执行窗口:** 沿用当前云端 Execution 会话（Linux x86_64 + Node v22.23.5）
+- **决策:** DEC-4=A —— 用 **merge commit** 把 PR #5 合入 `main`（未 squash、未 rebase）。
+- **合并前复核:** PR #5 head = `100cb6352539577ad086545ce794096f887b04d7`，与决策板要求一致；无漂移。
+- **结果:** PR #5 `closed` / `merged=true`；merge commit `11b5f172dde7c0cb3e0665a8da2949df958d9986`；
+  两个父提交 `2e72758f17`（合并前 main）与 `100cb63525`（PR head）。
+- **合并后 main:** `11b5f172dde7c0cb3e0665a8da2949df958d9986`。
+- **边界:** 合并不等于部署；G6 真实服务、G7 部署仍未授权。
 
-## A54 强制流程（摘要）
+## DEC-5 = A（设计 WP-02）
 
-1. **git 命令在命名空间外执行**（clone / fetch / push / `ls-remote` 需要网络）。
-2. 从 `main` 取工具到仓库外临时目录：
-   `mkdir -p /tmp/offline && for f in run-offline.sh lo-up.py egress-probe.mjs; do git show origin/main:tools/offline/$f > /tmp/offline/$f; done && chmod +x /tmp/offline/run-offline.sh`
-   并记录三个文件的 blob SHA。**不得把 `tools/` 加入 WP-01 分支**（在白名单外）。
-3. **先跑探针**：`/tmp/offline/run-offline.sh node /tmp/offline/egress-probe.mjs`，必须输出 `EGRESS_PROBE=PASS` 且 exit 0；否则 STOP。
-4. **所有测试与服务器命令都通过 `run-offline.sh`** 运行；任何 WP-01 测试或服务不得在命名空间外跑。
-5. 保留 in-process 测试 `test/transport-negative.test.mjs`（命名空间是额外保障，不替代它）。
-6. 报告中附探针输出与 wrapper 的 blob SHA。
+- **决策:** DEC-5=A —— 设计 WP-02：Project 与文献的只读切片（合成 3 个 Project、规范化论文 ID、去重、Project–论文关联与「重要」标记），基于 WP-01 的认证边界。
+- **本轮不派发:** 由 Design 在下一轮决策板发布 G1 授权草案（白名单、Base、QA 计划）供用户批准。
+- **本轮无 Execution / QA 任务。**
 
-## 已记录决定
+## 需要 Execution / QA 做的
 
-- **DEC-1 = A**（开工 WP-01）
-- **DEC-2 = A**（PR #2 `a9131ac` 与 PR #4 `2757aa6` 保持 OPEN，不合并）
-- **DEC-3 = A**（改用云端 Linux 执行），由 A54 落实为内核命名空间 egress 边界。
+- 本轮没有新任务：不建分支、不开 PR、不跑 QA。
+- PR #2（`a9131ac`）与 PR #4（`2757aa6`）按 DEC-2=A 保持 OPEN 存档，不动。
+- 等 Design 的 WP-02 G1 草案通过 DEC 批准后，再由下一份发件箱派发。
 
 ## 边界
 
-- 只改白名单内路径；需新增路径或依赖 → STOP 回 Design。
-- 不授予 G5 合并 / G6 真实服务 / G7 部署；不使用真实数据或凭证。
-- 完成后写 `docs/bus/EXECUTION_TO_QA.md`（PR 号、exact SHA、Execution 报告评论 ID、QA 计划路径）。
+- G5 合并仅限本次 PR #5；G6 真实服务 / G7 部署 **NOT_AUTHORIZED**。
+- 不接真实数据、凭证或外部服务；不改白名单外路径。
