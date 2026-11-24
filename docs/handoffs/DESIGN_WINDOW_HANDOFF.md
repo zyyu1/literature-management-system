@@ -1,0 +1,175 @@
+# Design Window — Canonical Handoff / 设计窗口交接主文件
+
+> **唯一 Design 跨窗口接力入口（live summary, not G1/G4 authority）。** Repository: `zyyu1/literature-management-system`. Established: **2026-11-24, Europe/Berlin**. This initial snapshot was **verified from `main@65ef66a712196962773c7b1fa1b5d7901203e106`** before the handoff itself was created. Later edits MUST cite their newly observed parent SHA and report their own final committed SHA externally; never embed a guessed self-referential commit SHA. A new Design window must **fetch the newest `main` and recheck PR HEAD and comments** before treating time-sensitive rows as current.
+
+**First read:** this file → [Design continuity protocol](../governance/DESIGN_HANDOFF_CONTINUITY_PROTOCOL.md) → [architecture status](../architecture/STATUS.md) → [decision log](../governance/DECISION_LOG.md) → exact design/QA source for the current work item. Historical [handoff INDEX](INDEX.md), [root README](../../README.md), [old three-window protocol](../governance/THREE_WINDOW_PROTOCOL.md) and [automation bus](../governance/AUTOMATION_BUS.md) contain older snapshots: do not use stale "no QA/no code" language to overwrite later independently verified SHA evidence.
+
+## 1. What the system is — approved product memory (D001–D007)
+
+- Standalone **responsive literature management Web application**, **not Zotero replacement**. Main Pages: Projects Home, Project Literature List, Literature Detail. Desktop/tablet/iPhone/iPad/Android browser access is a requirement, **not yet real device QA**.
+- Zotero remains the authority for **bibliographic metadata, original PDF/annotation, stored attachment and on-demand reader/file sync**; existing Zotero attachment WebDAV via Nutstore is distinct from a **proposed separate second Nutstore account** for website-owned JSON/Markdown. Never copy user PDFs to website storage, or treat a local POC as real-provider confirmation. Physical backend/provider remains **UNSELECTED**.
+- Zotero paper identity is scoped by `(ownerScope, zoteroLibraryType, zoteroLibraryId, zoteroItemKey)`. One paper belongs to multiple Projects; **one globally shared three-state ReadingStatus** (`To Read / Reading / Read`) and **one global whole-note ResearchNote** per canonical paper; **Important** belongs to Project–Paper Association, not global paper.
+- **Five exact Markdown Research Note keys** (A6): `researchQuestion`, `argumentsAndContent`, `theoriesAndMethods`, `contributionsAndInnovations`, `limitations`. Keep Unicode, formulas and Typora-compatible export byte-safe. Notes are saved with whole-note revision/CAS and truthful `CONFIRMED / CONFLICT / DEFINITE_FAILURE / UNKNOWN`; pending local drafts are separate.
+- Project archive/restore retains identity and associations; Project permanent deletion unlinks **Project + its associations/Important only**, never global Note, paper, ReadingStatus, KeyQuote, SourceHistory or Zotero originals. Unlink current/all Projects needs explicitly selected scope and confirmation; old backups must not resurrect confirmed deleted Projects.
+- Zotero import: manual search/selection or **one-time Collection import**, **no continuous Collection auto-sync**. Key Quotes are explicitly saved excerpts with optional manual note/comment, source link/history; relinking source must preserve original quote/comment/history. Zotero highlight jump fallback: verified exact annotation if supported → paper/PDF/page hint → copy excerpt. Mobile deep links (including Android) require **device validation** before any cross-platform success claim.
+- Personal Workspace (D006) can integrate through **authenticated read-only API** and deep links; it does **not** get website write permissions.
+- Approved broad architecture: standalone frontend + narrow safe server-side API; historical second-Nutstore/WebDAV JSON/Markdown approach is **conditional**, not a production backend mandate. Q1e L3 transactional authority is a **preferred capability reference only**, not a selected database or cloud.
+
+**Normative products:** [requirements baseline](../baseline/LMS_REQUIREMENTS_ARCHITECTURE_v0.1.md), [D001–D007 decision log](../governance/DECISION_LOG.md), [A6 data schema](../architecture/D007_A6_DATA_SCHEMA_RECOVERY.md), [A7 privacy/lifecycle](../architecture/D007_A7_DATA_LIFECYCLE_PRIVACY.md), [A8 Zotero integration](../architecture/D007_A8_ZOTERO_INTEGRATION.md). Later approved Design amendments supersede earlier *only inside explicitly approved scope*.
+
+## 2. Frozen UI and system architecture locations
+
+| Category | Canonical location and what it means |
+| --- | --- |
+| Main requirements | [`docs/baseline/LMS_REQUIREMENTS_ARCHITECTURE_v0.1.md`](../baseline/LMS_REQUIREMENTS_ARCHITECTURE_v0.1.md), historical baseline; use later amendments for current gates |
+| Module 002 FROZEN | [`docs/ui/002/DESIGN_APPROVED.md`](../ui/002/DESIGN_APPROVED.md), **UI-FREEZE-01, 67 decisions, 26 U6 scenarios planned/NOT_RUN**; [draft](../ui/002/DESIGN_DRAFT.md), [audit](../ui/002/CONSISTENCY_AUDIT.md), [traceability](../ui/002/ACCEPTANCE_TRACEABILITY.md), [status](../ui/002/STATUS.md); **do not modify frozen UI without separate decision** |
+| D007 live index | [`docs/architecture/STATUS.md`](../architecture/STATUS.md), many dated overlays; **newest evidence first; old overlay remains historical** |
+| Decision/governance | [`docs/governance/DECISION_LOG.md`](../governance/DECISION_LOG.md), [`THREE_WINDOW_PROTOCOL.md`](../governance/THREE_WINDOW_PROTOCOL.md) (historical route), [`AUTOMATION_BUS.md`](../governance/AUTOMATION_BUS.md) (historical bus mechanics), **[Design/Management continuity amendment](../governance/DESIGN_HANDOFF_CONTINUITY_PROTOCOL.md)** |
+| Handoff workstream navigation | [`docs/handoffs/INDEX.md`](INDEX.md), [`docs/handoffs/README.md`](README.md); status in older rows is **not live** |
+| POC-001 safety and gates | [status](POC-001/STATUS.md), [ACCESS_POLICY](POC-001/ACCESS_POLICY.md), [risk register](POC-001/POST_G4_RISK_REGISTER.md), [ACCESS-02 precheck](POC-001/ACCESS02_PRECHECK_MATRIX.md), [access request packet](POC-001/ACCESS02_REQUEST_PACKET_TEMPLATE.md) |
+| WP-01 | [STATUS](WP-01/STATUS.md), [A21 G1](../architecture/D007_A21_WP01_G1_DECISION.md), [execution instruction](WP-01/EXECUTION_INSTRUCTION.md), [frozen fixture](WP-01/fixtures/wp01.v1.json) |
+| Q1E-L3 | [A37 original G1](../architecture/D007_A37_Q1E_L3_SYNTHETIC_G1_AUTHORIZATION.md), [A38 G4](../architecture/D007_A38_Q1E_L3_MODEL_G4_PARTIAL_DISPOSITION.md), [Execution work order](Q1E-L3/EXECUTION_WORK_ORDER.md), [independent QA plan](Q1E-L3/INDEPENDENT_G3_QA_PLAN.md) |
+| Existing launch instructions | [Design Window start](../windows/DESIGN_WINDOW_START.md) (new), [Execution start](../windows/EXECUTION_WINDOW_START.md), [QA start](../windows/QA_WINDOW_START.md); older Execution/QA prompts do not override latest exact G1/Management routing |
+
+### Complete D007 architecture file index (A1–A39)
+
+All links are to **actual repository paths** at the initial verified snapshot; presence **does not mean** every subject has implementation/QA authorization. For any current decision, open the named original document and its historical exact SHA.
+
+### A1–A9 — platform, API, data and QA
+
+- [`D007_A1_LOGICAL_DEPLOYMENT`](../architecture/D007_A1_LOGICAL_DEPLOYMENT.md)
+- [`D007_A2_PROVIDER_COST_EVALUATION`](../architecture/D007_A2_PROVIDER_COST_EVALUATION.md)
+- [`D007_A3_CONDITIONAL_PROVIDER_PREFERENCE`](../architecture/D007_A3_CONDITIONAL_PROVIDER_PREFERENCE.md)
+- [`D007_A4_AUTH_SESSION_SECURITY`](../architecture/D007_A4_AUTH_SESSION_SECURITY.md)
+- [`D007_A5_API_CONTRACT`](../architecture/D007_A5_API_CONTRACT.md)
+- [`D007_A6_DATA_SCHEMA_RECOVERY`](../architecture/D007_A6_DATA_SCHEMA_RECOVERY.md)
+- [`D007_A7_DATA_LIFECYCLE_PRIVACY`](../architecture/D007_A7_DATA_LIFECYCLE_PRIVACY.md)
+- [`D007_A8_ZOTERO_INTEGRATION`](../architecture/D007_A8_ZOTERO_INTEGRATION.md)
+- [`D007_A9_QA_FRAMEWORK`](../architecture/D007_A9_QA_FRAMEWORK.md)
+- [`D007_A9_TRACEABILITY_FIXTURES`](../architecture/D007_A9_TRACEABILITY_FIXTURES.md)
+
+### A10–A21 — application security, operations, work packages
+
+- [`D007_A10_GATE_ADDENDUM_A20`](../architecture/D007_A10_GATE_ADDENDUM_A20.md)
+- [`D007_A10_IMPLEMENTATION_WORKPACKAGES`](../architecture/D007_A10_IMPLEMENTATION_WORKPACKAGES.md)
+- [`D007_A11_OPERATIONS_RUNBOOK`](../architecture/D007_A11_OPERATIONS_RUNBOOK.md)
+- [`D007_A12_QOS_CAPACITY_BUDGET`](../architecture/D007_A12_QOS_CAPACITY_BUDGET.md)
+- [`D007_A13_ENVIRONMENT_ISOLATION`](../architecture/D007_A13_ENVIRONMENT_ISOLATION.md)
+- [`D007_A14_ORIGIN_COOKIE_TOPOLOGY`](../architecture/D007_A14_ORIGIN_COOKIE_TOPOLOGY.md)
+- [`D007_A15_OWNER_IDENTITY_RECOVERY`](../architecture/D007_A15_OWNER_IDENTITY_RECOVERY.md)
+- [`D007_A16_SENSITIVE_ACTION_AUTHORIZATION`](../architecture/D007_A16_SENSITIVE_ACTION_AUTHORIZATION.md)
+- [`D007_A17_KEY_HIERARCHY_BACKUP_ENCRYPTION`](../architecture/D007_A17_KEY_HIERARCHY_BACKUP_ENCRYPTION.md)
+- [`D007_A18_SOFTWARE_SUPPLY_CHAIN`](../architecture/D007_A18_SOFTWARE_SUPPLY_CHAIN.md)
+- [`D007_A19_ARCHITECTURE_READINESS_AUDIT`](../architecture/D007_A19_ARCHITECTURE_READINESS_AUDIT.md)
+- [`D007_A19_TRACEABILITY_RISK_MATRIX`](../architecture/D007_A19_TRACEABILITY_RISK_MATRIX.md)
+- [`D007_A20_WORKPACKAGE_GATES`](../architecture/D007_A20_WORKPACKAGE_GATES.md)
+- [`D007_A20_WP01_PREFLIGHT`](../architecture/D007_A20_WP01_PREFLIGHT.md)
+- [`D007_A21_WP01_G1_DECISION`](../architecture/D007_A21_WP01_G1_DECISION.md)
+
+### A22–A33 — POC remediation, risk and G4
+
+- [`D007_A22_POC001_REMEDIATION03_DISPOSITION`](../architecture/D007_A22_POC001_REMEDIATION03_DISPOSITION.md)
+- [`D007_A23_POC001_REMEDIATION04_DISPOSITION`](../architecture/D007_A23_POC001_REMEDIATION04_DISPOSITION.md)
+- [`D007_A24_POC001_G4_LOCAL_ACCEPTANCE`](../architecture/D007_A24_POC001_G4_LOCAL_ACCEPTANCE.md)
+- [`D007_A25_POC001_REMEDIATION05_DISPOSITION`](../architecture/D007_A25_POC001_REMEDIATION05_DISPOSITION.md)
+- [`D007_A26_POC001_REMEDIATION06_DISPOSITION`](../architecture/D007_A26_POC001_REMEDIATION06_DISPOSITION.md)
+- [`D007_A27_POC001_R07_TEST_ONLY_AUTHORIZATION`](../architecture/D007_A27_POC001_R07_TEST_ONLY_AUTHORIZATION.md)
+- [`D007_A28_POC001_G4_LOCAL_DISPOSITION`](../architecture/D007_A28_POC001_G4_LOCAL_DISPOSITION.md)
+- [`D007_A29_PRE_ACCESS02_READINESS_DESIGN`](../architecture/D007_A29_PRE_ACCESS02_READINESS_DESIGN.md)
+- [`D007_A30_R08_LOCAL_READINESS_G1_AUTHORIZATION`](../architecture/D007_A30_R08_LOCAL_READINESS_G1_AUTHORIZATION.md)
+- [`D007_A31_POC001_R08_G4_PARTIAL_DISPOSITION`](../architecture/D007_A31_POC001_R08_G4_PARTIAL_DISPOSITION.md)
+- [`D007_A32_POC001_R09_MINIMAL_G1_AUTHORIZATION`](../architecture/D007_A32_POC001_R09_MINIMAL_G1_AUTHORIZATION.md)
+- [`D007_A33_R09_G4_PARTIAL_DISPOSITION`](../architecture/D007_A33_R09_G4_PARTIAL_DISPOSITION.md)
+
+### A34–A39 — Q1e, L3 and current R10
+
+- [`D007_A34_Q1E_MANIFEST_SNAPSHOT_RECOVERY_DESIGN`](../architecture/D007_A34_Q1E_MANIFEST_SNAPSHOT_RECOVERY_DESIGN.md)
+- [`D007_A34_Q1E_TRACEABILITY_QA_MATRIX`](../architecture/D007_A34_Q1E_TRACEABILITY_QA_MATRIX.md)
+- [`D007_A35_Q1E_OPTION_DECISION_MATRIX`](../architecture/D007_A35_Q1E_OPTION_DECISION_MATRIX.md)
+- [`D007_A35_Q1E_STORAGE_STRATEGY_DISPOSITION`](../architecture/D007_A35_Q1E_STORAGE_STRATEGY_DISPOSITION.md)
+- [`D007_A36_Q1E_L1_L3_INDEPENDENT_QA_MATRIX`](../architecture/D007_A36_Q1E_L1_L3_INDEPENDENT_QA_MATRIX.md)
+- [`D007_A36_Q1E_LOCAL_FEASIBILITY_DESIGN`](../architecture/D007_A36_Q1E_LOCAL_FEASIBILITY_DESIGN.md)
+- [`D007_A37_Q1E_L3_SYNTHETIC_G1_AUTHORIZATION`](../architecture/D007_A37_Q1E_L3_SYNTHETIC_G1_AUTHORIZATION.md)
+- [`D007_A38_Q1E_L3_MODEL_G4_PARTIAL_DISPOSITION`](../architecture/D007_A38_Q1E_L3_MODEL_G4_PARTIAL_DISPOSITION.md)
+- [`D007_A39_POC001_REMEDIATION_10_G1_AUTHORIZATION`](../architecture/D007_A39_POC001_REMEDIATION_10_G1_AUTHORIZATION.md)
+
+### Additional module/POC handoff locations
+
+- [Bootstrap-000](000/STATUS.md), [Module 002 handoff](002/STATUS.md), [POC-001 design](POC-001/DESIGN_APPROVED.md) and [original Execution scope](POC-001/EXECUTION_INSTRUCTION.md), [WP-01 handoff](WP-01/STATUS.md).
+- POC-specific REMEDIATION and independent QA documents (R01–R10; **only some have separate QA plan**): [`REMEDIATION_01.md`](POC-001/REMEDIATION_01.md) · [`REMEDIATION_02.md`](POC-001/REMEDIATION_02.md) · [`REMEDIATION_03.md`](POC-001/REMEDIATION_03.md) · [`REMEDIATION_03_QA_PLAN.md`](POC-001/REMEDIATION_03_QA_PLAN.md) · [`REMEDIATION_04.md`](POC-001/REMEDIATION_04.md) · [`REMEDIATION_04_QA_PLAN.md`](POC-001/REMEDIATION_04_QA_PLAN.md) · [`REMEDIATION_05.md`](POC-001/REMEDIATION_05.md) · [`REMEDIATION_05_QA_PLAN.md`](POC-001/REMEDIATION_05_QA_PLAN.md) · [`REMEDIATION_06.md`](POC-001/REMEDIATION_06.md) · [`REMEDIATION_06_QA_PLAN.md`](POC-001/REMEDIATION_06_QA_PLAN.md) · [`REMEDIATION_07.md`](POC-001/REMEDIATION_07.md) · [`REMEDIATION_07_QA_PLAN.md`](POC-001/REMEDIATION_07_QA_PLAN.md) · [`REMEDIATION_08.md`](POC-001/REMEDIATION_08.md) · [`REMEDIATION_08_QA_PLAN.md`](POC-001/REMEDIATION_08_QA_PLAN.md) · [`REMEDIATION_09.md`](POC-001/REMEDIATION_09.md) · [`REMEDIATION_09_QA_PLAN.md`](POC-001/REMEDIATION_09_QA_PLAN.md) · [`REMEDIATION_10.md`](POC-001/REMEDIATION_10.md) · [`REMEDIATION_10_QA_PLAN.md`](POC-001/REMEDIATION_10_QA_PLAN.md).
+- [A9 QA traceability](../architecture/D007_A9_TRACEABILITY_FIXTURES.md), [A19 architecture risk crosswalk](../architecture/D007_A19_TRACEABILITY_RISK_MATRIX.md), [A34 Q1e traceability](../architecture/D007_A34_Q1E_TRACEABILITY_QA_MATRIX.md), [A35 decision matrix](../architecture/D007_A35_Q1E_OPTION_DECISION_MATRIX.md), [A36 35-case matrix](../architecture/D007_A36_Q1E_L1_L3_INDEPENDENT_QA_MATRIX.md).
+
+## 3. CURRENT EXECUTION / QA / DESIGN GATES — initial verified snapshot
+
+**Snapshot as of 2026-11-24; observed `main@65ef66a712196962773c7b1fa1b5d7901203e106`, GitHub PR metadata. Always refresh.** These status rows report only actual inspected evidence, not a blanket claim about the future.
+
+| Workstream | Exact Git identities and evidence | What is actually decided; what is NOT |
+| --- | --- | --- |
+| **POC-001 R09** (historical) | [PR #2](https://github.com/zyyu1/literature-management-system/pull/2) OPEN/UNMERGED; `exec/POC-001-webdav-feasibility`; original merge-base **`1c084e5f14e4af8018ef5fe99710be7205cfbdf4`**; R09 reviewed HEAD **`bcc47380deb7c6e48964ca5ca77303a213fade28`**; [separate G3 QA #7127423472](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7127423472); [A33 exact G4](../architecture/D007_A33_R09_G4_PARTIAL_DISPOSITION.md) | **G3 VERIFIED / R09 LOCAL_STAGE PARTIAL / G4 PARTIAL_NOT_ACCEPTED**; 202/202 ×5 and 82/82 mutation were **R09 independent historical evidence**, not R10 |
+| **POC-001 R10** (currently approved action) | **[A39 G1](../architecture/D007_A39_POC001_REMEDIATION_10_G1_AUTHORIZATION.md)**, [R10 work order](POC-001/REMEDIATION_10.md), [R10 QA plan](POC-001/REMEDIATION_10_QA_PLAN.md); **same PR #2 and branch, mandatory R10 START = `bcc47380deb7c6e48964ca5ca77303a213fade28`** | **G1 AUTHORIZED_LOCAL_SYNTHETIC_SINGLE_P2; G2 NOT_STARTED, independent G3 NOT_RUN, G4 NOT_REVIEWED**. At last check PR #2 HEAD was still its R09 SHA, diff R10-start..HEAD **0**, no `r10-regressions.test.mjs`, no R10 QA comment. Do **not** claim executed |
+| **Q1E-L3 model** | [PR #4](https://github.com/zyyu1/literature-management-system/pull/4) OPEN/UNMERGED; branch `exec/Q1E-L3-synthetic-transaction-feasibility`; immutable original A36 Base **`1dd8b51f84921d23dc0112e4056fa7220bbb73e8`**; QA final exact **`49cb8d264fa7c9d76705e03161421149a4557167`**; [independent QA #7127584107](https://github.com/zyyu1/literature-management-system/pull/4#issuecomment-7127584107); [A38 G4](../architecture/D007_A38_Q1E_L3_MODEL_G4_PARTIAL_DISPOSITION.md) | **G3 VERIFIED / MODEL_ONLY G4 PARTIAL_NOT_ACCEPTED**. The 26 A36 model cases were reviewed; **C02 UNSUPPORTED**, M-SNAP survived repo tests. No approved L3 remediation G1; **PHYSICAL_DURABILITY_UNPROVEN** |
+| **WP-01** | [A21 exact local synthetic G1](../architecture/D007_A21_WP01_G1_DECISION.md); frozen execution Base **`9cfc1d7375f81ab35921a02eebf1a1c9d941476a`**, prospective branch `exec/WP-01-synthetic-auth-api`; [status](WP-01/STATUS.md) | **G1 authorization published; Execution/QA not yet evidenced in this initial snapshot**. Revalidate branch/PR before assuming not started; do not merge with R10/L3 scopes |
+| **Module 002 UI** | [UI-FREEZE-01 source](../ui/002/DESIGN_APPROVED.md), pinned pre-freeze `d79eb0aa406b1596d04441d12e9f8f5ce0aff517` | **67 FROZEN design decisions**, **26 planned U6 scenarios NOT_RUN**; no implementation or actual mobile/device QA from this design |
+| **Q1e trusted backup/restore** | [A34](../architecture/D007_A34_Q1E_MANIFEST_SNAPSHOT_RECOVERY_DESIGN.md), [A35](../architecture/D007_A35_Q1E_STORAGE_STRATEGY_DISPOSITION.md), [A36](../architecture/D007_A36_Q1E_LOCAL_FEASIBILITY_DESIGN.md) | **UNSUPPORTED_COMPLETENESS / BACKUP_NOT_RESTORE_CERTIFIED**, independent latest-deletion witness not proven; **L3 preferred reference capability / L1 conditional**, no database, vendor, cloud, retention or deployment chosen |
+
+**Global gate firewall:** G1 must be separately scoped to a named task and exact SHA/whitelist; G2 implementation evidence is never G3; independently user-opened G3 is not automatically G4; Design alone issues exact-SHA G4; **G5 MERGE NOT_AUTHORIZED / G6 ACCESS-02 BLOCKED / G7 DEPLOYMENT NOT_AUTHORIZED**. **Overall POC-001 `BLOCKED_REAL_SERVICE`**. No Nutstore/Zotero real access, no original PDF or user Notes, no CI, frozen UI edits, secrets, production migration or live restore. Historical Design approvals do NOT override newer STOPs.
+
+## 4. Active blockers and risk register (re-check on every Management inbound)
+
+| ID | As-of status | Exact scope and source |
+| --- | --- | --- |
+| **P2-R09-QA-1** | **OPEN; R10 sole authorized target** | Early own-parent PROPFIND before all 20 known own-file DELETE attempts consumes one final verification, strands 20 synthetic files; [A33](../architecture/D007_A33_R09_G4_PARTIAL_DISPOSITION.md), [QA](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7127423472), [A39 narrow G1](../architecture/D007_A39_POC001_REMEDIATION_10_G1_AUTHORIZATION.md) |
+| **P2-R08-QA-1** | OPEN / PARTIALLY_REMEDIATED | Straggler ordinary PUT bypass fixed in R09 but final cleanup invariant remains open pending new R10 exact-SHA QA+G4 |
+| **P2-R08-QA-2 (B5)** | CLOSED_LOCAL_TEST_GAP **only @ bcc47380** | Independent R09 negative B5a/B5b and correct mutation kill, not a production pass or automatic carryover to new SHA |
+| **P2-R08-QA-3 (Q4b)** | CLOSED_LOCAL_TEST_GAP **only @ bcc47380** | QA 12/12 absolute deadline raw-trickle probes, 408 at about 1001–1006ms; not provider certification |
+| **P2-L3-QA-1** | OPEN / MODEL G4 hard blocker | `stageRestore()` unanchored `minWitnessSeq=0` allows *isolated staging only* of deleted Project when store+witness both rolled back; no active cutover or proven production resurrection; [A38](../architecture/D007_A38_Q1E_L3_MODEL_G4_PARTIAL_DISPOSITION.md) |
+| **P2-L3-QA-2** | OPEN / MODEL TEST GAP | M-SNAP historical K mutant survived 27 in-repo tests, independently caught by QA. New L3 G1 **not authorized** |
+| **INFO-1 / C9** | INFO ONLY | R09 direct internal cleanup-label budget helper misuse and C9 survivor; **explicitly excluded from R10** by A39 |
+| **P2-R05-2 / Q1e** | CAPACITY_POLICY_PENDING / UNSUPPORTED | Real provider capacity and complete backup inventory not certified; no numeric retention/SLO/RPO/RTO |
+
+Canonical risk sources: [POST_G4_RISK_REGISTER](POC-001/POST_G4_RISK_REGISTER.md), [ACCESS02_PRECHECK_MATRIX](POC-001/ACCESS02_PRECHECK_MATRIX.md). **Never close a risk in this index just because an Execution report claims green tests**; direct independent G3 and separate Design G4 on a fixed SHA are required.
+
+## 5. Execution/research boundaries and reusable decisions
+
+- **POC-001 R10:** exactly [A39 whitelist](../architecture/D007_A39_POC001_REMEDIATION_10_G1_AUTHORIZATION.md): `poc/001/src/util.mjs` cleanup guard only; **NEW** `poc/001/test/r10-regressions.test.mjs`; additive mutation `poc/001/scripts/mutation-check.mjs`; new `poc/001/evidence/R10-*`; `poc/001/README.md`; `docs/handoffs/POC-001/QA_HANDOFF.md`. **Adapter/safe-api, historical tests, CI, packages, root README, frozen UI, existing execution instructions read-only on this execution branch**. 0/20, 1/20, 19/20 early PROPFIND must be refused before dispatch with zero token/slot cost; 20 DELETE-attempt ledger then exactly one final PROPFIND; 75+20+1=96, 79+20+1=100, 101st refused; 412/UNKNOWN and 401/429 STOP truthful, no blind retry. INFO-1/C9 remain INFO.
+- **Q1E-L3:** approved A37 initial model only, A38 G4 partial; candidate **L3 repair is NOT an approved G1**. Restore anchor default fail-closed and historical K test/M-SNAP kill require another user-approved whitelist and exact branch SHA. **No physical transaction durability/fence/rollback-resistant trust witness** is proven by the model.
+- **Supplier/stack choices:** historical A1/A2/A3 Render preference and D007 second Nutstore hypothesis are **conditional design assumptions only**; A35 L3 transaction authority preference is **a capability-study judgment**, **not adoption of SQLite/PostgreSQL or an actual cloud**. For any *new implementation selection*, review 3 open-source GitHub candidates across **stars, recency, license, stack and deployment/alteration cost**, then request explicit authorization. The previous Work Package/G1 may already fix a zero-dependency approach; do not reopen it without approval.
+- **Ownership & secrets:** GitHub contains only synthetic evidence and docs; never store actual API/WebDAV keys, Zotero private exports, user Notes/PDF, personally identifying information, deployed service secrets. Repo paths are process conventions, not real ACLs.
+
+## 6. Long-lived Design-window operating agreements ("memory" for migration)
+
+1. **Roles now:** **Design → Management → Execution and *separately user-opened* Independent QA → Management → Design**. Management coordinates PR/QA handoffs and reports, but **cannot grant G1, G4, G5/G6/G7, widen white lists or count same-session subagents as independent G3**. Historical three-window and automation-bus files remain source history; [continuity amendment](../governance/DESIGN_HANDOFF_CONTINUITY_PROTOCOL.md) governs future Design intake.
+2. **User-facing deliverables:** Chinese analysis/risk tables; when dispatching approved implementation, provide **complete copyable XeLaTeX/ctexart instructions addressed only to Management**, containing authority Design SHA, existing branch and immutable Base, exact start HEAD, path whitelist, 0-real-service, necessary tests/mutation, separate QA, STOP, evidence return template, and next independent choices. **Do not send separate Execution/QA instructions directly** under the new workflow.
+3. **Each Management-forwarded message must be handled HANDOFF-FIRST**: verify actual GitHub PR/branch/source comments and expected exact SHA **before** trusting a pasted summary; write a first **separate verified Management receipt / evidence-only update** to this file on `main` and verify its SHA **before** giving specific risk/G4/new-G1 ruling; only after that perform Design decision with explicit user authority. Any resulting decision/changed gate must again update this file in the same new decision commit or a verified immediately-following commit. [Detailed protocol](../governance/DESIGN_HANDOFF_CONTINUITY_PROTOCOL.md). If GitHub is unavailable or CAS fails, report HOLD/PENDING, don't claim handoff updated or bypass G4.
+4. **Persistent evidence rule:** write exact PR, branch, source comment IDs/URLs, immutable 40-char QA SHA, Design commit parent, independent QA status, observed exit/mutation counts, P0/P1/P2/INFO, NOT_RUN/UNSUPPORTED, explicit blocker, next allowed action. Differentiate user-supplied summary vs independently verified GitHub fact; never claim full QA PASS from Execution tests or ideal mock.
+5. **Decision hygiene:** one independent Design issue at a time; separate **DESIGN_ONLY**, **G1 implementation authority**, **G3 independent review**, **G4 exact-SHA acceptance**, and **G5/G6/G7**. Don't auto-freeze architecture, close risks, merge/rebase/deploy, release real provider tests or change frozen Module 002 UI. A dedicated Design amendment is required for any new G1 or whitelist. Avoid edits to historical approved instructions; create new named document and update live indexes.
+6. **GitHub preservation:** read `main` first; use exact parent/tree, compare expected main SHA (CAS) and **force=false**; if another Design/Management update advances main, re-fetch and reconcile file-by-file, **never overwrite other windows' changes**. For execution branch check its **separate** immutable Base, original PR and exact SHA; do not merge Design main into an active execution PR just to obtain new docs.
+7. **Knowledge QA & changes:** cite exact authoritative files and measured evidence, record uncertainties. A write's `UNKNOWN` is nonterminal; don't fabricate Save, Delete, complete Inventory or restored keys. Important UI data/Design risk distinctions from §§1–5 survive chat migration. **This handoff is a map and status register, not executable permission or a replacement for frozen authority.**
+8. **Cadence:** update on *receipt of a Management message handled in this chat*, not on an invented background timer. This document itself creates no automatic monitoring, cross-window message delivery or unconditional auto-commit rights.
+
+## 7. Ordered Management intake / handoff-first lifecycle
+
+1. Retrieve THIS file and [continuity protocol](../governance/DESIGN_HANDOFF_CONTINUITY_PROTOCOL.md) from verified latest `main`; inspect current PR/issue comments and relevant Design/QA file blobs. Identify exact unique key `(work_item, PR, QA/EXEC comment ID, tested_full_SHA)`. Check if this inbound already recorded (idempotency).
+2. Distinguish **new verified evidence** vs copied Management statements and **unverified/contradictory** claims. Preserve known gates; status `PENDING_SOURCE_VERIFICATION` if missing independent G3/new SHA or permissions. **Never create a pretend new QA report**.
+3. **BEFORE any specific G4/risk/G1 decision response:** append a receipt record to §8, update verified status/current source pointers and pending risk state only, create **separate evidence-only Design-handoff commit on `main`**, check exact SHA, path diff and no unrelated changes. **This is the user's new hard workflow constraint.**
+4. Only then independently decide G4 or produce separately user-approved G1/design documents (do **not** issue an unapproved G1). Update handoff again for the final adjudication with its Design decision ID/exact QA SHA/risk delta, ideally **in the decision-governance commit**, and verify that commit SHA. If outcome remains pending, finish after evidence-only handoff update.
+5. After commit, give the user findings, tested SHA, gate disposition, GitHub links, Management-only LaTeX when applicable, and separate choices; never overwrite earlier receipts or historical QA outcomes. On CAS conflict/verification failure **STOP and reconcile** before decision.
+
+## 8. Management inbound ledger — append only, de-duplicate by evidence key
+
+| Date (Europe/Berlin) | Evidence key / source | Verified observations and handoff action | Decision status |
+| --- | --- | --- | --- |
+| 2026-11-24 | `INITIAL_DESIGN_HANDOFF @ main 65ef66a712196962773c7b1fa1b5d7901203e106` | Bootstrap from verified design tree, A39, PR #2 and PR #4; no new Management report in this handoff-creation turn; R10 G2/G3 not run and A33/A38 G4 remain PARTIAL | **INDEX_BOOTSTRAP_ONLY; NO NEW G4 OR G1** |
+
+Append future Management entries **beneath** the current table and update linked §3–5 statuses after actual GitHub evidence verification. Keep full source comment link and SHA; never silently replace old receipt content with the latest status. If the table grows, preserve history in a separately linked archival file via a new approved governance decision, not by dropping rows.
+
+## 9. Next allowed decisions / task queue (as of initial snapshot, not auto-authorizations)
+
+- **First active dependency:** Management dispatch R10 using **already-approved D007-A39 G1**; Execution modifies only the PR #2 whitelist and requests independent G3. Upon a new Management QA_REPORT, apply §7 handoff-first procedure, then only if sufficiently evidenced give a new exact-SHA **R10 G4** ruling. **As of this snapshot it remains NOT_STARTED**. No need to re-authorize A39.
+- **Separate future decision (optional):** user may approve a **new L3 minimal remediation G1** for P2-L3-QA-1/2 on PR #4; A38 alone does not authorize it. May be planned in parallel without touching R10.
+- **WP-01** independent G1 already approved but implementation/QA not evidenced; perform current branch and exact-base preflight before dispatch or acceptance.
+- **Deferred:** A34 Q1e trusted inventory, real independent latest-deletion witness, authenticated keys, safe backup/restore, physical DB transaction proof, real Zotero mobile/deep-link, provider budgets, IAM/Session/backup data retention, cloud/domain costs and ACCESS-02. **No real service until a separate affirmative gate**.
+
+## 10. New Design window fast-start checklist
+
+Read this one file; obtain latest GitHub `main` SHA, this file's blob and [continuity protocol](../governance/DESIGN_HANDOFF_CONTINUITY_PROTOCOL.md); read [decision log](../governance/DECISION_LOG.md), [latest A39](../architecture/D007_A39_POC001_REMEDIATION_10_G1_AUTHORIZATION.md), [A33](../architecture/D007_A33_R09_G4_PARTIAL_DISPOSITION.md), [A38](../architecture/D007_A38_Q1E_L3_MODEL_G4_PARTIAL_DISPOSITION.md), [UI freeze](../ui/002/DESIGN_APPROVED.md). Recheck PR #2/#4 heads and independent QA comments; distinguish workstream G1/G2/G3/G4. Ask for no secrets. **Treat missing evidence as pending, not PASS.** The next Management return triggers §7 automatically *within the active chat task*, never by unattended background execution.

@@ -1,5 +1,13 @@
 # Handoff Index
 
+> **NEW CANONICAL DESIGN WINDOW HANDOFF (2026-11-24): [`DESIGN_WINDOW_HANDOFF.md`](DESIGN_WINDOW_HANDOFF.md).** For a new Design chat, **read this single comprehensive handoff first**, then [the handoff-first Management protocol](../governance/DESIGN_HANDOFF_CONTINUITY_PROTOCOL.md). This file includes the full A1–A39 architecture/document path index, approved system model, frozen Module 002 UX, active PR SHAs/gates, outstanding risks and Management intake ledger. Also see [Design Window starter](../windows/DESIGN_WINDOW_START.md).
+>
+> **LIVE state as independently checked at `main@65ef66a712196962773c7b1fa1b5d7901203e106` before handoff creation:** R10 [D007-A39](../architecture/D007_A39_POC001_REMEDIATION_10_G1_AUTHORIZATION.md) G1 authorized but **G2 NOT_STARTED/G3 NOT_RUN/G4 NOT_REVIEWED**; original [PR #2](https://github.com/zyyu1/literature-management-system/pull/2) HEAD `bcc47380deb7c6e48964ca5ca77303a213fade28` OPEN/UNMERGED, R09 [A33](../architecture/D007_A33_R09_G4_PARTIAL_DISPOSITION.md) G4 PARTIAL; [PR #4](https://github.com/zyyu1/literature-management-system/pull/4) HEAD `49cb8d264fa7c9d76705e03161421149a4557167`, L3 [A38](../architecture/D007_A38_Q1E_L3_MODEL_G4_PARTIAL_DISPOSITION.md) MODEL_ONLY G4 PARTIAL; G5 MERGE NOT_AUTHORIZED / G6 ACCESS-02 BLOCKED / G7 NOT_AUTHORIZED, Q1e UNSUPPORTED_COMPLETENESS. **Recheck current GitHub evidence before use.**
+>
+> **Everything following under `Historical index (superseded for live POC status)` was written during earlier work and may contain old "R02 / QA pending" claims. Treat it as archive only, not live gate authority.**
+
+## Historical index (superseded for live POC status)
+
 | Work item | Scope | Design | Implementation | QA |
 | --- | --- | --- | --- | --- |
 | [BOOTSTRAP-000](000/STATUS.md) | Establish independent repository and docs/handoffs | APPROVED PROCESS | DOCS PUBLISHED ON MAIN (verify exact SHA) | NOT STARTED |

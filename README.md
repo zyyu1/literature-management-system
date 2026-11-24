@@ -1,5 +1,8 @@
 # Literature Management System — 文献管理系统
 
+> **Current Design handoff / 最新交接入口（2026-11-24）:** [`docs/handoffs/DESIGN_WINDOW_HANDOFF.md`](docs/handoffs/DESIGN_WINDOW_HANDOFF.md). Includes the **full system design index, current PR/G1–G7 status, known QA blockers and Design→Management handoff-first protocol**. **This entry is authoritative for navigation; for permissions read the exact approved G1/G4 document.** The older README text below is an **early repository snapshot** (claims such as "QA none completed" are no longer current). Always verify live GitHub SHA before making a gate claim.
+
+
 **Status:** Module 002 UI design is **FROZEN / DESIGN_APPROVED**. No application code, deployment, Zotero authorization or Nutstore/WebDAV integration has been executed.
 
 This is an **independent responsive website**, not a Zotero replacement. Zotero manages bibliographic metadata, PDF files, annotations, and PDF reading; the website manages Projects, one global status and research note per literature item, and key-quote associations.
