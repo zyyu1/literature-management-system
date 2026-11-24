@@ -1,260 +1,176 @@
-# POC-001 — Execution → QA Handoff · REMEDIATION-08 / D007-A30 Option A (LOCAL / SYNTHETIC ONLY)
+# POC-001 — Execution → QA Handoff · REMEDIATION-09 / D007-A32 Option A (LOCAL / SYNTHETIC ONLY)
 
 **From:** Execution Window · 2026-11-24 (Europe/Berlin)
+**Transport:** [AUTOMATION_BUS.md](https://github.com/zyyu1/literature-management-system/blob/1653118634302fa0401055e2ca85ac75e76ee112/docs/governance/AUTOMATION_BUS.md) (PROC-BUS-01). This answers DESIGN DISPATCH [#7125862226](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7125862226).
 
-**Authority** (read at the pinned Design commit `e3b65fa630cda6407ec21274b177ad228ea2b651`):
-- [D007-A30](https://github.com/zyyu1/literature-management-system/blob/e3b65fa630cda6407ec21274b177ad228ea2b651/docs/architecture/D007_A30_R08_LOCAL_READINESS_G1_AUTHORIZATION.md)
-- [REMEDIATION_08.md](https://github.com/zyyu1/literature-management-system/blob/e3b65fa630cda6407ec21274b177ad228ea2b651/docs/handoffs/POC-001/REMEDIATION_08.md)
-- [R08 independent QA plan](https://github.com/zyyu1/literature-management-system/blob/e3b65fa630cda6407ec21274b177ad228ea2b651/docs/handoffs/POC-001/REMEDIATION_08_QA_PLAN.md)
-- [ACCESS-02 precheck matrix](https://github.com/zyyu1/literature-management-system/blob/e3b65fa630cda6407ec21274b177ad228ea2b651/docs/handoffs/POC-001/ACCESS02_PRECHECK_MATRIX.md)
-- [ACCESS policy](https://github.com/zyyu1/literature-management-system/blob/e3b65fa630cda6407ec21274b177ad228ea2b651/docs/handoffs/POC-001/ACCESS_POLICY.md)
+**Authority** (verified on `main` @ `1653118634302fa0401055e2ca85ac75e76ee112` before any edit):
+- [D007-A32 R09 G1](https://github.com/zyyu1/literature-management-system/blob/1653118634302fa0401055e2ca85ac75e76ee112/docs/architecture/D007_A32_POC001_R09_MINIMAL_G1_AUTHORIZATION.md)
+- [REMEDIATION_09.md](https://github.com/zyyu1/literature-management-system/blob/1653118634302fa0401055e2ca85ac75e76ee112/docs/handoffs/POC-001/REMEDIATION_09.md) (sole work order)
+- [R09 independent QA plan](https://github.com/zyyu1/literature-management-system/blob/1653118634302fa0401055e2ca85ac75e76ee112/docs/handoffs/POC-001/REMEDIATION_09_QA_PLAN.md)
+- The R08 QA report this answers: [#7123738287](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7123738287)
 
-**Scope:** R08 local security readiness:
-- loopback-only strict HTTPS test mode;
-- SSRF and path denial;
-- Q4 admission and absolute body deadline;
-- Q5 non-terminal regression;
-- export capacity at N = 1665/1666;
-- a test-only ACCESS-01 budget dry run.
+**Scope:** P2-R08-QA-1/2/3 only.
 
-**Boundary:** every socket is 127.0.0.1 (plus an untouched 127.0.0.2 trap). All data and credentials are synthetic; TLS material is ephemeral and kept in memory only. **No real Nutstore, Zotero, external WebDAV, real TLS endpoint, DNS to an external host, credentials, PDFs or library records. This is not ACCESS-02.**
+**Boundary:** every socket is 127.0.0.1, and all data and credentials are synthetic. **No real service, credential, PDF or library record.**
 
-**Status:** Execution evidence only. **No G3 or G4 claim, and no risk closure.**
-- A28 `G4 ACCEPTED_EXACT_SHA LOCAL_SYNTHETIC@ace7b1e610529c1f139dc06371d9f531ccf0e28b` stays historical and does **not** cover this SHA.
-- Risk states are unchanged until D007-A31:
-  - P2-R05-2: `CAPACITY_POLICY_PENDING`
-  - Q1e: `UNSUPPORTED_COMPLETENESS`
-  - Q4/Q5: `RESIDUAL_POLICY_REQUIRED / LOCAL_PROOF_PENDING`
-  - TLS/SSRF: `LOCAL_PROOF_PENDING`
-- **G5 NOT_AUTHORIZED · G6 ACCESS-02 BLOCKED · G7 NOT_AUTHORIZED · OVERALL `BLOCKED_REAL_SERVICE`.**
+**Status:** Execution evidence only. **No G3/G4 claim; no risk closure.** A31 `R08 G4 PARTIAL_NOT_ACCEPTED@49ad24e` and A28 `G4 ACCEPTED_EXACT_SHA LOCAL_SYNTHETIC@ace7b1e` remain historical. P2-R08-QA-1/2/3 stay OPEN until D007-A33.
+**G5 NOT_AUTHORIZED · G6 ACCESS-02 BLOCKED · G7 NOT_AUTHORIZED · OVERALL `BLOCKED_REAL_SERVICE`.**
 
-**History:** the previous handoff is [QA_HANDOFF.md @ ace7b1e](https://github.com/zyyu1/literature-management-system/blob/ace7b1e610529c1f139dc06371d9f531ccf0e28b/docs/handoffs/POC-001/QA_HANDOFF.md); earlier versions are linked from there. The A28 G3 basis is [#7121490151](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7121490151).
+**History:** the previous handoff is [QA_HANDOFF.md @ 49ad24e](https://github.com/zyyu1/literature-management-system/blob/49ad24e82f5895f4b6e5f30cb84b3294229df012/docs/handoffs/POC-001/QA_HANDOFF.md) (R08); earlier handoffs are linked from there.
 
 ## 1. Provenance
 
 | Field | Value |
 |---|---|
-| Branch | `exec/POC-001-webdav-feasibility` (existing; PR #2 OPEN, not merged) |
-| Original base | `1c084e5f14e4af8018ef5fe99710be7205cfbdf4`. `git merge-base HEAD 1c084e5…` returns `1c084e5…` |
-| R08 start (preflight) | `ace7b1e610529c1f139dc06371d9f531ccf0e28b`. Local, remote and PR head were all equal to it, the tree was clean and there were 0 merge commits before any edit |
-| Lineage | `ace7b1e → 9128c61 (R08 code) → c95fe06 (fix: legacy M10 effective again) → (this evidence + docs commit)`. Fast-forward only. **No rebase, no merge of `main`, no force-push, no Design docs cherry-picked** |
-| Code commits | `9128c611c16e34a5638bceb4bfcd487703620bb1`, `c95fe067a1b95c928e52fca5cf31665dc9b94acf` |
-| Evidence | Generated on a **clean tree at `c95fe06`** (`evidence/R08-results.json`: `gitHead=c95fe06…`, `gitDirtyPaths=(clean)`) |
-| **Final PR head** | The commit adding this file. **Its true 40-char SHA is in the PR #2 Execution report comment.** |
-| Runtime | Node **v22.23.5**, Linux x64, **2 vCPU** Intel Xeon @ 2.10 GHz. OpenSSL CLI 3.0.13 (fixture generation only); Node's bundled OpenSSL is 3.5.9 |
-| Dependencies | **None added.** `npm ls --all` → `(empty)`; package files unchanged |
+| Branch / PR | `exec/POC-001-webdav-feasibility`, PR #2 OPEN, not merged |
+| Original base | `1c084e5f14e4af8018ef5fe99710be7205cfbdf4` (merge-base) |
+| R09 start (preflight) | `49ad24e82f5895f4b6e5f30cb84b3294229df012`. Before any edit, `ls-remote`, the PR REST head and the local HEAD were all equal to it; clean tree; 0 merge commits |
+| Lineage | `49ad24e → 8d9929b (R09 code) → (this evidence + docs commit)`. Fast-forward only; **no rebase, no merge of `main`, no force-push** |
+| Code commit | `8d9929b5ad9d52ce6f4a29956ac640af932feaac` |
+| Evidence | Generated on a **clean tree at `8d9929b`** (`evidence/R09-results.json`: `gitDirtyPaths=(clean)`) |
+| **Final PR head** | The commit adding this file. **Its true 40-char SHA is in the EXEC_REPORT and QA_REQUEST bus messages.** |
+| Runtime | Node v22.23.5, Linux x64, 2 vCPU. **No new dependency** (`npm ls --all` → `(empty)`) |
 
-**Incremental paths from `ace7b1e`** (all on the A30 whitelist):
-- `poc/001/src/{webdav-adapter,util,safe-api}.mjs`
-- `poc/001/test/r08-readiness.test.mjs` (new)
-- `poc/001/test/r08-local-tls-fixtures.mjs` (new)
+**Incremental paths from `49ad24e`**, all on the A32 whitelist:
+- `poc/001/src/util.mjs`
+- `poc/001/src/webdav-adapter.mjs` (admission wiring only)
+- `poc/001/test/r09-regressions.test.mjs` (new)
 - `poc/001/scripts/mutation-check.mjs`
 - `poc/001/README.md`
-- `poc/001/evidence/R08-*` (new files only; the historical evidence is untouched)
+- 27 new `poc/001/evidence/R09-*` files (historical evidence untouched)
 - this file
 
-The cumulative paths from `1c084e5` stay within `poc/001/**` plus this file.
-
-**Source blobs, `ace7b1e` → `c95fe06`:**
+**Source blobs, `49ad24e` → `8d9929b`:**
 
 | Status | Files |
 |---|---|
-| Unchanged | `api-main` `1498d4901a1b`, `client` `fa9b98d170b0`, `dav-xml` `3d182adf4e46`, `mock-webdav` `1d44839d9e6f`, `note-codec` `6f91c2c5a650` |
-| Changed (allowed) | `safe-api` `96400cc81d7f → ef4d0528404f`, `util` `1f583c1f6065 → 7762e4b51cab`, `webdav-adapter` `1adfe97c82cd → fd6325a7ddb0` |
+| Unchanged | **`safe-api` `ef4d0528404f`**, `api-main` `1498d4901a1b`, `client` `fa9b98d170b0`, `dav-xml` `3d182adf4e46`, `mock-webdav` `1d44839d9e6f`, `note-codec` `6f91c2c5a650` |
+| Changed | `util` `7762e4b51cab → 2616c393d1c9`, `webdav-adapter` `fd6325a7ddb0 → bf71c10c64a5` |
 
-**Pre-R08 tests changed: 0.** `run-evidence.mjs`, `secret-scan.mjs`, `check.mjs` and `resource-probe*.mjs` are unchanged. They are not on the whitelist, so the R08 evidence was produced by a runner kept outside the repo, with the same sanitisation.
+- Prior tests changed: **0**. Helpers, package files, CI, `run-evidence.mjs` and `secret-scan.mjs` are unchanged.
+- `mutation-check.mjs`: M1–M74 definitions are unchanged. The only removed lines are the two-line R08 comment that wrongly called B5 equivalent.
 
-## 2. Results at `c95fe06` (Execution run; NOT independent QA)
+## 2. Results at `8d9929b` (Execution run; NOT independent QA)
 
 | Step (cwd `poc/001`) | Exit | Result |
 |---|---:|---|
-| `node scripts/check.mjs` | 0 | 32 files, 0 failures |
-| POC-01…07 (each file) | 0 each | 2 / 4 / 3 / 1 / 3 / 17 / 3 |
-| R01…R07 (each file) | 0 each | 21 / 21 / 26 / 17 / 20 / 11 / 4 (**153 historical tests, unedited**) |
-| **R08** `node --test test/r08-readiness.test.mjs` | 0 | **38 / 38** |
-| `node --test "test/*.test.mjs"` × **5 separate runs** | 0 ×5 | **191 / 191** each |
-| `node scripts/mutation-check.mjs` | 0 | **74 / 74 killed** (M1–M51 legacy + M52–M74 R08). All 27 `expect` mutants (M48–M74) were killed on their named assertion |
-| `node scripts/secret-scan.mjs 1c084e5f14e4af8018ef5fe99710be7205cfbdf4` | 0 | 0 findings (heuristic) |
+| `node scripts/check.mjs` | 0 | 33 files, 0 failures |
+| POC-01…07 (each) | 0 each | 2 / 4 / 3 / 1 / 3 / 17 / 3 |
+| R01…R07 (each) | 0 each | 21 / 21 / 26 / 17 / 20 / 11 / 4 |
+| R08 `r08-readiness` (unedited) | 0 | 38 / 38 |
+| **R09** `r09-regressions` | 0 | **11 / 11** |
+| `node --test "test/*.test.mjs"` × **5 separate runs** | 0 ×5 | **202 / 202** each (42–44 s) |
+| `node scripts/mutation-check.mjs` | 0 | **82 / 82 killed** (793 s). All 35 `expect` mutants were killed on their named assertion. M10 and M73 have the same kill reason as in R08 |
+| `node scripts/secret-scan.mjs 1c084e5f14e4af8018ef5fe99710be7205cfbdf4` | 0 | 0 findings |
 | `npm ls --all` | 0 | `(empty)` |
 
-**Transparency note on M10.** The first mutation run at `9128c61` had **M10 surviving** (`evidence/R08-mutation-first-run-9128c61.txt`). Its pattern `if (base.protocol === 'https:') {` had moved from the R01 fail-closed guard onto the new TLS block. `c95fe06` restores the original guard line and moves the TLS configuration inside it, so M10 is again killed by `R01 P1-4`. No behaviour changed, and no legacy mutant definition was edited.
+The R08 191/191×5 and 74/74 are historical and are not re-claimed.
 
-**One equivalent mutant is documented and not counted:** "adapter ignores a refused write admission". The refusal STOPs the budget, so the next request admission refuses with the same code before dispatch.
+## 3. What changed
 
-## 3. What changed and the evidence per QA case
+### R09-CLEAN-01/02 (P2-R08-QA-1) — cleanup gate
 
-### R08-TLS-01 — local HTTPS works
+**The fix.** The adapter's `request()` now performs a single admission step before any socket. First `budget.admitDispatch({ method, path, conditional })` decides from the actual method, the canonical path and the phase; the M73 line is unchanged. For a PUT, `budget.admitDispatchWrite(path, bytes)` follows.
 
-**How it works:** `createWebDavAdapter({ baseUrl: 'https://127.0.0.1:<port>/…', localTls: { ca } })`.
-- Only the given test CA is trusted.
-- `rejectUnauthorized: true` and `checkServerIdentity` are set explicitly; minimum TLS 1.2.
+**After `beginCleanup()`** (irreversible), only two kinds of request are admitted, each only within the hard cap and only if there is no 401/429 STOP:
+- a **conditional** DELETE of an **own** synthetic file (one admitted earlier through write admission), each file **once**;
+- **one** PROPFIND of the exact parent collection of an own file.
 
-**Evidence:**
-- Save, read-back, export (4 explicit 114-byte PROPFINDs) and restore all work through a TLS front with an IP SAN, and also by name (`localhost` with a DNS SAN).
-- Plain-HTTP loopback works as before, and https without `localTls` still fails with `HTTPS_TRANSPORT_NOT_IMPLEMENTED`.
+**Everything else is refused before dispatch, with no slot consumed and no STOP:** PUT, MKCOL, GET, POST, MOVE, COPY, LOCK; a root, foreign or second PROPFIND; and unconditional, foreign or collection DELETEs. Ordinary work is never relabelled as cleanup.
 
-### R08-TLS-02 — invalid peers fail closed
+**Compatibility:** the unit-arithmetic helper `admitRequest('cleanup')` (used by the unedited R08 test) remains, but the adapter never calls it. When a request is refused, a hard-cap exhaustion or a 401/429 STOP is reported ahead of the phase rule.
 
-Five invalid peers were tested: wrong CA, self-signed, expired (2020), SAN mismatch, and a valid certificate while the client trusts a different CA.
+**Measured on the mock (early-cleanup race).** Two writers wrote 20 own files; 68 requests had been used before the extra reads (4 MKCOL, 20 PUT + read-back, an export of 4 PROPFIND + 20 GET), then 7 GETs brought the total to **75**. `beginCleanup()` was called at that point.
 
-| Check | Result |
+| Step | Result |
 |---|---|
-| Refusal code | `UNABLE_TO_VERIFY_LEAF_SIGNATURE` / `DEPTH_ZERO_SELF_SIGNED_CERT` / `CERT_HAS_EXPIRED` / `ERR_TLS_CERT_ALTNAME_INVALID` |
-| TCP connections at the front | 3 (a handshake is attempted) |
-| Completed handshakes | 0 |
-| **Decrypted application bytes** | **0** — no request line, no `Authorization` |
-| Backend requests | **0** |
-| Write classification | `not_sent`; the API answers a definite `503 not_saved`, never Unknown |
+| **10 straggler PUTs** (both principals, concurrent) | **all 503 `not_saved`** |
+| Effect of the stragglers | **0 extra PUT**, storage snapshot unchanged, **0 request slots and 0 cleanup slots used** |
+| Adversarial GET, MKCOL, root PROPFIND, foreign DELETE, collection DELETE | all refused; server count stays 75 |
+| Cleanup | **20 conditional DELETEs + 1 verification PROPFIND** (114-byte body); namespace empty; a second verification is refused |
+| **Server requests** | **96 = 75 + 20 + 1** (budget count = server count) |
+| Own files left | **0** |
 
-Other refusals:
-- **Insecure overrides:** `rejectUnauthorized`, `checkServerIdentity`, `secureOptions`, a missing or invalid CA, and `localTls` on an `http:` URL are all refused at construction.
-- **Environment variable:** `NODE_TLS_REJECT_UNAUTHORIZED=0`, tested in a separate process, cannot weaken verification.
-- **Redirects:** a 307 to `http:` (downgrade), to another host, or to another path is never followed; exactly one request is made per call.
-- **Non-loopback hosts:** TLS mode never unlocks one (`REAL_SERVICE_BLOCKED`).
+**Legacy profile kept:** ordinary work STOPs at request 80, so 79 reach the server; 20 DELETEs + 1 verification bring the total to **100**; request 101 is refused with `BUDGET_REQUESTS`. Server count: 100.
 
-### R08-NET-03 — non-loopback and dangerous targets refused
+### R09-B5-03 (P2-R08-QA-2) — B5 is NOT equivalent
 
-**Refused at construction, with no socket opened:**
-- private, public and link-local IPv4/IPv6 addresses, arbitrary host names, `0.0.0.0`, `127.0.0.2`, `::ffff:127.0.0.1`;
-- obfuscated hosts (`127.1`, `0x7f.0.0.1`, `2130706433`);
-- an implicit or zero port, or `:080`;
-- URL userinfo;
-- `ftp:` and `file:`.
+`admitDispatchWrite` is the only file/size gate for a PUT, and it returns the request slot on refusal.
 
-**Resolution check:**
-- A name is resolved and **every** returned address must be `127.0.0.1` or `::1`.
-- Injected resolver answers of `127.0.0.2`, `0.0.0.0`, a mixed list and `::ffff:127.0.0.1` were each tested in both synchronous and asynchronous form. All are refused with `REAL_SERVICE_BLOCKED` and classified `not_sent`, and the 127.0.0.2 trap receives 0 connections.
+**Test:** the 21st file is refused with `BUDGET_FILES`. It never reaches the store (PUT count 20, snapshot unchanged) and consumes no slot (budget count = server count = 20). With early cleanup and budget left, a new write and an overwrite of an own file are both refused (`CLEANUP_PHASE_ORDINARY_REFUSED`); the store keeps 1 PUT.
 
-**Source fix (found by this test):** a socket destroyed before the `socket` event, such as after a synchronous resolver refusal, used to be counted as connected (`unknown`). It is now `not_sent` (mutant M74).
+**Mutants:**
 
-### R08-PATH-04 — canonical paths only
+| Mutant | Change | Killed by |
+|---|---|---|
+| M80 | adapter ignores a refused write admission | "R09-B5-03 refused write never reaches the store" |
+| M82 | the slot is kept on refusal | "refused write consumes no request slot" |
 
-- Request paths must be plain segments. `..`, `.`, `//`, `%2e`, `%252e`, `%2F`, `\`, `?`, `#`, whitespace, NUL, a hidden leading `.`, a relative path and `/` are all refused before any request (0 server requests).
-- Base paths with the same defects are refused at construction.
-- At the API, encoded traversal, cross-kind paths and cross-namespace restore targets get 400/404 with 0 writes and storage unchanged. Valid note paths still work.
+README and the mutation driver now state that the R08 "equivalent" claim is withdrawn.
 
-### R08-Q4-05 — body deadline and admission
+### R09-Q4B-04 (P2-R08-QA-3) — absolute, not idle, deadline
 
-**Fixture:** 2 principals, `maxPerPrincipal = 2`, `maxLedgerEntries = 4`, `bodyDeadlineMs = 1000`, `MAX_BODY` 1 000 000.
+`safe-api.mjs` is unchanged; this is a test-only change.
 
 | Case | Result |
 |---|---|
-| Stalled body | **408** `body_deadline_exceeded` at ~1003 ms, 0 PUT |
-| Late chunks sent after the deadline | Never read, 0 PUT, nothing stored; the reservation is released and both slots are reusable |
-| 4 stalled bodies across the 2 principals | Third write refused `principal_ledger_full` for each principal; all four released by the deadline |
-| Aborted upload | Released, 0 PUT |
-| Upstream stall past the body deadline after dispatch | Stays **504 Unknown**, still holds its slot; the same opId is never re-dispatched |
-| Body over 1 MB | 413, released |
-| Reuse while pending | 409 `operation_in_progress` |
-| Fingerprint mismatch | 422 |
-| Upstream 429 | 503 `rate_limited`, exactly 1 PUT |
+| Raw PUT trickling 1 byte every 100 ms, with Content-Length | **408 `body_deadline_exceeded` at 1003 ms**, 10 bytes sent, 0 PUT, ledger released |
+| Same, chunked | **408 at 1003 ms**, 10 bytes, 0 PUT, released |
+| Control: upstream stall after dispatch | **504 Unknown** after more than 1000 ms (adapter 1300 ms), non-terminal |
 
-The deadline is unset by default, which keeps the pre-R08 behaviour. The values above are fixture values, not production defaults.
+- **Timing window:** 950–1500 ms.
+- **M81** (applied in a disposable copy of `safe-api.mjs` only) makes the timeout reset on every chunk. It is killed by "R09-Q4B-04 absolute deadline fires near 1000 ms despite a continuous trickle".
 
-### R08-Q5-06 — Unknown stays non-terminal (no source change)
+### R09-SAFE-05 — no unsafe undo or policy bypass
 
 | Case | Result |
 |---|---|
-| Applied-but-unacknowledged fence (`commit-then-drop`) | `fence_not_confirmed`, ledger still `unknown`, exactly 1 fence PUT. Verify then gives `indeterminate`; a second fence call makes no PUT |
-| Missing, weak or bogus fence ETag; failed GET read-back | `fence_not_confirmed` (`no_etag` / `untrusted_etag` / `readback_etag_mismatch` / `readback_error`); Unknown kept; 1 PUT |
-| Restart | Verify is non-terminal; fence returns 404; an applied write observed after restart is `committed` but `terminal: false`; no replay |
-| Quota pressure | Two Unknowns hold both slots; new work gets `principal_ledger_full`; the Unknowns are not evicted |
-| Sibling write | CAS decides; the Unknown becomes `indeterminate`, is not terminal, and no fence PUT is made |
+| Upstream 401 or 429 on the first cleanup DELETE | `UPSTREAM_<status>` STOP; next DELETE and verification refused; **1 DELETE sent**; **3 residual synthetic files reported, not force-deleted** |
+| Write in flight when cleanup begins | stays **Unknown** (ledger `unknown`, verify non-terminal); not retried (2 PUTs total) and not reclassified |
+| ACCESS-01 values and 114-byte PROPFIND | unchanged |
 
-### R08-CAP-07 — export capacity (minimal synthetic fixture)
+**New mutants M75–M82**, all killed on their named assertion:
 
-| N | Listing elements (independent count) | Listing bytes | Export | PROPFIND / GET / writes | Export time | Response bytes |
-|---:|---:|---:|---|---|---:|---:|
-| 1665 | **9 998** | 299 981 | **200**, count 1665 | 4 / 1665 / 0 | 1072 ms | 1 079 657 |
-| 1666 | **10 004** | 300 161 | **503** `export_incomplete` at `/poc-ns-r08/progress` (resource limit); no bundle | 4 / **0** / **0** | 29 ms | 149 |
-
-- Every PROPFIND is the explicit 114-byte request, and the store is unchanged.
-- Peak test-process RSS was about 150 MB (one process for the whole suite).
-- **This is not a universal, provider or library limit, and nothing promises paging.** P2-R05-2 stays pending.
-
-### R08-BUD-08 — budget dry run (test-only)
-
-**Arithmetic**, using `createRequestBudget()` with ACCESS-01 values:
-- 100 requests per rolling 30 minutes, inclusive.
-- 21 slots reserved for cleanup. Ordinary request 80 is refused with `BUDGET_CLEANUP_RESERVE` (STOP); cleanup then uses requests 80–100; request 101 is refused with `BUDGET_REQUESTS`.
-- The window is pinned at 29:59.999 versus 30:00.
-- 20 files × 1 MiB is allowed; file 21, 1 MiB + 1 byte, and more than 20 MiB across rewrites are refused.
-- 2 writers are allowed; a third is refused.
-- 401 or 429 STOPs the run, including cleanup.
-
-**End-to-end against the mock** (adapter admission checked before dispatch):
-- 2 writers wrote 20 files (4 MKCOL + 20 × (PUT + read-back)); then an export.
-- Ordinary work stopped at request 80, which never reached the server, and new files were refused after the STOP.
-- Cleanup: 20 DELETEs plus 1 verification listing confirmed the namespace was empty.
-- **Exactly 100 server requests**; request 101 refused.
-- File cap, oversize file and 429 STOP: 0 extra requests.
-
-**No provider call.** This is not a production budget.
-
-### R08-SCOPE-10
-
-- A malformed 207 over TLS gets exactly 1 explicit PROPFIND for the failing path, a 503, and no GET or write.
-- The PROPFIND body is byte-identical (114 bytes).
-- The API and upstream URLs are loopback.
-- Certificate metadata contains no key material.
-- `host: 0.0.0.0` is still refused.
-
-**Secret-scan note:** the negative test for URL-embedded credentials builds the URL with `URL` setters. `secret-scan.mjs` is not on the whitelist and allow-lists only `poc02-security.test.mjs`.
+| Mutant | Change |
+|---|---|
+| M75 | relabel ordinary work as cleanup |
+| M76 | admit any method at dispatch in cleanup |
+| M77 | foreign DELETE |
+| M78 | verification not single-use |
+| M79 | unconditional DELETE |
+| M80 | B5 |
+| M81 | Q4b |
+| M82 | slot kept on refused write |
 
 ## 4. Residuals, NOT_RUN, UNSUPPORTED
 
-**Execution-observed P0/P1:** none in the tested scope. This is not a claim that none exist.
+- **Execution-observed P0/P1:** none in the tested scope.
+- **Residuals:**
+  - A write already dispatched and Unknown may leave a file that cleanup cannot safely claim; this needs operator quarantine.
+  - A 401/429 during cleanup leaves residual synthetic files (reported).
+  - The A31 risk states are otherwise unchanged.
+- **NOT_RUN / UNSUPPORTED:**
+  - real Nutstore, WebDAV, TLS, DNS, quotas and 401/429 behaviour;
+  - Q1e;
+  - production budget, paging and capacity;
+  - other hardware;
+  - the A25 resource campaign.
+- **Real-service access:** zero.
 
-**Residuals (unchanged until A31):**
-- P2-R05-2 capacity policy;
-- Q1e arbitrary omission and snapshot;
-- Q4 durable or cross-instance fairness (in-memory ledger only);
-- Q5 liveness (an applied-but-unconfirmed fence can still strand an operation indefinitely);
-- INFO-R05-1 text/entity amplification;
-- A28 INFO items F-2, F-3 and F-4.
+## 5. QA instructions (R09 QA plan)
 
-**NOT_RUN / UNSUPPORTED:**
-- real Nutstore, WebDAV or TLS endpoint, external DNS, provider CAS/ETag/MKCOL, real quotas or 401/429 behaviour, real PROPFIND shapes;
-- production budget enforcement;
-- IPv6 loopback serving (`::1` is checked by the constructor only);
-- the A25 119-run resource campaign (not rerun; historical);
-- hardware other than the recorded reference.
+1. **Preflight.** Use the separately user-opened QA window. Run `git ls-remote` (exit 0, expected final SHA), make a fresh clone, detach at the final SHA from the QA_REQUEST, and confirm a clean tree. Verify:
+   - PR #2 OPEN and not merged;
+   - merge-base `1c084e5`;
+   - `49ad24e` is an ancestor;
+   - 0 merge commits;
+   - the A32 whitelist;
+   - `safe-api.mjs` and the other unchanged blobs above;
+   - the M1–M74 definitions.
 
-**Real-service access: zero.** GitHub was used only to fetch, push and comment.
+   On any failure, report `G3_INDEPENDENCE_PENDING` or FAIL and STOP.
+2. **Regression.** Run each POC-01…07 and R01…R09 suite, `check.mjs`, the full suite ×5 separately, `mutation-check.mjs` (about 13 minutes), the secret scan against `1c084e5` and `npm ls --all`.
+3. **Own probes.** Build your own two-writer early-cleanup stand-in at 75 requests: 10 stragglers, a forged `cleanup` label, GET/MKCOL/extra PROPFIND/foreign or recursive DELETE, an invalid If-Match, a lost-ACK Unknown, and 401/429. Also run your own raw trickle (100–150 ms) across the 1000 ms deadline, and your own B5 and Q4b mutants in disposable copies.
+4. **Report.** Post one bus message `kind=QA_REPORT` to `DESIGN` on PR #2 with `R09 LOCAL_STAGE=PASS / PARTIAL / FAIL`, `G3_INDEPENDENCE=VERIFIED / PENDING` and `OVERALL POC-001=BLOCKED_REAL_SERVICE`. Only `PASS_LOCAL_CANDIDATE_FOR_D007_A33` may be recommended. Then QA STOP.
 
-## 5. QA instructions (per the R08 QA plan)
-
-1. **Session and preflight.** Use a **separately opened QA window**, not a sub-agent of this Execution session. Make a fresh clone, then `git checkout --detach <final SHA from the PR #2 Execution report>`, and confirm `git status --short` is empty. If the remote, authentication or preflight fails, STOP with `G3_INDEPENDENCE_PENDING` and restart the full preflight once access is available. The A28 QA-1 exception does not carry over.
-2. **Git audit.** Verify:
-   - the merge-base is `1c084e5`;
-   - `ace7b1e` is an ancestor;
-   - there are 0 merge commits;
-   - the incremental paths match the A30 whitelist exactly;
-   - only the `src/webdav-adapter|util|safe-api.mjs` blobs differ from `ace7b1e`;
-   - pre-R08 tests, the mock, `api-main`, package files and CI are unchanged.
-3. **Regression.** In `poc/001`, run:
-   - `check.mjs`;
-   - each POC-01…07 and R01…R08 file;
-   - the full suite ×5 if claiming ×5;
-   - `mutation-check.mjs` (about 12 min);
-   - `secret-scan.mjs 1c084e5f14e4af8018ef5fe99710be7205cfbdf4`;
-   - `npm ls --all`.
-
-   Do **not** run `npm run evidence` in the checkout.
-4. **Independent probes.** Build **your own** probes:
-   - a temporary CA and HTTPS stand-in, plus a recording proxy;
-   - TLS negatives (do **not** claim zero TCP/TLS packets; check for zero application requests and no `Authorization`);
-   - SSRF and resolver probes **without any non-loopback egress**;
-   - path, Q4 slow-body and Q5 fault injections;
-   - the N = 1665/1666 export;
-   - budget accounting.
-
-   **Mutate in a disposable copy outside the repo:** disable TLS verification, bypass the host or target check, bypass the Q4 deadline or allow a late PUT, make Q5 falsely terminal or replay, and allow an over-cap partial export.
-5. **Report.** Post one direct PR #2 comment with:
-   - `R08 LOCAL_STAGE: PASS / PARTIAL / FAIL`;
-   - `G3 INDEPENDENCE: VERIFIED / PENDING`;
-   - `OVERALL POC-001: BLOCKED_REAL_SERVICE`.
-
-   Recommend `PASS_LOCAL_CANDIDATE_FOR_D007_A31` only if everything passes. Then **QA STOP**.
-
-**EXECUTION STOP — hand off to an independent, separately opened QA window. PR #2 OPEN / NOT MERGED; no rebase, no ACCESS-02, no deployment.**
+**EXECUTION STOP — independent G3 by the separately user-opened QA window. PR #2 OPEN / NOT MERGED.**

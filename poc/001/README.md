@@ -11,9 +11,9 @@ Requires Node ≥ 22.21 and no install step: there are zero third-party dependen
 ```bash
 cd poc/001
 npm run check      # node --check on all .mjs files
-npm test           # node --test "test/*.test.mjs"  (POC-01..07 + REMEDIATION-01..07 regressions + R08 readiness)
+npm test           # node --test "test/*.test.mjs"  (POC-01..07 + REMEDIATION-01..07 regressions + R08 readiness + R09 regressions)
 npm run scan       # heuristic secret / private-endpoint / data-file scan vs the pinned base 1c084e5
-npm run mutation   # injects 74 known defects into a temp copy; each must make its suite fail (M48–M74 must fail on their own named assertion)
+npm run mutation   # injects 82 known defects into a temp copy; each must make its suite fail (M48–M82 must fail on their own named assertion)
 node scripts/resource-probe.mjs [--baseline <old dav-xml.mjs>]
                    # R05: hostile XML in isolated child processes (256 MB heap, SIGKILL timeout, peak RSS)
 npm run evidence   # per-area runs + 5 real full-suite repetitions; rewrites evidence/*.txt + results.json
@@ -284,7 +284,7 @@ Starts from `ace7b1e` (A28 local G4 SHA, which stays a separate historical accep
   - the budget reserve, window, file cap, 401/429 stop and adapter admission;
   - pre-connect classification.
 
-  Each is counted as killed only when its own named R08 assertion fails. An "adapter ignores a refused write admission" mutant is **equivalent** (the refusal STOPs the budget, so the next request admission refuses with the same code before dispatch). It is documented and not counted.
+  Each is counted as killed only when its own named R08 assertion fails. ~~An "adapter ignores a refused write admission" mutant is equivalent~~ — **withdrawn in R09:** that claim was wrong (independent QA #7123738287: after `beginCleanup()` the refused write was dispatched and stored). It is now M80 and is killed; see Remediation 09.
 - **Secret scan note.** The negative test for URL-embedded credentials builds the URL with `URL` setters. `scripts/secret-scan.mjs` (not on the A30 whitelist) only allow-lists `poc02-security.test.mjs` for such literals.
 - **Still UNSUPPORTED / NOT_RUN:**
   - real Nutstore, WebDAV, TLS, DNS, CAS/ETag, MKCOL and quotas;
@@ -294,5 +294,39 @@ Starts from `ace7b1e` (A28 local G4 SHA, which stays a separate historical accep
   - production paging and capacity;
   - production budget enforcement;
   - IPv6 loopback serving (constructor only).
+
+  **G5/G6/G7 not authorized; OVERALL `BLOCKED_REAL_SERVICE`.**
+
+## Remediation 09 (D007-A32 Option A, Design commit `1653118`) — CLEANUP GATE, B5, ABSOLUTE DEADLINE; SYNTHETIC ONLY
+
+Starts from `49ad24e` (R08 final, A31 G4 `PARTIAL_NOT_ACCEPTED`, unchanged). It fixes **only** P2-R08-QA-1/2/3, within the A32 whitelist:
+- `src/util.mjs`
+- `src/webdav-adapter.mjs` (admission wiring only)
+- `test/r09-regressions.test.mjs`
+- `scripts/mutation-check.mjs`
+- `evidence/R09-*`
+- this README and the QA handoff
+
+**`src/safe-api.mjs` is byte-identical**, and no earlier test or helper changed. TLS, SSRF, the 114-byte PROPFIND, Q5 and capacity behaviour are unchanged.
+
+- **R09-CLEAN-01/02 (P2-R08-QA-1): the cleanup gate.**
+  - `beginCleanup()` is irreversible.
+  - The adapter now asks the budget at one admission step, before any socket. First comes `admitDispatch({ method, path, conditional })`, decided from the actual method, canonical path and phase; for a PUT, `admitDispatchWrite(path, bytes)` follows.
+  - **After cleanup starts, only two kinds of request are admitted:**
+    - a conditional (`If-Match`) DELETE of an own synthetic file admitted earlier, each file once;
+    - **one** PROPFIND of the exact parent collection of an own file.
+  - **Everything else is refused before dispatch** — PUT, MKCOL, GET, root or foreign PROPFIND, a second verification, and unconditional, foreign or collection DELETEs. A refusal consumes **no slot**, causes **no STOP** and leaves nothing changed.
+  - Ordinary work is never relabelled as cleanup. The direct `admitRequest('cleanup')` arithmetic helper used by the R08 unit test still exists but is never called by the adapter.
+  - Hard limits are reported first: a 401/429 STOP or the exhausted 100-request cap shows as such.
+- **Early-cleanup race (R09-CLEAN-02).** 2 writers wrote 20 own files, and cleanup started at 75 requests. Ten straggler PUTs were then all refused, with 0 extra PUTs and 0 slots used. After that, 20 DELETEs and 1 verification emptied the own namespace, for 96 server requests in total. The legacy 79 + 21 = 100 profile is kept, and request 101 is refused.
+- **R09-B5-03 (P2-R08-QA-2).** B5 is **not equivalent**. `admitDispatchWrite` is the only file and size gate for a PUT, and it returns the slot on refusal. Mutant M80 makes the adapter ignore a refused write admission; it is killed by "refused write never reaches the store" (the 21st file would be stored). Refusal is also covered when cleanup begins early with budget left (M75/M76).
+- **R09-Q4B-04 (P2-R08-QA-3).** This is a test only; `safe-api.mjs` is untouched. A raw upload trickles 1 byte every 100 ms, with Content-Length and also chunked, and gets `408 body_deadline_exceeded` at about 1000 ms with no PUT and the reservation released. Mutant M81, applied only to a disposable copy, swaps in an idle timeout that resets on every chunk; it is killed by the absolute-deadline timing assertion. A control test shows that a write already dispatched stays Unknown past 1000 ms.
+- **R09-SAFE-05.**
+  - A 401/429 during cleanup is still a hard STOP: no further DELETE and no verification. The residual synthetic files are reported, not force-deleted.
+  - A write that was in flight when cleanup began stays Unknown and is not retried or reclassified.
+  - The ACCESS-01 ceilings and the PROPFIND body are unchanged.
+- **Still UNSUPPORTED / NOT_RUN:**
+  - Real provider, TLS, DNS, quota, 401/429 behaviour, Q1e, production budget, paging and capacity.
+  - An already-dispatched Unknown write may leave a file that cleanup cannot safely claim; that needs operator quarantine.
 
   **G5/G6/G7 not authorized; OVERALL `BLOCKED_REAL_SERVICE`.**

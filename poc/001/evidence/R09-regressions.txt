@@ -1,0 +1,28 @@
+$ node --test --test-reporter=spec test/r09-regressions.test.mjs
+# exit 0 · 9698 ms · gitHead 8d9929b5ad9d52ce6f4a29956ac640af932feaac
+
+✔ R09-CLEAN-01 unit: after beginCleanup ordinary work is refused without STOP and without consuming a slot (1.101981ms)
+R09-EVIDENCE R09-CLEAN-02 {"ordinaryBeforeCleanup":75,"stragglersRefused":10,"extraPut":0,"cleanupDeletes":20,"verification":1,"serverRequests":96,"ownFilesLeft":0}
+✔ R09-CLEAN-01/02 early cleanup at 75 requests: 10 straggler PUTs from 2 writers refused, then 20 DELETE + 1 verification empty the own namespace (171.467769ms)
+✔ R09-CLEAN-02 legacy profile kept: 79 ordinary + 21 cleanup = 100, request 101 refused (server-verified) (99.372144ms)
+R09-EVIDENCE R09-B5-03 {"earlyCleanupPutRefused":"CLEANUP_PHASE_ORDINARY_REFUSED","upstreamPut":1,"file21":"BUDGET_FILES","budgetRequests":20,"serverRequests":20}
+✔ R09-B5-03 refused write admissions (early cleanup with budget left; 21st file) never reach the store (14.798316ms)
+R09-EVIDENCE R09-Q4B-04 {"chunked":false,"status":408,"ms":1003,"trickledBytes":10,"upstreamPut":0}
+✔ R09-Q4B-04 Content-Length trickle every 100 ms: 408 at the ABSOLUTE 1000 ms deadline, no PUT, slot released (1304.545604ms)
+R09-EVIDENCE R09-Q4B-04 {"chunked":true,"status":408,"ms":1003,"trickledBytes":10,"upstreamPut":0}
+✔ R09-Q4B-04 chunked trickle every 100 ms: 408 at the ABSOLUTE 1000 ms deadline, no PUT, slot released (1305.910283ms)
+✔ R09-Q4B-04 control: once dispatched, an upstream stall stays Unknown (non-terminal); the body deadline does not apply (1312.398188ms)
+R09-EVIDENCE R09-SAFE-05 {"status":401,"deletesSent":1,"residualFiles":3,"stopped":"UPSTREAM_401"}
+✔ R09-SAFE-05 upstream 401 during cleanup is a hard STOP: no further DELETE, no verification, residual files reported (5.586505ms)
+R09-EVIDENCE R09-SAFE-05 {"status":429,"deletesSent":1,"residualFiles":3,"stopped":"UPSTREAM_429"}
+✔ R09-SAFE-05 upstream 429 during cleanup is a hard STOP: no further DELETE, no verification, residual files reported (4.738379ms)
+✔ R09-SAFE-05 a write in flight when cleanup begins stays Unknown; nothing is retried, reclassified or deleted blindly (313.072702ms)
+✔ R09-SAFE-05 ACCESS-01 ceilings and the PROPFIND contract are unchanged (0.233823ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9660.989482

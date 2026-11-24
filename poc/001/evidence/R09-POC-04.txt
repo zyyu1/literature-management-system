@@ -1,0 +1,12 @@
+$ node --test --test-reporter=spec test/poc04-multiclient.test.mjs
+# exit 0 · 458 ms · gitHead 8d9929b5ad9d52ce6f4a29956ac640af932feaac
+
+✔ POC-04 client B observes client A's confirmed revision after explicit refresh (361.367199ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 432.702884
