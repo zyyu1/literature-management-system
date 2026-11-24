@@ -108,6 +108,17 @@ const MUTANTS = [
   { id: 'M48', desc: "R06 regression: extra bodyless (allprop) PROPFIND after a malformed/unparseable HTTP 207", file: 'src/webdav-adapter.mjs',
     from: "      try { entries = parseMultistatus(r.body); } catch (e) { return { outcome: 'malformed', reason: e.message }; }", to: "      try { entries = parseMultistatus(r.body); } catch (e) { await request('PROPFIND', path, { headers: { Depth: depth } }); return { outcome: 'malformed', reason: e.message }; }", suite: 'test/r06-regressions.test.mjs',
     expect: /R06 exactly one PROPFIND for the failing listing/ },
+  // REMEDIATION-07 (D007-A27, P2-R06-1 / F-1): one mutant per POST-PARSE malformed-207 branch. Each inserts an extra
+  // bodyless PROPFIND and keeps the original malformed return; killed only on its own R07 request-count assertion.
+  { id: 'M49', desc: "R07 regression: extra bodyless PROPFIND before the post-parse 'foreign href' malformed return (HTTP 207)", file: 'src/webdav-adapter.mjs',
+    from: "      if (mapped.some((e) => e.rel === null)) return { outcome: 'malformed', reason: 'foreign href' };", to: "      if (mapped.some((e) => e.rel === null)) { await request('PROPFIND', path, { headers: { Depth: depth } }); return { outcome: 'malformed', reason: 'foreign href' }; }", suite: 'test/r07-regressions.test.mjs',
+    expect: /R07-FH-01 exactly one PROPFIND for the failing listing/ },
+  { id: 'M50', desc: "R07 regression: extra bodyless PROPFIND before the post-parse 'non-2xx response entry' malformed return (HTTP 207)", file: 'src/webdav-adapter.mjs',
+    from: "      if (mapped.some((e) => !e.ok)) return { outcome: 'malformed', reason: 'non-2xx response entry' };", to: "      if (mapped.some((e) => !e.ok)) { await request('PROPFIND', path, { headers: { Depth: depth } }); return { outcome: 'malformed', reason: 'non-2xx response entry' }; }", suite: 'test/r07-regressions.test.mjs',
+    expect: /R07-STATUS-02 exactly one PROPFIND for the failing listing/ },
+  { id: 'M51', desc: "R07 regression: extra bodyless PROPFIND before the post-parse 'duplicate href' malformed return (HTTP 207)", file: 'src/webdav-adapter.mjs',
+    from: "      if (new Set(norm).size !== norm.length) return { outcome: 'malformed', reason: 'duplicate href' };", to: "      if (new Set(norm).size !== norm.length) { await request('PROPFIND', path, { headers: { Depth: depth } }); return { outcome: 'malformed', reason: 'duplicate href' }; }", suite: 'test/r07-regressions.test.mjs',
+    expect: /R07-DUP-03 exactly one PROPFIND for the failing listing/ },
 ];
 
 let failures = 0;
