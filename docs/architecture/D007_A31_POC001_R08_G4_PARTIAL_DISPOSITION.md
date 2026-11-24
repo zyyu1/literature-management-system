@@ -1,0 +1,50 @@
+# D007-A31 — POC-001 R08 Exact-SHA Independent G3 / G4 PARTIAL Disposition
+
+**Decision:** D007-A31 Design reviewed newly returned, separately user-opened [R08 independent G3 QA report #7123738287](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7123738287), matched against [R08 Execution report #7122782005](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7122782005) and the fixed [D007-A30 G1](D007_A30_R08_LOCAL_READINESS_G1_AUTHORIZATION.md). **2026-11-24, Europe/Berlin.**
+
+**Formal verdict on PR #2 exact R08 SHA `49ad24e82f5895f4b6e5f30cb84b3294229df012`:** `G3_INDEPENDENCE=VERIFIED`; `R08_LOCAL_STAGE=PARTIAL`; **`G4=PARTIAL_NOT_ACCEPTED / REMEDIATION_REQUIRED`**. R08 is **NOT** `G4 PASS_LOCAL` and not `PASS_LOCAL_CANDIDATE`. No new G1/R09 authorization. `G5 MERGE=NOT_AUTHORIZED`, `G6 ACCESS-02=BLOCKED`, `G7 DEPLOYMENT=NOT_AUTHORIZED`, `OVERALL POC-001=BLOCKED_REAL_SERVICE`.
+
+## 1. Exact identity and evidence provenance
+
+- Repository `zyyu1/literature-management-system`; existing PR #2 `OPEN / NOT MERGED` at `49ad24e82f5895f4b6e5f30cb84b3294229df012` on `exec/POC-001-webdav-feasibility`. Original immutable POC base `1c084e5f14e4af8018ef5fe99710be7205cfbdf4`, R08 mandatory start `ace7b1e610529c1f139dc06371d9f531ccf0e28b`; ancestry is fast-forward (`9128c61` → `c95fe06` → `49ad24e`) with no merges/rebase/main cherry-pick/force push. `ace7b1e610529c1f139dc06371d9f531ccf0e28b..49ad24e82f5895f4b6e5f30cb84b3294229df012` = **3 commits, 35 changed paths**, strictly within A30 incremental allowlist; cumulative **96 paths** in original POC allowlist; only three permitted existing `src` blobs changed.
+- QA pre-check `git ls-remote` **exit 0 on first attempt**; separate user-opened QA window, fresh clean full clone and independently written ephemeral CA/stand-in/loopback traps, 34 QA mutants in disposable copies outside repository, direct PR QA comment. A28's prior QA-1 first-failure waiver is **not** used. QA/Execution similar runtime profile is recorded as **INFO; G3 independence VERIFIED** because separate session, clone, fixtures and decisions are demonstrated; cross-hardware NOT_RUN.
+- QA independently observed syntax check 32 files 0 errors; historical **153/153** unmodified tests; R08 **38/38**; full **191/191 on five distinct executions**; repository driver **74/74** kill, M1–M51 preserved; secret scan 0 across 96 changed paths; npm dependency tree empty. These successful repository test outputs do **not override independent QA behavioral failures**.
+- Independently observed local HTTPS/TLS, spoofing/SSRF, path rejection, Q4 body-deadline behavior, Q5 no-blind-retry and original PROPFIND 114-byte contract. Synthetic capacity fixture `8+6N`: N=1665 gives 9998 XML elements, 200/count=1665; N=1666 gives 10004, 503 `export_incomplete`, zero record GET/writes, no partial bundle. At N1665 QA reports **42,369,994 B response, 1168ms, whole-process RSS peak 436MiB** on its 2-vCPU/8GiB host: *fixture-specific observations, not production SLO or universal listing capacity*.
+- QA-owned 34 mutations: 33 probe-detectable mutations killed by its external probes, but repository suites kill only 32/34; Q4b (absolute → idle deadline) and B5 (ignored refused write admission) survive all 191 repository tests. The repository's own M1–M74 count is not falsified; its coverage is insufficient, and its **B5 equivalent-mutant exclusion statement is disproven**.
+- Verified source on exact R08 SHA: `poc/001/src/util.mjs` `admitRequest` line 60 recategorizes *every* request to cleanup when `cleanupPhase`, and `beginCleanup` only flips the flag; adapter `src/webdav-adapter.mjs` calls `admitRequest` for all request methods. No actual hard 100-request ceiling overrun was demonstrated, but cleanup reserve can be consumed by still-running ordinary writer requests.
+
+## 2. Formal QA findings — all three P2 accepted
+
+| Finding | Classification | Observed evidence / disposition |
+| --- | --- | --- |
+| **P2-R08-QA-1 — cleanup admission code defect** | `P2 OPEN / HARD_LOCAL_G4_BLOCKER` | QA reproduced on unmodified `49ad24e82f5895f4b6e5f30cb84b3294229df012`: cleanup begins at 75 ordinary requests; **10 in-flight/straggler PUTs committed and counted as cleanup**; 15/20 own-file DELETE completed, **five files remain**, verification PROPFIND refused. 100-request ceiling not exceeded; genuine violation of reserved cleanup capacity, A30 R08-BUD-08. Needs a new narrowly scoped authorized code fix and independent same-SHA QA. |
+| **P2-R08-QA-2 — B5 non-equivalence / mutation adequacy** | `P2 OPEN / TEST_GAP_AND_EVIDENCE_CORRECTION` | QA B5 mutation bypasses rejected write admission, and its PUT **can reach the synthetic store**; the repository 191 tests fail to kill it. The README / mutation driver comment calling it `equivalent` is **incorrect**. Must correct claim and pin rejection using a QA-triggering deterministic regression/mutant. No historical M1–M74 results should be misquoted as 100% behavioral coverage. |
+| **P2-R08-QA-3 — absolute body deadline test gap** | `P2 OPEN / TEST_GAP` | Real source is **correct** at R08 SHA: QA slow trickle continues supplying bytes yet the response is 408 at about 1002ms (absolute, not idle). Q4b change to a reset-on-progress inactivity timeout survives the entire repo suite. Add a deterministic request-trickle **absolute elapsed time** assertion that kills it for the intended reason. No unsupported claim of a current Q4 production bug. |
+
+**No new P0 or P1** observed within limited independent QA tests. Do not claim that absence proves full security.
+
+## 3. INFO and disagreements that must remain transparent
+
+- `INFO-1`: API routing normalizes literal unencoded `./` and `../` path segments before API route checks; **no namespace escape observed** and earlier API code pre-dates R08. Preserve as INFO and do not silently broaden a later remediation to change legacy routing.
+- `INFO-2`: 3xx on PUT not followed, conservatively classified `unknown`. `INFO-3`: any explicit operator-selected loopback port; not provider portability. `INFO-4`: 401/429 or certain budget refusal STOP the entire test, potentially preventing cleanup (conservative ACCESS-01 policy; **not** a waiver for a broad retry/cleanup bypass). `INFO-5`: exactly 30-min-old requests age out of the rolling window. `INFO-6`: invalid certificate can cause TCP/TLS handshake, but no application/Authorization request. `INFO-7`: shared runtime profile, independent session/workspace; cross-platform NOT_RUN.
+- **Important QA report risk-status mismatch:** QA `10 restates `P2-R04-2=OPEN_HARD_PRE_ACCESS` and `P2-R05-1=OPEN_TEST_GAP`; this conflicts with the later authoritative **D007-A28 exact-SHA historical local closures**. Formal Design status remains `P2-R04-2=CLOSED_LOCAL_SYNTHETIC@ace7b1e610529c1f139dc06371d9f531ccf0e28b / PROVIDER_UNVERIFIED`, `P2-R05-1=CLOSED_LOCAL_TEST_GAP@ace7b1e610529c1f139dc06371d9f531ccf0e28b` and `P2-R06-1=CLOSED_LOCAL_TEST_GAP@ace7b1e610529c1f139dc06371d9f531ccf0e28b`, **only at that historical SHA**. They are **not re-opened retroactively** by QA's stale labels nor automatically certified on R08 `49ad24e82f5895f4b6e5f30cb84b3294229df012`. `P2-R04-1` historical closure stays at `811d5c0fdcd740e5f6e6334d99cd2908cfeada8f`.
+- `P2-R05-2=CAPACITY_POLICY_PENDING` even with R08's 1665/1666 fixture proof: no production paging, provider quota/scale, or cross-provider element-count mapping. `Q1e=UNSUPPORTED_COMPLETENESS`; `Q4/Q5=RESIDUAL_POLICY_REQUIRED`; live TLS/ETag/CAS/MKCOL, global durable ledger/backup and actual Nutstore/Zotero all NOT_RUN.
+- NOT_RUN: fresh A25 119-case isolated campaign, `npm run evidence`, IPv6 `::1` positive listener, other OS/hardware, isolated per-component memory. No provider probes, actual credentials, PDFs or personal library were used.
+
+## 4. Release and next work authorization
+
+| Gate | Formal status after D007-A31 |
+| --- | --- |
+| A30 R08 G1 | Historical `AUTHORIZED_LOCAL_SYNTHETIC`, execution completed **at `49ad24e82f5895f4b6e5f30cb84b3294229df012`**; **no extra changes covered** |
+| R08 G2 | `EXECUTION_STOP` with published Execution report |
+| R08 G3 | `INDEPENDENCE_VERIFIED / LOCAL_STAGE PARTIAL` |
+| R08 G4 | **`PARTIAL_NOT_ACCEPTED / REMEDIATION_REQUIRED@49ad24e82f5895f4b6e5f30cb84b3294229df012`** |
+| D007-A28 R06+R07 G4 | Historical `ACCEPTED_EXACT_SHA / PASS_SYNTHETIC@ace7b1e610529c1f139dc06371d9f531ccf0e28b` only; unchanged |
+| G5 PR #2 merge | `NOT_AUTHORIZED` |
+| G6 ACCESS-02 | `BLOCKED / NOT_AUTHORIZED` |
+| G7 deployment | `NOT_AUTHORIZED` |
+| Overall | **`BLOCKED_REAL_SERVICE`** |
+
+**R09 is merely a candidate, not granted:** propose one future **test-and-minimal-code** remediation on original POC branch/base and mandatory new starting SHA `49ad24e82f5895f4b6e5f30cb84b3294229df012`, restricted to `poc/001/src/util.mjs` and, only if absolutely required, `poc/001/src/webdav-adapter.mjs`; new `poc/001/test/r09-regressions.test.mjs`, `poc/001/scripts/mutation-check.mjs`, `poc/001/evidence/**`, `poc/001/README.md`, `docs/handoffs/POC-001/QA_HANDOFF.md`. Prohibit original tests, CI, frozen UI, original instructions, packages and any live endpoint. Separate subsequent user approval, exact R09 G1, fresh separate-window G3 and future Design G4 are compulsory. Requirements: cleanup becomes an explicit fail-closed state permitting **only authorized per-file DELETE and the exact final verification listing**; deny further in-flight/straggler ordinary writes and protect reserve; do not infer undo of already dispatched UNKNOWN operations; test prior-to-79 cleanup and 2 writers; B5 must be non-equivalent/killed for intended failed-admission assertion; body trickle must kill Q4b; preserve old 191 tests, M1–M74 and network boundaries. No automatic alteration of ACCESS-01's 401/429 STOP semantics. If an extra path is required, return to Design.
+
+**D007-A31 FINAL: G3 VERIFIED, R08 G4 NOT ACCEPTED, 3 NEW P2 OPEN; NO R09 G1; NO G5/G6/G7; PR #2 remains OPEN/UNMERGED.**
