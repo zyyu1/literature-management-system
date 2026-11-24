@@ -69,11 +69,19 @@ export function verifyArchive(archive, { keyring, owner }) {
  * into a FRESH namespace (never the active store) -> validate exact identities/links/revisions/bytes.
  * `fault(step)` may throw to simulate a crash mid-stage; the stage is then discarded.
  */
-export function stageRestore(archive, { keyring, owner, witness, activeStore, minWitnessSeq = 0, pendingDeletions = new Set(), privacyRequests = [], retentionPolicy = null, fault = () => {} }) {
+export function stageRestore(archive, { keyring, owner, witness, activeStore, minWitnessSeq, pendingDeletions = new Set(), privacyRequests = [], retentionPolicy = null, fault = () => {} }) {
   const auth = verifyArchive(archive, { keyring, owner });
   if (!auth.ok) return { status: auth.code, detail: auth.detail, stage: null };
   if (!witness || witness.latest === null) return { status: RESTORE.WITNESS, detail: 'latest deletion witness missing', stage: null };
   if (witness.domain === archive.manifest.domain) return { status: RESTORE.WITNESS, detail: 'witness shares the archive trust domain; cannot self-certify staleness', stage: null };
+  // A44/P2-L3-QA-1: the anti-rollback floor is an EXPLICIT operator fixture value, never an implicit genesis 0 and
+  // never derived from the archive, the replayable store or the candidate witness at restore time. Missing,
+  // non-number, non-safe-integer and negative values fail closed before reconciliation/rollback comparisons and
+  // before any staging allocation; no coercion and no default. Numeric validity alone does not prove the floor's
+  // origin or freshness (that stays outside the modelled trust); explicit 0 is only a known-genesis fixture value.
+  if (typeof minWitnessSeq !== 'number' || !Number.isSafeInteger(minWitnessSeq) || minWitnessSeq < 0 || Object.is(minWitnessSeq, -0)) {
+    return { status: RESTORE.WITNESS, reason: 'ROLLBACK_RESISTANCE_UNVERIFIED', detail: 'explicit non-negative safe-integer minWitnessSeq fixture floor is required; absent or invalid anchor is refused before staging', stage: null };
+  }
   const hw = witness.latest;
   // A known, quarantined deletion intent explains a store/witness gap: reconcile it before anything else.
   if (pendingDeletions.size) return { status: RESTORE.RECONCILE, detail: [...pendingDeletions].join(','), stage: null };

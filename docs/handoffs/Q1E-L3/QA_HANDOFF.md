@@ -153,3 +153,38 @@ All 12 are `KILLED_BY_INTENDED_ORACLE`.
    Then QA STOP.
 
 **EXECUTION STOP. New L3 PR OPEN / NOT MERGED. PR #2 untouched.**
+
+
+## 7. A44 minimal remediation — measured Execution evidence (2026-11-24 · LOCAL / SYNTHETIC / MODEL_ONLY)
+
+**Authority:** D007-A45 at Design `main` @ `281c6b9e819d8642ae266f08fb2564b8d7098a17`, binding A44 design/source `684121fcf92adac48e0f0b68d0c319ed1fb2551b`, plus the A45 work order and independent QA plan. This section is appended; every earlier byte above is retained unchanged.
+
+| Field | Value |
+|---|---|
+| PR / branch | **#4**, `OPEN / NOT MERGED`, `exec/Q1E-L3-synthetic-transaction-feasibility` |
+| Immutable original base | `1dd8b51f84921d23dc0112e4056fa7220bbb73e8` |
+| A44 remediation START | `49cb8d264fa7c9d76705e03161421149a4557167` |
+| Final head | carried in the PR #4 EXEC_REPORT and QA_REQUEST — deliberately **not** embedded here (no self-referential guess) |
+| PR #2 | untouched at `a9131ac2521edc50d1c96f90efbf1a987b7bf0d5` |
+| Runtime | **Node v22.23.5**, Windows 10.0.19045 x64, git 2.49.0; built-ins only, zero dependencies |
+
+**Changed paths vs START (whitelist only):** `poc/q1e-l3/src/recovery.mjs`, `poc/q1e-l3/test/l3-contract.test.mjs`, `poc/q1e-l3/test/l3-faults.test.mjs`, `poc/q1e-l3/scripts/mutation-check.mjs`, `poc/q1e-l3/README.md`, new `poc/q1e-l3/evidence/A44-*`, and this append-only file.
+
+**Protected blobs unchanged:** `snapshot.mjs` `b2d6c0dbfaab6edc0cb8ffcd85883803f7090fbf`, `model.mjs` `8ba2572ef4fe725a926b774e6c6520d6f7f8b21f`, `scripts/check.mjs` `a58135dd28813e0d61906862086793ac8bc25be0`; the previous QA_HANDOFF blob `38de9db72e9bf7c0bb93158ce8718250ce5d8643` is preserved as the exact raw prefix of this file.
+
+**Measured results:**
+
+| Command | Exit | Result |
+|---|---:|---|
+| `node --test poc/q1e-l3/test/*.test.mjs` × **5 separate processes** | 0 ×5 | **30 / 30** each (prior 27 preserved + 3 additive A44 tests) |
+| `node poc/q1e-l3/scripts/check.mjs` | 0 | 26/26 A36 cases mapped, whitelisted paths only, 0 merges, 0 secrets, 0 dependencies |
+| `node poc/q1e-l3/scripts/mutation-check.mjs` | 0 | **14 executed, 14 killed by intended assertion, 0 survivors, 0 wrong-reason, 0 not-run** (original 12 unchanged; new `M-ANCHOR-BYPASS`, `M-SNAP-HEAD`) |
+| `node --check` on the four changed JS files | 0 ×4 | syntax clean |
+
+- `P2-L3-QA-1`: `stageRestore` now requires an explicit non-negative safe-integer `minWitnessSeq`; absent/invalid anchors return `DELETION_WITNESS_UNVERIFIABLE` / `ROLLBACK_RESISTANCE_UNVERIFIED` / `stage:null` before reconciliation, rollback comparison and staging, with zero staging callbacks and no active/witness mutation.
+- `P2-L3-QA-2`: no `snapshot.mjs` change; additive `A44-C07-HISTORICAL-K` verifies a K1 export after K2/K3 commits against a predeclared owner-scoped oracle, byte-exactly and without later-state leakage.
+- Evidence files: `evidence/A44-results.json`, `A44-check.txt`, `A44-mutation.txt`, `A44-full-suite-run1..5.txt`.
+
+**Known limits:** an explicit numeric floor does not prove operator origin or latest-deletion freshness; `MODEL_ONLY` / `PHYSICAL_DURABILITY_UNPROVEN` / `UNSUPPORTED_COMPLETENESS` / `NOT_RESTORE_CERTIFIED`; no real T3, no cutover, no cross-platform claim, no G4.
+
+**EXECUTION STOP — awaiting the separately user-opened independent G3 on the exact final PR #4 SHA. PR #4 OPEN / NOT MERGED; PR #2 untouched.**

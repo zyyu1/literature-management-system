@@ -146,10 +146,10 @@ test('A36-T05 full engine rollback is rejected by the separately retained newest
   const o = op('t05');
   const pending = new Set();
   assert.equal(confirmProjectDeletion({ store: s, witness: w, projectId: beta, opId: o.opId, pending, deleteTx: () => { const tx = s.begin(); deleteProject(tx, beta); return s.commit(tx, o); } }).status, 'CONFIRMED');
-  assert.equal(stageRestore(old, { keyring: kr, owner: A, witness: w, activeStore: s }).status, RESTORE.STALE, 'A36-T05 positive control: stale archive blocked');
+  assert.equal(stageRestore(old, { keyring: kr, owner: A, witness: w, activeStore: s, minWitnessSeq: w.latest.seq }).status, RESTORE.STALE, 'A36-T05 positive control: stale archive blocked');
   s.rollbackTo(1); // the whole engine (records + its own internal deletion log) goes back to K=1
   assert.equal(s.current().records.has(beta), true, 'rolled-back store shows the deleted project again');
-  assert.equal(stageRestore(old, { keyring: kr, owner: A, witness: w, activeStore: s }).status, RESTORE.ROLLBACK, 'A36-T05 engine rollback detected by the outside witness');
+  assert.equal(stageRestore(old, { keyring: kr, owner: A, witness: w, activeStore: s, minWitnessSeq: w.latest.seq }).status, RESTORE.ROLLBACK, 'A36-T05 engine rollback detected by the outside witness');
   assert.equal(stageRestore(old, { keyring: kr, owner: A, witness: null, activeStore: s }).status, RESTORE.WITNESS, 'A36-T05 the internal log alone is not an independent T3');
   evid({ case_id: 'A36-T05', expected_deletion_checkpoint: 2, actual_deletion_checkpoint: w.latest.deleted.get(beta), store_checkpoint_after_rollback: s.current().checkpoint });
 });
@@ -193,4 +193,31 @@ test('A36-T07 external manifest write failure after a successful internal transa
   assert.equal(ok.certification, EVIDENCE.BACKUP, 'A36-T07 even a successful fixture manifest is not a certificate');
   assert.deepEqual(egress, [], 'no socket/DNS/TLS attempt in the fault suite');
   evid({ case_id: 'A36-T07', manifest: failed.status, certification: failed.certification, egress_attempts: egress.length });
+});
+
+// ============================ A44 minimal remediation (P2-L3-QA-1) ============================
+test('A44-ANCHOR-02 joint store + witness rollback with an omitted floor is refused before staging', () => {
+  const { s } = armedStore();
+  const w = createWitness();
+  const key = crypto.randomBytes(32);
+  const kr = new Map([['bk-1', key]]);
+  const old = makeArchive(exportPinned(s, { checkpoint: 1, owner: A }), { keyId: 'bk-1', key });
+  const o = op('a44-anchor-02');
+  assert.equal(confirmProjectDeletion({ store: s, witness: w, projectId: beta, opId: o.opId, pending: new Set(), deleteTx: () => { const tx = s.begin(); deleteProject(tx, beta); return s.commit(tx, o); } }).status, 'CONFIRMED');
+  const lastSeen = w.latest.seq;
+  s.rollbackTo(1); // store goes back to a state that still shows beta
+  const both = createWitness(); both.advance(beta, 2); both.rollbackTo(0); // no independent anchor retained
+  const active0 = digest({ r: s.current().records, c: s.current().catalog });
+  let stagingCallbacks = 0;
+  const refused = stageRestore(old, { keyring: kr, owner: A, witness: both, activeStore: s, fault: () => { stagingCallbacks++; } });
+  assert.equal(refused.status, RESTORE.WITNESS, 'A44-ANCHOR-02 omitted floor refuses the joint replay');
+  assert.equal(refused.reason, 'ROLLBACK_RESISTANCE_UNVERIFIED', 'A44-ANCHOR-02 stable diagnostic reason');
+  assert.equal(refused.stage, null, 'A44-ANCHOR-02 no stage is created');
+  assert.equal(stagingCallbacks, 0, 'A44-ANCHOR-02 zero staging callbacks');
+  assert.equal(digest({ r: s.current().records, c: s.current().catalog }), active0, 'A44-ANCHOR-02 active store untouched');
+  assert.equal(both.latest.seq, 0, 'A44-ANCHOR-02 witness untouched');
+  const withFloor = stageRestore(old, { keyring: kr, owner: A, witness: both, activeStore: s, minWitnessSeq: lastSeen, fault: () => { stagingCallbacks++; } });
+  assert.equal(withFloor.status, RESTORE.WITNESS, 'A44-ANCHOR-02 retained floor also catches the joint replay');
+  assert.equal(withFloor.stage, null, 'A44-ANCHOR-02 retained-floor path still never stages');
+  assert.equal(stagingCallbacks, 0, 'A44-ANCHOR-02 no staging before the witness gate');
 });

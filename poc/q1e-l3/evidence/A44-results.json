@@ -1,0 +1,119 @@
+{
+  "work_item": "Q1E-L3 minimal two-P2 remediation (D007-A44 design, D007-A45 G1, GATE ids P2-L3-QA-1 / P2-L3-QA-2)",
+  "labels": [
+    "MODEL_ONLY",
+    "PHYSICAL_DURABILITY_UNPROVEN",
+    "UNSUPPORTED_COMPLETENESS",
+    "NOT_RESTORE_CERTIFIED"
+  ],
+  "authority": {
+    "design_main_commit": "281c6b9e819d8642ae266f08fb2564b8d7098a17",
+    "a45_g1": "docs/architecture/D007_A45_Q1E_L3_MINIMAL_REMEDIATION_G1_AUTHORIZATION.md",
+    "a44_design": "docs/architecture/D007_A44_Q1E_L3_MINIMAL_REMEDIATION_DESIGN.md",
+    "a44_matrix": "docs/architecture/D007_A44_Q1E_L3_REMEDIATION_QA_MATRIX.md",
+    "work_order": "docs/handoffs/Q1E-L3/A45_MINIMAL_REMEDIATION_WORK_ORDER.md",
+    "qa_plan": "docs/handoffs/Q1E-L3/A45_INDEPENDENT_G3_QA_PLAN.md",
+    "design_source_commit": "684121fcf92adac48e0f0b68d0c319ed1fb2551b"
+  },
+  "git_identity": {
+    "repository": "zyyu1/literature-management-system",
+    "pr": 4,
+    "branch": "exec/Q1E-L3-synthetic-transaction-feasibility",
+    "immutable_original_base": "1dd8b51f84921d23dc0112e4056fa7220bbb73e8",
+    "remediation_start": "49cb8d264fa7c9d76705e03161421149a4557167",
+    "final_head": "carried in the PR #4 EXEC_REPORT and QA_REQUEST, never embedded here",
+    "merge_commits_since_base": 0,
+    "pr_2_protected_head": "a9131ac2521edc50d1c96f90efbf1a987b7bf0d5"
+  },
+  "preflight": {
+    "first_ls_remote_attempt": { "exit": 0, "returned": "49cb8d264fa7c9d76705e03161421149a4557167" },
+    "pr_rest": { "state": "open", "merged": false, "head": "49cb8d264fa7c9d76705e03161421149a4557167" },
+    "local_head_at_start": "49cb8d264fa7c9d76705e03161421149a4557167",
+    "worktree_clean_at_start": true,
+    "merge_base": "1dd8b51f84921d23dc0112e4056fa7220bbb73e8"
+  },
+  "protected_blobs_at_start": {
+    "poc/q1e-l3/src/model.mjs": "8ba2572ef4fe725a926b774e6c6520d6f7f8b21f",
+    "poc/q1e-l3/src/snapshot.mjs": "b2d6c0dbfaab6edc0cb8ffcd85883803f7090fbf",
+    "poc/q1e-l3/scripts/check.mjs": "a58135dd28813e0d61906862086793ac8bc25be0",
+    "poc/q1e-l3/src/recovery.mjs_before": "71a24ea0d3d53930089793bd6bdf35ba40442f1a",
+    "docs/handoffs/Q1E-L3/QA_HANDOFF.md_before": "38de9db72e9bf7c0bb93158ce8718250ce5d8643"
+  },
+  "changed_paths_vs_start": [
+    "poc/q1e-l3/src/recovery.mjs",
+    "poc/q1e-l3/test/l3-contract.test.mjs",
+    "poc/q1e-l3/test/l3-faults.test.mjs",
+    "poc/q1e-l3/scripts/mutation-check.mjs",
+    "poc/q1e-l3/README.md",
+    "poc/q1e-l3/evidence/A44-check.txt",
+    "poc/q1e-l3/evidence/A44-mutation.txt",
+    "poc/q1e-l3/evidence/A44-full-suite-run1.txt",
+    "poc/q1e-l3/evidence/A44-full-suite-run2.txt",
+    "poc/q1e-l3/evidence/A44-full-suite-run3.txt",
+    "poc/q1e-l3/evidence/A44-full-suite-run4.txt",
+    "poc/q1e-l3/evidence/A44-full-suite-run5.txt",
+    "poc/q1e-l3/evidence/A44-results.json",
+    "docs/handoffs/Q1E-L3/QA_HANDOFF.md"
+  ],
+  "test_results": {
+    "node_test_runner": "node --test poc/q1e-l3/test/*.test.mjs",
+    "tests_total": 30,
+    "previous_27_preserved": true,
+    "new_named_tests": [
+      "A44-ANCHOR-01 explicit synthetic anti-rollback floor is mandatory before any staging (P2-L3-QA-1)",
+      "A44-C07-HISTORICAL-K exact pinned checkpoint",
+      "A44-ANCHOR-02 joint store + witness rollback with an omitted floor is refused before staging"
+    ],
+    "five_separate_full_processes": [
+      { "run": 1, "exit": 0, "tests": 30, "pass": 30, "fail": 0 },
+      { "run": 2, "exit": 0, "tests": 30, "pass": 30, "fail": 0 },
+      { "run": 3, "exit": 0, "tests": 30, "pass": 30, "fail": 0 },
+      { "run": 4, "exit": 0, "tests": 30, "pass": 30, "fail": 0 },
+      { "run": 5, "exit": 0, "tests": 30, "pass": 30, "fail": 0 }
+    ],
+    "a36_case_coverage": "26/26 (C01-C12, T01-T07, R01-R07) checked by scripts/check.mjs",
+    "node_check_changed_js": { "src/recovery.mjs": 0, "test/l3-contract.test.mjs": 0, "test/l3-faults.test.mjs": 0, "scripts/mutation-check.mjs": 0 }
+  },
+  "mutation": {
+    "driver": "node poc/q1e-l3/scripts/mutation-check.mjs",
+    "executed": 14,
+    "killed_by_intended_oracle": 14,
+    "survivors": 0,
+    "wrong_reason": 0,
+    "not_run": 0,
+    "original_12_preserved": true,
+    "new_mutants": [
+      { "id": "M-ANCHOR-BYPASS", "intended_oracle": "A44-ANCHOR-01" },
+      { "id": "M-SNAP-HEAD", "intended_oracle": "A44-C07-HISTORICAL-K" }
+    ]
+  },
+  "safety_gates": {
+    "check_mjs_exit": 0,
+    "prototype_network_attempts": 0,
+    "new_dependencies": 0,
+    "secret_findings": 0,
+    "package_json_present": false,
+    "cutover_authorized": false
+  },
+  "environment": {
+    "os": "Microsoft Windows 10.0.19045 x64",
+    "node": "v22.23.5",
+    "npm": "10.9.9",
+    "git": "2.49.0.windows.1",
+    "notes": [
+      "Reference baseline Node v22.23.5 was obtained as a portable distribution and recorded above; no other Node version was used for the reported runs.",
+      "mutation-check.mjs needs a writable os.tmpdir(); the host default was not writable (EPERM), so TEMP/TMP were pointed at a disposable workspace directory for the run.",
+      "The suite runs were executed from a checkout whose tracked files carry the exact Git blob bytes (core.autocrlf=false)."
+    ]
+  },
+  "limits": {
+    "model_only": true,
+    "physical_durability": "UNPROVEN",
+    "real_t3": "NOT_RUN",
+    "q1e_completeness": "UNSUPPORTED_COMPLETENESS",
+    "backup_restore": "NOT_RESTORE_CERTIFIED",
+    "cross_platform_claim": "none",
+    "g4": "NOT_REVIEWED",
+    "cutover": "not authorized"
+  }
+}

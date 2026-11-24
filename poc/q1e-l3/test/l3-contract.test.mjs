@@ -11,7 +11,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { STATUS, NOTE_FIELDS, seededStore, putWholeNote, setReadingStatus, relinkQuote, deleteProject, addAssociation, noteId, statusId, historyId, paperId, BARRIERS, SimulatedCrash, createStore } from '../src/model.mjs';
-import { syntheticFixtureF0, trustedInventory, checkListing, exportPinned, digest, EVIDENCE } from '../src/snapshot.mjs';
+import { syntheticFixtureF0, trustedInventory, checkListing, exportPinned, digest, fixtureEncode, EVIDENCE } from '../src/snapshot.mjs';
 import { createWitness, makeArchive, verifyArchive, stageRestore, cutover, confirmProjectDeletion, RESTORE } from '../src/recovery.mjs';
 
 // ---- egress trap (A36-C12): any socket / DNS / TLS attempt is recorded and refused ----
@@ -219,13 +219,13 @@ test('A36-C08 valid old backup containing a later-deleted Project is blocked by 
   const old = makeArchive(exportPinned(s, { checkpoint: 1, owner: A }), { keyId: 'bk-1', key });
   assert.equal(verifyArchive(old, { keyring: keyring([['bk-1', key]]), owner: A }).ok, true, 'old archive is internally valid');
   assert.equal(confirmDeleteBeta(s, w).status, 'CONFIRMED');
-  const r = stageRestore(old, { keyring: keyring([['bk-1', key]]), owner: A, witness: w, activeStore: s });
+  const r = stageRestore(old, { keyring: keyring([['bk-1', key]]), owner: A, witness: w, activeStore: s, minWitnessSeq: w.latest.seq });
   assert.equal(r.status, RESTORE.STALE, 'A36-C08 old archive with deleted Project blocked');
   assert.deepEqual(r.stale, [beta]);
   assert.equal(r.stage, null);
   assert.ok(s.current().records.has(noteId(pa1)) && s.current().records.has(q1), 'A36-C08 global Note/Quote unaffected');
   const newer = makeArchive(exportPinned(s, { checkpoint: s.current().checkpoint, owner: A }), { keyId: 'bk-1', key });
-  assert.equal(stageRestore(newer, { keyring: keyring([['bk-1', key]]), owner: A, witness: w, activeStore: s }).status, RESTORE.STAGED, 'A36-C08 positive: post-deletion archive stages');
+  assert.equal(stageRestore(newer, { keyring: keyring([['bk-1', key]]), owner: A, witness: w, activeStore: s, minWitnessSeq: w.latest.seq }).status, RESTORE.STAGED, 'A36-C08 positive: post-deletion archive stages');
   evid({ case_id: 'A36-C08', expected_deletion_checkpoint: 2, actual_deletion_checkpoint: w.latest.deleted.get(beta), archive_checkpoint: 1, result: r.status });
 });
 
@@ -244,7 +244,7 @@ test('A36-C09 missing, rolled-back or non-independent witness fails closed (DELE
   const rolled = createWitness(); rolled.advance(beta, 2); rolled.rollbackTo(0);
   assert.equal(stageRestore(arc, { ...base, witness: rolled, minWitnessSeq: 1 }).status, RESTORE.WITNESS, 'A36-C09 rolled-back witness');
   const lagging = createWitness();
-  assert.equal(stageRestore(arc, { ...base, witness: lagging }).status, RESTORE.WITNESS, 'A36-C09 witness lacking a confirmed deletion');
+  assert.equal(stageRestore(arc, { ...base, witness: lagging, minWitnessSeq: 0 }).status, RESTORE.WITNESS, 'A36-C09 witness lacking a confirmed deletion');
   evid({ case_id: 'A36-C09', negatives: ['missing', 'same-domain', 'rolled-back', 'lagging'], result: RESTORE.WITNESS });
 });
 
@@ -273,19 +273,19 @@ test('A36-C11 isolated staging: exact UTF-8 five-field Note restored in a fresh 
   const kr = keyring([['bk-1', key]]);
   const arc = makeArchive(exportPinned(s, { checkpoint: 1, owner: A }), { keyId: 'bk-1', key });
   const active0 = stateDigest(s);
-  const ok = stageRestore(arc, { keyring: kr, owner: A, witness: createWitness(), activeStore: s });
+  const ok = stageRestore(arc, { keyring: kr, owner: A, witness: createWitness(), activeStore: s, minWitnessSeq: 0 });
   assert.equal(ok.status, RESTORE.STAGED, 'A36-C11 positive: staged only');
   const src = s.current().records.get(noteId(pa1)).data;
   const got = ok.stage.records.get(noteId(pa1)).data;
   for (const k of NOTE_FIELDS) assert.ok(Buffer.from(got[k], 'utf8').equals(Buffer.from(src[k], 'utf8')), `A36-C11 byte-exact ${k}`);
   assert.notEqual(ok.stage.records, s.current().records, 'A36-C11 stage is a separate namespace');
   let n = 0;
-  const half = stageRestore(arc, { keyring: kr, owner: A, witness: createWitness(), activeStore: s, fault: (step) => { if (step === 'stage-record' && ++n === 3) throw new Error('simulated half-restore'); } });
+  const half = stageRestore(arc, { keyring: kr, owner: A, witness: createWitness(), activeStore: s, minWitnessSeq: 0, fault: (step) => { if (step === 'stage-record' && ++n === 3) throw new Error('simulated half-restore'); } });
   assert.equal(half.status, RESTORE.STAGE_FAILED, 'A36-C11 half-restore fails');
   const bad = makeArchive({ bundle: { owner: A, checkpoint: 1, records: [{ id: 'project:owner-a:../../etc', type: 'project', rev: 1, data: { title: 'x' } }] } }, { keyId: 'bk-1', key });
-  assert.equal(stageRestore(bad, { keyring: kr, owner: A, witness: createWitness(), activeStore: s }).status, RESTORE.INVALID, 'A36-C11 path-traversal id rejected');
+  assert.equal(stageRestore(bad, { keyring: kr, owner: A, witness: createWitness(), activeStore: s, minWitnessSeq: 0 }).status, RESTORE.INVALID, 'A36-C11 path-traversal id rejected');
   const schema = makeArchive({ bundle: { owner: A, checkpoint: 1, records: [...exportPinned(s, { checkpoint: 1, owner: A }).bundle.records.filter((r) => r.id !== noteId(pa1)), { id: noteId(pa1), type: 'note', rev: 1, data: { paperId: pa1, question: 'q' } }] } }, { keyId: 'bk-1', key });
-  assert.equal(stageRestore(schema, { keyring: kr, owner: A, witness: createWitness(), activeStore: s }).status, RESTORE.INVALID, 'A36-C11 bad schema rejected');
+  assert.equal(stageRestore(schema, { keyring: kr, owner: A, witness: createWitness(), activeStore: s, minWitnessSeq: 0 }).status, RESTORE.INVALID, 'A36-C11 bad schema rejected');
   assert.equal(stageRestore(arc, { keyring: kr, owner: B, witness: createWitness(), activeStore: s }).status, RESTORE.AUTH, 'A36-C11 foreign owner rejected');
   assert.throws(() => cutover(), /CUTOVER_NOT_AUTHORIZED/, 'A36-C11 no live cutover');
   assert.equal(stateDigest(s), active0, 'A36-C11 active state unchanged by every staging attempt');
@@ -301,12 +301,12 @@ test('A36-R01 newer deletion state blocks a valid old archive and preserves shar
   const old = makeArchive(exportPinned(s, { checkpoint: 1, owner: A }), { keyId: 'bk-1', key });
   assert.equal(confirmDeleteBeta(s, w).status, 'CONFIRMED');
   const before = stateDigest(s);
-  const r = stageRestore(old, { keyring: kr, owner: A, witness: w, activeStore: s });
+  const r = stageRestore(old, { keyring: kr, owner: A, witness: w, activeStore: s, minWitnessSeq: w.latest.seq });
   assert.equal(r.status, RESTORE.STALE, 'A36-R01 stale archive blocked');
   assert.equal(stateDigest(s), before, 'A36-R01 active unchanged');
   for (const id of [noteId(pa1), q1, historyId(q1), pa1, statusId(pa1)]) assert.ok(s.current().records.has(id), `A36-R01 shared ${id} retained`);
   const fresher = makeArchive(exportPinned(s, { checkpoint: s.current().checkpoint, owner: A }), { keyId: 'bk-1', key });
-  assert.equal(stageRestore(fresher, { keyring: kr, owner: A, witness: w, activeStore: s }).status, RESTORE.STAGED, 'A36-R01 positive control');
+  assert.equal(stageRestore(fresher, { keyring: kr, owner: A, witness: w, activeStore: s, minWitnessSeq: w.latest.seq }).status, RESTORE.STAGED, 'A36-R01 positive control');
   evid({ case_id: 'A36-R01', expected_deletion_checkpoint: 2, actual_deletion_checkpoint: w.latest.deleted.get(beta), result: r.status });
 });
 
@@ -326,7 +326,7 @@ test('A36-R02 removed, tampered or replayed witness (alone or together with the 
   const both = createWitness(); both.advance(beta, 2); both.rollbackTo(0);
   const r = stageRestore(old, { keyring: kr, owner: A, witness: both, activeStore: s, minWitnessSeq: lastSeen });
   assert.equal(r.status, RESTORE.WITNESS, 'A36-R02 joint replay of store and witness -> STOP, no false rollback resistance');
-  assert.equal(stageRestore(old, { keyring: kr, owner: A, witness: w, activeStore: s }).status, RESTORE.ROLLBACK, 'A36-R02 intact witness exposes the store rollback');
+  assert.equal(stageRestore(old, { keyring: kr, owner: A, witness: w, activeStore: s, minWitnessSeq: lastSeen }).status, RESTORE.ROLLBACK, 'A36-R02 intact witness exposes the store rollback');
   evid({ case_id: 'A36-R02', last_seen_witness_seq: lastSeen, results: ['WITNESS', 'WITNESS', 'WITNESS', 'ROLLBACK'] });
 });
 
@@ -342,7 +342,7 @@ test('A36-R03 crash between confirmed deletion and witness advance (both orders)
     const r = confirmProjectDeletion({ store: s, witness: w, projectId: beta, opId: o.opId, order, crashBetween: true, pending, deleteTx: () => { const tx = s.begin(); deleteProject(tx, beta); return s.commit(tx, o); } });
     assert.notEqual(r.status, 'CONFIRMED', `A36-R03 ${order}: never CONFIRMED`);
     assert.equal(r.quarantined, beta, `A36-R03 ${order}: orphan intent quarantined`);
-    assert.equal(stageRestore(old, { keyring: kr, owner: A, witness: w, activeStore: s, pendingDeletions: pending }).status, RESTORE.RECONCILE, `A36-R03 ${order}: restore STOP until reconciled`);
+    assert.equal(stageRestore(old, { keyring: kr, owner: A, witness: w, activeStore: s, minWitnessSeq: 0, pendingDeletions: pending }).status, RESTORE.RECONCILE, `A36-R03 ${order}: restore STOP until reconciled`);
     const s2 = fresh(); const w2 = createWitness(); const p2 = new Set(); const o2 = op(`r03-ok-${order}`);
     const ok = confirmProjectDeletion({ store: s2, witness: w2, projectId: beta, opId: o2.opId, order, pending: p2, deleteTx: () => { const tx = s2.begin(); deleteProject(tx, beta); return s2.commit(tx, o2); } });
     assert.equal(ok.status, 'CONFIRMED', `A36-R03 ${order}: positive control`);
@@ -358,7 +358,7 @@ test('A36-R04 staged restore reproduces exact identities, links, revisions, coun
   const kr = keyring([['bk-1', key]]);
   const ex = exportPinned(s, { checkpoint: 2, owner: A });
   const arc = makeArchive(ex, { keyId: 'bk-1', key });
-  const r = stageRestore(arc, { keyring: kr, owner: A, witness: createWitness(), activeStore: s });
+  const r = stageRestore(arc, { keyring: kr, owner: A, witness: createWitness(), activeStore: s, minWitnessSeq: 0 });
   assert.equal(r.status, RESTORE.STAGED, 'A36-R04 positive');
   assert.equal(r.stage.records.size, ex.bundle.records.length, 'A36-R04 exact count');
   for (const rec of ex.bundle.records) {
@@ -369,7 +369,7 @@ test('A36-R04 staged restore reproduces exact identities, links, revisions, coun
   assert.deepEqual(r.stage.records.get(historyId(q1)).data.events.map((e) => e.seq), [1, 2], 'A36-R04 ordered history');
   const active0 = stateDigest(s);
   const truncated = makeArchive({ bundle: { ...ex.bundle, records: ex.bundle.records.filter((x) => x.id !== historyId(q1)) } }, { keyId: 'bk-1', key });
-  assert.equal(stageRestore(truncated, { keyring: kr, owner: A, witness: createWitness(), activeStore: s }).status, RESTORE.INVALID, 'A36-R04 missing linked history fails');
+  assert.equal(stageRestore(truncated, { keyring: kr, owner: A, witness: createWitness(), activeStore: s, minWitnessSeq: 0 }).status, RESTORE.INVALID, 'A36-R04 missing linked history fails');
   assert.equal(stateDigest(s), active0, 'A36-R04 active unchanged');
   evid({ case_id: 'A36-R04', staged_count: r.stage.records.size, stage_digest: r.stageDigest });
 });
@@ -383,7 +383,7 @@ test('A36-R05 wrong key version, lost key, wrong owner, stale-but-valid manifest
   assert.equal(stageRestore(arc, { keyring: new Map(), owner: A, witness: w, activeStore: s }).status, RESTORE.KEY, 'A36-R05 lost key');
   assert.equal(stageRestore(arc, { keyring: keyring([['bk-1', key]]), owner: B, witness: w, activeStore: s }).status, RESTORE.AUTH, 'A36-R05 wrong owner/AAD');
   assert.equal(confirmDeleteBeta(s, w).status, 'CONFIRMED');
-  assert.equal(stageRestore(arc, { keyring: keyring([['bk-1', key]]), owner: A, witness: w, activeStore: s }).status, RESTORE.STALE, 'A36-R05 valid but stale manifest');
+  assert.equal(stageRestore(arc, { keyring: keyring([['bk-1', key]]), owner: A, witness: w, activeStore: s, minWitnessSeq: w.latest.seq }).status, RESTORE.STALE, 'A36-R05 valid but stale manifest');
   const mod = await import('../src/recovery.mjs');
   assert.ok(!Object.keys(mod).some((k) => /regenerat|reset|derive.*key/i.test(k)), 'A36-R05 no key regeneration path exists');
   evid({ case_id: 'A36-R05', negatives: ['wrong-key-version', 'lost-key', 'wrong-owner', 'stale-manifest'] });
@@ -396,11 +396,11 @@ test('A36-R06 crash half-way through staging and concurrent restores never write
   const arc = makeArchive(exportPinned(s, { checkpoint: 1, owner: A }), { keyId: 'bk-1', key });
   const active0 = stateDigest(s);
   let n = 0;
-  const crashed = stageRestore(arc, { keyring: kr, owner: A, witness: createWitness(), activeStore: s, fault: (step) => { if (step === 'stage-record' && ++n === 7) throw new SimulatedCrash('stage'); } });
+  const crashed = stageRestore(arc, { keyring: kr, owner: A, witness: createWitness(), activeStore: s, minWitnessSeq: 0, fault: (step) => { if (step === 'stage-record' && ++n === 7) throw new SimulatedCrash('stage'); } });
   assert.equal(crashed.status, RESTORE.STAGE_FAILED, 'A36-R06 half-way crash fails safely');
   assert.equal(crashed.stage, null);
-  const a = stageRestore(arc, { keyring: kr, owner: A, witness: createWitness(), activeStore: s });
-  const b = stageRestore(arc, { keyring: kr, owner: A, witness: createWitness(), activeStore: s });
+  const a = stageRestore(arc, { keyring: kr, owner: A, witness: createWitness(), activeStore: s, minWitnessSeq: 0 });
+  const b = stageRestore(arc, { keyring: kr, owner: A, witness: createWitness(), activeStore: s, minWitnessSeq: 0 });
   assert.notEqual(a.stage.namespace, b.stage.namespace, 'A36-R06 concurrent restores use separate stages');
   assert.throws(() => cutover(), /CUTOVER_NOT_AUTHORIZED/);
   assert.equal(stateDigest(s), active0, 'A36-R06 no active writes');
@@ -412,13 +412,89 @@ test('A36-R07 privacy erasure vs retained deletion state: POLICY_DECISION_PENDIN
   const key = fixtureKey();
   const kr = keyring([['bk-1', key]]);
   const arc = makeArchive(exportPinned(s, { checkpoint: 1, owner: A }), { keyId: 'bk-1', key });
-  const r = stageRestore(arc, { keyring: kr, owner: A, witness: createWitness(), activeStore: s, privacyRequests: [{ subject: 'synthetic-erasure-request' }] });
+  const r = stageRestore(arc, { keyring: kr, owner: A, witness: createWitness(), activeStore: s, minWitnessSeq: 0, privacyRequests: [{ subject: 'synthetic-erasure-request' }] });
   assert.equal(r.status, RESTORE.POLICY, 'A36-R07 undecided policy -> POLICY_DECISION_PENDING');
-  const decided = stageRestore(arc, { keyring: kr, owner: A, witness: createWitness(), activeStore: s, privacyRequests: [{ subject: 'synthetic-erasure-request' }], retentionPolicy: { decidedBy: 'test-only placeholder' } });
+  const decided = stageRestore(arc, { keyring: kr, owner: A, witness: createWitness(), activeStore: s, minWitnessSeq: 0, privacyRequests: [{ subject: 'synthetic-erasure-request' }], retentionPolicy: { decidedBy: 'test-only placeholder' } });
   assert.equal(decided.status, RESTORE.STAGED, 'A36-R07 positive control only when a decision is supplied');
   const src = ['model.mjs', 'snapshot.mjs', 'recovery.mjs'].map((f) => readFileSync(join(ROOT, 'src', f), 'utf8')).join('\n');
   assert.doesNotMatch(src, /retention[^\n]{0,40}\b\d+\s*(day|days|d)\b/i, 'A36-R07 no invented retention period in the model');
   evid({ case_id: 'A36-R07', result: r.status });
+});
+
+// ============================ A44 minimal remediation (P2-L3-QA-1 / P2-L3-QA-2) ============================
+test('A44-ANCHOR-01 explicit synthetic anti-rollback floor is mandatory before any staging (P2-L3-QA-1)', () => {
+  const s = fresh();
+  const key = fixtureKey();
+  const kr = keyring([['bk-1', key]]);
+  const arc = makeArchive(exportPinned(s, { checkpoint: 1, owner: A }), { keyId: 'bk-1', key });
+  const w = createWitness();
+  const active0 = stateDigest(s);
+  const seq0 = w.latest.seq;
+  let stagingCallbacks = 0;
+  const fault = () => { stagingCallbacks++; };
+  const base = { keyring: kr, owner: A, witness: w, activeStore: s, fault };
+  const invalid = [undefined, null, NaN, Infinity, -Infinity, -1, 1.5, Number.MAX_SAFE_INTEGER + 1, -0, '0', '1', false, true, {}, [], 0n];
+  for (const v of invalid) {
+    const r = stageRestore(arc, { ...base, minWitnessSeq: v });
+    assert.equal(r.status, RESTORE.WITNESS, `A44-ANCHOR-01 invalid floor ${String(v)} refused`);
+    assert.equal(r.reason, 'ROLLBACK_RESISTANCE_UNVERIFIED', `A44-ANCHOR-01 invalid floor ${String(v)} reason`);
+    assert.equal(r.stage, null, `A44-ANCHOR-01 invalid floor ${String(v)} no stage`);
+  }
+  const omitted = stageRestore(arc, base);
+  assert.equal(omitted.status, RESTORE.WITNESS, 'A44-ANCHOR-01 omitted floor refused');
+  assert.equal(omitted.reason, 'ROLLBACK_RESISTANCE_UNVERIFIED', 'A44-ANCHOR-01 omitted floor reason');
+  assert.equal(stagingCallbacks, 0, 'A44-ANCHOR-01 absent/invalid anchor never reaches staging');
+  assert.equal(stateDigest(s), active0, 'A44-ANCHOR-01 active store unchanged');
+  assert.equal(w.latest.seq, seq0, 'A44-ANCHOR-01 witness not advanced');
+  const genesis = stageRestore(arc, { ...base, minWitnessSeq: 0 });
+  assert.equal(genesis.status, RESTORE.STAGED, 'A44-ANCHOR-01 explicit known-genesis 0 stages');
+  assert.equal(stagingCallbacks, arc.manifest.ids.length + 1, 'A44-ANCHOR-01 staging callbacks only after a valid floor');
+  const tooNew = stageRestore(arc, { ...base, minWitnessSeq: Number.MAX_SAFE_INTEGER });
+  assert.equal(tooNew.status, RESTORE.WITNESS, 'A44-ANCHOR-01 future floor above the witness seq rejects');
+  assert.notEqual(tooNew.reason, 'ROLLBACK_RESISTANCE_UNVERIFIED', 'A44-ANCHOR-01 valid-but-too-high floor keeps the retained seq gate');
+});
+
+test('A44-C07-HISTORICAL-K exact pinned checkpoint', () => {
+  const s = fresh();
+  const K1 = s.current().checkpoint;
+  assert.equal(K1, 1, 'A44-C07-HISTORICAL-K fixture genesis is K1');
+  const ownerAIds = F0.records.filter((r) => r.owner === A).map((r) => r.id).sort();
+  const oracle = trustedInventory(Object.fromEntries(ownerAIds.map((id) => [id, 1])));
+  const quiet = exportPinned(s, { checkpoint: K1, owner: A, oracle });
+  assert.equal(quiet.status, EVIDENCE.KNOWN_FIXTURE, 'A44-C07-HISTORICAL-K quiet K1 reference is enumerable');
+  // K2: replace the WHOLE five-field Note and relink the Quote with its SourceHistory event.
+  const tx2 = s.begin({ writer: 'k2' });
+  putWholeNote(tx2, A, pa1, Object.fromEntries(NOTE_FIELDS.map((k) => [k, `K2 ${k} 更新`])));
+  relinkQuote(tx2, q1, 'p.44');
+  assert.equal(s.commit(tx2, op('a44-k2')).status, STATUS.CONFIRMED, 'A44-C07-HISTORICAL-K K2 committed');
+  // K3: change the ReadingStatus and delete Project beta plus its own Associations.
+  const tx3 = s.begin({ writer: 'k3' });
+  setReadingStatus(tx3, A, pa1, 'read');
+  deleteProject(tx3, beta);
+  assert.equal(s.commit(tx3, op('a44-k3')).status, STATUS.CONFIRMED, 'A44-C07-HISTORICAL-K K3 committed');
+  assert.equal(s.current().checkpoint, K1 + 2, 'A44-C07-HISTORICAL-K head advanced past K1');
+  const before = stateDigest(s);
+  const ex = exportPinned(s, { checkpoint: K1, owner: A, oracle });
+  assert.equal(ex.status, EVIDENCE.KNOWN_FIXTURE, 'A44-C07-HISTORICAL-K exact pinned checkpoint');
+  assert.equal(ex.bundle.checkpoint, K1, 'A44-C07-HISTORICAL-K bundle checkpoint is K1');
+  const got = new Map(ex.bundle.records.map((r) => [r.id, r]));
+  const declared = new Map(F0.records.map((r) => [r.id, r]));
+  assert.deepEqual([...got.keys()].sort(), oracle.ids(), 'A44-C07-HISTORICAL-K exact K1 id set');
+  for (const id of oracle.ids()) {
+    assert.equal(got.get(id).rev, oracle.rev(id), `A44-C07-HISTORICAL-K revision ${id}`);
+    assert.ok(fixtureEncode(got.get(id).data).equals(fixtureEncode(declared.get(id).data)), `A44-C07-HISTORICAL-K UTF-8 bytes ${id}`);
+  }
+  assert.equal(got.get(noteId(pa1)).data.question, declared.get(noteId(pa1)).data.question, 'A44-C07-HISTORICAL-K no K2 Note update');
+  assert.deepEqual(got.get(historyId(q1)).data.events, [{ seq: 1, sourceRef: 'p.12' }], 'A44-C07-HISTORICAL-K no K2 history update');
+  assert.equal(got.get(statusId(pa1)).data.status, 'reading', 'A44-C07-HISTORICAL-K no K3 status update');
+  assert.ok(got.has(beta), 'A44-C07-HISTORICAL-K historical Project beta retained');
+  for (const a of F0.records.filter((r) => r.type === 'association' && r.data.projectId === beta)) assert.ok(got.has(a.id), `A44-C07-HISTORICAL-K historical association ${a.id}`);
+  assert.ok(![...got.keys()].some((id) => id.includes(':owner-b:')), 'A44-C07-HISTORICAL-K owner exclusion');
+  assert.equal(digest(ex.bundle), quiet.bundleDigest, 'A44-C07-HISTORICAL-K quiet-reference digest equality');
+  assert.equal(stateDigest(s), before, 'A44-C07-HISTORICAL-K export does not mutate active state');
+  const wrong = exportPinned(s, { checkpoint: K1 + 2, owner: A, oracle });
+  assert.equal(wrong.bundle, null, 'A44-C07-HISTORICAL-K K3 against the K1 oracle yields no bundle');
+  assert.equal(wrong.status, 'FAIL', 'A44-C07-HISTORICAL-K wrong-oracle negative is a FAIL');
 });
 
 // A36-C12 runs last in this file so the egress trap has observed every other case in it.

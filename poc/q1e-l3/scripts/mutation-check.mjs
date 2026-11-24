@@ -54,6 +54,13 @@ const MUTANTS = [
     from: '  for (const a of tx.scan(\'association\')) if (a.data.projectId === projectId) tx.del(a.id);',
     to: "  for (const a of tx.scan('association')) if (a.data.projectId === projectId) { tx.del(a.id); if (tx.get(noteId(a.data.paperId))) tx.del(noteId(a.data.paperId)); }",
     expect: /A36-C05 global\/other record retained|A36-T03 global/ },
+  // ---- A44 remediation classes (P2-L3-QA-1 anchor admission, P2-L3-QA-2 historical head selection) ----
+  { id: 'M-ANCHOR-BYPASS', cls: 'missing/invalid explicit anti-rollback floor accepted (implicit genesis)', file: 'src/recovery.mjs',
+    from: "  if (typeof minWitnessSeq !== 'number' || !Number.isSafeInteger(minWitnessSeq) || minWitnessSeq < 0 || Object.is(minWitnessSeq, -0)) {", to: '  if (false) {',
+    expect: /A44-ANCHOR-01/ },
+  { id: 'M-SNAP-HEAD', cls: 'historical export selects the current head instead of the pinned checkpoint', file: 'src/snapshot.mjs',
+    from: '  const pinned = store.stateAt(checkpoint);', to: '  const pinned = store.current();',
+    expect: /A44-C07-HISTORICAL-K/ },
 ];
 
 const work = await mkdtemp(join(tmpdir(), 'q1e-l3-mut-'));
