@@ -1,26 +1,28 @@
-<!-- BUS from=MANAGEMENT to=EXECUTION seq=2 re=DECISION_BOARD.md@2 status=STOP updated=2026-11-24T17:15+01:00 -->
+<!-- BUS from=MANAGEMENT to=EXECUTION seq=3 re=DECISION_BOARD.md@3 status=OPEN updated=2026-11-24T17:30+01:00 -->
 # Management → Execution
 
-**status=STOP — WP-01 派单（seq 1）因执行宿主不满足 `EXECUTION_INSTRUCTION` §2 而暂停。**
+**来源:** `docs/DECISION_BOARD.md` seq 3（2026-11-24 17:12）。用户逐项选定，以下为派发内容。
 
-## 已知事实（转述 `EXECUTION_TO_QA.md` seq=1，未改写其结论）
+## DEC-3 = A（改用云端 Linux 会话执行 WP-01）
 
-- Execution 在开工前完成预检，**未创建分支、未写任何文件、未开 PR、未跑测试**。
-- 宿主：Microsoft Windows 10.0.19045 x64；无 `uname`；无 WSL 发行版；portable Node **v22.23.5** 存在。
-- `docs/handoffs/WP-01/EXECUTION_INSTRUCTION.md` §2 要求 **Linux x64** + `uname -s`=`Linux`、`uname -m`=`x86_64`，并写明「任何不匹配 → STOP」。
-- Base `9cfc1d7375f81ab35921a02eebf1a1c9d941476a` 存在，且是当前 `main` 的祖先；分支 `exec/WP-01-synthetic-auth-api` 尚未创建。
-- PR #2（`a9131ac…`）与 PR #4（`2757aa66…`）均未被触碰。
+- **决策:** DEC-3=A —— 指令不改，Execution 换到云端 Linux 会话。
+- **Execution 宿主声明:** **云端 Linux x86_64 + Node v22.23.5**（不再使用原 Windows Execution 窗口；原窗口停止轮询本总线）。
+- **请 Execution 启动方式:** 读取 `docs/windows/EXECUTION_WINDOW_START.md`，按其设置 15 分钟轮询本文件。
+- **授权文件:** `docs/architecture/D007_A21_WP01_G1_DECISION.md`
+- **执行指令:** `docs/handoffs/WP-01/EXECUTION_INSTRUCTION.md`
+- **Base:** `9cfc1d7375f81ab35921a02eebf1a1c9d941476a`
+- **新分支:** `exec/WP-01-synthetic-auth-api`
+- **白名单:** `packages/wp-01-synthetic-auth-api/**`、`docs/handoffs/WP-01/QA_HANDOFF.md`
+- **QA 计划:** `docs/handoffs/WP-01/QA_INSTRUCTION.md`（QA 须另开一个独立云端会话，Node v22.23.5，不得与 Execution 共用）
+- **执行前须自检（不满足即 STOP）:** Linux x64、`uname -s`=Linux、`uname -m`=x86_64、`node --version`=v22.23.5、基础提交与夹具 SHA-256 一致、有效 outbound-deny。
+- **完成后:** 写 `docs/bus/EXECUTION_TO_QA.md`，含 PR 号、exact SHA、Execution 报告评论 ID、QA 计划路径。
 
-## 暂停原因与待定解法
+## 已生效的先前决定
 
-DEC-1=A 的授权与派发字段不变，但当前宿主无法满足该指令的强制 OS 与网络边界要求。两条路径需 Design/用户裁定：
+- **DEC-1 = A**（开工 WP-01，内容本文件 seq 1）—— 因原宿主不满足 Linux 要求而 STOP，现按 DEC-3=A 换宿主重派。
+- **DEC-2 = A**（PR #2 与 PR #4 保持 OPEN，不合并）—— 已生效，无需动作。
 
-1. **Design 出正式修正**，明确允许 native Windows x64 + Node v22.23.5 执行 WP-01，并说明 outbound-deny / egress 隔离如何取证；或
-2. **提供 Linux x64 执行宿主**（Node v22.23.5）。
+## 边界
 
-在条件满足前不重派 DEC-1；重派时本文件升 `seq`，并指向当时的 `DECISION_BOARD.md` seq。
-
-## 其余
-
-- DEC-2=A（PR #2 与 #4 保持 OPEN、不合并）已生效，无需动作。
-- G5 合并 / G6 真实服务 / G7 部署均未授权。
+- 不授予 G5 合并 / G6 真实服务 / G7 部署；不接真实数据或凭证。
+- 只改白名单内路径；需新增路径则 STOP 回 Design。
