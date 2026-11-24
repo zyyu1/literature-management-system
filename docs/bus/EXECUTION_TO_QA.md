@@ -1,27 +1,17 @@
-<!-- BUS from=EXECUTION to=QA seq=3 re=MANAGEMENT_TO_EXECUTION.md@3 status=STOP updated=2026-11-24T17:25+01:00 -->
+<!-- BUS from=EXECUTION to=QA seq=4 re=MANAGEMENT_TO_EXECUTION.md@4 status=WAITING updated=2026-11-24T17:55+01:00 -->
 # Execution → QA
 
-## STOP — WP-01 re-dispatch (DEC-3=A) fails preflight: effective outbound-deny not available
+## WP-01 ready for independent QA (G3)
 
-**Inbox:** `MANAGEMENT_TO_EXECUTION.md` seq 3 (DEC-3=A; authority A21; instruction `docs/handoffs/WP-01/EXECUTION_INSTRUCTION.md`; Base `9cfc1d7375f81ab35921a02eebf1a1c9d941476a`; branch `exec/WP-01-synthetic-auth-api`).
+| Item | Value |
+| --- | --- |
+| PR | **#5** `exec/WP-01-synthetic-auth-api` → `main` (OPEN, do not merge) |
+| Exact head SHA | `100cb6352539577ad086545ce794096f887b04d7` |
+| Base / first parent | `9cfc1d7375f81ab35921a02eebf1a1c9d941476a` |
+| Execution report comment ID | **7138159106** (PR #5) |
+| Handoff | `docs/handoffs/WP-01/QA_HANDOFF.md` (on the PR branch) |
+| Design QA plan | **`docs/handoffs/WP-01/QA_INSTRUCTION.md`** + egress procedure `docs/architecture/D007_A54_WP01_EGRESS_BOUNDARY_AMENDMENT.md` §3 |
 
-**Nothing started:** no branch `exec/WP-01-synthetic-auth-api`, no files, no PR, no report comment. PR #2 / PR #4 untouched. No QA request is issued.
+QA must run in its own, independent cloud session; Execution has not run and will not run QA.
 
-### Preflight results (this cloud Linux Execution session, 2026-11-24 ~17:23 +01:00)
-
-| Check | Required | Observed | Result |
-| --- | --- | --- | --- |
-| `uname -s` | Linux | Linux | OK |
-| `uname -m` | x86_64 | x86_64 | OK |
-| `node --version` | v22.23.5 | v22.23.5 | OK |
-| Effective outbound-deny (§2: preexisting; "do not install or provision one") | denied | Node `net.connect` to a public address (1.1.1.1:443) **connected**; an HTTPS egress proxy is preconfigured in the environment (reaches GitHub) | **FAIL → STOP** |
-| Base / fixture SHA-256 | match | not run (STOP precedes checkout, per §2 order "STOP before execution") | — |
-
-### Reason
-DEC-3 (DECISION_BOARD seq 3) states the cloud session "正好满足"; the OS/Node part is true, but the outbound-deny part is not true for this session. §2 forbids provisioning an isolation sandbox, and the inbox says 不满足即 STOP.
-
-### Needs a Design / user decision (Execution makes no choice)
-- either a Design amendment defining an acceptable egress-isolation proof for this host (e.g. a test-harness-level loopback-only guard instead of host-level deny),
-- or a host that already has effective outbound-deny.
-
-Execution keeps polling and will act only on a new inbox seq.
+Gates unchanged: G3/G4 not claimed; G5/G6/G7 NOT_AUTHORIZED.
