@@ -102,6 +102,12 @@ const MUTANTS = [
     from: "        headers: { Depth: depth, 'Content-Type': PROPFIND_CONTENT_TYPE },", to: "        headers: { Depth: depth },", suite: 'test/r05-regressions.test.mjs' },
   { id: 'M47', desc: "R05-2 regression: allprop fallback after a non-207 PROPFIND", file: 'src/webdav-adapter.mjs',
     from: "      if (r.status !== 207) return { outcome: 'error', status: r.status };", to: "      if (r.status !== 207) { await request('PROPFIND', path, { headers: { Depth: depth } }); return { outcome: 'error', status: r.status }; }", suite: 'test/r05-regressions.test.mjs' },
+  // REMEDIATION-06 (D007-A26, P2-R05-1 / QA QM1): extra bodyless PROPFIND in the parseMultistatus catch of an HTTP 207,
+  // keeping the original malformed return so the export still ends 503 — only the request count/body can expose it.
+  // `expect` requires the suite to fail on the R06 request-count assertion, not on an unrelated crash/setup error.
+  { id: 'M48', desc: "R06 regression: extra bodyless (allprop) PROPFIND after a malformed/unparseable HTTP 207", file: 'src/webdav-adapter.mjs',
+    from: "      try { entries = parseMultistatus(r.body); } catch (e) { return { outcome: 'malformed', reason: e.message }; }", to: "      try { entries = parseMultistatus(r.body); } catch (e) { await request('PROPFIND', path, { headers: { Depth: depth } }); return { outcome: 'malformed', reason: e.message }; }", suite: 'test/r06-regressions.test.mjs',
+    expect: /R06 exactly one PROPFIND for the failing listing/ },
 ];
 
 let failures = 0;
@@ -111,12 +117,18 @@ for (const m of MUTANTS) {
   const f = join(dir, m.file);
   const src = await readFile(f, 'utf8');
   if (!src.includes(m.from)) { console.log(`${m.id} SETUP_ERROR pattern not found`); failures++; continue; }
+  if (src.split(m.from).length !== 2) { console.log(`${m.id} SETUP_ERROR pattern not unique`); failures++; continue; }
   await writeFile(f, src.replace(m.from, m.to));
   const r = spawnSync(process.execPath, ['--test', m.suite], { cwd: dir, encoding: 'utf8', timeout: 180_000 });
-  const killed = r.status !== 0;
-  console.log(`${m.id} ${killed ? 'KILLED' : 'SURVIVED'} (suite exit ${r.status}) — ${m.desc}`);
+  // R06: a mutant with `expect` only counts as killed when the suite fails on that specific assertion.
+  const output = `${r.stdout ?? ''}${r.stderr ?? ''}`;
+  const reasonOk = !m.expect || m.expect.test(output);
+  const killed = r.status !== 0 && reasonOk;
+  const failedTests = (output.match(/^not ok \d+ - .*$/gm) ?? []).length;
+  console.log(`${m.id} ${killed ? 'KILLED' : r.status !== 0 ? 'FAILED_FOR_UNEXPECTED_REASON' : 'SURVIVED'} (suite exit ${r.status}${m.expect ? `, failing tests ${failedTests}, expected assertion ${reasonOk ? 'observed' : 'NOT observed'}` : ''}) — ${m.desc}`);
   if (!killed) failures++;
   await rm(dir, { recursive: true, force: true });
 }
+console.log(`MUTATION CHECK: ${MUTANTS.length} mutants run, ${MUTANTS.length - failures} killed, ${failures} problem(s)`);
 console.log(failures ? `MUTATION CHECK: ${failures} problem(s)` : 'MUTATION CHECK: all mutants killed');
 process.exit(failures ? 1 : 0);

@@ -11,9 +11,9 @@ Requires Node ≥ 22.21 and no install step: there are zero third-party dependen
 ```bash
 cd poc/001
 npm run check      # node --check on all .mjs files
-npm test           # node --test "test/*.test.mjs"  (POC-01..07 + REMEDIATION-01..05 regressions)
+npm test           # node --test "test/*.test.mjs"  (POC-01..07 + REMEDIATION-01..06 regressions)
 npm run scan       # heuristic secret / private-endpoint / data-file scan vs the pinned base 1c084e5
-npm run mutation   # injects 47 known defects into a temp copy; each must make its suite fail
+npm run mutation   # injects 48 known defects into a temp copy; each must make its suite fail (M48 must fail on its R06 assertion)
 node scripts/resource-probe.mjs [--baseline <old dav-xml.mjs>]
                    # R05: hostile XML in isolated child processes (256 MB heap, SIGKILL timeout, peak RSS)
 npm run evidence   # per-area runs + 5 real full-suite repetitions; rewrites evidence/*.txt + results.json
@@ -126,6 +126,11 @@ Installed dependency tree: **empty** (`npm ls --all` → `lms-poc-001-webdav-fea
     No recovery mechanism is provided. The slot is not freed automatically, because that could enable an unsafe replay. The API never reports `saved` or `not_committed` without authoritative evidence. Pinned by `R03-Q5` and the seven `R04-Q5-01` cases plus the sibling case.
 13. **Production concerns that are out of scope here:** real TLS transport (`https:` currently **fails closed**, see P1-4), auth stack, session issuance and expiry, request budget and circuit breaker, per-run remote namespaces, audit logs, browser offline drafts.
 
+9b. **Kind-listing capacity ceiling — P2-R05-2 `CAPACITY_POLICY_PENDING` (REMEDIATION-06; documented, not fixed).** The R05 parser limit `MAX_ELEMENTS = 10000` (`LIMITS.maxElements`) applies to each PROPFIND response as a whole. For the **specific synthetic minimal kind-listing fixture** (resourcetype-only answers from the in-repo mock), one listing costs `elements = 8 + 6*N` for `N` record files (8 for `multistatus` plus the kind self entry, 6 per record). Therefore, **for that fixture only**: `N <= 1665` succeeds (9 998 elements) and `N >= 1666` (10 004 elements) makes the whole export fail closed with `503 export_incomplete` **before any record GET**. A partially successful `200` bundle is never returned.
+    - The ceiling is fixture-dependent. Any other legal XML a provider adds (extra properties, longer `propstat` structures, `responsedescription`, multiple `propstat`s) adds elements per record and **lowers** the maximum.
+    - **1665 is not a general limit** on library entries or records, and not a real-provider figure. Real-service capacity, response size and paging compatibility are **unproven**.
+    - No pagination, paging, splitting, element-cap increase or data-shape change is implemented or authorized. A disposable ACCESS-02 run with ≤ 20 files would not prove production-scale compatibility. A separate scale / ACCESS-02 preflight policy decision is required.
+
 ## Known limitations of the local evidence
 
 - The mock is the reference implementation of the semantics being tested. Mutation testing shows the tests fail when the API or adapter is broken; it cannot show the mock resembles a real provider.
@@ -205,3 +210,15 @@ Installed dependency tree: **empty** (`npm ls --all` → `lms-poc-001-webdav-fea
 **Mock additions (synthetic only):** `locks` (synthetic DAV locks, visible only via allprop `lockdiscovery`), allprop vs. `<prop>`-selected responses, the `ignorePropSelection` non-conforming mode, and the raw PROPFIND request (headers + body) in `requestLog`.
 
 **Not claimed:** any Nutstore behaviour, including whether it honours a `<prop>` PROPFIND; performance on hardware other than the recorded 2 vCPU Linux x64 reference; parser completeness beyond the restricted profile. Earlier limitations (Q1e, snapshot consistency, Q4/Q5 liveness, bounded replay, no exactly-once, provider CAS/ETag, TLS) are unchanged.
+
+## Remediation 06 (D007-A26 Option B, Design commit `075b484`, G3 QA comment 7103304755) — TEST-AND-DOCS ONLY
+
+No production, runtime, mock or adapter source changed: every `poc/001/src/**` blob is identical to `811d5c0`.
+
+| Item | Change | Evidence |
+|---|---|---|
+| **P2-R05-1** mutation gap (QA QM1) | New `test/r06-regressions.test.mjs` pins the HTTP-207 parse-failure path. It covers malformed/truncated XML (root and kind listing), well-formed but unsupported DAV structure (nested `DAV:href` in `owner`/`lockdiscovery`, `response` nested in `prop`), and `ignorePropSelection` allprop answers with and without locks. The non-207 400/403/415/500 cases and a valid-207 non-regression are also included. Each scenario asserts, from the mock's actual `requestLog` after the setup writes: `503 export_incomplete`, no bundle, no GET, no writes, unchanged stored state, **exactly one PROPFIND per listed path**, body equal to `PROPFIND_RESOURCETYPE_BODY` (114 bytes), `Content-Length: 114`, `Content-Type: application/xml; charset=utf-8`, `Depth: 1`, and no second empty/allprop PROPFIND | `evidence/R06-regressions.txt` |
+| New mutant **M48** | Extra bodyless `PROPFIND` (`{ headers: { Depth: depth } }`) in the `parseMultistatus` catch of an HTTP 207, keeping the original `malformed` return so the export still ends `503`. The driver counts M48 as killed only when its suite fails **on the R06 assertion `exactly one PROPFIND for the failing listing`**; any other failure is reported as `FAILED_FOR_UNEXPECTED_REASON`. The mutant exists only in a temporary copy | `evidence/mutation.txt` |
+| **P2-R05-2** capacity | Disclosure only: item 9b above | `evidence/R06-capacity-probe.txt` |
+
+**Not claimed:** closure of P2-R04-2, P2-R05-1 or P2-R05-2, or any new G4 acceptance. These are for independent G3 QA and Design (D007-A27). Any Nutstore, Zotero or real WebDAV behaviour is NOT RUN. Earlier limitations (Q1e, Q4/Q5, provider CAS/ETag, TLS, bounded replay) are unchanged.
