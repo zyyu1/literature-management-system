@@ -2,6 +2,8 @@
 
 **User-approved governance amendment (Design-window continuity only).** Canonical working register: [`docs/handoffs/DESIGN_WINDOW_HANDOFF.md`](../handoffs/DESIGN_WINDOW_HANDOFF.md). This protocol adds **Management as the coordination layer** to the historical [Three-Window Protocol](THREE_WINDOW_PROTOCOL.md) and [Automation Bus](AUTOMATION_BUS.md). It supersedes their *current routing descriptions only when conflicting*; their historical G1–G7, independence, STOP and exact-SHA rules remain binding. It **does not** create unattended timers, connected cross-chat automation, source code authority, user account access or deployment.
 
+> **Amended by [D007-A47](D007_A47_PROCESS_SIMPLIFICATION.md) (2026-11-24):** §2.B–C separate evidence-only commit is now required only when the ruling awaits a user choice; otherwise receipt + ruling go in one commit after verification. Independent QA host and LIGHT/FULL gate tiers per A47. A47 governs on conflict.
+
 ## 1. Responsibility and communication
 
 `User → Design (decisions) → Management (dispatch / coordination) → Execution + separately user-opened Independent QA → Management (evidence relay) → Design (G4/risk/next G1 user-approved)`.

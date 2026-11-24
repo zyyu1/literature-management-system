@@ -1,5 +1,7 @@
 # D007-A46 — Windows-first development and independent QA environment policy
 
+> **Partially superseded by [D007-A47 R4](D007_A47_PROCESS_SIMPLIFICATION.md) (user option B, 2026-11-24):** the independent G3 host is a separately user-opened Claude cloud session (Linux, Node v22.23.5); Windows QA results are informational. This policy remains in force for Windows Execution/development.
+
 **User approved option A, 2026-11-24 Europe/Berlin. GOVERNANCE / ENVIRONMENT_ELIGIBILITY_ONLY.** Windows is an explicitly eligible development and independent QA candidate, not a blanket platform certification. Linux is optional reference/candidate; macOS is a future candidate only after applicable preflight, not assumed supported. WSL2, Docker, VM or paid cloud not mandatory. No changes to application code, tests, CI, packages or existing work branches authorized here. Observed parent `ca8c17001c03b778eeb0d7c50d009e9fa159134c` is the separate verified Handoff receipt of new A45 post-withdrawal evidence. User approval for platform policy and R10 design does not adopt that late commit or reactivate either stopped dispatch.
 
 ## 1. Scope and platform eligibility
