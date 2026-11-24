@@ -1,4 +1,4 @@
-<!-- BUS from=DESIGN to=MANAGEMENT seq=2 re=bus/QA_TO_DESIGN.md@0 status=OPEN updated=2026-11-24T17:00+01:00 -->
+<!-- BUS from=DESIGN to=MANAGEMENT seq=3 re=bus/QA_TO_DESIGN.md@0 status=OPEN updated=2026-11-24T17:12+01:00 -->
 # 决策板 / Decision Board — 每轮整体覆盖
 
 > **用法（[A51](governance/D007_A51_DECISION_BOARD_WORKFLOW.md) + [A52](governance/D007_A52_FILE_BUS_POLLING.md)）：** Design 每轮整体覆盖本文件，历史只在 git 里。
@@ -8,37 +8,39 @@
 >
 > G1/G4 的正式授权以 `docs/architecture/D007_A*.md` 为准。
 
-**轮次:** R2（seq 2）· 2026-11-24 · 基于 `main@affd46a`
-注：本轮的 QA 结果是 Management 在聊天里转来的，`bus/QA_TO_DESIGN.md` 仍为 seq 0。下一轮起请 QA 写入该文件。
+**轮次:** R3（seq 3）· 2026-11-24 17:12 · 基于 `main@83239e2`
+
+**已记录的上一轮选择**（来自 `bus/MANAGEMENT_TO_EXECUTION.md` seq 1）：
+- **DEC-1=A**：开工 WP-01。
+- **DEC-2=A**：PR #2 和 PR #4 保持 OPEN，作为证据存档，不合并。
+
+**新阻塞：** Execution 在 `bus/EXECUTION_TO_QA.md` seq 1 中报告 `status=STOP`。
+- WP-01 的执行指令要求在 Linux x64 上运行，而 Execution 窗口是 Windows 10，也没有 WSL。
+- Execution 停止是正确的，没有改动任何代码。
+- 需要用户选择执行主机，见 DEC-3。
 
 ## 1. 当前状态
 | 工作线 | 对象 | 状态 |
 | --- | --- | --- |
-| POC-001 R10 | PR #2 `a9131ac` | **G4 PASS_LOCAL**（[A49](architecture/D007_A49_R10_EXACT_G4_PASS_LOCAL.md)），两个 P2 已在本地关闭 |
+| POC-001 R10 | PR #2 `a9131ac` | **G4 PASS_LOCAL**（[A49](architecture/D007_A49_R10_EXACT_G4_PASS_LOCAL.md)），两个 P2 已在本地关闭；按 DEC-2=A 保持 OPEN 存档 |
 | Q1E-L3 | PR #4 `2757aa6` | **G4 PASS_MODEL_ONLY**（[A53](architecture/D007_A53_Q1E_L3_EXACT_G4_PASS_MODEL_ONLY.md)），两个 P2 已在模型层面关闭 |
-| WP-01 合成认证 API | 未开工 | G1 已授权（[A21](architecture/D007_A21_WP01_G1_DECISION.md)） |
+| WP-01 合成认证 API | 未开工 | G1 已授权（[A21](architecture/D007_A21_WP01_G1_DECISION.md)），已派发（DEC-1=A），但 **Execution 因主机不是 Linux 而 STOP** |
 | 全局 | — | 合并、真实服务、部署（G5/G6/G7）禁止；物理持久性、备份恢复、真实坚果云均未验证 |
 
-**结论：** 两条 POC 补救线已全部收口，目前没有任何在等待中的 QA。项目可以转入产品主线。
+**结论：** 两条 POC 补救线已全部收口。产品主线 WP-01 的执行窗口主机不满足要求，需要先决定换主机（DEC-3）。
 
 ## 2. 待用户决策（Management 逐个呈给用户）
 
-### DEC-1：开工 WP-01（第一个产品切片）
-**背景：** 本地合成数据的认证与会话 API，只用 Node 内置模块，不接任何真实服务。
+### DEC-3：WP-01 在哪里执行？
+**背景：** WP-01 指令写明要求 Linux x64 + Node v22.23.5，并且要证明外网被禁止（outbound-deny）。
+- Execution 窗口是 Windows，不满足这个要求。
+- Claude 云端会话是 Linux x86_64 + Node v22.23.5，正好满足。
 
-| 选项 | 内容 | 派发（选中后由 Management 写入 `bus/MANAGEMENT_TO_EXECUTION.md`） |
+| 选项 | 内容 | 派发（选中后由 Management 写入 `bus/MANAGEMENT_TO_EXECUTION.md` seq 2） |
 | --- | --- | --- |
-| **A（推荐）现在开工** | 按 A21 G1 执行 | **授权：** [A21](architecture/D007_A21_WP01_G1_DECISION.md) + [EXECUTION_INSTRUCTION](handoffs/WP-01/EXECUTION_INSTRUCTION.md)<br>**Base：** `9cfc1d7375f81ab35921a02eebf1a1c9d941476a`<br>**新分支：** `exec/WP-01-synthetic-auth-api`<br>**白名单：** `packages/wp-01-synthetic-auth-api/**`、`docs/handoffs/WP-01/QA_HANDOFF.md`<br>**QA 计划：** [WP-01 QA_INSTRUCTION](handoffs/WP-01/QA_INSTRUCTION.md)，在云端 Linux 会话中运行，Node v22.23.5 |
-| B 暂缓 | 先做其他规划 | 不派发 |
-
-### DEC-2：两个 POC PR 怎么处理
-**背景：** PR #2 和 PR #4 都已通过本地或模型层面的 G4。它们只是可行性证据，不是产品代码。
-
-| 选项 | 内容 | 派发 |
-| --- | --- | --- |
-| **A（推荐）保留不合并** | 两个 PR 保持 OPEN，作为证据存档；产品代码在 WP 系列中重写 | 不派发，Design 在下一轮记录 |
-| B 合并进 main（G5） | 把 POC 代码并入 `main` | Design 会先在下一轮出合并方案（G5 专项），本轮不派发 |
-| C 关闭 PR | 关闭但保留分支 | Management 直接关闭 PR #2 和 #4，不删除分支 |
+| **A（推荐）改用云端 Linux 会话执行** | 指令不改，零新风险 | 请用户新开一个 **Claude 云端会话**作为 Execution 窗口，让它读取 `docs/windows/EXECUTION_WINDOW_START.md` 并设置 15 分钟轮询。<br>派发内容与 seq 1 相同：A21、Base `9cfc1d7375f81ab35921a02eebf1a1c9d941476a`、新分支 `exec/WP-01-synthetic-auth-api`、白名单、QA 计划，并注明 **Execution 主机为云端 Linux**。<br>原 Windows 的 Execution 窗口停止轮询。<br>QA 窗口必须再另开一个云端会话，不能和 Execution 共用。 |
+| B 允许 Windows 执行 WP-01 | 需要 Design 先出一个修订，说明在 Windows 上如何证明外网被禁止 | 本轮不派发；Design 在下一轮出修订方案 |
+| C 暂缓 WP-01 | — | 不派发 |
 
 ## 3. 进行中
 无。
