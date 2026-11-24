@@ -1,0 +1,16 @@
+$ node --test --test-reporter=spec test/poc05-race.test.mjs
+# exit 0 · 1190 ms · gitHead c95fe067a1b95c928e52fca5cf31665dc9b94acf
+
+✔ POC-05 50 forced-overlap rounds: exactly one stale writer wins, loser gets 412 with winner intact (876.588771ms)
+ℹ winners: A=27 B=23 over 50 rounds
+✔ POC-05 concurrent create-only race: one create wins, other 412 (200.819924ms)
+✔ POC-05 negative control: naive GET-then-unconditional-PUT LOSES an update (why If-Match is mandatory) (12.488712ms)
+ℹ naive mode: both writers told "committed", one update silently lost (final=naive A)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1161.53141

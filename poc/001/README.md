@@ -11,9 +11,9 @@ Requires Node ≥ 22.21 and no install step: there are zero third-party dependen
 ```bash
 cd poc/001
 npm run check      # node --check on all .mjs files
-npm test           # node --test "test/*.test.mjs"  (POC-01..07 + REMEDIATION-01..06 regressions)
+npm test           # node --test "test/*.test.mjs"  (POC-01..07 + REMEDIATION-01..07 regressions + R08 readiness)
 npm run scan       # heuristic secret / private-endpoint / data-file scan vs the pinned base 1c084e5
-npm run mutation   # injects 48 known defects into a temp copy; each must make its suite fail (M48 must fail on its R06 assertion)
+npm run mutation   # injects 74 known defects into a temp copy; each must make its suite fail (M48–M74 must fail on their own named assertion)
 node scripts/resource-probe.mjs [--baseline <old dav-xml.mjs>]
                    # R05: hostile XML in isolated child processes (256 MB heap, SIGKILL timeout, peak RSS)
 npm run evidence   # per-area runs + 5 real full-suite repetitions; rewrites evidence/*.txt + results.json
@@ -124,7 +124,7 @@ Installed dependency tree: **empty** (`npm ls --all` → `lms-poc-001-webdav-fea
     - **sibling Unknown operations on the same record** (same `base`) become unresolvable too.
 
     No recovery mechanism is provided. The slot is not freed automatically, because that could enable an unsafe replay. The API never reports `saved` or `not_committed` without authoritative evidence. Pinned by `R03-Q5` and the seven `R04-Q5-01` cases plus the sibling case.
-13. **Production concerns that are out of scope here:** real TLS transport (`https:` currently **fails closed**, see P1-4), auth stack, session issuance and expiry, request budget and circuit breaker, per-run remote namespaces, audit logs, browser offline drafts.
+13. **Production concerns that are out of scope here:** real TLS transport (`https:` still **fails closed by default**, see P1-4; REMEDIATION-08 adds only an explicit, loopback-only synthetic TLS **test** mode, not a real-upstream transport), auth stack, session issuance and expiry, request budget and circuit breaker, per-run remote namespaces, audit logs, browser offline drafts.
 
 9b. **Kind-listing capacity ceiling — P2-R05-2 `CAPACITY_POLICY_PENDING` (REMEDIATION-06; documented, not fixed).** The R05 parser limit `MAX_ELEMENTS = 10000` (`LIMITS.maxElements`) applies to each PROPFIND response as a whole. For the **specific synthetic minimal kind-listing fixture** (resourcetype-only answers from the in-repo mock), one listing costs `elements = 8 + 6*N` for `N` record files (8 for `multistatus` plus the kind self entry, 6 per record). Therefore, **for that fixture only**: `N <= 1665` succeeds (9 998 elements) and `N >= 1666` (10 004 elements) makes the whole export fail closed with `503 export_incomplete` **before any record GET**. A partially successful `200` bundle is never returned.
     - The ceiling is fixture-dependent. Any other legal XML a provider adds (extra properties, longer `propstat` structures, `responsedescription`, multiple `propstat`s) adds elements per record and **lowers** the maximum.
@@ -222,3 +222,77 @@ No production, runtime, mock or adapter source changed: every `poc/001/src/**` b
 | **P2-R05-2** capacity | Disclosure only: item 9b above | `evidence/R06-capacity-probe.txt` |
 
 **Not claimed:** closure of P2-R04-2, P2-R05-1 or P2-R05-2, or any new G4 acceptance. These are for independent G3 QA and Design (D007-A27). Any Nutstore, Zotero or real WebDAV behaviour is NOT RUN. Earlier limitations (Q1e, Q4/Q5, provider CAS/ETag, TLS, bounded replay) are unchanged.
+
+## Remediation 08 (D007-A30 Option A, Design commit `e3b65fa`) — LOCAL SECURITY READINESS, SYNTHETIC ONLY
+
+Starts from `ace7b1e` (A28 local G4 SHA, which stays a separate historical acceptance). Incremental changes are limited to the A30 whitelist: `src/webdav-adapter.mjs`, `src/util.mjs`, `src/safe-api.mjs`, `test/r08-readiness.test.mjs`, `test/r08-local-tls-fixtures.mjs`, `scripts/mutation-check.mjs`, `evidence/R08-*`, this README and the QA handoff. No dependency, CI, mock, parser, client, codec, `api-main` or pre-R08 test change. **This is not ACCESS-02, not a real TLS transport and not a provider test.**
+
+- **TLS (R08-TLS-01/02).** `createWebDavAdapter({ baseUrl: 'https://…', localTls: { ca } })` is the only way to use `https:`. Without `localTls` the R01 behaviour is unchanged (`HTTPS_TRANSPORT_NOT_IMPLEMENTED`).
+  - The host must still be loopback.
+  - Only the supplied test CA is trusted; Node's public root store is replaced, not extended.
+  - `rejectUnauthorized: true` and `tls.checkServerIdentity` are set explicitly, so `NODE_TLS_REJECT_UNAUTHORIZED=0` cannot weaken them.
+  - Any other `localTls` key (`rejectUnauthorized`, `checkServerIdentity`, `secureOptions`, …) is refused at construction (`TLS_CONFIG_REFUSED`). Minimum TLS 1.2.
+  - Redirects are never followed.
+  - A TLS refusal happens before any request byte, so it is classified `not_sent` (a definite `503 not_saved`), never Unknown.
+
+  The test certificates (ECDSA P-256: good, wrong CA, self-signed, expired, SAN mismatch) are generated per run with the system OpenSSL CLI in a temporary directory. They are read into memory and the directory is deleted; no key or certificate is stored in the repository, the evidence or a log.
+- **SSRF / path (R08-NET-03, R08-PATH-04).**
+  - **Base URL:**
+    - the port must be explicit;
+    - the authority must already be canonical (`127.1`, `0x7f.0.0.1` and `2130706433` are refused rather than silently rewritten);
+    - no query or fragment;
+    - no `%`, backslash or whitespace;
+    - no dot or empty segment.
+  - **Name resolution:** a host *name* (`localhost`) is resolved by the adapter. **Every** resolved address must be `127.0.0.1` or `::1`, otherwise the connection is refused before a socket exists.
+  - **Request paths:** every request path must consist of plain segments (`[A-Za-z0-9][A-Za-z0-9._-]*`).
+  - **Classification fix:** a socket destroyed before the `socket` event (for example by a synchronous resolver refusal) is no longer counted as connected.
+- **Q4 (R08-Q4-05).**
+  - **New option:** `createSafeApi({ bodyDeadlineMs })`, an optional absolute inbound-body deadline measured from routing. If unset, the behaviour is the pre-R08 one.
+  - **Stalled or aborted bodies:** a stalled body gets `408 not_saved body_deadline_exceeded` and an aborted upload is released. In both cases the reservation is released before any dispatch, the connection is closed, and later chunks are never read, so they can never become a write.
+  - **After dispatch:** once the request has been dispatched, the deadline no longer applies, and an upstream stall stays Unknown.
+  - **Fixture values:** the R08 fixture uses two synthetic principals, `maxPerPrincipal = 2`, `maxLedgerEntries = 4` and `bodyDeadlineMs = 1000`. These are fixture values, not production defaults or an SLA.
+- **Q5 (R08-Q5-06).** No source change. New tests pin that Unknown and `indeterminate` stay non-terminal after:
+  - an applied-but-unacknowledged fence;
+  - a missing, weak or mismatched fence ETag;
+  - a failed read-back;
+  - a restart;
+  - a sibling write.
+
+  They also pin no blind fence retry, no replay and no eviction of Unknown entries under quota pressure. Liveness is still **not** solved (item 12).
+- **Capacity (R08-CAP-07).** End-to-end export with the documented minimal fixture:
+  - `N = 1665` (9 998 elements) → `200`, count 1665;
+  - `N = 1666` (10 004 elements) → `503 export_incomplete`, no partial bundle, 0 record GETs, 0 writes, store unchanged.
+
+  Bytes, time and RSS are recorded in `evidence/R08-readiness.txt`. P2-R05-2 stays `CAPACITY_POLICY_PENDING`; 1665 is not a general or provider limit, and nothing promises paging.
+- **Budget (R08-BUD-08), test-only.** `createRequestBudget()` in `src/util.mjs` does the ACCESS-01 arithmetic as a dry run:
+  - ≤ 100 requests in any rolling 30 minutes, counting every request including read-back and cleanup;
+  - 21 slots (20 per-file deletes + 1 verification listing) reserved for cleanup;
+  - ordinary work STOPs when only the reserve remains;
+  - ≤ 20 files, ≤ 1 MiB per file, ≤ 20 MiB total, ≤ 2 writers;
+  - upstream 401/429 STOPs the run, cleanup included.
+
+  When the adapter is given `budget`, admission is checked **before** dispatch. The end-to-end dry run against the mock ends with exactly 100 server requests. This is not a production budget implementation and makes no provider calls.
+- **Mutation.** 74/74 killed at `c95fe06` (`evidence/R08-mutation.txt`). The first R08 run at `9128c61` showed legacy **M10 surviving** (its pattern had moved onto the new TLS block); `c95fe06` restores the original guard line so M10 is killed again by R01 P1-4 (`evidence/R08-mutation-first-run-9128c61.txt`). M52–M74 cover:
+  - TLS verification and peer name;
+  - the loopback guard and resolved-address allowlist;
+  - path, base and authority canonicalisation;
+  - TLS option overrides;
+  - TLS `connected` classification;
+  - the Q4 deadline and reservation release;
+  - Q5 false terminal, blind retry, Unknown eviction and restart terminal;
+  - partial export;
+  - the budget reserve, window, file cap, 401/429 stop and adapter admission;
+  - pre-connect classification.
+
+  Each is counted as killed only when its own named R08 assertion fails. An "adapter ignores a refused write admission" mutant is **equivalent** (the refusal STOPs the budget, so the next request admission refuses with the same code before dispatch). It is documented and not counted.
+- **Secret scan note.** The negative test for URL-embedded credentials builds the URL with `URL` setters. `scripts/secret-scan.mjs` (not on the A30 whitelist) only allow-lists `poc02-security.test.mjs` for such literals.
+- **Still UNSUPPORTED / NOT_RUN:**
+  - real Nutstore, WebDAV, TLS, DNS, CAS/ETag, MKCOL and quotas;
+  - Q1e arbitrary omission;
+  - durable or cross-instance ledger;
+  - Q5 liveness;
+  - production paging and capacity;
+  - production budget enforcement;
+  - IPv6 loopback serving (constructor only).
+
+  **G5/G6/G7 not authorized; OVERALL `BLOCKED_REAL_SERVICE`.**

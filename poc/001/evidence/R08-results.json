@@ -1,0 +1,216 @@
+{
+  "env": {
+    "remediation": "REMEDIATION-08 / D007-A30 (LOCAL / SYNTHETIC ONLY)",
+    "gitHead": "c95fe067a1b95c928e52fca5cf31665dc9b94acf",
+    "gitDirtyPaths": "(clean)",
+    "node": "v22.23.5",
+    "platform": "linux 6.18.44-fc-v819 x64",
+    "cpus": "2 x Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "openssl": "OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)",
+    "nodeOpenssl": "3.5.9",
+    "startedAt": "2026-11-24T04:57:21.397Z",
+    "finishedAt": "2026-11-24T05:12:33.178Z"
+  },
+  "results": [
+    {
+      "id": "R08-env-node",
+      "command": "node --version",
+      "exit": 0,
+      "ms": 6,
+      "pass": null,
+      "fail": null
+    },
+    {
+      "id": "R08-check",
+      "command": "node scripts/check.mjs",
+      "exit": 0,
+      "ms": 871,
+      "pass": null,
+      "fail": null
+    },
+    {
+      "id": "R08-POC-01",
+      "command": "node --test --test-reporter=spec test/poc01-crud.test.mjs",
+      "exit": 0,
+      "ms": 201,
+      "pass": 2,
+      "fail": 0
+    },
+    {
+      "id": "R08-POC-02",
+      "command": "node --test --test-reporter=spec test/poc02-security.test.mjs",
+      "exit": 0,
+      "ms": 230,
+      "pass": 4,
+      "fail": 0
+    },
+    {
+      "id": "R08-POC-03",
+      "command": "node --test --test-reporter=spec test/poc03-roundtrip.test.mjs",
+      "exit": 0,
+      "ms": 280,
+      "pass": 3,
+      "fail": 0
+    },
+    {
+      "id": "R08-POC-04",
+      "command": "node --test --test-reporter=spec test/poc04-multiclient.test.mjs",
+      "exit": 0,
+      "ms": 440,
+      "pass": 1,
+      "fail": 0
+    },
+    {
+      "id": "R08-POC-05",
+      "command": "node --test --test-reporter=spec test/poc05-race.test.mjs",
+      "exit": 0,
+      "ms": 1190,
+      "pass": 3,
+      "fail": 0
+    },
+    {
+      "id": "R08-POC-06",
+      "command": "node --test --test-reporter=spec test/poc06-faults.test.mjs",
+      "exit": 0,
+      "ms": 1984,
+      "pass": 17,
+      "fail": 0
+    },
+    {
+      "id": "R08-POC-07",
+      "command": "node --test --test-reporter=spec test/poc07-backup.test.mjs",
+      "exit": 0,
+      "ms": 633,
+      "pass": 3,
+      "fail": 0
+    },
+    {
+      "id": "R08-R01-regressions",
+      "command": "node --test --test-reporter=spec test/r01-regressions.test.mjs",
+      "exit": 0,
+      "ms": 3116,
+      "pass": 21,
+      "fail": 0
+    },
+    {
+      "id": "R08-R02-regressions",
+      "command": "node --test --test-reporter=spec test/r02-regressions.test.mjs",
+      "exit": 0,
+      "ms": 5357,
+      "pass": 21,
+      "fail": 0
+    },
+    {
+      "id": "R08-R03-regressions",
+      "command": "node --test --test-reporter=spec test/r03-regressions.test.mjs",
+      "exit": 0,
+      "ms": 6296,
+      "pass": 26,
+      "fail": 0
+    },
+    {
+      "id": "R08-R04-regressions",
+      "command": "node --test --test-reporter=spec test/r04-regressions.test.mjs",
+      "exit": 0,
+      "ms": 3345,
+      "pass": 17,
+      "fail": 0
+    },
+    {
+      "id": "R08-R05-regressions",
+      "command": "node --test --test-reporter=spec test/r05-regressions.test.mjs",
+      "exit": 0,
+      "ms": 1279,
+      "pass": 20,
+      "fail": 0
+    },
+    {
+      "id": "R08-R06-regressions",
+      "command": "node --test --test-reporter=spec test/r06-regressions.test.mjs",
+      "exit": 0,
+      "ms": 315,
+      "pass": 11,
+      "fail": 0
+    },
+    {
+      "id": "R08-R07-regressions",
+      "command": "node --test --test-reporter=spec test/r07-regressions.test.mjs",
+      "exit": 0,
+      "ms": 324,
+      "pass": 4,
+      "fail": 0
+    },
+    {
+      "id": "R08-readiness",
+      "command": "node --test --test-reporter=spec test/r08-readiness.test.mjs",
+      "exit": 0,
+      "ms": 8405,
+      "pass": 38,
+      "fail": 0
+    },
+    {
+      "id": "R08-full-suite-run1",
+      "command": "node --test test/*.test.mjs",
+      "exit": 0,
+      "ms": 32414,
+      "pass": 191,
+      "fail": 0
+    },
+    {
+      "id": "R08-full-suite-run2",
+      "command": "node --test test/*.test.mjs",
+      "exit": 0,
+      "ms": 34022,
+      "pass": 191,
+      "fail": 0
+    },
+    {
+      "id": "R08-full-suite-run3",
+      "command": "node --test test/*.test.mjs",
+      "exit": 0,
+      "ms": 32673,
+      "pass": 191,
+      "fail": 0
+    },
+    {
+      "id": "R08-full-suite-run4",
+      "command": "node --test test/*.test.mjs",
+      "exit": 0,
+      "ms": 32752,
+      "pass": 191,
+      "fail": 0
+    },
+    {
+      "id": "R08-full-suite-run5",
+      "command": "node --test test/*.test.mjs",
+      "exit": 0,
+      "ms": 32419,
+      "pass": 191,
+      "fail": 0
+    },
+    {
+      "id": "R08-mutation",
+      "command": "node scripts/mutation-check.mjs",
+      "exit": 0,
+      "ms": 712762,
+      "pass": null,
+      "fail": null
+    },
+    {
+      "id": "R08-secret-scan",
+      "command": "node scripts/secret-scan.mjs 1c084e5f14e4af8018ef5fe99710be7205cfbdf4",
+      "exit": 0,
+      "ms": 93,
+      "pass": null,
+      "fail": null
+    },
+    {
+      "id": "R08-deps-tree",
+      "command": "npm ls --all",
+      "exit": 0,
+      "ms": 367,
+      "pass": null,
+      "fail": null
+    }
+  ]
+}
