@@ -1,5 +1,5 @@
 $ node scripts/mutation-check.mjs
-# exit 0 · 510599 ms
+# exit 0 · 510068 ms
 
 M1 KILLED (suite exit 1) — adapter treats 5xx as committed
 M2 KILLED (suite exit 1) — API forwards writes without If-Match (naive overwrite)
@@ -49,5 +49,8 @@ M45 KILLED (suite exit 1) — R05-2 regression: empty-body (allprop) PROPFIND re
 M46 KILLED (suite exit 1) — R05-2 regression: PROPFIND Content-Type header dropped
 M47 KILLED (suite exit 1) — R05-2 regression: allprop fallback after a non-207 PROPFIND
 M48 KILLED (suite exit 1, failing tests 5, expected assertion observed) — R06 regression: extra bodyless (allprop) PROPFIND after a malformed/unparseable HTTP 207
-MUTATION CHECK: 48 mutants run, 48 killed, 0 problem(s)
+M49 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R07 regression: extra bodyless PROPFIND before the post-parse 'foreign href' malformed return (HTTP 207)
+M50 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R07 regression: extra bodyless PROPFIND before the post-parse 'non-2xx response entry' malformed return (HTTP 207)
+M51 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R07 regression: extra bodyless PROPFIND before the post-parse 'duplicate href' malformed return (HTTP 207)
+MUTATION CHECK: 51 mutants run, 51 killed, 0 problem(s)
 MUTATION CHECK: all mutants killed

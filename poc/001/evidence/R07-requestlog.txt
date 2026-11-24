@@ -1,0 +1,57 @@
+# R07 requestLog evidence (tested HEAD cf88fc91b21edc30a6edaeb5beea197d87ddb479)
+# probe source (not committed as a script; reproducible):
+#   // R07 requestLog evidence for the three POST-PARSE malformed-207 branches + positive control (LOCAL / SYNTHETIC).
+#   // Read-only use of repo modules. Usage: node requestlog-probe.mjs <path-to-poc/001>
+#   import { pathToFileURL } from 'node:url';
+#   import { createHash } from 'node:crypto';
+#   const root = process.argv[2];
+#   const { startStack, syntheticNote } = await import(pathToFileURL(`${root}/test/helpers.mjs`));
+#   const { parseMultistatus } = await import(pathToFileURL(`${root}/src/dav-xml.mjs`));
+#   const { PROPFIND_RESOURCETYPE_BODY } = await import(pathToFileURL(`${root}/src/webdav-adapter.mjs`));
+#   const sha = (s) => createHash('sha256').update(s).digest('hex').slice(0, 16);
+#   const OK = '<d:status>HTTP/1.1 200 OK</d:status>';
+#   const resp = (h, i) => `<d:response><d:href>${h}</d:href>${i}</d:response>`;
+#   const col = (h) => resp(h, `<d:propstat><d:prop><d:resourcetype><d:collection/></d:resourcetype></d:prop>${OK}</d:propstat>`);
+#   const file = (h) => resp(h, `<d:propstat><d:prop><d:resourcetype/></d:prop>${OK}</d:propstat>`);
+#   const ms = (...r) => `<d:multistatus xmlns:d="DAV:">${r.join('')}</d:multistatus>`;
+#   const rootL = (ns, ...x) => ms(col(`${ns}/`), col(`${ns}/notes/`), col(`${ns}/projects/`), col(`${ns}/progress/`), ...x);
+#   const notesL = (ns, rec, ...x) => ms(col(`${ns}/notes/`), file(rec), ...x);
+#   const cases = [
+#     ['R07-FH-01 foreign href @root', 'root', (ns) => rootL(ns, col('/other-base/notes/'))],
+#     ['R07-FH-01 foreign href @notes', 'notes', (ns, rec) => notesL(ns, rec, file('/elsewhere/notes/x.json'))],
+#     ['R07-STATUS-02 non-2xx @root (404 kind)', 'root', (ns) => ms(col(`${ns}/`), col(`${ns}/notes/`), col(`${ns}/projects/`), resp(`${ns}/progress/`, '<d:status>HTTP/1.1 404 Not Found</d:status>'))],
+#     ['R07-STATUS-02 non-2xx @notes (403 propstat)', 'notes', (ns, rec) => ms(col(`${ns}/notes/`), resp(rec, '<d:propstat><d:prop><d:resourcetype/></d:prop><d:status>HTTP/1.1 403 Forbidden</d:status></d:propstat>'))],
+#     ['R07-DUP-03 duplicate @root (/notes vs /notes/)', 'root', (ns) => rootL(ns, col(`${ns}/notes`))],
+#     ['R07-DUP-03 duplicate @notes (plain vs %2E)', 'notes', (ns, rec) => notesL(ns, rec, file(rec.replace(/\.json$/, '%2Ejson')))],
+#     ['positive control (valid parsed 207 overrides)', 'both', (ns, rec) => ({ root: rootL(ns), notes: notesL(ns, rec) })],
+#   ];
+#   console.log(`PROPFIND_RESOURCETYPE_BODY bytes=${PROPFIND_RESOURCETYPE_BODY.length} sha256/16=${sha(PROPFIND_RESOURCETYPE_BODY)}`);
+#   for (const [label, listing, build] of cases) {
+#     let override = null;
+#     const s = await startStack({ mockOptions: { propfindOverride: (p) => (override ? override(p) : null) } });
+#     const n = syntheticNote();
+#     const put = await s.client.put('notes', n.literatureId, n, '*');
+#     const ns = `/lms-poc/${s.namespace}`, rec = `${ns}/notes/${n.literatureId}.json`;
+#     const built = build(ns, rec);
+#     if (listing === 'both') override = (p) => (p === ns ? built.root : p === `${ns}/notes` ? built.notes : null);
+#     else { const fp = listing === 'root' ? ns : `${ns}/notes`; override = (p) => (p === fp ? built : null); }
+#     let parses = true; try { for (const x of listing === 'both' ? [built.root, built.notes] : [built]) parseMultistatus(x); } catch { parses = false; }
+#     const adapter = listing === 'both' ? null : await s.adapter.propfind(listing === 'root' ? `/${s.namespace}` : `/${s.namespace}/notes`, '1');
+#     const from = s.mock.requestLog.length;
+#     const ex = await s.client.exportAll();
+#     const after = s.mock.requestLog.slice(from).map((e) => ({ method: e.method, path: e.path.replace(ns, '<ns>'), ...(e.method === 'PROPFIND' ? { depth: e.depth, contentType: e.contentType, contentLength: e.contentLength, bodyBytes: e.bodyBytes, bodySha16: sha(e.body), bodyEqualsExplicit: e.body === PROPFIND_RESOURCETYPE_BODY.toString('utf8') } : {}) }));
+#     console.log(JSON.stringify({ scenario: label, setupWrite: put.data.outcome, fixtureParses: parses, adapterResult: adapter, export: [ex.status, ex.data.outcome, ex.data.count ?? null, ex.data.records ? 'BUNDLE' : 'no bundle'], requestsAfterSetup: after }));
+#     await s.stop();
+#   }
+
+$ node requestlog-probe.mjs <poc/001>
+# exit 0
+
+PROPFIND_RESOURCETYPE_BODY bytes=114 sha256/16=16942fbb6a0e0790
+{"scenario":"R07-FH-01 foreign href @root","setupWrite":"saved","fixtureParses":true,"adapterResult":{"outcome":"malformed","reason":"foreign href"},"export":[503,"export_incomplete",null,"no bundle"],"requestsAfterSetup":[{"method":"PROPFIND","path":"<ns>","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true}]}
+{"scenario":"R07-FH-01 foreign href @notes","setupWrite":"saved","fixtureParses":true,"adapterResult":{"outcome":"malformed","reason":"foreign href"},"export":[503,"export_incomplete",null,"no bundle"],"requestsAfterSetup":[{"method":"PROPFIND","path":"<ns>","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true},{"method":"PROPFIND","path":"<ns>/notes","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true}]}
+{"scenario":"R07-STATUS-02 non-2xx @root (404 kind)","setupWrite":"saved","fixtureParses":true,"adapterResult":{"outcome":"malformed","reason":"non-2xx response entry"},"export":[503,"export_incomplete",null,"no bundle"],"requestsAfterSetup":[{"method":"PROPFIND","path":"<ns>","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true}]}
+{"scenario":"R07-STATUS-02 non-2xx @notes (403 propstat)","setupWrite":"saved","fixtureParses":true,"adapterResult":{"outcome":"malformed","reason":"non-2xx response entry"},"export":[503,"export_incomplete",null,"no bundle"],"requestsAfterSetup":[{"method":"PROPFIND","path":"<ns>","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true},{"method":"PROPFIND","path":"<ns>/notes","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true}]}
+{"scenario":"R07-DUP-03 duplicate @root (/notes vs /notes/)","setupWrite":"saved","fixtureParses":true,"adapterResult":{"outcome":"malformed","reason":"duplicate href"},"export":[503,"export_incomplete",null,"no bundle"],"requestsAfterSetup":[{"method":"PROPFIND","path":"<ns>","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true}]}
+{"scenario":"R07-DUP-03 duplicate @notes (plain vs %2E)","setupWrite":"saved","fixtureParses":true,"adapterResult":{"outcome":"malformed","reason":"duplicate href"},"export":[503,"export_incomplete",null,"no bundle"],"requestsAfterSetup":[{"method":"PROPFIND","path":"<ns>","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true},{"method":"PROPFIND","path":"<ns>/notes","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true}]}
+{"scenario":"positive control (valid parsed 207 overrides)","setupWrite":"saved","fixtureParses":true,"adapterResult":null,"export":[200,"ok",1,"BUNDLE"],"requestsAfterSetup":[{"method":"PROPFIND","path":"<ns>","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true},{"method":"PROPFIND","path":"<ns>/notes","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true},{"method":"PROPFIND","path":"<ns>/projects","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true},{"method":"PROPFIND","path":"<ns>/progress","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true},{"method":"GET","path":"<ns>/notes/lit-9000001-s0000006.json"}]}

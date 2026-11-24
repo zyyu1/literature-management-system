@@ -1,7 +1,7 @@
 {
   "env": {
-    "generatedAt": "2026-11-24T01:56:32.308Z",
-    "gitHead": "afc5b17ccfd9f525bff8ebdb06f30473b0d877f0",
+    "generatedAt": "2026-11-24T03:00:53.672Z",
+    "gitHead": "cf88fc91b21edc30a6edaeb5beea197d87ddb479",
     "gitBranch": "exec/POC-001-webdav-feasibility",
     "gitDirtyPaths": "(clean)",
     "node": "v22.23.5",
@@ -18,7 +18,7 @@
       "id": "env-node",
       "command": "node --version",
       "exit": 0,
-      "ms": 6,
+      "ms": 5,
       "pass": null,
       "fail": null
     },
@@ -26,7 +26,7 @@
       "id": "deps-tree",
       "command": "npm ls --all",
       "exit": 0,
-      "ms": 316,
+      "ms": 295,
       "pass": null,
       "fail": null
     },
@@ -34,7 +34,7 @@
       "id": "check",
       "command": "node scripts/check.mjs",
       "exit": 0,
-      "ms": 670,
+      "ms": 683,
       "pass": null,
       "fail": null
     },
@@ -42,7 +42,7 @@
       "id": "POC-01",
       "command": "node --test --test-reporter=spec test/poc01-crud.test.mjs",
       "exit": 0,
-      "ms": 204,
+      "ms": 206,
       "pass": "2",
       "fail": "0"
     },
@@ -50,7 +50,7 @@
       "id": "POC-02",
       "command": "node --test --test-reporter=spec test/poc02-security.test.mjs",
       "exit": 0,
-      "ms": 212,
+      "ms": 209,
       "pass": "4",
       "fail": "0"
     },
@@ -58,7 +58,7 @@
       "id": "POC-03",
       "command": "node --test --test-reporter=spec test/poc03-roundtrip.test.mjs",
       "exit": 0,
-      "ms": 196,
+      "ms": 192,
       "pass": "3",
       "fail": "0"
     },
@@ -66,7 +66,7 @@
       "id": "POC-04",
       "command": "node --test --test-reporter=spec test/poc04-multiclient.test.mjs",
       "exit": 0,
-      "ms": 439,
+      "ms": 414,
       "pass": "1",
       "fail": "0"
     },
@@ -74,7 +74,7 @@
       "id": "POC-05",
       "command": "node --test --test-reporter=spec test/poc05-race.test.mjs",
       "exit": 0,
-      "ms": 1290,
+      "ms": 1192,
       "pass": "3",
       "fail": "0"
     },
@@ -82,7 +82,7 @@
       "id": "POC-06",
       "command": "node --test --test-reporter=spec test/poc06-faults.test.mjs",
       "exit": 0,
-      "ms": 1955,
+      "ms": 1937,
       "pass": "17",
       "fail": "0"
     },
@@ -90,7 +90,7 @@
       "id": "POC-07",
       "command": "node --test --test-reporter=spec test/poc07-backup.test.mjs",
       "exit": 0,
-      "ms": 524,
+      "ms": 504,
       "pass": "3",
       "fail": "0"
     },
@@ -98,7 +98,7 @@
       "id": "R01-regressions",
       "command": "node --test --test-reporter=spec test/r01-regressions.test.mjs",
       "exit": 0,
-      "ms": 3035,
+      "ms": 3026,
       "pass": "21",
       "fail": "0"
     },
@@ -106,7 +106,7 @@
       "id": "R02-regressions",
       "command": "node --test --test-reporter=spec test/r02-regressions.test.mjs",
       "exit": 0,
-      "ms": 5368,
+      "ms": 5380,
       "pass": "21",
       "fail": "0"
     },
@@ -114,7 +114,7 @@
       "id": "R03-regressions",
       "command": "node --test --test-reporter=spec test/r03-regressions.test.mjs",
       "exit": 0,
-      "ms": 6211,
+      "ms": 6219,
       "pass": "26",
       "fail": "0"
     },
@@ -122,7 +122,7 @@
       "id": "R04-regressions",
       "command": "node --test --test-reporter=spec test/r04-regressions.test.mjs",
       "exit": 0,
-      "ms": 3304,
+      "ms": 3320,
       "pass": "17",
       "fail": "0"
     },
@@ -130,7 +130,7 @@
       "id": "R05-regressions",
       "command": "node --test --test-reporter=spec test/r05-regressions.test.mjs",
       "exit": 0,
-      "ms": 1126,
+      "ms": 1198,
       "pass": "20",
       "fail": "0"
     },
@@ -138,7 +138,7 @@
       "id": "R05-resource-probe",
       "command": "node scripts/resource-probe.mjs --baseline <tmp>/lms-poc001-dav-xml-pre-r05.mjs",
       "exit": 0,
-      "ms": 3512,
+      "ms": 3602,
       "pass": null,
       "fail": null
     },
@@ -146,47 +146,47 @@
       "id": "full-suite-run1",
       "command": "node --test test/*.test.mjs",
       "exit": 0,
-      "ms": 23869,
-      "pass": "149",
+      "ms": 24019,
+      "pass": "153",
       "fail": "0"
     },
     {
       "id": "full-suite-run2",
       "command": "node --test test/*.test.mjs",
       "exit": 0,
-      "ms": 23801,
-      "pass": "149",
+      "ms": 24223,
+      "pass": "153",
       "fail": "0"
     },
     {
       "id": "full-suite-run3",
       "command": "node --test test/*.test.mjs",
       "exit": 0,
-      "ms": 23722,
-      "pass": "149",
+      "ms": 24551,
+      "pass": "153",
       "fail": "0"
     },
     {
       "id": "full-suite-run4",
       "command": "node --test test/*.test.mjs",
       "exit": 0,
-      "ms": 23843,
-      "pass": "149",
+      "ms": 23841,
+      "pass": "153",
       "fail": "0"
     },
     {
       "id": "full-suite-run5",
       "command": "node --test test/*.test.mjs",
       "exit": 0,
-      "ms": 23638,
-      "pass": "149",
+      "ms": 23916,
+      "pass": "153",
       "fail": "0"
     },
     {
       "id": "secret-scan",
       "command": "node scripts/secret-scan.mjs 1c084e5f14e4af8018ef5fe99710be7205cfbdf4",
       "exit": 0,
-      "ms": 74,
+      "ms": 54,
       "pass": null,
       "fail": null
     },
@@ -194,7 +194,7 @@
       "id": "mutation",
       "command": "node scripts/mutation-check.mjs",
       "exit": 0,
-      "ms": 510599,
+      "ms": 510068,
       "pass": null,
       "fail": null
     }

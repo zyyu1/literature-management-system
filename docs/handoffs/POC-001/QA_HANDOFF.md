@@ -1,116 +1,113 @@
-# POC-001 — Execution → QA Handoff · REMEDIATION-06 / D007-A26 Option B (LOCAL / SYNTHETIC · TEST-AND-DOCS ONLY)
+# POC-001 — Execution → QA Handoff · REMEDIATION-07 / D007-A27 Option B (LOCAL / SYNTHETIC · TEST-ONLY)
 
 **From:** Execution Window · 2026-11-24 (Europe/Berlin)
-**Authority:** [D007-A26 disposition](https://github.com/zyyu1/literature-management-system/blob/075b48465a46839440b6675739443f9f6c80ec7e/docs/architecture/D007_A26_POC001_REMEDIATION06_DISPOSITION.md), [REMEDIATION_06.md](https://github.com/zyyu1/literature-management-system/blob/075b48465a46839440b6675739443f9f6c80ec7e/docs/handoffs/POC-001/REMEDIATION_06.md) and the [R06 QA plan](https://github.com/zyyu1/literature-management-system/blob/075b48465a46839440b6675739443f9f6c80ec7e/docs/handoffs/POC-001/REMEDIATION_06_QA_PLAN.md), read on `main` at Design SHA `075b48465a46839440b6675739443f9f6c80ec7e`; R05 G3 QA basis [7103304755](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7103304755).
-**Scope:** **P2-R05-1** (repository mutation gap / QA QM1) by new tests and one mutant, and the **P2-R05-2** capacity disclosure. **No production, runtime, mock or adapter source change.**
-**Boundary:** in-repo loopback mock on 127.0.0.1 and **synthetic data only**. No real Nutstore, Zotero, external WebDAV, TLS, credentials, PDFs or notes. **Real Nutstore: `BLOCKED_REAL_SERVICE`; OVERALL POC-001 cannot PASS.**
-**Status:** Execution evidence only. Execution does **not** self-certify R06 G4, and does not close P2-R04-2, P2-R05-1 or P2-R05-2. That is for independent G3 QA and then D007-A27.
-**History (preserved):** previous handoff (REMEDIATION-05) at [811d5c0](https://github.com/zyyu1/literature-management-system/blob/811d5c0fdcd740e5f6e6334d99cd2908cfeada8f/docs/handoffs/POC-001/QA_HANDOFF.md); earlier ones are linked from there.
+**Authority:** [D007-A27](https://github.com/zyyu1/literature-management-system/blob/4ba0cfa73870c88160e6fb073512a73d0ceb1ce6/docs/architecture/D007_A27_POC001_R07_TEST_ONLY_AUTHORIZATION.md), [REMEDIATION_07.md](https://github.com/zyyu1/literature-management-system/blob/4ba0cfa73870c88160e6fb073512a73d0ceb1ce6/docs/handoffs/POC-001/REMEDIATION_07.md) and the [R07 independent QA plan](https://github.com/zyyu1/literature-management-system/blob/4ba0cfa73870c88160e6fb073512a73d0ceb1ce6/docs/handoffs/POC-001/REMEDIATION_07_QA_PLAN.md), read at the pinned Design commit `4ba0cfa73870c88160e6fb073512a73d0ceb1ce6`. Inputs: R06 Execution [#7119832091](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7119832091) and R06 limited-independence QA relay [#7120465999](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7120465999). The relay is technical evidence only, **not** the formal independent G3.
+**Scope:** **P2-R06-1 / F-1**: request-count and body pins for the three **post-parse** malformed-207 branches of `propfind()` (foreign href, non-2xx response entry, duplicate normalized href). Tests and mutants only. **No production, runtime, mock, adapter, README, package or CI change.**
+**Boundary:** in-repo loopback mock on 127.0.0.1 and synthetic data only. No real Nutstore, Zotero, external WebDAV, TLS, credentials, PDFs or library records. **OVERALL POC-001: `BLOCKED_REAL_SERVICE`.**
+**Status:** Execution evidence only. No G3 or G4 claim and no risk closure.
+- P2-R04-1: `CLOSED_LOCAL_SYNTHETIC` (`811d5c0` only)
+- P2-R04-2: `OPEN_HARD_PRE_ACCESS`
+- P2-R05-1: `OPEN_TEST_GAP` (independent G3 pending)
+- P2-R05-2: `CAPACITY_POLICY_PENDING`
+- P2-R06-1: `OPEN_TEST_GAP`
+- R06 QA: `G3_INDEPENDENCE_PENDING`
+
+**History (preserved):** previous handoff (R06) at [5ab4709](https://github.com/zyyu1/literature-management-system/blob/5ab47090f1100fbe0c9defd39930fcf715dbab38/docs/handoffs/POC-001/QA_HANDOFF.md); earlier ones are linked from there.
 
 ## 1. Provenance and lineage
 
 | Field | Value |
 |---|---|
 | Branch | `exec/POC-001-webdav-feasibility` (existing, PR #2) |
-| Original approved base | `1c084e5f14e4af8018ef5fe99710be7205cfbdf4`; `git merge-base HEAD 1c084e5…` returns `1c084e5…`; `git rev-list --merges 1c084e5..HEAD` is empty |
-| Exact R06 start HEAD | `811d5c0fdcd740e5f6e6334d99cd2908cfeada8f`. Preflight confirmed the local HEAD, the remote branch and the PR #2 head all equalled it, with a clean tree, before any edit |
-| Lineage | `811d5c0 → afc5b17 (tests + M48 + README) → (this evidence + handoff commit)`; fast-forward only; **no rebase, no merge of `main`, no force-push, no Design docs cherry-picked** |
-| R06 code/doc commit | `afc5b17ccfd9f525bff8ebdb06f30473b0d877f0` |
-| R06 evidence | generated on a clean tree at `afc5b17` (`results.json`: `gitHead=afc5b17…`, `gitDirtyPaths=(clean)`). The final commit adds only `poc/001/evidence/**` and this file; no test, script, README or src byte changes after the evidence run |
-| **Final PR head** | the commit adding this file. **Its true 40-char SHA is in the PR #2 execution comment** (no self-referencing SHA here) |
-| Runtime | Node **v22.23.5**, npm 10.9.9, Linux 6.18 **x64**, **2 vCPU**, 127.0.0.1 only |
-| Dependencies | **none added**. `npm ls --all` → `(empty)`; `package.json` and `package-lock.json` unchanged |
+| Original immutable base | `1c084e5f14e4af8018ef5fe99710be7205cfbdf4` (merge-base unchanged; `git rev-list --merges 1c084e5..HEAD` empty) |
+| Mandatory R07 start | `5ab47090f1100fbe0c9defd39930fcf715dbab38`. Preflight: local HEAD = remote branch = PR #2 head = `5ab4709…`, PR OPEN/not merged, clean tree; the eight `src` blobs were recorded before any edit |
+| Parent chain | `5ab4709 (R06 final) → cf88fc9 (R07 tests + M49–M51) → (this evidence + handoff commit)`; fast-forward only; **no rebase, no merge or cherry-pick of `main`, no force-push** |
+| R07 test commit | `cf88fc91b21edc30a6edaeb5beea197d87ddb479` |
+| Evidence | runner `scripts/run-evidence.mjs` (unmodified) on a clean tree at `cf88fc9` (`results.json`: `gitHead=cf88fc91b21edc30a6edaeb5beea197d87ddb479`, `gitDirtyPaths=(clean)`), plus `evidence/R07-*.txt` from the same HEAD. The runner deletes and regenerates `evidence/`; the four R06 files (`evidence/R06-*.txt`) were **restored unchanged from `5ab4709`** as historical R06 evidence, not re-run R07 results |
+| **Final PR head** | the commit adding this file. **Its true 40-char SHA is in the PR #2 R07 execution comment** |
+| Environment | `evidence/R07-environment.txt`: Node **v22.23.5**, npm 10.9.9, Linux 6.18 x86_64, **2 vCPU** (Intel Xeon), about 7.8 GiB RAM, 127.0.0.1 only, **0 third-party dependencies** |
 
-**Evidence-runner label note:** `scripts/run-evidence.mjs` is outside the R06 write allowlist and was run **unmodified**. Its hard-coded `remediation` field in `results.json` still says REMEDIATION-05. The authoritative identity of this run is `gitHead=afc5b17…`. R06 per-area outputs are in the separate `evidence/R06-*.txt` files, because the unmodified runner has no R06 step; the R06 tests still run inside each full-suite run via the glob.
+**Runner label note:** `results.json` still carries the runner's hard-coded REMEDIATION-05 `remediation` label. The authoritative identity of this run is `gitHead=cf88fc91b21edc30a6edaeb5beea197d87ddb479`. The runner has no per-area R06 or R07 step, so those individual runs are recorded separately (`evidence/R07-run-r06-regressions.txt`, `evidence/R07-run-r07-regressions.txt`); both test files also run inside each full-suite run via the glob.
 
 ## 2. Changed files
 
-**Incremental `811d5c0..HEAD`** (all within the R06 incremental allowlist):
-- `poc/001/test/r06-regressions.test.mjs` (new)
-- `poc/001/scripts/mutation-check.mjs` (M48, `expect` check, uniqueness check, totals line; M1–M47 entries unchanged)
-- `poc/001/README.md` (item 9b capacity disclosure, "Remediation 06" section, run-command counts)
-- `poc/001/evidence/**` (regenerated, plus new `R06-*.txt`)
-- `docs/handoffs/POC-001/QA_HANDOFF.md` (this file)
+**Incremental `5ab4709..HEAD`** (all within the strict R07 allowlist):
+- `poc/001/test/r07-regressions.test.mjs` (new, 4 tests)
+- `poc/001/scripts/mutation-check.mjs` (M49, M50, M51 added; M1–M48 entries and the R06 `expect` mechanism unchanged)
+- `poc/001/evidence/**` (regenerated, plus new `R07-*.txt`; `R06-*.txt` unchanged)
+- `docs/handoffs/POC-001/QA_HANDOFF.md`
 
-`poc/001/test/r05-regressions.test.mjs` was **not** changed. The full path inventories (cumulative vs `1c084e5`, incremental vs `811d5c0`) are in the PR #2 execution comment, computed on the final HEAD.
+**Not changed:** `test/r06-regressions.test.mjs`, README (F-4 out of scope), all `src/**`, the mock, other tests and scripts, package/lockfile. The full cumulative (`1c084e5..HEAD`) and incremental path lists, computed on the final HEAD, are in the PR #2 R07 execution comment.
 
-**Source unchanged:** all 8 `poc/001/src/**` blob SHAs at `afc5b17` are identical to `811d5c0` (`git diff --exit-code 811d5c0 HEAD -- poc/001/src` → 0). Table in §7.
+## 3. R07 regression fixtures (`test/r07-regressions.test.mjs`)
 
-## 3. P2-R05-1 — new R06 tests (`test/r06-regressions.test.mjs`, 11 tests)
+Every negative fixture is **well-formed DAV XML that parses**: each asserts `assert.doesNotThrow(() => parseMultistatus(xml))`, so it cannot reach the R06 catch path. Each also has an **adapter-level branch control**: `adapter.propfind(path,'1')` must return exactly `{ outcome:'malformed', reason:<branch> }` after exactly one request of any method.
 
-The tests use only the existing mock options `propfindOverride` and `ignorePropSelection`, its `faults` and its `requestLog`; the mock source is not changed. A shared `assertFailClosed` helper snapshots the requestLog **after the setup write** and asserts:
-- `503 export_incomplete`, no `records` and no `count` (no bundle);
-- **exactly one PROPFIND for the failing listing**, and the list of PROPFIND paths equals the expected sequence (no retry or fallback);
-- every PROPFIND body equals `PROPFIND_RESOURCETYPE_BODY` (**114 bytes**), with `Content-Length: 114`, `Content-Type: application/xml; charset=utf-8` and `Depth: 1`, and contains no `allprop`, `propname`, `lockdiscovery` or `current-user-principal`;
-- **0 GET** (fails closed before any record GET), **0** PUT/DELETE/MKCOL, and an unchanged stored mock state (file bytes and ETags, collections, locks).
-
-Each 207 fixture is also asserted to throw from `parseMultistatus`, which proves it exercises the catch path that M48 mutates.
-
-| Required scenario | Test |
-|---|---|
-| 207 + malformed/truncated XML | `R06-207 malformed/truncated XML (root and kind listing)` — truncated, not-XML and mismatched tags, each at the root and at `notes` |
-| 207 + well-formed but unsupported DAV structure | `R06-207 well-formed but unsupported nested DAV property/href` — `owner/href` (root), `lockdiscovery` with `locktoken/href` (notes), `response` nested in `prop` (notes) |
-| `ignorePropSelection` allprop **with** locks | `R06-207 non-conforming server answers allprop … (locks=true)` |
-| `ignorePropSelection` allprop **without** locks | `… (locks=false)` |
-| 400 / 403 / 415 / 500 | `R06 non-207 <status> → 503, exactly one explicit PROPFIND (body/length/type/depth), no GET, no writes` |
-| catch path at adapter level | `R06-207 adapter: malformed 207 returns outcome malformed after exactly one explicit PROPFIND (no second request)` — 1 request of any method |
-| valid 207 non-regression | `R06 non-regression: valid resourcetype-only 207 exports normally …` — 200, one explicit PROPFIND per listing (root plus 3 kinds), record GET only on success |
-| constants | `R06 constants: explicit PROPFIND body is 114 bytes …` |
-
-Result at `afc5b17`: **11/11 pass**, exit 0 (`evidence/R06-regressions.txt`). Request-level evidence for every scenario is in `evidence/R06-requestlog.txt`: for each one, the method, path, Depth, Content-Type, Content-Length, body bytes, body hash, `bodyEqualsExplicit` and the export result. The probe source is embedded in the file.
-
-## 4. M48 and mutation results
-
-- **M48** — `src/webdav-adapter.mjs`: `catch (e) { return { outcome: 'malformed', … } }` after `parseMultistatus(r.body)` becomes `catch (e) { await request('PROPFIND', path, { headers: { Depth: depth } }); return { outcome: 'malformed', … } }`. The original failed return is kept, so the export still ends in 503. It is applied **only in a temporary copy**; the pattern must occur exactly once.
-- M48 counts as killed **only** if its suite exits non-zero **and** the output contains `R06 exactly one PROPFIND for the failing listing`. Any other failure is reported as `FAILED_FOR_UNEXPECTED_REASON`.
-- **Actual run** (`node scripts/mutation-check.mjs`, exit **0**, 510599 ms): **48 mutants run, 48 killed, 0 survived, 0 setup errors, 0 unexpected-reason failures** (`evidence/mutation.txt`). M48 line: `KILLED (suite exit 1, failing tests 5, expected assertion observed)`. M1–M47 are all `KILLED`.
-- **Detail** (`evidence/R06-M48-kill.txt`): with M48 applied, R06 fails exactly 5 tests: malformed/truncated, unsupported structure, `ignorePropSelection` with locks, without locks, and adapter level. All 5 fail on the R06 request-count assertion. The 4 non-207 tests and the valid-207 test still pass, as expected, because the mutant only touches the 207 catch path. Against the same mutant, the **old R05 suite passes 20/20**, which reproduces the gap QA reported.
-
-## 5. P2-R05-2 capacity disclosure (`README.md` item 9b) — CAPACITY_POLICY_PENDING
-
-- `MAX_ELEMENTS = 10000` (`LIMITS.maxElements`, per PROPFIND response).
-- **Synthetic minimal kind-listing fixture only:** `elements = 8 + 6*N`. **`N <= 1665` succeeds** (9 998 elements); **`N >= 1666` → `503 export_incomplete`**, fail-closed **before any record GET**, never a partial `200` bundle.
-- The boundary applies only to that fixture. Other legal XML properties can lower the maximum. **1665 is not a general library or entry limit.** Real-service capacity and paging compatibility are **unproven**. No pagination, paging, cap increase or data-shape change.
-- **Execution re-check** (`evidence/R06-capacity-probe.txt`, probe source embedded):
-  - At the listing level, N = 0/1/1664/1665 parse to exactly `8+6N` elements (8/14/9992/9998) with adapter outcome `ok`.
-  - N = 1666/1667 are rejected with `resource limit: more than 10000 elements`; the export returns `503 export_incomplete` with **0 GET and 0 writes**.
-  - Probe records are bare synthetic files without provenance, so the export at 1 ≤ N ≤ 1665 ends `503` **after** GET, from record authentication. That run re-proves only the listing boundary. Full export success at N = 1665 with authentic records is QA's evidence (#7103304755) and is not re-proven here.
-
-## 6. Results at `afc5b17` (Execution run; NOT independent QA)
-
-| Command | Exit | Pass |
+| Case | Fixtures (listing) | Adapter result |
 |---|---|---|
-| `node --test --test-reporter=spec test/poc01-crud.test.mjs` | 0 | 2/2 |
-| `node --test --test-reporter=spec test/poc02-security.test.mjs` | 0 | 4/4 |
-| `node --test --test-reporter=spec test/poc03-roundtrip.test.mjs` | 0 | 3/3 |
-| `node --test --test-reporter=spec test/poc04-multiclient.test.mjs` | 0 | 1/1 |
-| `node --test --test-reporter=spec test/poc05-race.test.mjs` | 0 | 3/3 |
-| `node --test --test-reporter=spec test/poc06-faults.test.mjs` | 0 | 17/17 |
-| `node --test --test-reporter=spec test/poc07-backup.test.mjs` | 0 | 3/3 |
-| `node --test --test-reporter=spec test/r01-regressions.test.mjs` | 0 | 21/21 |
-| `node --test --test-reporter=spec test/r02-regressions.test.mjs` | 0 | 21/21 |
-| `node --test --test-reporter=spec test/r03-regressions.test.mjs` | 0 | 26/26 |
-| `node --test --test-reporter=spec test/r04-regressions.test.mjs` | 0 | 17/17 |
-| `node --test --test-reporter=spec test/r05-regressions.test.mjs` | 0 | 20/20 |
-| `node --test --test-reporter=spec test/r06-regressions.test.mjs` | 0 | 11/11 |
+| **R07-FH-01** foreign href | root: extra response `/other-base/notes/`; root: prefix look-alike `/lms-poc-x/…` (not under `/lms-poc/`); notes: record `/elsewhere/notes/x.json` | `malformed` / `foreign href` |
+| **R07-STATUS-02** non-2xx entry | root: kind entry with response-level `404`; notes: record whose only propstat is `403`; notes: extra entry with response-level `500` | `malformed` / `non-2xx response entry` |
+| **R07-DUP-03** duplicate normalized href | root: `/notes` and `/notes/`; root: self `/ns` and `/ns/`; notes: record plain and `%2E`-encoded; notes: self with and without trailing slash | `malformed` / `duplicate href` |
+| **R07 positive control** | the same builders without the bad entry, for root and notes | `ok`; export **200**, count 1, PROPFIND paths root plus 3 kinds, 1 record GET |
 
-`node scripts/check.mjs` exit 0 (29 files, 0 failures) · `npm ls --all` exit 0 `(empty)` · `node scripts/resource-probe.mjs --baseline <tmp>` exit 0 · `node scripts/secret-scan.mjs 1c084e5…` exit 0 (54 changed files, 0 findings).
+**Export assertions for every negative fixture**, read from the mock's actual `requestLog` after the setup write:
+- `503 export_incomplete`, no `records` and no `count`;
+- **exactly one PROPFIND for the failing path**;
+- PROPFIND path sequence exactly `[root]` (root case) or `[root, notes]` (kind case), so a duplicate, Depth-0 or allprop retry would show;
+- every PROPFIND body equal to `PROPFIND_RESOURCETYPE_BODY`, 114 bytes, `Content-Length: 114`, `Content-Type: application/xml; charset=utf-8`, `Depth: 1`, no `allprop`/`propname`;
+- **0 GET, 0 PUT/MKCOL/DELETE**;
+- **files, ETags, collections and locks unchanged**.
+
+Fresh run at `cf88fc9`: **R07 4/4 pass** (exit 0). R06 run individually at the same HEAD: **11/11 pass**. Request-level evidence for every branch (root and notes) and for the positive control is in `evidence/R07-requestlog.txt`. For each it records fixture-parses, the adapter result, the export result, and per request: method, path, Depth, Content-Type, Content-Length, bytes, body hash and `bodyEqualsExplicit`. The probe source is embedded in the file.
+
+## 4. Mutants M49–M51 and mutation results
+
+Each new mutant patches **only a temporary copy** of `src/webdav-adapter.mjs`. The `from` line must occur exactly once (driver uniqueness check). The mutant inserts `await request('PROPFIND', path, { headers: { Depth: depth } });` immediately before the branch's **unchanged** malformed return. It counts as killed only if `test/r07-regressions.test.mjs` exits non-zero **and** the output contains that branch's own assertion: `R07-FH-01 …`, `R07-STATUS-02 …` or `R07-DUP-03 exactly one PROPFIND for the failing listing`.
+
+| Mutant | Branch | Driver result (`evidence/mutation.txt`) | Detail (`evidence/R07-mutant-detail.txt`) |
+|---|---|---|---|
+| M49 | foreign href | `KILLED (suite exit 1, failing tests 1, expected assertion observed)` | R07: 3 pass, 1 fail (only `R07-FH-01`), on "R07-FH-01 exactly one PROPFIND …"; **pre-R07 suites (13 files, 149 tests) pass 149/149, so the mutant survives without R07** |
+| M50 | non-2xx entry | `KILLED (… failing tests 1, expected assertion observed)` | only `R07-STATUS-02` fails, on its own assertion; pre-R07 149/149 pass, so it survives without R07 |
+| M51 | duplicate href | `KILLED (… failing tests 1, expected assertion observed)` | only `R07-DUP-03` fails, on its own assertion; pre-R07 149/149 pass, so it survives without R07 |
+
+**Driver run** (`node scripts/mutation-check.mjs`, exit **0**, 510068 ms): **51 mutants run, 51 killed, 0 survived, 0 setup errors, 0 unexpected-reason failures.** M1–M47 are all `KILLED`. R06 **M48** is still `KILLED (suite exit 1, failing tests 5, expected assertion observed)`. These are actual observed counts, not predictions.
+
+## 5. Results at `cf88fc9` (Execution run; NOT independent QA)
+
+| Command | Exit | Pass | Evidence |
+|---|---|---|---|
+| `node --test --test-reporter=spec test/poc01-crud.test.mjs` | 0 | 2/2 | `evidence/POC-01.txt` |
+| `node --test --test-reporter=spec test/poc02-security.test.mjs` | 0 | 4/4 | `evidence/POC-02.txt` |
+| `node --test --test-reporter=spec test/poc03-roundtrip.test.mjs` | 0 | 3/3 | `evidence/POC-03.txt` |
+| `node --test --test-reporter=spec test/poc04-multiclient.test.mjs` | 0 | 1/1 | `evidence/POC-04.txt` |
+| `node --test --test-reporter=spec test/poc05-race.test.mjs` | 0 | 3/3 | `evidence/POC-05.txt` |
+| `node --test --test-reporter=spec test/poc06-faults.test.mjs` | 0 | 17/17 | `evidence/POC-06.txt` |
+| `node --test --test-reporter=spec test/poc07-backup.test.mjs` | 0 | 3/3 | `evidence/POC-07.txt` |
+| `node --test --test-reporter=spec test/r01-regressions.test.mjs` | 0 | 21/21 | `evidence/R01-regressions.txt` |
+| `node --test --test-reporter=spec test/r02-regressions.test.mjs` | 0 | 21/21 | `evidence/R02-regressions.txt` |
+| `node --test --test-reporter=spec test/r03-regressions.test.mjs` | 0 | 26/26 | `evidence/R03-regressions.txt` |
+| `node --test --test-reporter=spec test/r04-regressions.test.mjs` | 0 | 17/17 | `evidence/R04-regressions.txt` |
+| `node --test --test-reporter=spec test/r05-regressions.test.mjs` | 0 | 20/20 | `evidence/R05-regressions.txt` |
+| `node --test --test-reporter=spec test/r06-regressions.test.mjs` | 0 | 11/11 | `evidence/R07-run-r06-regressions.txt` |
+| `node --test --test-reporter=spec test/r07-regressions.test.mjs` | 0 | 4/4 | `evidence/R07-run-r07-regressions.txt` |
+
+`node --version` v22.23.5 · `node scripts/check.mjs` exit 0 (30 files, 0 failures) · `npm ls --all` exit 0 `(empty)` · `node scripts/resource-probe.mjs --baseline <tmp>` exit 0 · `node scripts/secret-scan.mjs 1c084e5…` exit 0, 0 findings.
 
 **Full suite `node --test "test/*.test.mjs"` — five genuinely separate runs:**
 
 | Run | Exit | Pass | Duration |
 |---|---|---|---|
-| run 1 | 0 | 149/149 | 23869 ms |
-| run 2 | 0 | 149/149 | 23801 ms |
-| run 3 | 0 | 149/149 | 23722 ms |
-| run 4 | 0 | 149/149 | 23843 ms |
-| run 5 | 0 | 149/149 | 23638 ms |
+| run 1 | 0 | 153/153 | 24019 ms |
+| run 2 | 0 | 153/153 | 24223 ms |
+| run 3 | 0 | 153/153 | 24551 ms |
+| run 4 | 0 | 153/153 | 23841 ms |
+| run 5 | 0 | 153/153 | 23916 ms |
 
-149 = 138 previous + 11 R06. These are new numbers; no historical 138/138×5 or 47/47 figure is reused.
+153 = 149 (through R06) + 4 (R07). No historical count is reused.
 
-## 7. Source blob audit (`poc/001/src/**`, `811d5c0` vs `afc5b17`)
+## 6. Source blob identity (`poc/001/src/**`, `5ab4709` → `cf88fc9`)
 
-| File | Blob (both) |
+| File | Blob (unchanged) |
 |---|---|
 | `poc/001/src/api-main.mjs` | `1498d4901a1bc81324a3614152de5d9a4a7ae5e0` |
 | `poc/001/src/client.mjs` | `fa9b98d170b06e579d4f7332ed39be75c04cf563` |
@@ -121,30 +118,26 @@ Result at `afc5b17`: **11/11 pass**, exit 0 (`evidence/R06-regressions.txt`). Re
 | `poc/001/src/util.mjs` | `1f583c1f606535a17b8c84589e4bdc1bfb885a91` |
 | `poc/001/src/webdav-adapter.mjs` | `1adfe97c82cd33d998d766c71d6cced8491133db` |
 
-All 8 are identical; `git diff --exit-code 811d5c0 afc5b17 -- poc/001/src` exits 0. QA must re-verify on the final HEAD.
+`git diff --exit-code 5ab4709 cf88fc9 -- poc/001/src` exits 0. The final-HEAD comparison is in the PR comment; QA must re-verify.
 
-## 8. Residuals, NOT_RUN, UNSUPPORTED
+## 7. Preserved dispositions, residuals, NOT_RUN
 
-- **Open, not closed by Execution:** P2-R04-2 (`OPEN_HARD_PRE_ACCESS`), P2-R05-1 (test gap; R06 evidence pending QA), P2-R05-2 (`CAPACITY_POLICY_PENDING`).
-- **NOT_RUN:** all real-provider, Nutstore, Zotero, TLS and external WebDAV tests; the A25 119-run isolated resource campaign (only the standard `resource-probe.mjs` run is included); performance on other hardware.
-- **UNSUPPORTED (unchanged):** Q1e, snapshot consistency, Q4/Q5 liveness, provider CAS/ETag/MKCOL/PROPFIND shapes, durable exactly-once, key rotation, real TLS, production paging.
+- **Capacity (unchanged, P2-R05-2 `CAPACITY_POLICY_PENDING`):** `MAX_ELEMENTS = 10000`; synthetic fixture `8 + 6*N`; N = 1665 gives 9 998 elements, N = 1666 gives 10 004. This is not a universal library-size guarantee. No paging, limit, quota or capacity change in R07. README not touched.
+- **INFO F-2, F-3, F-4:** unchanged and out of scope.
+- **NOT_RUN:** all real-provider, Nutstore, Zotero, TLS and external tests; the A25 119-run isolated resource campaign (only the standard probe was run); export-level capacity at N = 1666; other hardware.
+- **UNSUPPORTED (unchanged):** Q1e, snapshot consistency, Q4/Q5, provider CAS/ETag/MKCOL/PROPFIND shapes, durable exactly-once, real TLS, production paging.
 - **Execution-observed P0/P1:** none in the tested scope. This is not a claim that none exist.
-- **Confirmed:** zero real-service access. GitHub was used only for fetch, push and the PR comment.
+- **Privacy:** evidence is sanitized (`<poc/001>`, `<tmp>`); no personal paths, credentials, real records or PDFs. Only GitHub fetch, push and the PR comment were used.
 
-## 9. QA instructions (per R06 QA plan)
+## 8. Independent G3 (REMEDIATION_07_QA_PLAN)
 
-1. Take the true final HEAD from the PR #2 execution comment. Use a fresh clone and a clean tree. Check `merge-base HEAD 1c084e5…` = `1c084e5…`, that `811d5c0…` is an ancestor, and that there are no merge commits.
-2. Compare every `poc/001/src/**` blob against `811d5c0` (R06-SRC-01). Check the cumulative (`1c084e5..HEAD`) and incremental (`811d5c0..HEAD`) path lists.
-3. In `poc/001`, run:
-   - `check.mjs`;
-   - POC-01..07 and R01–R06;
-   - the full suite ×5;
-   - `mutation-check.mjs` (about 9 min; expect 48);
-   - `secret-scan.mjs 1c084e5f14e4af8018ef5fe99710be7205cfbdf4`;
-   - `npm ls --all`.
+The next reviewer **must be a separately opened independent QA session or window**. An Execution-started sub-agent does **not** satisfy D007-A27. The reviewer must:
+- fresh-clone the final exact R07 SHA from the PR comment;
+- verify identity and ancestry (`1c084e5` merge-base, `5ab4709` ancestor, 0 merges), paths and all eight blobs;
+- run `check.mjs`, POC-01..07, R01–R07, the full suite ×5, `mutation-check.mjs` (about 9 min; observe the actual total), `secret-scan.mjs 1c084e5f14e4af8018ef5fe99710be7205cfbdf4` and `npm ls --all`;
+- independently reproduce QM1-style catch-path variants (R06) and **foreign-href, non-2xx-entry and duplicate-href** sibling mutants (R07) with its own probes and recording proxy;
+- post an independent G3 comment on PR #2.
 
-   Do **not** run `npm run evidence` in the checkout.
-4. R06-MUT-01: inject a QA-owned QM1-style mutant into the `parseMultistatus` catch and show that the **repository** suite kills it because of the request count or body. Cover R06-M207-01..04 with independent fixtures and the actual outbound PROPFIND, and check the README/QA_HANDOFF capacity wording (R06-CAP-01).
-5. Report `R06 LOCAL_STAGE: PASS/PARTIAL/FAIL` and `OVERALL POC-001: BLOCKED_REAL_SERVICE` on the exact SHA in PR #2. Do not modify code. STOP for D007-A27.
+Do not run `npm run evidence` in the checkout. **If no separate QA session is available, record `G3_INDEPENDENCE_PENDING`; do not substitute a same-session sub-agent.**
 
-**EXECUTION STOP — HAND OFF TO INDEPENDENT G3 QA. PR #2 OPEN / NOT MERGED; no rebase, no main merge, no force-push, no ACCESS-02, no deployment. G5 / G6 / G7 NOT AUTHORIZED.**
+**EXECUTION STOP — PR #2 OPEN / NOT MERGED; no rebase, main merge or force-push. G4/G5/G6/G7 NOT AUTHORIZED. Next Design item: D007-A28, only after independent G3 on the new exact SHA.**

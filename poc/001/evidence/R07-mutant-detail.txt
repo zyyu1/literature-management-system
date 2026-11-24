@@ -1,0 +1,51 @@
+# R07 M49-M51 kill detail (tested HEAD cf88fc91b21edc30a6edaeb5beea197d87ddb479)
+# probe source:
+#   // R07 M49–M51 kill detail: apply each new mutant from scripts/mutation-check.mjs to a TEMPORARY copy (never the
+#   // repo), run the R07 suite and the pre-R07 suites (all other test files), report failing tests and assertion ids.
+#   // Usage: node mutant-detail.mjs <path-to-poc/001>
+#   import { cp, mkdtemp, readFile, writeFile, rm, readdir } from 'node:fs/promises';
+#   import { tmpdir } from 'node:os';
+#   import { join } from 'node:path';
+#   import { spawnSync } from 'node:child_process';
+#   const root = process.argv[2];
+#   const driver = await readFile(join(root, 'scripts/mutation-check.mjs'), 'utf8');
+#   const ids = ['M49', 'M50', 'M51'];
+#   const tests = (await readdir(join(root, 'test'))).filter((f) => f.endsWith('.test.mjs'));
+#   const preR07 = tests.filter((f) => f !== 'r07-regressions.test.mjs').map((f) => `test/${f}`);
+#   for (const id of ids) {
+#     const block = driver.slice(driver.indexOf(`id: '${id}'`));
+#     const from = JSON.parse(/from: ("(?:[^"\\]|\\.)*")/.exec(block)[1]);
+#     const to = JSON.parse(/to: ("(?:[^"\\]|\\.)*")/.exec(block)[1]);
+#     for (const [name, args] of [['R07 suite', ['test/r07-regressions.test.mjs']], [`pre-R07 suites (${preR07.length} files)`, preR07]]) {
+#       const dir = await mkdtemp(join(tmpdir(), `poc001-${id}-detail-`));
+#       await cp(root, dir, { recursive: true, filter: (p) => !p.includes('/evidence/') });
+#       const f = join(dir, 'src/webdav-adapter.mjs'), src = await readFile(f, 'utf8');
+#       const occurrences = src.split(from).length - 1;
+#       await writeFile(f, src.replace(from, to));
+#       const r = spawnSync(process.execPath, ['--test', ...args], { cwd: dir, encoding: 'utf8', timeout: 300_000 });
+#       const out = r.stdout + r.stderr;
+#       const failing = out.split('\n').filter((l) => /^not ok \d+ - /.test(l));
+#       const msgs = [...new Set([...out.matchAll(/R07-(?:FH-01|STATUS-02|DUP-03) exactly one PROPFIND[^'"\n]*/g)].map((m) => m[0]))];
+#       const counts = out.split('\n').filter((l) => /^# (tests|pass|fail) /.test(l)).join(' · ');
+#       console.log(`${id} | ${name} | pattern occurrences=${occurrences} | exit=${r.status} | ${counts}`);
+#       failing.forEach((l) => console.log(`    ${l}`));
+#       msgs.forEach((m) => console.log(`    assertion: ${m}`));
+#       await rm(dir, { recursive: true, force: true });
+#     }
+#   }
+
+$ node mutant-detail.mjs <poc/001>
+# exit 0
+
+M49 | R07 suite | pattern occurrences=1 | exit=1 | # tests 4 · # pass 3 · # fail 1
+    not ok 1 - R07-FH-01 post-parse branch "foreign href" (root and kind listing) → 503, exactly one explicit PROPFIND, no fallback
+    assertion: R07-FH-01 exactly one PROPFIND for the failing listing (adapter level, root: response href outside base path; no second request of any method)
+M49 | pre-R07 suites (13 files) | pattern occurrences=1 | exit=0 | # tests 149 · # pass 149 · # fail 0
+M50 | R07 suite | pattern occurrences=1 | exit=1 | # tests 4 · # pass 3 · # fail 1
+    not ok 2 - R07-STATUS-02 post-parse branch "non-2xx response entry" (root and kind listing) → 503, exactly one explicit PROPFIND, no fallback
+    assertion: R07-STATUS-02 exactly one PROPFIND for the failing listing (adapter level, root: kind entry with response-level 404; no second request of any method)
+M50 | pre-R07 suites (13 files) | pattern occurrences=1 | exit=0 | # tests 149 · # pass 149 · # fail 0
+M51 | R07 suite | pattern occurrences=1 | exit=1 | # tests 4 · # pass 3 · # fail 1
+    not ok 3 - R07-DUP-03 post-parse branch "duplicate href" (root and kind listing) → 503, exactly one explicit PROPFIND, no fallback
+    assertion: R07-DUP-03 exactly one PROPFIND for the failing listing (adapter level, root: kind collection listed with and without trailing slash; no second request of any method)
+M51 | pre-R07 suites (13 files) | pattern occurrences=1 | exit=0 | # tests 149 · # pass 149 · # fail 0
