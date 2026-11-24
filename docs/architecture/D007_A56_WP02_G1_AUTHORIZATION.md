@@ -1,6 +1,6 @@
-# D007-A56 — WP-02 G1 authorization (DRAFT → effective when the user picks DEC-6=A)
+# D007-A56 — WP-02 G1 authorization — **AUTHORIZED** (DEC-6=A)
 
-**Status:** DRAFT. Under [A51](../governance/D007_A51_DECISION_BOARD_WORKFLOW.md) rule 4, it becomes **G1 AUTHORIZED** when Management records `DEC-6=A` in `bus/MANAGEMENT_TO_EXECUTION.md`. Until then, nothing may be executed.
+**Status:** **G1 AUTHORIZED** on 2026-11-24 18:28 Europe/Berlin. The user chose DEC-6=A in Management, recorded in `bus/MANAGEMENT_TO_EXECUTION.md` seq 6 at `997e95d`. It was originally published as a DRAFT. Under [A51](../governance/D007_A51_DECISION_BOARD_WORKFLOW.md) rule 4, it becomes **G1 AUTHORIZED** when Management records `DEC-6=A` in `bus/MANAGEMENT_TO_EXECUTION.md`. Until then, nothing may be executed.
 **Source:** DEC-5=A. Design: [WP-02 DESIGN](../handoffs/WP-02/DESIGN.md). QA plan: [WP-02 QA_INSTRUCTION](../handoffs/WP-02/QA_INSTRUCTION.md). Tier: LIGHT (A47 R3: local synthetic only).
 
 | Item | Value |
