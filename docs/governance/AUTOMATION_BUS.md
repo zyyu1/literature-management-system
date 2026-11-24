@@ -1,5 +1,7 @@
 # Automation Bus — GitHub comment relay between Design / Execution / QA
 
+> **HISTORICAL — transport replaced by [D007-A52 file bus](D007_A52_FILE_BUS_POLLING.md) on 2026-11-24.**
+
 **Status:** APPROVED BY USER 2026-11-24 (Option B). Amends the *transport* of [THREE_WINDOW_PROTOCOL.md](THREE_WINDOW_PROTOCOL.md) only. Roles, authority, the state machine, exact-SHA rules, STOP conditions and every gate (G1–G7, ACCESS-02) are **unchanged**.
 
 ## 1. Purpose

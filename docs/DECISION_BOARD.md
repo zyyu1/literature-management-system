@@ -1,11 +1,12 @@
+<!-- BUS from=DESIGN to=MANAGEMENT seq=1 re=bus/QA_TO_DESIGN.md@0 status=OPEN updated=2026-11-24T16:55+01:00 -->
 # 决策板 / Decision Board — 每轮整体覆盖
 
 > **用法（D007-A51）：** Design 每轮整体覆盖本文件，历史只看 `git log -p docs/DECISION_BOARD.md`。
 > - **Management** 打开本文件，把 §2 的待决事项原样呈给用户（可点击的 A/B/C 选项）；用户在 Management 窗口里做选择。
-> - Management 按所选选项的「派发」栏把任务发给 Execution 窗口和独立 QA 窗口，然后把结果回传给 Design。
+> - Management 把用户选择和派发内容写进 `bus/MANAGEMENT_TO_EXECUTION.md`；Execution → `bus/EXECUTION_TO_QA.md`；QA → `bus/QA_TO_DESIGN.md`。各窗口每 15 分钟轮询自己的收件文件（[A52](governance/D007_A52_FILE_BUS_POLLING.md)）。
 > - Design 不再直接问用户选项。G1 和 G4 的具体授权仍写在各自的 `docs/architecture/D007_A*.md` 文件里，本文件只做指引。
 
-**轮次:** R1 · 2026-11-24 Europe/Berlin · 基于 `main@75cc51e5cc0f5187b04844a4eb4f34688e321c8e`
+**轮次:** R1（seq 1）· 2026-11-24 Europe/Berlin · 基于 `main@75cc51e5cc0f5187b04844a4eb4f34688e321c8e`
 
 ## 1. 当前状态
 
@@ -28,15 +29,13 @@
 | C 暂缓 WP-01 | 先做其他规划 | 暂不派发 |
 
 ## 3. 进行中（不需要决策，Management 只需跟进）
-- **A50 QA（PR #4）：** 用户新开的云端会话按 [A50](architecture/D007_A50_Q1E_L3_ADOPT_2757AA6_CLOUD_QA.md) 执行，QA_REPORT 直接评论在 PR #4 上。
+- **A50 QA（PR #4）：** 用户新开的云端会话按 [A50](architecture/D007_A50_Q1E_L3_ADOPT_2757AA6_CLOUD_QA.md) 执行。QA_REPORT 评论在 PR #4 上，同时写入 `bus/QA_TO_DESIGN.md`。
 
-## 4. Management 回传给 Design 的内容
-每轮回传一条消息，包含：
-- 用户在每个 DEC 上的选择（例如 `DEC-1=A`）；
-- 每个任务的 PR 号、exact SHA、Execution 和 QA 的评论 ID；
-- QA 结论原文。
-
-Design 收到后会先在 GitHub 上核对证据，再裁决 G4，然后覆盖本文件开始下一轮。
+## 4. 回传方式（A52 文件总线）
+- **Management：** 把用户选择（如 `DEC-1=A`）和派发内容写进 `bus/MANAGEMENT_TO_EXECUTION.md`。
+- **Execution：** 完成后，把 PR 号和 exact SHA 写进 `bus/EXECUTION_TO_QA.md`。
+- **QA：** 把评论 ID 和结论写进 `bus/QA_TO_DESIGN.md`。
+- **Design：** 轮询到 QA 结果后，先在 GitHub 上核对证据，再裁决 G4，然后覆盖本文件开始下一轮。
 
 ## 5. 不变的规则
 - QA 必须在用户单独开的云端 Linux 会话中进行（Node v22.23.5）。
