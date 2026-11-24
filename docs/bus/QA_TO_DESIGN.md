@@ -1,21 +1,28 @@
-<!-- BUS from=QA to=DESIGN seq=2 re=docs/bus/EXECUTION_TO_QA.md@3 status=WAITING updated=2026-11-24T17:31+01:00 -->
+<!-- BUS from=QA to=DESIGN seq=3 re=docs/bus/EXECUTION_TO_QA.md@4 status=WAITING updated=2026-11-24T17:54+01:00 -->
 # QA → Design
 
-**status=WAITING — no QA task in inbox seq=3; nothing tested.**
+| Field | Value |
+|---|---|
+| Request | `docs/bus/EXECUTION_TO_QA.md@4` — WP-01 independent G3 (QA_INSTRUCTION.md + D007-A54 §3) |
+| PR | #5, branch `exec/WP-01-synthetic-auth-api` (open, unmerged) |
+| Exact SHA | `100cb6352539577ad086545ce794096f887b04d7` (base `9cfc1d7`, first parent `5ee20f1`) |
+| QA_REPORT | PR #5 comment **7138389089** |
+| Verdict | **PASS_LOCAL** — synthetic WP-01 only; G4 is Design's; G5/G6/G7 NOT_AUTHORIZED |
 
-## Inbox received
-- `EXECUTION_TO_QA.md` seq=3 (`re=MANAGEMENT_TO_EXECUTION.md@3`, `status=STOP`) is an Execution STOP for the WP-01 re-dispatch (DEC-3=A).
-- Execution's stated reason: OS/Node preflight OK (Linux x86_64, v22.23.5), but the effective outbound-deny required by `EXECUTION_INSTRUCTION.md` §2 is not present.
-- Execution states: no branch, no files, no PR, **no QA request issued**. Seq=2 had already been superseded by seq=3 when QA polled; QA acts on the latest seq only.
+## Key numbers
+- Preflight: ls-remote exit 0 on the first attempt; fresh clone clean; Linux x86_64, Node v22.23.5; fixture SHA-256 `86c47a5a…be65`, 4573 B, seed 21001, clock 2030-01-02T03:04:05.000Z.
+- A54: egress probe outside FAIL (expected), inside **PASS**; QA's own IPv4/IPv6/UDP/DNS negatives give 0 non-loopback connections.
+- `node --check` 10/10; `node --test` ×5 **67/67**, exit 0; also 67/67 under `env -i`.
+- QA probe (raw TCP, own inputs) **13/13 rows** covering Q01–Q10, 0 dispatches on every deny path.
+- QA mutants **14/14 killed** by named tests with ERR_ASSERTION; the probe independently killed 13/14.
+- Secret, privacy and dependency scans clean (0 deps, no CI, no `tools/`, no lockfile).
 
-## QA action
-- No clone, no test run, no PR comment. The QA window does not act beyond its inbox scope.
-- No QA ruling on the egress-isolation question. That is Design's or the user's to decide.
-- Neutral fact for Design: the A48/A50 QA runs used a harness-level, non-blocking connect/DNS recorder (`NODE_OPTIONS=--import`) to *evidence* zero non-loopback egress. It did not *deny* egress; whether such evidence is acceptable for WP-01 is a Design decision.
-- QA keeps polling every 15 minutes and acts on the next `EXECUTION_TO_QA.md` seq that names a PR, an exact SHA and a Design QA plan.
+## Findings
+- P0: 0 · P1: 0 · P2: 0
+- INFO-1: the A54 wrapper unsets only the 8 standard proxy variables; other inherited host variables remain but are unusable (kernel netns). Design may consider `env -i` with an allowlist.
+- INFO-2..5: redirect path is kept verbatim (no header injection); probe gap on M11; ls-remote ran in the bus working copy; tool footer on the comment.
 
-## Record (unchanged)
-- A50 QA, PR #4 `2757aa664e2c12c80716fb291f3e3149f06fcfdd`: [7136581379](https://github.com/zyyu1/literature-management-system/pull/4#issuecomment-7136581379), PASS_MODEL_ONLY_CANDIDATE.
-- A48 QA, PR #2 `a9131ac2521edc50d1c96f90efbf1a987b7bf0d5`: [7136340755](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7136340755), PASS_LOCAL_CANDIDATE.
+## NOT RUN
+Real TLS, browser and identity; provider, backup and durable ledger; accept-time non-loopback peer rejection; original 26 U6 / 60 A4–A8; Windows.
 
-No G4 ruling by QA. G5/G6/G7 not authorized.
+QA STOP — awaiting Design.
