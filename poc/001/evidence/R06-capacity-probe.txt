@@ -1,0 +1,41 @@
+# R06 P2-R05-2 capacity probe (tested HEAD afc5b17ccfd9f525bff8ebdb06f30473b0d877f0)
+# Records are bare synthetic files without provenance: the export 503 at 1 <= N <= 1665 comes from record
+# verification AFTER the GET (expected), NOT from the listing. The LISTING boundary is: N<=1665 parses
+# (adapterOutcome ok, 8+6N elements); N>=1666 is rejected by the 10000-element limit and the export fails
+# closed with 0 GET and 0 writes. Full export success at N=1665 with authentic records is QA evidence
+# (#7103304755), not re-proven here.
+# probe source:
+#   // R06 P2-R05-2 capacity probe (LOCAL / SYNTHETIC, read-only use of repo modules; not committed as a script).
+#   // Usage: node capacity-probe.mjs <path-to-poc/001>
+#   import { pathToFileURL } from 'node:url';
+#   const root = process.argv[2];
+#   const { startStack } = await import(pathToFileURL(`${root}/test/helpers.mjs`));
+#   const { parseXml } = await import(pathToFileURL(`${root}/src/dav-xml.mjs`));
+#   for (const N of [0, 1, 1664, 1665, 1666, 1667]) {
+#     const s = await startStack();
+#     const ns = `/lms-poc/${s.namespace}`;
+#     for (const k of ['', '/notes', '/projects', '/progress']) s.mock.collections.add(`${ns}${k}`);
+#     for (let i = 0; i < N; i++) s.mock.files.set(`${ns}/notes/r${String(i).padStart(6, '0')}.json`, { bytes: Buffer.from('{}'), etag: `"e${i}"` });
+#     const { port } = new URL(s.dav.url);
+#     const raw = await (await fetch(`http://127.0.0.1:${port}${ns}/notes`, { method: 'PROPFIND', headers: { Depth: '1', 'Content-Type': 'application/xml; charset=utf-8', Authorization: `Basic ${Buffer.from(`${s.secrets.davUser}:${s.secrets.davPass}`).toString('base64')}` }, body: '<?xml version="1.0" encoding="utf-8"?>\n<d:propfind xmlns:d="DAV:"><d:prop><d:resourcetype/></d:prop></d:propfind>\n' })).text();
+#     let elements; try { const st = {}; parseXml(raw, st); elements = st.elements; } catch (e) { elements = `rejected (${e.message})`; }
+#     const from = s.mock.requestLog.length;
+#     const pf = await s.adapter.propfind(`/${s.namespace}/notes`, '1');
+#     const before = s.mock.requestLog.length;
+#     const ex = await s.client.exportAll();
+#     const after = s.mock.requestLog.slice(before);
+#     console.log(JSON.stringify({ N, formula: 8 + 6 * N, parsedElements: elements, adapterOutcome: pf.outcome, adapterReason: pf.reason ?? null, adapterRequests: before - from,
+#       exportStatus: ex.status, exportOutcome: ex.data.outcome ?? (ex.status === 200 ? 'bundle' : null), bundleRecords: ex.data.count ?? null,
+#       exportGETs: after.filter((e) => e.method === 'GET').length, exportWrites: after.filter((e) => ['PUT', 'DELETE', 'MKCOL'].includes(e.method)).length }));
+#     await s.stop();
+#   }
+
+$ node capacity-probe.mjs <poc/001>
+# exit 0
+
+{"N":0,"formula":8,"parsedElements":8,"adapterOutcome":"ok","adapterReason":null,"adapterRequests":1,"exportStatus":200,"exportOutcome":"ok","bundleRecords":0,"exportGETs":0,"exportWrites":0}
+{"N":1,"formula":14,"parsedElements":14,"adapterOutcome":"ok","adapterReason":null,"adapterRequests":1,"exportStatus":503,"exportOutcome":"export_incomplete","bundleRecords":null,"exportGETs":1,"exportWrites":0}
+{"N":1664,"formula":9992,"parsedElements":9992,"adapterOutcome":"ok","adapterReason":null,"adapterRequests":1,"exportStatus":503,"exportOutcome":"export_incomplete","bundleRecords":null,"exportGETs":1,"exportWrites":0}
+{"N":1665,"formula":9998,"parsedElements":9998,"adapterOutcome":"ok","adapterReason":null,"adapterRequests":1,"exportStatus":503,"exportOutcome":"export_incomplete","bundleRecords":null,"exportGETs":1,"exportWrites":0}
+{"N":1666,"formula":10004,"parsedElements":"rejected (DAV_XML: resource limit: more than 10000 elements)","adapterOutcome":"malformed","adapterReason":"DAV_XML: resource limit: more than 10000 elements","adapterRequests":1,"exportStatus":503,"exportOutcome":"export_incomplete","bundleRecords":null,"exportGETs":0,"exportWrites":0}
+{"N":1667,"formula":10010,"parsedElements":"rejected (DAV_XML: resource limit: more than 10000 elements)","adapterOutcome":"malformed","adapterReason":"DAV_XML: resource limit: more than 10000 elements","adapterRequests":1,"exportStatus":503,"exportOutcome":"export_incomplete","bundleRecords":null,"exportGETs":0,"exportWrites":0}

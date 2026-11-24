@@ -1,0 +1,48 @@
+# R06 HTTP-207 requestLog evidence (tested HEAD afc5b17ccfd9f525bff8ebdb06f30473b0d877f0)
+# probe source (not committed as a script; reproducible):
+#   // R06 requestLog evidence for HTTP-207 negative scenarios (LOCAL / SYNTHETIC). Read-only use of repo modules.
+#   // Usage: node requestlog-probe.mjs <path-to-poc/001>
+#   import { pathToFileURL } from 'node:url';
+#   import { createHash } from 'node:crypto';
+#   const root = process.argv[2];
+#   const { startStack, syntheticNote } = await import(pathToFileURL(`${root}/test/helpers.mjs`));
+#   const { PROPFIND_RESOURCETYPE_BODY } = await import(pathToFileURL(`${root}/src/webdav-adapter.mjs`));
+#   const sha = (s) => createHash('sha256').update(s).digest('hex').slice(0, 16);
+#   console.log(`PROPFIND_RESOURCETYPE_BODY bytes=${PROPFIND_RESOURCETYPE_BODY.length} sha256/16=${sha(PROPFIND_RESOURCETYPE_BODY)}`);
+#   async function run(label, mockOptions, prepare) {
+#     let override = null;
+#     const s = await startStack({ mockOptions: { ...mockOptions, ...(mockOptions.propfindOverride ? { propfindOverride: (p) => (override ? override(p) : null) } : {}) } });
+#     const n = syntheticNote();
+#     const put = await s.client.put('notes', n.literatureId, n, '*');
+#     const ns = `/lms-poc/${s.namespace}`;
+#     override = prepare?.({ s, ns, n }) ?? null;
+#     const from = s.mock.requestLog.length;
+#     const ex = await s.client.exportAll();
+#     const after = s.mock.requestLog.slice(from).map((e) => ({ method: e.method, path: e.path.replace(ns, '<ns>'), ...(e.method === 'PROPFIND' ? { depth: e.depth, contentType: e.contentType, contentLength: e.contentLength, bodyBytes: e.bodyBytes, bodySha16: sha(e.body), bodyEqualsExplicit: e.body === PROPFIND_RESOURCETYPE_BODY.toString('utf8') } : {}) }));
+#     console.log(JSON.stringify({ scenario: label, setupWrite: put.data.outcome, export: [ex.status, ex.data.outcome, ex.data.count ?? null, ex.data.records ? 'BUNDLE' : 'no bundle'], requestsAfterSetup: after }));
+#     await s.stop();
+#   }
+#   const truncated = (ns) => `<d:multistatus xmlns:d="DAV:"><d:response><d:href>${ns}/</d:href><d:propstat>`;
+#   const col = (h, extra = '') => `<d:response><d:href>${h}</d:href><d:propstat><d:prop><d:resourcetype><d:collection/></d:resourcetype>${extra}</d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response>`;
+#   await run('207 truncated XML at root', { propfindOverride: true }, ({ ns }) => (p) => (p === ns ? truncated(ns) : null));
+#   await run('207 truncated XML at notes', { propfindOverride: true }, ({ ns }) => (p) => (p === `${ns}/notes` ? truncated(ns) : null));
+#   await run('207 well-formed, owner with nested DAV:href at root', { propfindOverride: true }, ({ ns }) => (p) => (p === ns ? `<d:multistatus xmlns:d="DAV:">${col(`${ns}/`, '<d:owner><d:href>/principals/x/</d:href></d:owner>')}${col(`${ns}/notes/`)}${col(`${ns}/projects/`)}${col(`${ns}/progress/`)}</d:multistatus>` : null));
+#   await run('ignorePropSelection allprop, locks=true', { ignorePropSelection: true }, ({ s, ns, n }) => { s.mock.locks.add(`${ns}/notes/${n.literatureId}.json`); s.mock.locks.add(`${ns}/notes`); return null; });
+#   await run('ignorePropSelection allprop, locks=false', { ignorePropSelection: true });
+#   for (const status of [400, 403, 415, 500]) await run(`non-207 ${status}`, {}, ({ s }) => { s.mock.faults.push({ method: 'PROPFIND', kind: 'status', status }); return null; });
+#   await run('valid 207 (non-regression)', {});
+
+$ node requestlog-probe.mjs <poc/001>
+# exit 0
+
+PROPFIND_RESOURCETYPE_BODY bytes=114 sha256/16=16942fbb6a0e0790
+{"scenario":"207 truncated XML at root","setupWrite":"saved","export":[503,"export_incomplete",null,"no bundle"],"requestsAfterSetup":[{"method":"PROPFIND","path":"<ns>","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true}]}
+{"scenario":"207 truncated XML at notes","setupWrite":"saved","export":[503,"export_incomplete",null,"no bundle"],"requestsAfterSetup":[{"method":"PROPFIND","path":"<ns>","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true},{"method":"PROPFIND","path":"<ns>/notes","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true}]}
+{"scenario":"207 well-formed, owner with nested DAV:href at root","setupWrite":"saved","export":[503,"export_incomplete",null,"no bundle"],"requestsAfterSetup":[{"method":"PROPFIND","path":"<ns>","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true}]}
+{"scenario":"ignorePropSelection allprop, locks=true","setupWrite":"saved","export":[503,"export_incomplete",null,"no bundle"],"requestsAfterSetup":[{"method":"PROPFIND","path":"<ns>","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true}]}
+{"scenario":"ignorePropSelection allprop, locks=false","setupWrite":"saved","export":[503,"export_incomplete",null,"no bundle"],"requestsAfterSetup":[{"method":"PROPFIND","path":"<ns>","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true}]}
+{"scenario":"non-207 400","setupWrite":"saved","export":[503,"export_incomplete",null,"no bundle"],"requestsAfterSetup":[{"method":"PROPFIND","path":"<ns>","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true}]}
+{"scenario":"non-207 403","setupWrite":"saved","export":[503,"export_incomplete",null,"no bundle"],"requestsAfterSetup":[{"method":"PROPFIND","path":"<ns>","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true}]}
+{"scenario":"non-207 415","setupWrite":"saved","export":[503,"export_incomplete",null,"no bundle"],"requestsAfterSetup":[{"method":"PROPFIND","path":"<ns>","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true}]}
+{"scenario":"non-207 500","setupWrite":"saved","export":[503,"export_incomplete",null,"no bundle"],"requestsAfterSetup":[{"method":"PROPFIND","path":"<ns>","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true}]}
+{"scenario":"valid 207 (non-regression)","setupWrite":"saved","export":[200,"ok",1,"BUNDLE"],"requestsAfterSetup":[{"method":"PROPFIND","path":"<ns>","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true},{"method":"PROPFIND","path":"<ns>/notes","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true},{"method":"PROPFIND","path":"<ns>/projects","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true},{"method":"PROPFIND","path":"<ns>/progress","depth":"1","contentType":"application/xml; charset=utf-8","contentLength":"114","bodyBytes":114,"bodySha16":"16942fbb6a0e0790","bodyEqualsExplicit":true},{"method":"GET","path":"<ns>/notes/lit-9000001-s0000009.json"}]}

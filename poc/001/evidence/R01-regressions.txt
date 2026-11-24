@@ -1,27 +1,27 @@
 $ node --test --test-reporter=spec test/r01-regressions.test.mjs
-# exit 0 · 3063 ms
+# exit 0 · 3035 ms
 
-✔ P1-1 late commit after timeout: verify is non-terminal until observed; late commit → committed, never a prior false negative (328.107939ms)
-✔ P1-1 fence before late release: terminal not_committed stays true because the late request now fails CAS (340.073282ms)
-✔ P1-1 create-only Unknown cannot be fenced: stays Unknown (documented UNSUPPORTED) (270.409383ms)
-✔ P1-2 same Operation-Id concurrently: reserved before first await → exactly one upstream PUT (417.224211ms)
-✔ P1-2 overlapping body arrival with the same Operation-Id: second request refused while first body still streaming (44.07358ms)
-✔ P1-2 same Operation-Id with a different payload or target is refused; replay agrees with the real result (16.061684ms)
-✔ P1-2/P2-8 exception after reservation never strands an entry as pending (14.58587ms)
-✔ P2-8 ledger is scoped per principal: another token cannot verify, fence or spoof an operation (269.68138ms)
-✔ P2-8 ledger is bounded and fails closed rather than evicting Unknown entries (786.125955ms)
-✔ P1-3 If-Match must be exactly one strong entity-tag; malformed variants never reach storage (23.722117ms)
-✔ P1-4 https base URL fails closed: zero connections, zero Authorization sent (104.557558ms)
-✔ P2-5 prototype-like kinds rejected on every path (records, verify, restore) before any upstream call (21.358295ms)
-✔ P2-6 restore validates decoded envelopes, not just self-consistent hashes (17.587699ms)
-✔ P2-7 export fails closed on unrecognized or invalid entries (never a silently short ok) (20.195593ms)
-✔ P2-9 concurrent restores into the same target: exactly one restored (in-process and across instances) (20.241153ms)
-✔ P2-10 committed_unverified when the storage returns no ETag (never "saved") (7.886153ms)
-✔ P2-10 verify after API restart: caller restates target; results are never terminal (14.500138ms)
-✔ P2-10 corrupt read is reported as corrupt, not returned as data (7.291425ms)
-✔ P2-11 validators reject unexpected fields and non-string identifiers without coercion (11.374331ms)
-✔ P2-12 transport classification: never-connected → not_sent; connected-then-dropped → unknown (203.8401ms)
-✔ P2-12 (QA probe G5/G6) redirects are never followed; truncated 2xx bodies are not data (3.773369ms)
+✔ P1-1 late commit after timeout: verify is non-terminal until observed; late commit → committed, never a prior false negative (321.48521ms)
+✔ P1-1 fence before late release: terminal not_committed stays true because the late request now fails CAS (327.270453ms)
+✔ P1-1 create-only Unknown cannot be fenced: stays Unknown (documented UNSUPPORTED) (264.326761ms)
+✔ P1-2 same Operation-Id concurrently: reserved before first await → exactly one upstream PUT (418.029251ms)
+✔ P1-2 overlapping body arrival with the same Operation-Id: second request refused while first body still streaming (45.805108ms)
+✔ P1-2 same Operation-Id with a different payload or target is refused; replay agrees with the real result (15.985862ms)
+✔ P1-2/P2-8 exception after reservation never strands an entry as pending (14.938572ms)
+✔ P2-8 ledger is scoped per principal: another token cannot verify, fence or spoof an operation (269.067858ms)
+✔ P2-8 ledger is bounded and fails closed rather than evicting Unknown entries (780.998165ms)
+✔ P1-3 If-Match must be exactly one strong entity-tag; malformed variants never reach storage (21.683298ms)
+✔ P1-4 https base URL fails closed: zero connections, zero Authorization sent (103.571576ms)
+✔ P2-5 prototype-like kinds rejected on every path (records, verify, restore) before any upstream call (33.258631ms)
+✔ P2-6 restore validates decoded envelopes, not just self-consistent hashes (15.064934ms)
+✔ P2-7 export fails closed on unrecognized or invalid entries (never a silently short ok) (19.502261ms)
+✔ P2-9 concurrent restores into the same target: exactly one restored (in-process and across instances) (22.983682ms)
+✔ P2-10 committed_unverified when the storage returns no ETag (never "saved") (8.352216ms)
+✔ P2-10 verify after API restart: caller restates target; results are never terminal (15.141947ms)
+✔ P2-10 corrupt read is reported as corrupt, not returned as data (8.147129ms)
+✔ P2-11 validators reject unexpected fields and non-string identifiers without coercion (12.545816ms)
+✔ P2-12 transport classification: never-connected → not_sent; connected-then-dropped → unknown (204.011823ms)
+✔ P2-12 (QA probe G5/G6) redirects are never followed; truncated 2xx bodies are not data (4.504119ms)
 ℹ tests 21
 ℹ suites 0
 ℹ pass 21
@@ -29,4 +29,4 @@ $ node --test --test-reporter=spec test/r01-regressions.test.mjs
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 3027.60531
+ℹ duration_ms 3002.844655

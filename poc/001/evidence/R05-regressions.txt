@@ -1,36 +1,36 @@
 $ node --test --test-reporter=spec test/r05-regressions.test.mjs
-# exit 0 · 1296 ms
+# exit 0 · 1126 ms
 
-  # resource-probe env {"node":"v22.23.5","platform":"Linux 6.18.44-fc-v726 x64","cpus":2,"cpuModel":"Intel(R) Xeon(R) Processor @ 2.10GHz","heapLimitMb":256,"osKillAfterMs":20000,"targetMs":2000}
-  # PASS H1-442KB-1000xmlns-60000deep parser exit=0 wall=43ms rss=48.5MB bytes=434890 depth=60000 elements=60000 xmlns=1000 outcome=DAV_XML detail="DAV_XML: resource limit: nesting depth > 64"
-  # PASS H1-442KB-1000xmlns-60000deep api-export exit=0 wall=125ms rss=63.3MB bytes=434890 depth=60000 elements=60000 xmlns=1000 outcome=503 export_incomplete detail="DAV_XML: resource limit: nesting depth > 64"
-  # PASS H2-396KB-2000xmlns-50000deep parser exit=0 wall=43ms rss=47.2MB bytes=380890 depth=50000 elements=50000 xmlns=2000 outcome=DAV_XML detail="DAV_XML: resource limit: nesting depth > 64"
-  # PASS H2-396KB-2000xmlns-50000deep api-export exit=0 wall=125ms rss=62MB bytes=380890 depth=50000 elements=50000 xmlns=2000 outcome=503 export_incomplete detail="DAV_XML: resource limit: nesting depth > 64"
-  # PASS H3-at-limits-256xmlns-9996wide parser exit=0 wall=57ms rss=51.9MB bytes=95148 depth=4 elements=10000 xmlns=256 outcome=DAV_XML detail="DAV_XML: root is not DAV:multistatus"
-  # PASS H3-at-limits-256xmlns-9996wide api-export exit=0 wall=131ms rss=68MB bytes=95148 depth=4 elements=10000 xmlns=256 outcome=503 export_incomplete detail="DAV_XML: root is not DAV:multistatus"
-  # PASS H4-2MB-element-flood parser exit=0 wall=50ms rss=52.3MB bytes=1999999 depth=1 elements=499999 xmlns=0 outcome=DAV_XML detail="DAV_XML: resource limit: more than 10000 elements"
-  # PASS H4-2MB-element-flood api-export exit=0 wall=138ms rss=76.4MB bytes=1999999 depth=1 elements=499999 xmlns=0 outcome=503 export_incomplete detail="DAV_XML: resource limit: more than 10000 elements"
+  # resource-probe env {"node":"v22.23.5","platform":"Linux 6.18.44-fc-v819 x64","cpus":2,"cpuModel":"Intel(R) Xeon(R) Processor @ 2.10GHz","heapLimitMb":256,"osKillAfterMs":20000,"targetMs":2000}
+  # PASS H1-442KB-1000xmlns-60000deep parser exit=0 wall=41ms rss=48.7MB bytes=434890 depth=60000 elements=60000 xmlns=1000 outcome=DAV_XML detail="DAV_XML: resource limit: nesting depth > 64"
+  # PASS H1-442KB-1000xmlns-60000deep api-export exit=0 wall=102ms rss=63.5MB bytes=434890 depth=60000 elements=60000 xmlns=1000 outcome=503 export_incomplete detail="DAV_XML: resource limit: nesting depth > 64"
+  # PASS H2-396KB-2000xmlns-50000deep parser exit=0 wall=40ms rss=47.3MB bytes=380890 depth=50000 elements=50000 xmlns=2000 outcome=DAV_XML detail="DAV_XML: resource limit: nesting depth > 64"
+  # PASS H2-396KB-2000xmlns-50000deep api-export exit=0 wall=108ms rss=61.9MB bytes=380890 depth=50000 elements=50000 xmlns=2000 outcome=503 export_incomplete detail="DAV_XML: resource limit: nesting depth > 64"
+  # PASS H3-at-limits-256xmlns-9996wide parser exit=0 wall=52ms rss=50.9MB bytes=95148 depth=4 elements=10000 xmlns=256 outcome=DAV_XML detail="DAV_XML: root is not DAV:multistatus"
+  # PASS H3-at-limits-256xmlns-9996wide api-export exit=0 wall=123ms rss=67.8MB bytes=95148 depth=4 elements=10000 xmlns=256 outcome=503 export_incomplete detail="DAV_XML: root is not DAV:multistatus"
+  # PASS H4-2MB-element-flood parser exit=0 wall=45ms rss=51.9MB bytes=1999999 depth=1 elements=499999 xmlns=0 outcome=DAV_XML detail="DAV_XML: resource limit: more than 10000 elements"
+  # PASS H4-2MB-element-flood api-export exit=0 wall=127ms rss=76.1MB bytes=1999999 depth=1 elements=499999 xmlns=0 outcome=503 export_incomplete detail="DAV_XML: resource limit: more than 10000 elements"
   # RESOURCE PROBE: all current-code cases PASS (target < 2000 ms wall incl. node start-up, heap 256 MB)
-✔ R05-1 limits are the authorized values (1.750078ms)
-✔ R05-1 depth 64 accepted / 65 rejected (2.02302ms)
-✔ R05-1 elements 10000 accepted / 10001 rejected (26.729222ms)
-✔ R05-1 attributes per element 64 accepted / 65 rejected (0.63337ms)
-✔ R05-1 total attributes 10000 accepted / 10001 rejected (18.001493ms)
-✔ R05-1 namespace declarations 256 accepted / 257 rejected (1.084172ms)
-✔ R05-1 namespace scopes are shared, not copied per element (19.260683ms)
-✔ R05-1 existing byte ceiling and DTD/ENTITY refusal preserved; malformed qname refused (1.926243ms)
-✔ R05-1 historical hostile fixtures in ISOLATED child processes (256 MB heap, OS SIGKILL timeout): fail closed < 2 s, no OOM (760.183319ms)
-✔ R05-1 resource-limit violations in a listing → 503 export_incomplete, no bundle, no writes (107.802918ms)
-✔ R05-2 outbound PROPFIND: exact resourcetype-only body, Content-Type, Content-Length, Depth; never allprop (32.759522ms)
-✔ R05-2 locked records on a conforming server: export succeeds with the correct count; restore works (34.729435ms)
-✔ R05-2 non-conforming server ignoring the requested scope (allprop extras with nested DAV:href) → 503, no bundle (23.066928ms)
-✔ R05-2 nested DAV:href inside an unexpected property → 503 (not silently dropped) (11.538076ms)
-✔ R05-2 no allprop fallback: PROPFIND answered 400 → fail closed, exactly one PROPFIND, never an empty body (10.022902ms)
-✔ R05-2 no allprop fallback: PROPFIND answered 403 → fail closed, exactly one PROPFIND, never an empty body (11.652482ms)
-✔ R05-2 no allprop fallback: PROPFIND answered 415 → fail closed, exactly one PROPFIND, never an empty body (10.548098ms)
-✔ R05-2 no allprop fallback: PROPFIND answered 500 → fail closed, exactly one PROPFIND, never an empty body (15.913327ms)
-✔ R05-2 canonical checks, 0- and 2-record export/restore, and prefixes still work with the explicit request (81.622573ms)
-✔ R05 non-regression: R04 hidden-response protection intact with the new request (9.457377ms)
+✔ R05-1 limits are the authorized values (1.158597ms)
+✔ R05-1 depth 64 accepted / 65 rejected (1.480152ms)
+✔ R05-1 elements 10000 accepted / 10001 rejected (21.732056ms)
+✔ R05-1 attributes per element 64 accepted / 65 rejected (0.567421ms)
+✔ R05-1 total attributes 10000 accepted / 10001 rejected (20.065057ms)
+✔ R05-1 namespace declarations 256 accepted / 257 rejected (1.137225ms)
+✔ R05-1 namespace scopes are shared, not copied per element (15.531215ms)
+✔ R05-1 existing byte ceiling and DTD/ENTITY refusal preserved; malformed qname refused (1.57967ms)
+✔ R05-1 historical hostile fixtures in ISOLATED child processes (256 MB heap, OS SIGKILL timeout): fail closed < 2 s, no OOM (672.850852ms)
+✔ R05-1 resource-limit violations in a listing → 503 export_incomplete, no bundle, no writes (99.86659ms)
+✔ R05-2 outbound PROPFIND: exact resourcetype-only body, Content-Type, Content-Length, Depth; never allprop (28.125195ms)
+✔ R05-2 locked records on a conforming server: export succeeds with the correct count; restore works (33.261304ms)
+✔ R05-2 non-conforming server ignoring the requested scope (allprop extras with nested DAV:href) → 503, no bundle (17.014711ms)
+✔ R05-2 nested DAV:href inside an unexpected property → 503 (not silently dropped) (9.536787ms)
+✔ R05-2 no allprop fallback: PROPFIND answered 400 → fail closed, exactly one PROPFIND, never an empty body (7.4641ms)
+✔ R05-2 no allprop fallback: PROPFIND answered 403 → fail closed, exactly one PROPFIND, never an empty body (7.699963ms)
+✔ R05-2 no allprop fallback: PROPFIND answered 415 → fail closed, exactly one PROPFIND, never an empty body (7.66846ms)
+✔ R05-2 no allprop fallback: PROPFIND answered 500 → fail closed, exactly one PROPFIND, never an empty body (9.034494ms)
+✔ R05-2 canonical checks, 0- and 2-record export/restore, and prefixes still work with the explicit request (61.131222ms)
+✔ R05 non-regression: R04 hidden-response protection intact with the new request (8.569027ms)
 ℹ tests 20
 ℹ suites 0
 ℹ pass 20
@@ -38,4 +38,4 @@ $ node --test --test-reporter=spec test/r05-regressions.test.mjs
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 1265.318103
+ℹ duration_ms 1095.921253
