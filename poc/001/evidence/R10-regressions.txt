@@ -1,0 +1,20 @@
+$ node --test --test-reporter=spec test/r10-regressions.test.mjs
+# exit 0 · 438 ms · gitHead bb30e1d07ac18412021e5bcb05919ea6d87057cd
+
+✔ R10-CLEAN-01 unit: verification refused at 0, 1 and 19 of 20 DELETE attempts; token, slots and STOP state preserved (2.364748ms)
+R10-EVIDENCE R10-CLEAN-02 {"ordinary":75,"earlyVerificationsRefused":3,"stragglersRefused":10,"deletes":20,"finalVerification":1,"serverRequests":96,"ownFilesLeft":0}
+✔ R10-CLEAN-01/02 two writers, early cleanup at 75: early PROPFIND at 0/1/19 of 20 refused, 10 stragglers refused, then 20 DELETE + 1 final = 96, 0 files (194.629128ms)
+✔ R10-CLEAN-02 legacy profile with an early PROPFIND: 79 + 21 = 100, request 101 refused (104.469965ms)
+✔ R10-SAFE 412 counts as attempted (not success): final verification allowed and the residual stays visible (6.231777ms)
+✔ R10-SAFE upstream 401 mid-cleanup: hard STOP still refuses DELETE and the verification (4.16478ms)
+✔ R10-SAFE upstream 429 mid-cleanup: hard STOP still refuses DELETE and the verification (4.530563ms)
+R10-EVIDENCE R10-SAFE {"unknownWriteResidual":1,"finalVerification":"refused (finality not assertable)"}
+✔ R10-SAFE lost-ACK own write: its DELETE cannot be claimed, so no final verification and no false "clean" (3.758183ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 400.541867

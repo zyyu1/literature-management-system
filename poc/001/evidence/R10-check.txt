@@ -1,0 +1,4 @@
+$ node scripts/check.mjs
+# exit 0 · 699 ms · gitHead bb30e1d07ac18412021e5bcb05919ea6d87057cd
+
+node --check: 34 files, 0 failures

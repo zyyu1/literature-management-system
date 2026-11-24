@@ -11,9 +11,9 @@ Requires Node ≥ 22.21 and no install step: there are zero third-party dependen
 ```bash
 cd poc/001
 npm run check      # node --check on all .mjs files
-npm test           # node --test "test/*.test.mjs"  (POC-01..07 + REMEDIATION-01..07 regressions + R08 readiness + R09 regressions)
+npm test           # node --test "test/*.test.mjs"  (POC-01..07 + REMEDIATION-01..07 regressions + R08 readiness + R09/R10 regressions)
 npm run scan       # heuristic secret / private-endpoint / data-file scan vs the pinned base 1c084e5
-npm run mutation   # injects 82 known defects into a temp copy; each must make its suite fail (M48–M82 must fail on their own named assertion)
+npm run mutation   # injects 85 known defects into a temp copy; each must make its suite fail (M48–M85 must fail on their own named assertion)
 node scripts/resource-probe.mjs [--baseline <old dav-xml.mjs>]
                    # R05: hostile XML in isolated child processes (256 MB heap, SIGKILL timeout, peak RSS)
 npm run evidence   # per-area runs + 5 real full-suite repetitions; rewrites evidence/*.txt + results.json
@@ -330,3 +330,27 @@ Starts from `49ad24e` (R08 final, A31 G4 `PARTIAL_NOT_ACCEPTED`, unchanged). It 
   - An already-dispatched Unknown write may leave a file that cleanup cannot safely claim; that needs operator quarantine.
 
   **G5/G6/G7 not authorized; OVERALL `BLOCKED_REAL_SERVICE`.**
+
+## Remediation 10 (D007-A39, Design commit `65ef66a`) — FINAL-ONLY CLEANUP VERIFICATION; SYNTHETIC ONLY
+
+Starts from `bcc4738` (R09 final, A33 G4 PARTIAL, unchanged). It fixes **only P2-R09-QA-1**: a premature own-scope PROPFIND after `beginCleanup()` used to take the single verification, after which every DELETE was refused and all fake files were stranded.
+
+**Scope:** only `src/util.mjs`, the new `test/r10-regressions.test.mjs`, M83–M85 in `scripts/mutation-check.mjs`, new `evidence/R10-*`, this README and the QA handoff. `webdav-adapter.mjs`, `safe-api.mjs`, every earlier test (including `r09-regressions`) and the earlier evidence are untouched.
+
+- **The fix (`admitDispatch`, cleanup phase).** The verification PROPFIND is now final-only. It is refused **before dispatch** with `CLEANUP_VERIFICATION_PREMATURE` until **every own file has had its one conditional DELETE attempt**. A 412 counts as attempted, not as success.
+  - The refusal sends nothing, uses no slot, keeps the verification token, triggers no STOP and leaves later DELETEs possible.
+  - Once all attempts are made, exactly one final verification is admitted, and a second one is refused.
+  - Hard limits still come first: 401/429 and the 100-request cap.
+- **Measured (two writers, early cleanup at 75 requests).**
+  - Premature PROPFINDs at 0, 1 and 19 of 20 attempts: each refused, with 0 PROPFINDs sent, slots, reserve, token and STOP state unchanged.
+  - 10 straggler PUTs: refused, 0 sent.
+  - Then 20 DELETEs + 1 final verification: **96** server requests, **0** own files left.
+  - The legacy profile is kept: 79 + 21 = **100**, and request 101 is refused.
+- **Unchanged semantics.**
+  - A wrong If-Match (412) uses that file's attempt; the final verification then shows the residual (no false "clean"), and there is no retry.
+  - 401/429 mid-cleanup is a hard STOP that also refuses the verification; residual files are reported.
+  - **A stored-but-unacknowledged (Unknown) own write cannot be safely claimed by a conditional DELETE.** The final verification therefore stays refused, and the file is left for operator quarantine: finality cannot be asserted from the budget alone, so this is reported rather than worked around.
+  - ACCESS-01 ceilings, the 114-byte PROPFIND, TLS/SSRF/path and N 1665/1666 are unchanged.
+- **Still INFO (unchanged, as directed):** INFO-1 (direct `admitRequest('cleanup')` helper misuse) and C9 (refusal code from a lower layer).
+- **Mutation:** M83 (premature verification admitted), M84 (refusal burns the token) and M85 (refusal takes a slot), each killed by its named R10 assertion. M1–M82 are unchanged.
+- **G5/G6/G7 not authorized; OVERALL `BLOCKED_REAL_SERVICE`.**

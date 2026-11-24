@@ -1,0 +1,60 @@
+$ node --test --test-reporter=spec test/r08-readiness.test.mjs
+# exit 0 · 8301 ms · gitHead bb30e1d07ac18412021e5bcb05919ea6d87057cd
+
+R08-EVIDENCE R08-TLS-01 {"cert":"IP Address:127.0.0.1, DNS:localhost, IP Address:0:0:0:0:0:0:0:1","handshakes":18,"appBytes":5654,"propfinds":4,"openssl":"OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)","nodeOpenssl":"3.5.9"}
+✔ R08-TLS-01 strict loopback HTTPS (IP SAN) carries the full API: save, read-back, export, restore (140.013357ms)
+✔ R08-TLS-01 strict loopback HTTPS by name: localhost is verified against the DNS SAN and resolved to loopback (32.508415ms)
+✔ R08-TLS-01 controls: plain-HTTP loopback still works; https without explicit localTls still fails closed (12.845327ms)
+R08-EVIDENCE R08-TLS-02 {"label":"wrong CA","code":"UNABLE_TO_VERIFY_LEAF_SIGNATURE","tcp":3,"handshakes":0,"appBytes":0,"backendRequests":0}
+✔ R08-TLS-02 wrong CA: no application request, no Authorization; write is not_sent (not Unknown) (19.044173ms)
+R08-EVIDENCE R08-TLS-02 {"label":"self-signed untrusted","code":"DEPTH_ZERO_SELF_SIGNED_CERT","tcp":3,"handshakes":0,"appBytes":0,"backendRequests":0}
+✔ R08-TLS-02 self-signed untrusted: no application request, no Authorization; write is not_sent (not Unknown) (15.891978ms)
+R08-EVIDENCE R08-TLS-02 {"label":"expired","code":"CERT_HAS_EXPIRED","tcp":3,"handshakes":0,"appBytes":0,"backendRequests":0}
+✔ R08-TLS-02 expired: no application request, no Authorization; write is not_sent (not Unknown) (16.042048ms)
+R08-EVIDENCE R08-TLS-02 {"label":"SAN mismatch","code":"ERR_TLS_CERT_ALTNAME_INVALID","tcp":3,"handshakes":0,"appBytes":0,"backendRequests":0}
+✔ R08-TLS-02 SAN mismatch: no application request, no Authorization; write is not_sent (not Unknown) (17.885925ms)
+R08-EVIDENCE R08-TLS-02 {"label":"valid cert but client trusts another CA only","code":"UNABLE_TO_VERIFY_LEAF_SIGNATURE","tcp":3,"handshakes":0,"appBytes":0,"backendRequests":0}
+✔ R08-TLS-02 valid cert but client trusts another CA only: no application request, no Authorization; write is not_sent (not Unknown) (21.568287ms)
+✔ R08-TLS-02 insecure trust overrides and ambiguous TLS configuration are refused at construction (0.803684ms)
+✔ R08-TLS-02 NODE_TLS_REJECT_UNAUTHORIZED=0 cannot weaken verification (separate process) (101.081873ms)
+✔ R08-TLS-02 redirects (downgrade to http:, cross-host https:) are never followed; no second request (44.822ms)
+✔ R08-NET-03 non-loopback, arbitrary, obfuscated, credentialed or port-less targets are refused at construction (0.824139ms)
+✔ R08-NET-03 a name resolving outside the loopback allowlist is refused before connecting (trap untouched) (56.791342ms)
+✔ R08-NET-03 positive control: the system resolver maps localhost to an allowed loopback address (9.301931ms)
+✔ R08-PATH-04 adapter refuses non-canonical request paths before any request (1.808509ms)
+✔ R08-PATH-04 non-canonical base paths are refused at construction (0.329381ms)
+✔ R08-PATH-04 API refuses encoded traversal and cross-namespace targets; valid note paths still work (16.635844ms)
+R08-EVIDENCE R08-Q4-05 {"case":"stalled-body","status":408,"ms":1003,"upstreamPut":0}
+✔ R08-Q4-05 deadline: a stalled body is answered 408 by the 1000 ms absolute deadline, before any dispatch (1004.301004ms)
+✔ R08-Q4-05 late chunks after the deadline never become a write; the reservation is released (1920.710914ms)
+✔ R08-Q4-05 admission: 2 per principal / 4 global while bodies stall; other principal unaffected; all released by the deadline (1017.038786ms)
+✔ R08-Q4-05 aborted upload releases the reservation; no PUT (128.553236ms)
+✔ R08-Q4-05 dispatch uncertain: an upstream stall past the body deadline stays Unknown (no 408, no false verdict) (308.240161ms)
+✔ R08-Q4-05 body cap, opId reuse with another payload, reuse while pending, upstream 429 (no retry) (1022.483514ms)
+R08-EVIDENCE R08-Q5-06 {"case":"applied-unconfirmed-fence","fence":"fence_not_confirmed","verify":"indeterminate","fencePuts":1}
+✔ R08-Q5-06 applied-but-unconfirmed fence (lost ACK) stays non-terminal; no blind fence retry (25.745798ms)
+✔ R08-Q5-06 missing ETag on fence: fence_not_confirmed, Unknown retained, no retry (14.152175ms)
+✔ R08-Q5-06 weak ETag on fence: fence_not_confirmed, Unknown retained, no retry (15.144963ms)
+✔ R08-Q5-06 mismatched (bogus) fence ETag: fence_not_confirmed, Unknown retained, no retry (16.110999ms)
+✔ R08-Q5-06 GET read-back failure: fence_not_confirmed, Unknown retained, no retry (14.959209ms)
+✔ R08-Q5-06 restart: a fresh instance never terminalises, never fences, never replays (24.967747ms)
+✔ R08-Q5-06 Unknown entries hold their quota slot (no TTL/pressure eviction); manual STOP is the outcome (17.455614ms)
+✔ R08-Q5-06 sibling write after an Unknown: CAS decides, the Unknown becomes indeterminate (never terminal) (18.824045ms)
+R08-EVIDENCE R08-CAP-07 {"N":1665,"listingElements":9998,"listingBytes":299981,"status":200,"count":1665,"propfind":4,"get":1665,"writes":0,"exportMs":1161,"responseBytes":1079657,"rssDeltaMB":25.6,"maxRssMB":146.1}
+✔ R08-CAP-07 N=1665: listing has 9998 XML elements -> 200 complete bundle (1269.350097ms)
+R08-EVIDENCE R08-CAP-07 {"N":1666,"listingElements":10004,"listingBytes":300161,"status":503,"count":null,"propfind":4,"get":0,"writes":0,"exportMs":45,"responseBytes":149,"rssDeltaMB":4.3,"maxRssMB":149.4}
+✔ R08-CAP-07 N=1666: listing has 10004 XML elements -> 503 export_incomplete, no partial bundle, no GET, no write (99.569692ms)
+✔ R08-BUD-08 arithmetic: 100/rolling 30 min incl. cleanup reserve, files, bytes, writers, 401/429 stop (1.320568ms)
+R08-EVIDENCE R08-BUD-08 {"writers":2,"files":20,"requestsTotal":100,"ordinaryStoppedAt":80,"cleanup":21,"upstream":100}
+✔ R08-BUD-08 end-to-end dry run against the local mock: 2 writers, 20 files, stop before the reserve, cleanup in reserve, exactly 100 requests (98.454223ms)
+✔ R08-BUD-08 end-to-end: file cap, 1 MiB cap and upstream 429 STOP are enforced before dispatch (12.519847ms)
+✔ R08-SCOPE-10 malformed HTTP 207 over TLS: exactly one explicit PROPFIND for the failing path, 503, no GET/write (28.728245ms)
+✔ R08-SCOPE-10 PROPFIND contract and loopback-only endpoints are unchanged by R08 (8.727162ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8257.900016

@@ -1,0 +1,15 @@
+$ node --test --test-reporter=spec test/r07-regressions.test.mjs
+# exit 0 · 345 ms · gitHead bb30e1d07ac18412021e5bcb05919ea6d87057cd
+
+✔ R07-FH-01 post-parse branch "foreign href" (root and kind listing) → 503, exactly one explicit PROPFIND, no fallback (95.026689ms)
+✔ R07-STATUS-02 post-parse branch "non-2xx response entry" (root and kind listing) → 503, exactly one explicit PROPFIND, no fallback (45.310542ms)
+✔ R07-DUP-03 post-parse branch "duplicate href" (root and kind listing) → 503, exactly one explicit PROPFIND, no fallback (34.712643ms)
+✔ R07 positive control: valid parsed 207 listings (same builders, no bad entry) export normally with one explicit PROPFIND per path (16.292696ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 305.485195

@@ -1,0 +1,28 @@
+$ node --test --test-reporter=spec test/poc06-faults.test.mjs
+# exit 0 · 1956 ms · gitHead bb30e1d07ac18412021e5bcb05919ea6d87057cd
+
+✔ POC-06 upstream 401: definite not_saved (upstream_auth), single attempt, data intact (53.537073ms)
+✔ POC-06 upstream 403: definite not_saved (upstream_forbidden), single attempt, data intact (16.384428ms)
+✔ POC-06 upstream 409: definite not_saved (upstream_conflict), single attempt, data intact (16.062229ms)
+✔ POC-06 upstream 423: definite not_saved (locked), single attempt, data intact (14.218488ms)
+✔ POC-06 upstream 429: definite not_saved (rate_limited), single attempt, data intact (16.908344ms)
+✔ POC-06 upstream 412 (stale): conflict with current content, nothing written (13.296093ms)
+✔ POC-06 hang: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat (342.36406ms)
+✔ POC-06 status 500: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat (22.297097ms)
+✔ POC-06 status 503: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat (23.886431ms)
+✔ POC-06 commit-then-drop: Unknown → verify → committed; no blind repeat (22.229676ms)
+✔ POC-06 commit-then-hang: Unknown → verify → committed; no blind repeat (318.450554ms)
+✔ POC-06 commit-then-status 502: Unknown → verify → committed; no blind repeat (17.677632ms)
+✔ POC-06 Unknown, then another writer changes the record → verify says indeterminate (not guessed) (315.286111ms)
+✔ POC-06 identical text from another writer is NOT treated as proof our op landed (316.549558ms)
+✔ POC-06 corrupt write: storage acknowledges but bytes differ → verification_failed, never saved (9.115259ms)
+✔ POC-06 offline (storage down): writes definite not_saved/offline, reads unavailable, verify unavailable (315.998522ms)
+✔ POC-06 read-path errors (401 expired creds, 429, 500) are surfaced, not masked as empty data (11.958948ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1926.822172
