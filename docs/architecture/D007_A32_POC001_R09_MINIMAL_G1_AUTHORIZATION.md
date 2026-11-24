@@ -1,0 +1,56 @@
+# D007-A32 — POC-001 REMEDIATION-09 Minimal Local-Synthetic Repair: G1 Authorization
+
+**User decision: APPROVED D007-A32 Option A, 2026-11-24 (Europe/Berlin).** This authorizes exactly **one narrow R09 G1 LOCAL_SYNTHETIC** implementation-and-test cycle for **P2-R08-QA-1 / QA-2 / QA-3 only**, using the existing POC-001 PR #2 and its original branch. **R09 execution NOT_STARTED, independent QA NOT_RUN, G4 NOT_REVIEWED.** There is no general reopening of R08, no production functionality authorization and **no real connection/credentials/CI/frozen UI/original-instruction changes/PR merge/rebase/deployment authority**.
+
+**Authority:** [A31 independent QA / G4 PARTIAL disposition](D007_A31_POC001_R08_G4_PARTIAL_DISPOSITION.md), [R08 independent QA PR #2 comment 7123738287](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7123738287), [R08 Execution PR #2 comment 7122782005](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7122782005), [A30 scope](D007_A30_R08_LOCAL_READINESS_G1_AUTHORIZATION.md), [A29 ACCESS02 readiness](D007_A29_PRE_ACCESS02_READINESS_DESIGN.md), [ACCESS-01 policy](../handoffs/POC-001/ACCESS_POLICY.md), [R09 Execution instruction](../handoffs/POC-001/REMEDIATION_09.md), [R09 separate-window QA plan](../handoffs/POC-001/REMEDIATION_09_QA_PLAN.md).
+
+## 1. Exact Git identity and authority firewall
+
+| Control | Fixed value |
+| --- | --- |
+| Repository / PR | `zyyu1/literature-management-system`; PR **#2 OPEN / NOT MERGED** |
+| Existing execution branch | `exec/POC-001-webdav-feasibility`, **no new branch** |
+| Immutable ORIGINAL POC Base / merge-base | `1c084e5f14e4af8018ef5fe99710be7205cfbdf4`; **NOT** the floating PR target `main` |
+| Mandatory R09 starting HEAD | `49ad24e82f5895f4b6e5f30cb84b3294229df012`; R08 final SHA, independently audited but **G4 PARTIAL_NOT_ACCEPTED** |
+| R09 Design authority | Exact 40-character `main` commit publishing this A32 decision (must be read/pinned by Execution, **never merged into PR**) |
+| Original cumulative path allowance | `poc/001/**` and `docs/handoffs/POC-001/QA_HANDOFF.md` only |
+| Final SHA | Unknown until authorized R09 fast-forward commits and evidence handoff; QA must assess THAT SHA |
+
+STOP unless remote PR API HEAD, remote branch, clean local HEAD match `49ad24e82f5895f4b6e5f30cb84b3294229df012`; original base is merge-base; the A31 decision and PR QA comment are available, no merge/rebase/force-push and no unexpected path drift. If Git authentication/preflight fails: STOP, post truthful PENDING if appropriate, restore valid access out of band and **restart entire preflight before any edit**. A28's one-time exception is NOT reusable.
+
+## 2. Strict R09 INCREMENTAL write whitelist (relative to the R09 start)
+
+**Only** the following paths may be modified:
+
+- `poc/001/src/util.mjs` — minimum change to **test-only** `createRequestBudget` cleanup-phase state and admission semantics for P2-R08-QA-1; must not change runtime production budgets or A5/UNKNOWN semantics.
+- `poc/001/src/webdav-adapter.mjs` — **conditional/optional**, only if the method/path/phase guard cannot be enforced correctly inside existing util contract; explain with minimal diff and a test. No changes to TLS/SSRF/PROPFIND/ETag transport behavior.
+- `poc/001/test/r09-regressions.test.mjs` — all three P2 regressions and controls, including raw trickle absolute-deadline test against **unchanged** `safe-api.mjs`.
+- `poc/001/scripts/mutation-check.mjs` — add actual B5/Q4b/cleanup-control mutation cases in disposable test copies, preserve all M1–M74 and execution reason criteria.
+- `poc/001/evidence/**` — only sanitized **new R09 evidence**. Preserve existing R01–R08 evidence paths unchanged.
+- `poc/001/README.md` — replace disproven B5 `equivalent` assertion with factual bounded account and document R09 cleanup restrictions; do not claim a provider-compatible budget.
+- `docs/handoffs/POC-001/QA_HANDOFF.md` — exact final execution-to-QA handoff; preserve earlier handoff history.
+
+**Everything else strictly read-only:** `src/safe-api.mjs`, `src/api-main.mjs`, `src/mock-webdav.mjs`, `src/dav-xml.mjs`, `src/client.mjs`, `src/note-codec.mjs`, all old POC01–07/R01–R08 tests and helpers, `scripts/run-evidence.mjs` and all other scripts, packages/dependency files, CI/workflows, frozen Module 002 UI, Design/A29–A31/A30 original decisions, ACCESS_POLICY, original execution/QA instructions, any real bibliographic data and PDFs. A mutated copy of `safe-api.mjs` for Q4b may exist **outside the tracked repository only**. If any additional source/test path is genuinely necessary, STOP and return to Design for separate approval.
+
+## 3. Binding minimal repair requirements
+
+**R09-CLEAN-01 — explicit cleanup gate.** A call to `beginCleanup()` must be an irreversible per-run transition for the synthetic test budget. Before request dispatch and independently of a previous `stopped` flag, deny all ordinary `PUT`, `MKCOL`, `GET`, non-final `PROPFIND` and other work, including scheduled or straggler calls from either of the two writers. Do not silently recategorize them as `cleanup`. Rejected actions must consume **zero actual upstream requests and zero reserved cleanup slots**, change no synthetic files, and return a truthful `not_sent`/unavailable response. The only eligible cleanup network methods are explicitly scoped per-file conditional `DELETE` of known own synthetic items and **one** exact final scoped verification `PROPFIND`; no root/recursive/foreign namespace/delete or extra verification loop. Validate operation method + canonical path + phase at a single fail-closed admission point. Do not trust the caller's arbitrary `cleanup` label as authority.
+
+**R09-CLEAN-02 — race + budget invariant.** Reproduce QA's early-cleanup case: 20 own fake files, **75** ordinary requests, `beginCleanup()` before the earlier 79-request reserve STOP, then **10** concurrent/late writer PUT attempts from two principals. After transition, all 10 **must be refused**, 0 additional PUTs and 0 cleanup slots consumed; **20 individual conditional DELETEs + 1 final verification listing** must still be admissible within the existing 100 rolling-30-minute cap and leave zero own files, assuming known successful writes/no ambiguous state. Also retain the normal 79 ordinary + 21 cleanup = 100 and 101st refused scenario; verify counters against the independent mock/recorder, not a budget-only promise. Report actual counts, not a fabricated fixed total for a different fixture.
+
+**R09-CLEAN-03 — no unsafe undo or policy bypass.** Already dispatched writes, ambiguous ACKs and `UNKNOWN/indeterminate` cannot be retroactively treated as `not_sent`, silently deleted, retried, or cleared to make cleanup pass. Any 401/429 must retain the existing hard STOP (including cleanup blocked), not a special authorization for bypass; record residual synthetic files and operator quarantine/STOP truthfully. Do NOT modify ACCESS-01 ceilings: max 100 WebDAV requests in rolling 30 minutes including cleanup, max 20 fake files/run, 1MiB/file/20MiB total, at most 2 writers. No TTL/budget reset/roll-window evasion, root cleanup, new asynchronous worker or production process.
+
+**R09-B5-04 — real mutation adequacy.** The historical Execution assertion that B5 (adapter ignoring rejected write admission) is `equivalent` is disproved. Remove this claim from both `README` and mutation script. Add a deterministic repository test where a mutation bypassing a rejected write admission **would reach and modify** an upstream synthetic store, but real code does not; assert 0 upstream PUT, unchanged stored data, correct refusal outcome, budget/cleanup unchanged. Add executable non-equivalent B5 mutant to repository mutation driver, killed by **the named R09 regression assertion**, not crash/setup/unrelated test. If the mutated code can still send a denied write, R09 must fail even if the local request counter would otherwise stay ≤100.
+
+**R09-Q4B-05 — absolute, not idle, inbound-body timer.** Keep actual `src/safe-api.mjs` byte-identical. Add independently measurable 1000ms **absolute-from-routing** body deadline test, with raw HTTP chunk/trickle bytes arriving more frequently than an inactivity timeout but continuing beyond the absolute deadline. Assert 408 `body_deadline_exceeded` near the deadline with a declared environment-tolerant bounded timing window, zero upstream PUT, late chunks cannot commit, and pending per-principal/global reservations are released *only* before dispatch. Separately assert post-dispatch Unknown stays nonterminal. Add a Q4b inactivity/resetting-deadline mutant in disposable copied source and prove R09 tests KILL it **for the intended absolute-clock condition**. Do not alter production/test runtime defaults or clock semantics.
+
+**R09-REG-06 — no regressions.** Preserve all **191 prior R08 tests** and original M1–M74 mutation definitions and effectiveness; add R09 tests and valid new mutations without claiming a prospective total. Run each POC01–07, R01–R09 test file, `node scripts/check.mjs`, 5 genuinely separate full-suite executions if claimed, `node scripts/mutation-check.mjs`, `node scripts/secret-scan.mjs 1c084e5f14e4af8018ef5fe99710be7205cfbdf4`, `npm ls --all`. Verify R08 loopback TLS/SSRF, original 114-byte resourcetype-only PROPFIND/no allprop fallback, Q5 no replay, fixture capacity N1665/1666 and exact network/secret boundaries. No real external sockets, credentials, dependency/CI changes. Keep Q1e, provider behavior and production scale unsupported.
+
+## 4. Independent QA and exact-SHA stop gates
+
+- Execution commits only allowed incremental R09 paths on the original branch/PR #2 by fast-forward, with exact source/path diff, sanitized new R09 evidence (do not overwrite history), correct end SHA and factual PR #2 Execution comment. **EXECUTION STOP**.
+- Execution coordinates a **separately user-opened independent QA window**, never a same-Execution-session sub-agent. QA receives the authority commit, execution exact SHA, R09 QA plan and evidence; fresh full clone, own 2-writer/early-cleanup network double, Q4 trickle probe and QA-owned mutants, verify exact SHA/paths/blobs. Independent QA posts a **direct PR #2 QA comment**, then QA STOP. Execution returns full raw QA findings, URL/ID and final SHA to Design; does not self-certify or alter QA verdict.
+- A fresh independent Design **D007-A33** alone may consider exact-SHA G4 after G3; P2-R08-QA-1/2/3 stay OPEN until such decision. If QA finds a new P2/P1/P0, scope mismatch, original SHA drift or tests cannot be completed, STOP and return to Design. No auto next repair.
+- A31 `R08 LOCAL_STAGE PARTIAL / G4 PARTIAL_NOT_ACCEPTED@49ad24e82f5895f4b6e5f30cb84b3294229df012` stays historical; A28 `G4 ACCEPTED_EXACT_SHA LOCAL_SYNTHETIC@ace7b1e610529c1f139dc06371d9f531ccf0e28b` remains another separate historical SHA. No risk closes by the mere issuance of R09 G1.
+
+**D007-A32 FINAL: APPROVED R09 G1 LOCAL_SYNTHETIC ONLY / EXECUTION NOT_STARTED / G3 NOT_RUN / G4 NOT_REVIEWED; no P2 closures. G5 merge NOT_AUTHORIZED, G6 ACCESS-02 BLOCKED, G7 deployment NOT_AUTHORIZED, OVERALL POC-001 BLOCKED_REAL_SERVICE.**
