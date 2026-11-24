@@ -1,0 +1,10 @@
+# WP-01 egress probe (D007-A54) at code commit 15f78baa941c96b70dc16e1e2d833040a2939eef
+# date_utc=2026-11-24T16:43:03Z
+# cmd: /tmp/offline/run-offline.sh node /tmp/offline/egress-probe.mjs
+loopback 127.0.0.1     CONNECTED
+1.1.1.1:443            ENETUNREACH
+8.8.8.8:53             ENETUNREACH
+140.82.112.3:443       ENETUNREACH
+dns github.com         EAI_AGAIN
+EGRESS_PROBE=PASS (loopback ok, external denied)
+# exit=0
