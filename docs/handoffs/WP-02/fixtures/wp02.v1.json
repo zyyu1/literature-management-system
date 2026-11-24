@@ -1,0 +1,206 @@
+{
+  "fixtureSchemaVersion": "WP02-SYNTHETIC-v1.0.0",
+  "provenance": "Entirely fictional; never based on any Zotero, Nutstore or real user identifiers. Extends WP-01 principals/sessions by reference only.",
+  "dependsOn": {
+    "wp01Fixture": "docs/handoffs/WP-01/fixtures/wp01.v1.json",
+    "wp01Sha256": "86c47a5a6ad48cc4f14dc492c64cfd2412885ece462740fc00b96d60a604be65"
+  },
+  "seed": 22002,
+  "clock": {
+    "isoUtc": "2030-01-02T03:04:05.000Z"
+  },
+  "projects": [
+    {
+      "id": "project_synth_alpha",
+      "ownerId": "owner_synth_001",
+      "name": "Alpha 综述",
+      "archived": false,
+      "revision": "rev-wp02-alpha-01"
+    },
+    {
+      "id": "project_synth_beta",
+      "ownerId": "owner_synth_001",
+      "name": "Beta (archived)",
+      "archived": true,
+      "revision": "rev-wp02-beta-01"
+    },
+    {
+      "id": "project_synth_gamma",
+      "ownerId": "owner_synth_001",
+      "name": "Gamma",
+      "archived": false,
+      "revision": "rev-wp02-gamma-01"
+    },
+    {
+      "id": "project_synth_foreign",
+      "ownerId": "owner_synth_foreign",
+      "name": "Foreign",
+      "archived": false,
+      "revision": "rev-wp02-foreign-01"
+    }
+  ],
+  "papers": [
+    {
+      "libraryType": "user",
+      "libraryId": "fakeLib01",
+      "itemKey": "XFAKE001",
+      "ownerId": "owner_synth_001",
+      "title": "Synthetic Shared Paper",
+      "creators": [
+        "Doe, Jane",
+        "李, 四"
+      ],
+      "year": 2029,
+      "doi": "10.0000/fake.shared",
+      "readingStatus": "Reading",
+      "note": {
+        "researchQuestion": "合成问题：如何在多个 Project 之间共享一条全局笔记？ (Ünïcödé ✓)",
+        "argumentsAndContent": "论点 A；论点 B。\n公式：$E = mc^2$，$\\sum_{i=1}^{n} x_i$",
+        "theoriesAndMethods": "Fake method — 仅用于测试。",
+        "contributionsAndInnovations": "无真实贡献（synthetic）。",
+        "limitations": "全部为虚构数据；emoji 🧪 与换行\r\n保持字节不变。"
+      }
+    },
+    {
+      "libraryType": "group",
+      "libraryId": "fakeLib02",
+      "itemKey": "XFAKE001",
+      "ownerId": "owner_synth_001",
+      "title": "Same Key Other Library",
+      "creators": [
+        "Roe, Rick"
+      ],
+      "year": 2028,
+      "doi": "10.0000/fake.other",
+      "readingStatus": "To Read",
+      "note": null
+    },
+    {
+      "libraryType": "user",
+      "libraryId": "fakeLib01",
+      "itemKey": "XFAKE002",
+      "ownerId": "owner_synth_001",
+      "title": "Synthetic Shared Paper",
+      "creators": [
+        "Doe, Jane",
+        "李, 四"
+      ],
+      "year": 2029,
+      "doi": "10.0000/fake.shared",
+      "readingStatus": "Read",
+      "note": null
+    },
+    {
+      "libraryType": "user",
+      "libraryId": "fakeLibForeign",
+      "itemKey": "XFOREIGN1",
+      "ownerId": "owner_synth_foreign",
+      "title": "Foreign Paper",
+      "creators": [
+        "X, Y"
+      ],
+      "year": 2027,
+      "doi": "10.0000/fake.foreign",
+      "readingStatus": "Read",
+      "note": null
+    }
+  ],
+  "associations": [
+    {
+      "projectId": "project_synth_alpha",
+      "paper": [
+        "user",
+        "fakeLib01",
+        "XFAKE001"
+      ],
+      "important": true
+    },
+    {
+      "projectId": "project_synth_beta",
+      "paper": [
+        "user",
+        "fakeLib01",
+        "XFAKE001"
+      ],
+      "important": false
+    },
+    {
+      "projectId": "project_synth_gamma",
+      "paper": [
+        "user",
+        "fakeLib01",
+        "XFAKE001"
+      ],
+      "important": false
+    },
+    {
+      "projectId": "project_synth_alpha",
+      "paper": [
+        "group",
+        "fakeLib02",
+        "XFAKE001"
+      ],
+      "important": false
+    },
+    {
+      "projectId": "project_synth_gamma",
+      "paper": [
+        "user",
+        "fakeLib01",
+        "XFAKE002"
+      ],
+      "important": true
+    },
+    {
+      "projectId": "project_synth_foreign",
+      "paper": [
+        "user",
+        "fakeLibForeign",
+        "XFOREIGN1"
+      ],
+      "important": true
+    }
+  ],
+  "importAttempts": [
+    {
+      "comment": "Re-import of XFAKE001 into gamma must not create a second CanonicalPaper (A6-01)",
+      "projectId": "project_synth_gamma",
+      "paper": [
+        "user",
+        "fakeLib01",
+        "XFAKE001"
+      ]
+    }
+  ],
+  "expected": {
+    "canonicalPaperCount": 4,
+    "ownerVisibleCanonicalPapers": 3,
+    "projectCounts": {
+      "project_synth_alpha": {
+        "papers": 2,
+        "important": 1
+      },
+      "project_synth_beta": {
+        "papers": 1,
+        "important": 0
+      },
+      "project_synth_gamma": {
+        "papers": 2,
+        "important": 1
+      }
+    },
+    "activeProjects": [
+      "project_synth_alpha",
+      "project_synth_gamma"
+    ],
+    "archivedProjects": [
+      "project_synth_beta"
+    ]
+  },
+  "privacy": {
+    "allowedNetwork": "loopback-only",
+    "pdfBytesPresent": false,
+    "realCredentialsPresent": false,
+    "zoteroIdentifiersReal": false
+  }
+}
