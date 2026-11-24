@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A50 — 2026-11-24 Europe/Berlin:** [PR #4 `2757aa6` adopted as A45 candidate + independent cloud Linux QA](D007_A50_Q1E_L3_ADOPT_2757AA6_CLOUD_QA.md); G3 NOT_RUN, P2-L3-QA-1/2 OPEN, A38 PARTIAL.
+
 **D007-A49 R10 EXACT-SHA G4 PASS_LOCAL — 2026-11-24 Europe/Berlin:** [A49](D007_A49_R10_EXACT_G4_PASS_LOCAL.md) on PR #2 `a9131ac2521edc50d1c96f90efbf1a987b7bf0d5` from independent cloud Linux [QA #7136340755](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7136340755): 209/209×5, 85/85, no P0/P1/P2. GATE-R10-REG-01 PASS; **P2-R09-QA-1 and P2-R08-QA-1 CLOSED_LOCAL** (local mock only). Windows NOT_CERTIFIED INFO; in-flight DELETE settlement UNSUPPORTED; G5/G6/G7 blocked, POC BLOCKED_REAL_SERVICE.
 
 **D007-A48 QA DISPATCH — 2026-11-24 Europe/Berlin:** [R10 read-only cloud Linux QA](D007_A48_R10_CLOUD_LINUX_READ_ONLY_QA_AUTHORIZATION.md) on PR #2 `a9131ac2521edc50d1c96f90efbf1a987b7bf0d5`; G3 NOT_RUN, A42 G4 PARTIAL unchanged.
