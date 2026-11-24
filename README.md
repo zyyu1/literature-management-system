@@ -8,7 +8,7 @@ This is an **independent responsive website**, not a Zotero replacement. Zotero 
 
 1. [Requirements & architecture baseline](docs/baseline/LMS_REQUIREMENTS_ARCHITECTURE_v0.1.md)
 2. [Three-window protocol](docs/governance/THREE_WINDOW_PROTOCOL.md)
-3. [Decision log](docs/governance/DECISION_LOG.md)
+3. [Decision log](docs/governance/DECISION_LOG.md) · [Automation bus](docs/governance/AUTOMATION_BUS.md)
 4. [Handoff index](docs/handoffs/INDEX.md)
 5. [Module 002 UI status](docs/ui/002/STATUS.md)
 

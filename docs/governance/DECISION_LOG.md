@@ -211,3 +211,5 @@
 - No personal Zotero library export, passwords, real research notes, token, PDF or Zotero database may be committed to GitHub.
 
 [Canonical requirements](../baseline/LMS_REQUIREMENTS_ARCHITECTURE_v0.1.md).
+
+| PROC-BUS-01 | User-approved Option B: **GitHub comment automation bus** ([AUTOMATION_BUS.md](AUTOMATION_BUS.md)) between Design, Execution and QA windows: `LMS-BUS` header comments on the active work-item PR, `re=` handling, 15-minute self-scheduled polling with an 8-hour idle cut-off, QA reports directly to Design, Design returns a LaTeX summary to the user for decision. Transport-only amendment: roles, exact-SHA rules, STOP conditions, independence (no same-session sub-agent QA) and all G1–G7/ACCESS-02 gates unchanged; a bus message grants no authority beyond a Design document already on `main` | APPROVED 2026-11-24 — PROCESS ONLY |
