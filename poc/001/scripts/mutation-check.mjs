@@ -187,11 +187,39 @@ const MUTANTS = [
   { id: 'M73', desc: "R08 BUD: adapter dispatches despite a refused request admission", file: 'src/webdav-adapter.mjs',
     from: "      if (!adm.ok) return Promise.resolve({ transport: 'error', code: adm.code, connected: false });", to: "      void adm;", suite: 'test/r08-readiness.test.mjs',
     expect: /R08-BUD-08 after 429 nothing more is sent/ },
-  // (An "adapter ignores a refused write admission" mutant is EQUIVALENT: the refusal STOPs the budget, so the
-  //  following request admission refuses with the same code before dispatch. It is documented, not counted.)
+  // (R08 called an "adapter ignores a refused write admission" mutant EQUIVALENT. That was wrong — see R09 M80.)
   { id: 'M74', desc: "R08 NET/Q5: socket destroyed before connect counted as connected (refusal becomes Unknown)", file: 'src/webdav-adapter.mjs',
     from: "if (!tlsOptions && !s.connecting && !s.destroyed) connected = true;", to: "if (!tlsOptions && !s.connecting) connected = true;", suite: 'test/r08-readiness.test.mjs',
     expect: /R08-NET-03 refused before connect -> not_sent/ },
+  // REMEDIATION-09 (D007-A32): cleanup gate, non-equivalent B5 and absolute-deadline (Q4b) mutants. Each must be
+  // killed by its NAMED R09 assertion. M81 mutates src/safe-api.mjs, which is immutable in the repository: like
+  // every mutant it is applied ONLY to the disposable out-of-repository copy made by this driver.
+  // (The R08 note that an "adapter ignores a refused write admission" mutant is equivalent was WRONG — disproved by
+  //  independent QA #7123738287. It is M80 below and is killed.)
+  { id: 'M75', desc: "R09 CLEAN: ordinary work relabelled as cleanup after beginCleanup() (P2-R08-QA-1 behaviour restored)", file: 'src/util.mjs',
+    from: "      if (cleanupPhase && category !== 'cleanup') return CLEANUP_REFUSED('CLEANUP_PHASE_ORDINARY_REFUSED');", to: "      if (cleanupPhase) category = 'cleanup';", suite: 'test/r09-regressions.test.mjs',
+    expect: /R09-CLEAN-01 ordinary work is never relabelled as cleanup/ },
+  { id: 'M76', desc: "R09 CLEAN: any method admitted as cleanup at dispatch after beginCleanup()", file: 'src/util.mjs',
+    from: "    return CLEANUP_REFUSED('CLEANUP_PHASE_ORDINARY_REFUSED'); // R09: PUT/MKCOL/GET/... after beginCleanup()", to: "    return admitRequest('cleanup');", suite: 'test/r09-regressions.test.mjs',
+    expect: /R09-CLEAN-01 (PUT|GET|MKCOL) refused in cleanup phase/ },
+  { id: 'M77', desc: "R09 CLEAN: cleanup DELETE not restricted to own synthetic files", file: 'src/util.mjs',
+    from: "      if (!files.has(path)) return CLEANUP_REFUSED('CLEANUP_NOT_OWN_FILE');", to: "      // own-file check removed", suite: 'test/r09-regressions.test.mjs',
+    expect: /R09-CLEAN-01 foreign DELETE refused/ },
+  { id: 'M78', desc: "R09 CLEAN: verification listing not single-use", file: 'src/util.mjs',
+    from: "      if (verified) return CLEANUP_REFUSED('CLEANUP_VERIFICATION_ALREADY_USED');", to: "      // single-use removed", suite: 'test/r09-regressions.test.mjs',
+    expect: /R09-CLEAN-02 only one verification listing/ },
+  { id: 'M79', desc: "R09 CLEAN: unconditional cleanup DELETE admitted", file: 'src/util.mjs',
+    from: "      if (!conditional) return CLEANUP_REFUSED('CLEANUP_UNCONDITIONAL_DELETE');", to: "      // conditional check removed", suite: 'test/r09-regressions.test.mjs',
+    expect: /R09-CLEAN-01 unconditional DELETE refused/ },
+  { id: 'M80', desc: "R09 B5 (NOT equivalent): adapter ignores a refused WRITE admission", file: 'src/webdav-adapter.mjs',
+    from: "        if (!wadm.ok) return Promise.resolve({ transport: 'error', code: wadm.code, connected: false });", to: "        void wadm;", suite: 'test/r09-regressions.test.mjs',
+    expect: /R09-B5-03 refused write never reaches the store/ },
+  { id: 'M81', desc: "R09 Q4b: idle (reset-on-every-chunk) body timeout instead of the ABSOLUTE deadline (safe-api, disposable copy only)", file: 'src/safe-api.mjs',
+    from: "      function onData(c) { n += c.length; if (n > limit) fin(null); else chunks.push(c); }", to: "      function onData(c) { if (timer) { clearTimeout(timer); clearTimeout(req.q4bIdle); req.q4bIdle = setTimeout(() => fin(BODY_TIMEOUT), remaining); } n += c.length; if (n > limit) fin(null); else chunks.push(c); }", suite: 'test/r09-regressions.test.mjs',
+    expect: /R09-Q4B-04 absolute deadline fires near 1000 ms despite a continuous trickle/ },
+  { id: 'M82', desc: "R09 B5: refused file/size admission keeps the consumed request slot", file: 'src/util.mjs',
+    from: "    if (!w.ok) { sent.pop(); return w; }", to: "    if (!w.ok) return w;", suite: 'test/r09-regressions.test.mjs',
+    expect: /R09-B5-03 refused write consumes no request slot/ },
 ];
 
 let failures = 0;

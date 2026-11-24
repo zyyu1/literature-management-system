@@ -105,8 +105,14 @@ export function createWebDavAdapter({
     // R08 test-only ACCESS-01 budget: admission is decided BEFORE dispatch; a refusal never reaches the
     // network and is reported like an unreachable peer (writes: not_sent, reads: unavailable).
     if (budget) {
-      const adm = budget.admitRequest(method === 'DELETE' ? 'cleanup' : 'request');
+      // R09: the single admission step for every dispatch, decided from method + canonical path + phase:
+      // (1) request/phase admission, then (2) for a PUT, file/size admission. Both happen before any socket.
+      const adm = budget.admitDispatch({ method, path, conditional: headers['If-Match'] !== undefined });
       if (!adm.ok) return Promise.resolve({ transport: 'error', code: adm.code, connected: false });
+      if (method === 'PUT') {
+        const wadm = budget.admitDispatchWrite(path, body === undefined ? 0 : Buffer.byteLength(body));
+        if (!wadm.ok) return Promise.resolve({ transport: 'error', code: wadm.code, connected: false });
+      }
     }
     return new Promise((resolve) => {
       let settled = false;
@@ -197,11 +203,7 @@ export function createWebDavAdapter({
       if (cond?.ifMatch) headers['If-Match'] = cond.ifMatch;
       else if (cond?.ifNoneMatch === '*') headers['If-None-Match'] = '*';
       else if (!cond?.unsafeUnconditional) throw new Error('adapter: conditional write required');
-      if (budget) {
-        if (!safePath(path)) throw blocked('UNSAFE_TARGET', 'adapter: invalid path');
-        const adm = budget.admitWrite(path, Buffer.byteLength(bytes)); // file count / size caps, before dispatch
-        if (!adm.ok) return { outcome: 'not_sent', code: adm.code };
-      }
+      // R09: file/size admission happens inside the single dispatch admission (request -> admitDispatch).
       return classifyWrite(await request('PUT', path, { headers, body: bytes }));
     },
     async mkcol(path) { return classifyWrite(await request('MKCOL', path)); },
