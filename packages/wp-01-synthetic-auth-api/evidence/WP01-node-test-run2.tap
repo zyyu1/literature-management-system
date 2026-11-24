@@ -1,0 +1,418 @@
+TAP version 13
+# Subtest: Q10 fixture is the frozen canonical file (SHA-256, size, schema, seed, clock)
+ok 1 - Q10 fixture is the frozen canonical file (SHA-256, size, schema, seed, clock)
+  ---
+  duration_ms: 1.448922
+  type: 'test'
+  ...
+# Subtest: Q10 runtime is Node v22.23.5 on Linux x64
+ok 2 - Q10 runtime is Node v22.23.5 on Linux x64
+  ---
+  duration_ms: 0.170815
+  type: 'test'
+  ...
+# Subtest: Q10 package has no dependencies, no install scripts and imports only node: builtins or relative files
+ok 3 - Q10 package has no dependencies, no install scripts and imports only node: builtins or relative files
+  ---
+  duration_ms: 2.033247
+  type: 'test'
+  ...
+# Subtest: Q10 server source has no forbidden hosts, wildcard bind or listen-on-import
+ok 4 - Q10 server source has no forbidden hosts, wildcard bind or listen-on-import
+  ---
+  duration_ms: 0.657029
+  type: 'test'
+  ...
+# Subtest: health endpoint declares LOCAL_SYNTHETIC_ONLY / FAKE_ONLY / not production-suitable
+ok 5 - health endpoint declares LOCAL_SYNTHETIC_ONLY / FAKE_ONLY / not production-suitable
+  ---
+  duration_ms: 20.480056
+  type: 'test'
+  ...
+# Subtest: Q01 authorized flow: fake Owner reads own scoped Project with ETag
+ok 6 - Q01 authorized flow: fake Owner reads own scoped Project with ETag
+  ---
+  duration_ms: 6.967035
+  type: 'test'
+  ...
+# Subtest: Q01 AUTH-01 guest (no Session) is denied with 401 and no data
+ok 7 - Q01 AUTH-01 guest (no Session) is denied with 401 and no data
+  ---
+  duration_ms: 4.163719
+  type: 'test'
+  ...
+# Subtest: Q01 AUTH-02 foreign principal denied WITHOUT existence leak (existing == nonexistent == foreign-owned)
+ok 8 - Q01 AUTH-02 foreign principal denied WITHOUT existence leak (existing == nonexistent == foreign-owned)
+  ---
+  duration_ms: 5.713646
+  type: 'test'
+  ...
+# Subtest: Q01 Owner cannot read a foreign-owned Project; response identical to a missing one
+ok 9 - Q01 Owner cannot read a foreign-owned Project; response identical to a missing one
+  ---
+  duration_ms: 3.040046
+  type: 'test'
+  ...
+# Subtest: zz request tally for this file stays within the WP-01 5000-request cap
+ok 10 - zz request tally for this file stays within the WP-01 5000-request cap
+  ---
+  duration_ms: 0.305344
+  type: 'test'
+  ...
+# WP01_LOCAL_REQUESTS file=auth-contract n=8
+# Subtest: Q04 ORIGIN-01 untrusted Origin POST is denied before dispatch, no credentialed CORS
+ok 11 - Q04 ORIGIN-01 untrusted Origin POST is denied before dispatch, no credentialed CORS
+  ---
+  duration_ms: 17.848732
+  type: 'test'
+  ...
+# Subtest: Q04 CSRF-01 trusted Origin but MISSING CSRF token is denied before dispatch
+ok 12 - Q04 CSRF-01 trusted Origin but MISSING CSRF token is denied before dispatch
+  ---
+  duration_ms: 3.966911
+  type: 'test'
+  ...
+# Subtest: Q04 wrong CSRF token, and another Session's valid token, are both denied before dispatch
+ok 13 - Q04 wrong CSRF token, and another Session's valid token, are both denied before dispatch
+  ---
+  duration_ms: 6.496558
+  type: 'test'
+  ...
+# Subtest: Q04 missing / null / suffix-lookalike / http Origin on unsafe request are denied
+ok 14 - Q04 missing / null / suffix-lookalike / http Origin on unsafe request are denied
+  ---
+  duration_ms: 8.814803
+  type: 'test'
+  ...
+# Subtest: Q04 Fetch Metadata: cross-site and absent Sec-Fetch-Site deny unsafe requests before dispatch
+ok 15 - Q04 Fetch Metadata: cross-site and absent Sec-Fetch-Site deny unsafe requests before dispatch
+  ---
+  duration_ms: 3.925424
+  type: 'test'
+  ...
+# Subtest: Q04 authorized flow: allowed Origin + Fetch Metadata + CSRF dispatches exactly once
+ok 16 - Q04 authorized flow: allowed Origin + Fetch Metadata + CSRF dispatches exactly once
+  ---
+  duration_ms: 2.605179
+  type: 'test'
+  ...
+# Subtest: Q04 credentialed CORS: exact allowed Origin echoed with credentials and Vary; never wildcard or reflection
+ok 17 - Q04 credentialed CORS: exact allowed Origin echoed with credentials and Vary; never wildcard or reflection
+  ---
+  duration_ms: 4.357089
+  type: 'test'
+  ...
+# Subtest: Q04 preflight: allowed Origin/method/headers -> 204 exact; foreign Origin, odd method or header -> 403
+ok 18 - Q04 preflight: allowed Origin/method/headers -> 204 exact; foreign Origin, odd method or header -> 403
+  ---
+  duration_ms: 3.770979
+  type: 'test'
+  ...
+# Subtest: Q04 unsafe config is refused: wildcard, null or non-https origin allowlist
+ok 19 - Q04 unsafe config is refused: wildcard, null or non-https origin allowlist
+  ---
+  duration_ms: 0.949393
+  type: 'test'
+  ...
+# Subtest: Q04 no state-changing GET: GET on mutation/unlink endpoints is 405 and dispatches nothing
+ok 20 - Q04 no state-changing GET: GET on mutation/unlink endpoints is 405 and dispatches nothing
+  ---
+  duration_ms: 5.171589
+  type: 'test'
+  ...
+# Subtest: zz request tally for this file stays within the WP-01 5000-request cap
+ok 21 - zz request tally for this file stays within the WP-01 5000-request cap
+  ---
+  duration_ms: 0.155054
+  type: 'test'
+  ...
+# WP01_LOCAL_REQUESTS file=origin-csrf n=27
+# Subtest: Q06 CONFIRMED only for authoritative fake ACK: saved=true, new revision, draft cleared
+ok 22 - Q06 CONFIRMED only for authoritative fake ACK: saved=true, new revision, draft cleared
+  ---
+  duration_ms: 19.154882
+  type: 'test'
+  ...
+# Subtest: Q06 OUTCOME-02 202 accepted-not-committed is UNKNOWN and NOT Saved; draft + operationId kept
+ok 23 - Q06 OUTCOME-02 202 accepted-not-committed is UNKNOWN and NOT Saved; draft + operationId kept
+  ---
+  duration_ms: 6.647354
+  type: 'test'
+  ...
+# Subtest: Q06 202 response body itself never claims Saved
+ok 24 - Q06 202 response body itself never claims Saved
+  ---
+  duration_ms: 4.695529
+  type: 'test'
+  ...
+# Subtest: Q06 OUTCOME-01 lost ACK after dispatch (504) is UNKNOWN; no blind replay: second save refused locally, server re-dispatches nothing
+ok 25 - Q06 OUTCOME-01 lost ACK after dispatch (504) is UNKNOWN; no blind replay: second save refused locally, server re-dispatches nothing
+  ---
+  duration_ms: 4.646857
+  type: 'test'
+  ...
+# Subtest: Q06 lost ACK as a dropped connection after dispatch keeps UNKNOWN, draft and operationId
+ok 26 - Q06 lost ACK as a dropped connection after dispatch keeps UNKNOWN, draft and operationId
+  ---
+  duration_ms: 2.485854
+  type: 'test'
+  ...
+# Subtest: Q06 CONFLICT: fake stale revision (412), missing If-Match (428), stale If-Match (412) keep draft
+ok 27 - Q06 CONFLICT: fake stale revision (412), missing If-Match (428), stale If-Match (412) keep draft
+  ---
+  duration_ms: 5.162301
+  type: 'test'
+  ...
+# Subtest: Q06 DEFINITE_FAILURE: fake not-dispatched (403) changes nothing and is not Saved
+ok 28 - Q06 DEFINITE_FAILURE: fake not-dispatched (403) changes nothing and is not Saved
+  ---
+  duration_ms: 2.08448
+  type: 'test'
+  ...
+# Subtest: Q06 all four outcomes are distinct and map from the fixture simulatedOutcomes table
+ok 29 - Q06 all four outcomes are distinct and map from the fixture simulatedOutcomes table
+  ---
+  duration_ms: 6.783639
+  type: 'test'
+  ...
+# Subtest: Q09 same operationId with a different payload/fingerprint is rejected without dispatch
+ok 30 - Q09 same operationId with a different payload/fingerprint is rejected without dispatch
+  ---
+  duration_ms: 5.170628
+  type: 'test'
+  ...
+# Subtest: Q09 foreign principal cannot see or reuse another principal's operation (neutral denial)
+ok 31 - Q09 foreign principal cannot see or reuse another principal's operation (neutral denial)
+  ---
+  duration_ms: 5.021076
+  type: 'test'
+  ...
+# Subtest: Q09 revoked during UNKNOWN: 401 does not cancel/fail the op; re-auth reads the same UNKNOWN context, no replay
+ok 32 - Q09 revoked during UNKNOWN: 401 does not cancel/fail the op; re-auth reads the same UNKNOWN context, no replay
+  ---
+  duration_ms: 4.811374
+  type: 'test'
+  ...
+# Subtest: zz request tally for this file stays within the WP-01 5000-request cap
+ok 33 - zz request tally for this file stays within the WP-01 5000-request cap
+  ---
+  duration_ms: 0.218349
+  type: 'test'
+  ...
+# WP01_LOCAL_REQUESTS file=outcome-unknown n=25
+# Subtest: Q02 AUTH-03 Workspace read-only principal gets a SCOPED projection only
+ok 34 - Q02 AUTH-03 Workspace read-only principal gets a SCOPED projection only
+  ---
+  duration_ms: 22.078236
+  type: 'test'
+  ...
+# Subtest: Q02 AUTH-04 Workspace mutation is denied with no side effect
+ok 35 - Q02 AUTH-04 Workspace mutation is denied with no side effect
+  ---
+  duration_ms: 4.68053
+  type: 'test'
+  ...
+# Subtest: Q02 every Workspace mutation, factor and export attempt is denied
+ok 36 - Q02 every Workspace mutation, factor and export attempt is denied
+  ---
+  duration_ms: 8.861622
+  type: 'test'
+  ...
+# Subtest: Q07 STEPUP-01 Owner PROJECT_DELETE without Step-up -> distinct STEP_UP_REQUIRED, no dispatch
+ok 37 - Q07 STEPUP-01 Owner PROJECT_DELETE without Step-up -> distinct STEP_UP_REQUIRED, no dispatch
+  ---
+  duration_ms: 3.014807
+  type: 'test'
+  ...
+# Subtest: Q07 client-asserted Step-up headers are ignored: R2 Delete / All Unlink / revoke-other stay DISABLED
+ok 38 - Q07 client-asserted Step-up headers are ignored: R2 Delete / All Unlink / revoke-other stay DISABLED
+  ---
+  duration_ms: 7.362834
+  type: 'test'
+  ...
+# Subtest: Q07 Step-up check never precedes authorization: foreign principal gets the neutral denial
+ok 39 - Q07 Step-up check never precedes authorization: foreign principal gets the neutral denial
+  ---
+  duration_ms: 2.574313
+  type: 'test'
+  ...
+# Subtest: Q07 frozen UI untouched: the package ships no UI, login page or HTML
+ok 40 - Q07 frozen UI untouched: the package ships no UI, login page or HTML
+  ---
+  duration_ms: 0.78838
+  type: 'test'
+  ...
+# Subtest: zz request tally for this file stays within the WP-01 5000-request cap
+ok 41 - zz request tally for this file stays within the WP-01 5000-request cap
+  ---
+  duration_ms: 0.129027
+  type: 'test'
+  ...
+# WP01_LOCAL_REQUESTS file=scope-workspace n=18
+# Subtest: Q03 SESS-01 revoked Session is denied (401 SESSION_REVOKED, no data)
+ok 42 - Q03 SESS-01 revoked Session is denied (401 SESSION_REVOKED, no data)
+  ---
+  duration_ms: 18.124409
+  type: 'test'
+  ...
+# Subtest: Q03 SESS-02 expired Session is denied (401 SESSION_EXPIRED, no data)
+ok 43 - Q03 SESS-02 expired Session is denied (401 SESSION_EXPIRED, no data)
+  ---
+  duration_ms: 3.802365
+  type: 'test'
+  ...
+# Subtest: Q03 revoking one Session leaves the other active fake Session unaffected
+ok 44 - Q03 revoking one Session leaves the other active fake Session unaffected
+  ---
+  duration_ms: 7.968295
+  type: 'test'
+  ...
+# Subtest: Q03 fake clock: active Session expires exactly when the clock passes expiresAt (advanceMs from fixture)
+ok 45 - Q03 fake clock: active Session expires exactly when the clock passes expiresAt (advanceMs from fixture)
+  ---
+  duration_ms: 7.545706
+  type: 'test'
+  ...
+# Subtest: Q03 logout revokes only that Session (CSRF required) and clears the cookie
+ok 46 - Q03 logout revokes only that Session (CSRF required) and clears the cookie
+  ---
+  duration_ms: 6.198933
+  type: 'test'
+  ...
+# Subtest: Q03 fixation defence: renewal rotates token+CSRF, kills the old token, never extends absolute expiry
+ok 47 - Q03 fixation defence: renewal rotates token+CSRF, kills the old token, never extends absolute expiry
+  ---
+  duration_ms: 6.924969
+  type: 'test'
+  ...
+# Subtest: Q03 a client-chosen (fixated) or duplicated Session cookie is never accepted
+ok 48 - Q03 a client-chosen (fixated) or duplicated Session cookie is never accepted
+  ---
+  duration_ms: 3.015475
+  type: 'test'
+  ...
+# Subtest: Q05 __Host- Cookie policy in fake Set-Cookie: HttpOnly, Secure, Path=/, no Domain, SameSite=Lax (syntactic only, NO browser proof)
+ok 49 - Q05 __Host- Cookie policy in fake Set-Cookie: HttpOnly, Secure, Path=/, no Domain, SameSite=Lax (syntactic only, NO browser proof)
+  ---
+  duration_ms: 4.378882
+  type: 'test'
+  ...
+# Subtest: zz request tally for this file stays within the WP-01 5000-request cap
+ok 50 - zz request tally for this file stays within the WP-01 5000-request cap
+  ---
+  duration_ms: 0.248248
+  type: 'test'
+  ...
+# WP01_LOCAL_REQUESTS file=session-revocation n=24
+# Subtest: egress precondition (zero traffic): only the loopback interface exists and no proxy variables are set
+ok 51 - egress precondition (zero traffic): only the loopback interface exists and no proxy variables are set
+  ---
+  duration_ms: 1.527133
+  type: 'test'
+  ...
+# Subtest: Q08 non-loopback / wildcard / non-ephemeral bind is refused before any socket exists
+ok 52 - Q08 non-loopback / wildcard / non-ephemeral bind is refused before any socket exists
+  ---
+  duration_ms: 1.228768
+  type: 'test'
+  ...
+# Subtest: Q08 server binds 127.0.0.1 on an ephemeral port only, and import alone listens on nothing
+ok 53 - Q08 server binds 127.0.0.1 on an ephemeral port only, and import alone listens on nothing
+  ---
+  duration_ms: 8.692471
+  type: 'test'
+  ...
+# Subtest: Q08 fake client refuses every non-loopback destination with zero bytes / zero connects
+ok 54 - Q08 fake client refuses every non-loopback destination with zero bytes / zero connects
+  ---
+  duration_ms: 0.323546
+  type: 'test'
+  ...
+# Subtest: Q08 REDIRECT-01 server never redirects to an external destination (DENY_OUTBOUND, no Location)
+ok 55 - Q08 REDIRECT-01 server never redirects to an external destination (DENY_OUTBOUND, no Location)
+  ---
+  duration_ms: 20.09356
+  type: 'test'
+  ...
+# Subtest: Q08 REDIRECT-01 client never follows a 3xx to a non-loopback destination (zero outbound connects)
+ok 56 - Q08 REDIRECT-01 client never follows a 3xx to a non-loopback destination (zero outbound connects)
+  ---
+  duration_ms: 2.079448
+  type: 'test'
+  ...
+# Subtest: Q08 allowed same-frontend redirect is a header string only; the client still never follows it
+ok 57 - Q08 allowed same-frontend redirect is a header string only; the client still never follows it
+  ---
+  duration_ms: 2.250888
+  type: 'test'
+  ...
+# Subtest: Q08 PATH-01 __proto__ resource is rejected with no dispatch (GET and unsafe)
+ok 58 - Q08 PATH-01 __proto__ resource is rejected with no dispatch (GET and unsafe)
+  ---
+  duration_ms: 4.527314
+  type: 'test'
+  ...
+# Subtest: Q08 malicious paths and encodings fail closed (traversal, encoded slash, NUL, prototype names, overlong)
+ok 59 - Q08 malicious paths and encodings fail closed (traversal, encoded slash, NUL, prototype names, overlong)
+  ---
+  duration_ms: 17.763847
+  type: 'test'
+  ...
+# Subtest: Q08 absolute-form and protocol-relative request targets are rejected (no proxying)
+ok 60 - Q08 absolute-form and protocol-relative request targets are rejected (no proxying)
+  ---
+  duration_ms: 3.247716
+  type: 'test'
+  ...
+# Subtest: Q08 prototype-pollution keys in JSON bodies are rejected before dispatch
+ok 61 - Q08 prototype-pollution keys in JSON bodies are rejected before dispatch
+  ---
+  duration_ms: 3.023897
+  type: 'test'
+  ...
+# Subtest: Q08 WP-01 limits are exactly 64 KiB request, 256 KiB response, 5000 requests
+ok 62 - Q08 WP-01 limits are exactly 64 KiB request, 256 KiB response, 5000 requests
+  ---
+  duration_ms: 0.452523
+  type: 'test'
+  ...
+# Subtest: Q08 request body over 64 KiB is rejected (declared and streamed) with no dispatch
+ok 63 - Q08 request body over 64 KiB is rejected (declared and streamed) with no dispatch
+  ---
+  duration_ms: 4.493939
+  type: 'test'
+  ...
+# Subtest: Q08 response over 256 KiB is replaced by a bounded RESPONSE_LIMIT error (in-memory fixture copy only)
+ok 64 - Q08 response over 256 KiB is replaced by a bounded RESPONSE_LIMIT error (in-memory fixture copy only)
+  ---
+  duration_ms: 3.308826
+  type: 'test'
+  ...
+# Subtest: Q08 request budget: requests beyond the (lowered) budget get 429 and nothing is dispatched
+ok 65 - Q08 request budget: requests beyond the (lowered) budget get 429 and nothing is dispatched
+  ---
+  duration_ms: 8.079824
+  type: 'test'
+  ...
+# Subtest: Q08 sanitized logs: no Cookie, CSRF token, header or body content is ever recorded
+ok 66 - Q08 sanitized logs: no Cookie, CSRF token, header or body content is ever recorded
+  ---
+  duration_ms: 4.171793
+  type: 'test'
+  ...
+# Subtest: zz request tally for this file stays within the WP-01 5000-request cap
+ok 67 - zz request tally for this file stays within the WP-01 5000-request cap
+  ---
+  duration_ms: 0.15836
+  type: 'test'
+  ...
+# WP01_LOCAL_REQUESTS file=transport-negative n=44
+1..67
+# tests 67
+# suites 0
+# pass 67
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 779.086445
