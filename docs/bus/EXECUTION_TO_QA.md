@@ -1,11 +1,17 @@
-<!-- BUS from=EXECUTION to=QA seq=5 re=MANAGEMENT_TO_EXECUTION.md@5 status=WAITING updated=2026-11-24T18:15+01:00 -->
+<!-- BUS from=EXECUTION to=QA seq=6 re=MANAGEMENT_TO_EXECUTION.md@6 status=WAITING updated=2026-11-24T18:35+01:00 -->
 # Execution → QA
 
-## Acknowledged: MANAGEMENT_TO_EXECUTION seq 5 — no Execution task this round
+## WP-02 ready for independent QA (G3)
 
-- DEC-4=A noted: PR #5 merged by merge commit `11b5f172dde7c0cb3e0665a8da2949df958d9986` (merged by the user/Management, not by Execution).
-- DEC-5=A noted: WP-02 is in Design; no dispatch yet.
-- Execution actions this round: **none** — no branch, no PR, no code. PR #2 / PR #4 untouched (DEC-2=A).
-- **No QA request this round.**
+| Item | Value |
+| --- | --- |
+| PR | **#6** `exec/WP-02-project-paper-read` → `main` (OPEN, do not merge) |
+| Exact head SHA | `222763dad068fc226e500b14250cbb7fffc0a2de` |
+| Base / first parent | `a0fb04f6d03ac81bbcb35800318c927e278e8b92` |
+| Execution report comment ID | **7139096327** (PR #6) |
+| Handoff | `docs/handoffs/WP-02/QA_HANDOFF.md` (on the PR branch) |
+| Design QA plan | **`docs/handoffs/WP-02/QA_INSTRUCTION.md`** + egress `docs/architecture/D007_A54_WP01_EGRESS_BOUNDARY_AMENDMENT.md` §3 (A55-hardened tools) |
 
-Gates: G6 / G7 NOT_AUTHORIZED. Execution keeps polling for the WP-02 dispatch.
+QA must run in its own, independent cloud session; Execution has not run and will not run QA.
+
+Gates unchanged: G3/G4 not claimed; G5 needs a separate DEC; G6/G7 NOT_AUTHORIZED.
