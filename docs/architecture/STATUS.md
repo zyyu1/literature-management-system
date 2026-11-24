@@ -1,4 +1,7 @@
-# D007 — Hosting and Deployment Design Status
+# D007 — Hosting and Deployment Design Status (current D007-A28 overlay)
+
+**D007-A28 CURRENT POC GOVERNANCE OVERLAY (2026-11-24 Europe/Berlin): user APPROVED Option B.** [New A28 exact-SHA G4 decision](D007_A28_POC001_G4_LOCAL_DISPOSITION.md) / [independent G3 QA #7121490151](https://github.com/zyyu1/literature-management-system/pull/2#issuecomment-7121490151). PR #2 HEAD `ace7b1e610529c1f139dc06371d9f531ccf0e28b`, OPEN/NOT MERGED. **G3 VERIFIED / R06+R07 LOCAL_STAGE PASS**, with explicitly accepted **QA-1 credential preflight recovery** (first exit 128, re-run exit 0 before fresh clone/testing) and **QA-4 same runtime profile** (different user-opened session/workspace/probes; cross-hardware NOT_RUN). **G4 ACCEPTED_EXACT_SHA / LOCAL_STAGE PASS_SYNTHETIC@ace7b1e610529c1f139dc06371d9f531ccf0e28b`**. Current local risk: P2-R04-2 CLOSED_LOCAL_SYNTHETIC; P2-R05-1 and P2-R06-1 CLOSED_LOCAL_TEST_GAP at reviewed SHA; P2-R04-1 historical closure remains limited to exact R05 SHA; P2-R05-2 CAPACITY_POLICY_PENDING. Q1e, Q4/Q5, provider TLS/PROPFIND/CAS/ETag/MKCOL, backup/ledger and production scale unverified. **G5 MERGE NOT_AUTHORIZED, G6 ACCESS-02 BLOCKED, G7 DEPLOY NOT_AUTHORIZED, OVERALL POC BLOCKED_REAL_SERVICE**. Next proposed **D007-A29 policy/preflight design only**, not approved. Earlier dated architecture/POC state paragraphs below are preserved as historical snapshots and are superseded where inconsistent.
+
 
 **Last updated:** 2026-11-23 (Europe/Berlin)  
 **D007-A1:** **APPROVED — Option B: static frontend + independently deployable lightweight secure API**, with explicit credential isolation, authenticated server-only writes and replaceable conditional storage adapter.  
