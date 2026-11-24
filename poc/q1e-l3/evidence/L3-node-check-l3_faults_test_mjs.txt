@@ -1,0 +1,4 @@
+$ node --check poc/q1e-l3/test/l3-faults.test.mjs
+# exit 0 · 26 ms · peak RSS 35.3 MiB · gitHead 2cfc4ba6c1269264a7370a4681725a3111e7c60a
+# MODEL_ONLY / PHYSICAL_DURABILITY_UNPROVEN
+

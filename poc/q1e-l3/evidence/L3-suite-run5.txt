@@ -1,0 +1,202 @@
+$ node --test poc/q1e-l3/test/l3-contract.test.mjs poc/q1e-l3/test/l3-faults.test.mjs
+# exit 0 · 214 ms · peak RSS 47.4 MiB · gitHead 2cfc4ba6c1269264a7370a4681725a3111e7c60a
+# MODEL_ONLY / PHYSICAL_DURABILITY_UNPROVEN
+
+TAP version 13
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-C01","independent_oracle":"PREDECLARED_TEST_FIXTURE","oracle_digest":"f5b772b947714bca2f144c238ddfdb5d1138ebd90e754d40a478a1493bc6d1cf","positive":"KNOWN_FIXTURE_ENUMERATION_OBSERVED","negative":"KNOWN_ID_OMITTED","missing":["assoc:project:owner-a:alpha|paper:owner-a:user:1001:ZXCV6789"]}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-C02","verdict":"UNSUPPORTED_COMPLETENESS","independent_oracle":"NONE (self-derived)","negative_control":"KNOWN_ID_OMITTED"}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-C03","rejected":{"cross":"CROSS_OWNER_REFERENCE","dangling":"DANGLING_REFERENCE","duplicate":"DUPLICATE_NORMALIZED_ID","identity":"PAPER_IDENTITY_MISMATCH"},"state_unchanged":true}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-C04","expected_operation_status":["CONFIRMED","CONFLICT"],"observed":["CONFIRMED","CONFLICT"],"note_rev":2}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-C05","deleted_project":"project:owner-a:beta","deletion_checkpoint":3,"retained_globals":true}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-C06","fault_barrier":["before-publish","after-publish-before-ack"],"expected_operation_status":"UNKNOWN -> DEFINITE_FAILURE | CONFIRMED (observed)"}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-C07","expected_commit_and_snapshot":"K=1","concurrent_writer":"K+1=2","bundle_digest":"b03b4cf1ae96f93847ee4cac95d2c8a2615f0885268c31526f1aa3d2c7d01364"}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-C08","expected_deletion_checkpoint":2,"actual_deletion_checkpoint":2,"archive_checkpoint":1,"result":"RESTORE_BLOCKED_STALE_DELETION_STATE"}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-C09","negatives":["missing","same-domain","rolled-back","lagging"],"result":"DELETION_WITNESS_UNVERIFIABLE"}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-C10","tag":"FIXTURE_ONLY_HMAC","negatives":["recomputed-checksum","owner-aad","wrong-key","lost-key"]}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-C11","stage_digest":"863c0d894161dd8194d62f73bd16bc3df0f197812d074030564a9ceee0dd7d50","negatives":["half-restore","path-traversal","bad-schema","foreign-owner","cutover"]}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-R01","expected_deletion_checkpoint":2,"actual_deletion_checkpoint":2,"result":"RESTORE_BLOCKED_STALE_DELETION_STATE"}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-R02","last_seen_witness_seq":1,"results":["WITNESS","WITNESS","WITNESS","ROLLBACK"]}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-R03","orders":["store-first","witness-first"],"crash":"between","result":"UNKNOWN + RECONCILIATION_PENDING"}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-R04","staged_count":14,"stage_digest":"7d05263dffaefb6004c7dbc9ab8e1006c99c70c38111ee5e7c6d5b2028bd66e6"}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-R05","negatives":["wrong-key-version","lost-key","wrong-owner","stale-manifest"]}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-R06","fault_barrier":"stage-record \#7","result":"STAGE_FAILED_ACTIVE_UNCHANGED"}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-R07","result":"POLICY_DECISION_PENDING"}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-C12","egress_attempts":0,"scanned_files":5}
+# Subtest: A36-C01 known omitted ID: trusted predeclared catalog detects it; no partial bundle, no count proof
+ok 1 - A36-C01 known omitted ID: trusted predeclared catalog detects it; no partial bundle, no count proof
+  ---
+  duration_ms: 2.966066
+  type: 'test'
+  ...
+# Subtest: A36-C02 unknown omission absent from listing AND self-derived catalog is undetectable -> UNSUPPORTED_COMPLETENESS
+ok 2 - A36-C02 unknown omission absent from listing AND self-derived catalog is undetectable -> UNSUPPORTED_COMPLETENESS
+  ---
+  duration_ms: 1.138376
+  type: 'test'
+  ...
+# Subtest: A36-C03 owner/library scope: compound Zotero identity, no cross-owner links, dangling/duplicate ids reject
+ok 3 - A36-C03 owner/library scope: compound Zotero identity, no cross-owner links, dangling/duplicate ids reject
+  ---
+  duration_ms: 2.072175
+  type: 'test'
+  ...
+# Subtest: A36-C04 concurrent whole five-field Note / ReadingStatus: one revision or explicit CONFLICT, never fieldwise or lost
+ok 4 - A36-C04 concurrent whole five-field Note / ReadingStatus: one revision or explicit CONFLICT, never fieldwise or lost
+  ---
+  duration_ms: 1.187328
+  type: 'test'
+  ...
+# Subtest: A36-C05 Quote Relink + SourceHistory and Project deletion + own Associations commit together; globals retained
+ok 5 - A36-C05 Quote Relink + SourceHistory and Project deletion + own Associations commit together; globals retained
+  ---
+  duration_ms: 0.9977
+  type: 'test'
+  ...
+# Subtest: A36-C06 crash before commit / after commit before ACK: UNKNOWN, reconciled from the operation witness, never replayed
+ok 6 - A36-C06 crash before commit / after commit before ACK: UNKNOWN, reconciled from the operation witness, never replayed
+  ---
+  duration_ms: 0.747841
+  type: 'test'
+  ...
+# Subtest: A36-C07 export pinned at one committed cut K while a second writer commits K+1
+ok 7 - A36-C07 export pinned at one committed cut K while a second writer commits K+1
+  ---
+  duration_ms: 1.223904
+  type: 'test'
+  ...
+# Subtest: A36-C08 valid old backup containing a later-deleted Project is blocked by the newer outside-archive witness
+ok 8 - A36-C08 valid old backup containing a later-deleted Project is blocked by the newer outside-archive witness
+  ---
+  duration_ms: 2.799829
+  type: 'test'
+  ...
+# Subtest: A36-C09 missing, rolled-back or non-independent witness fails closed (DELETION_WITNESS_UNVERIFIABLE)
+ok 9 - A36-C09 missing, rolled-back or non-independent witness fails closed (DELETION_WITNESS_UNVERIFIABLE)
+  ---
+  duration_ms: 1.718998
+  type: 'test'
+  ...
+# Subtest: A36-C10 tampered manifest with recomputed checksum, owner/key/AAD mismatch, lost key are refused
+ok 10 - A36-C10 tampered manifest with recomputed checksum, owner/key/AAD mismatch, lost key are refused
+  ---
+  duration_ms: 1.101901
+  type: 'test'
+  ...
+# Subtest: A36-C11 isolated staging: exact UTF-8 five-field Note restored in a fresh namespace; faults never touch active
+ok 11 - A36-C11 isolated staging: exact UTF-8 five-field Note restored in a fresh namespace; faults never touch active
+  ---
+  duration_ms: 6.67225
+  type: 'test'
+  ...
+# Subtest: A36-R01 newer deletion state blocks a valid old archive and preserves shared global records
+ok 12 - A36-R01 newer deletion state blocks a valid old archive and preserves shared global records
+  ---
+  duration_ms: 1.118726
+  type: 'test'
+  ...
+# Subtest: A36-R02 removed, tampered or replayed witness (alone or together with the store) -> STOP
+ok 13 - A36-R02 removed, tampered or replayed witness (alone or together with the store) -> STOP
+  ---
+  duration_ms: 2.015088
+  type: 'test'
+  ...
+# Subtest: A36-R03 crash between confirmed deletion and witness advance (both orders) -> never CONFIRMED, quarantined, restore STOP
+ok 14 - A36-R03 crash between confirmed deletion and witness advance (both orders) -> never CONFIRMED, quarantined, restore STOP
+  ---
+  duration_ms: 2.745364
+  type: 'test'
+  ...
+# Subtest: A36-R04 staged restore reproduces exact identities, links, revisions, counts and UTF-8 bytes, or fails without touching active
+ok 15 - A36-R04 staged restore reproduces exact identities, links, revisions, counts and UTF-8 bytes, or fails without touching active
+  ---
+  duration_ms: 1.758911
+  type: 'test'
+  ...
+# Subtest: A36-R05 wrong key version, lost key, wrong owner, stale-but-valid manifest: honest refusal, no key regeneration
+ok 16 - A36-R05 wrong key version, lost key, wrong owner, stale-but-valid manifest: honest refusal, no key regeneration
+  ---
+  duration_ms: 1.726728
+  type: 'test'
+  ...
+# Subtest: A36-R06 crash half-way through staging and concurrent restores never write active; cutover not authorized
+ok 17 - A36-R06 crash half-way through staging and concurrent restores never write active; cutover not authorized
+  ---
+  duration_ms: 1.667259
+  type: 'test'
+  ...
+# Subtest: A36-R07 privacy erasure vs retained deletion state: POLICY_DECISION_PENDING, no invented retention days
+ok 18 - A36-R07 privacy erasure vs retained deletion state: POLICY_DECISION_PENDING, no invented retention days
+  ---
+  duration_ms: 1.181191
+  type: 'test'
+  ...
+# Subtest: A36-C12 no network, no secrets/PDF bytes, no forbidden imports; only the L3 prefix is used
+ok 19 - A36-C12 no network, no secrets/PDF bytes, no forbidden imports; only the L3 prefix is used
+  ---
+  duration_ms: 1.890578
+  type: 'test'
+  ...
+# Subtest: model exposes every commit barrier used by the fault suite
+ok 20 - model exposes every commit barrier used by the fault suite
+  ---
+  duration_ms: 0.166431
+  type: 'test'
+  ...
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-T01","fault_barrier":[{"barrier":"after-validate","visible":false,"checkpoint":1},{"barrier":"after-build","visible":false,"checkpoint":1},{"barrier":"before-publish","visible":false,"checkpoint":1},{"barrier":"after-publish-before-ack","visible":true,"checkpoint":2}],"positive_commit":"c2-2"}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-T02","expected_operation_status":"UNKNOWN -> CONFIRMED (observed)","reused_op":"OPERATION_ID_REUSED_WITH_DIFFERENT_INTENT"}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-T03","schedules":["delete-first","add-first"],"result":"CONFIRMED + CONFLICT"}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-T04","expected_commit_and_snapshot":"K=1","concurrent_commits":[2,3,4],"bundle_digest":"b03b4cf1ae96f93847ee4cac95d2c8a2615f0885268c31526f1aa3d2c7d01364"}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-T05","expected_deletion_checkpoint":2,"actual_deletion_checkpoint":2,"store_checkpoint_after_rollback":1}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-T06","conflict":"SERIALIZATION_CONFLICT","ambiguous":"UNKNOWN -> DEFINITE_FAILURE (witness)"}
+# L3-CASE {"route":"L3","fixture_digest":"978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e","model":"MODEL_ONLY","durability":"PHYSICAL_DURABILITY_UNPROVEN","case_id":"A36-T07","manifest":"MANIFEST_WRITE_FAILED","certification":"NOT_RESTORE_CERTIFIED","egress_attempts":0}
+# Subtest: A36-T01 crash at every pre-commit barrier: uncommitted graph invisible, no partial catalog/record/witness
+ok 21 - A36-T01 crash at every pre-commit barrier: uncommitted graph invisible, no partial catalog/record/witness
+  ---
+  duration_ms: 3.964049
+  type: 'test'
+  ...
+# Subtest: A36-T02 crash after durable commit before ACK; same opId other fingerprint conflicts; no duplicate write
+ok 22 - A36-T02 crash after durable commit before ACK; same opId other fingerprint conflicts; no duplicate write
+  ---
+  duration_ms: 1.566874
+  type: 'test'
+  ...
+# Subtest: A36-T03 write skew (Project delete vs new Association) is aborted; independent Relink/Note commit serially
+ok 23 - A36-T03 write skew (Project delete vs new Association) is aborted; independent Relink/Note commit serially
+  ---
+  duration_ms: 1.56128
+  type: 'test'
+  ...
+# Subtest: A36-T04 snapshot pinned at K: concurrent K+1 commits never leak into the export
+ok 24 - A36-T04 snapshot pinned at K: concurrent K+1 commits never leak into the export
+  ---
+  duration_ms: 1.440324
+  type: 'test'
+  ...
+# Subtest: A36-T05 full engine rollback is rejected by the separately retained newest deletion checkpoint
+ok 25 - A36-T05 full engine rollback is rejected by the separately retained newest deletion checkpoint
+  ---
+  duration_ms: 2.30868
+  type: 'test'
+  ...
+# Subtest: A36-T06 serialization abort is a definite CONFLICT, not UNKNOWN; ambiguous ACK is never retried; new intent distinct
+ok 26 - A36-T06 serialization abort is a definite CONFLICT, not UNKNOWN; ambiguous ACK is never retried; new intent distinct
+  ---
+  duration_ms: 0.658234
+  type: 'test'
+  ...
+# Subtest: A36-T07 external manifest write failure after a successful internal transaction: data intact, NOT_RESTORE_CERTIFIED
+ok 27 - A36-T07 external manifest write failure after a successful internal transaction: data intact, NOT_RESTORE_CERTIFIED
+  ---
+  duration_ms: 1.523142
+  type: 'test'
+  ...
+1..27
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 180.391705

@@ -1,0 +1,162 @@
+{
+  "env": {
+    "labels": [
+      "MODEL_ONLY",
+      "PHYSICAL_DURABILITY_UNPROVEN",
+      "UNSUPPORTED_COMPLETENESS",
+      "NOT_RESTORE_CERTIFIED"
+    ],
+    "work": "Q1E-L3 / D007-A37 (LOCAL / SYNTHETIC / MODEL_ONLY)",
+    "base": "1dd8b51f84921d23dc0112e4056fa7220bbb73e8",
+    "gitHead": "2cfc4ba6c1269264a7370a4681725a3111e7c60a",
+    "gitDirty": "(clean)",
+    "node": "v22.23.5",
+    "platform": "linux 6.18.44-fc-v819 x64",
+    "cpus": "2 x Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "memGiB": 7.8,
+    "startedAt": "2026-11-24T09:16:47.424Z",
+    "finishedAt": "2026-11-24T09:16:52.348Z"
+  },
+  "results": [
+    {
+      "id": "L3-node-check-model_mjs",
+      "command": "node --check poc/q1e-l3/src/model.mjs",
+      "exit": 0,
+      "ms": 27,
+      "peakRssMiB": 35.7,
+      "rssScope": "parent node process (node --test runs each test file in its own child process)",
+      "pass": null,
+      "fail": null
+    },
+    {
+      "id": "L3-node-check-snapshot_mjs",
+      "command": "node --check poc/q1e-l3/src/snapshot.mjs",
+      "exit": 0,
+      "ms": 31,
+      "peakRssMiB": 35.7,
+      "rssScope": "parent node process (node --test runs each test file in its own child process)",
+      "pass": null,
+      "fail": null
+    },
+    {
+      "id": "L3-node-check-recovery_mjs",
+      "command": "node --check poc/q1e-l3/src/recovery.mjs",
+      "exit": 0,
+      "ms": 22,
+      "peakRssMiB": 28.4,
+      "rssScope": "parent node process (node --test runs each test file in its own child process)",
+      "pass": null,
+      "fail": null
+    },
+    {
+      "id": "L3-node-check-l3_contract_test_mjs",
+      "command": "node --check poc/q1e-l3/test/l3-contract.test.mjs",
+      "exit": 0,
+      "ms": 24,
+      "peakRssMiB": 35.8,
+      "rssScope": "parent node process (node --test runs each test file in its own child process)",
+      "pass": null,
+      "fail": null
+    },
+    {
+      "id": "L3-node-check-l3_faults_test_mjs",
+      "command": "node --check poc/q1e-l3/test/l3-faults.test.mjs",
+      "exit": 0,
+      "ms": 26,
+      "peakRssMiB": 35.3,
+      "rssScope": "parent node process (node --test runs each test file in its own child process)",
+      "pass": null,
+      "fail": null
+    },
+    {
+      "id": "L3-node-check-check_mjs",
+      "command": "node --check poc/q1e-l3/scripts/check.mjs",
+      "exit": 0,
+      "ms": 25,
+      "peakRssMiB": 34.6,
+      "rssScope": "parent node process (node --test runs each test file in its own child process)",
+      "pass": null,
+      "fail": null
+    },
+    {
+      "id": "L3-node-check-mutation_check_mjs",
+      "command": "node --check poc/q1e-l3/scripts/mutation-check.mjs",
+      "exit": 0,
+      "ms": 24,
+      "peakRssMiB": 28.3,
+      "rssScope": "parent node process (node --test runs each test file in its own child process)",
+      "pass": null,
+      "fail": null
+    },
+    {
+      "id": "L3-suite-run1",
+      "command": "node --test poc/q1e-l3/test/l3-contract.test.mjs poc/q1e-l3/test/l3-faults.test.mjs",
+      "exit": 0,
+      "ms": 194,
+      "peakRssMiB": 47.2,
+      "rssScope": "parent node process (node --test runs each test file in its own child process)",
+      "pass": 27,
+      "fail": 0
+    },
+    {
+      "id": "L3-suite-run2",
+      "command": "node --test poc/q1e-l3/test/l3-contract.test.mjs poc/q1e-l3/test/l3-faults.test.mjs",
+      "exit": 0,
+      "ms": 226,
+      "peakRssMiB": 47.2,
+      "rssScope": "parent node process (node --test runs each test file in its own child process)",
+      "pass": 27,
+      "fail": 0
+    },
+    {
+      "id": "L3-suite-run3",
+      "command": "node --test poc/q1e-l3/test/l3-contract.test.mjs poc/q1e-l3/test/l3-faults.test.mjs",
+      "exit": 0,
+      "ms": 234,
+      "peakRssMiB": 47.3,
+      "rssScope": "parent node process (node --test runs each test file in its own child process)",
+      "pass": 27,
+      "fail": 0
+    },
+    {
+      "id": "L3-suite-run4",
+      "command": "node --test poc/q1e-l3/test/l3-contract.test.mjs poc/q1e-l3/test/l3-faults.test.mjs",
+      "exit": 0,
+      "ms": 252,
+      "peakRssMiB": 47.6,
+      "rssScope": "parent node process (node --test runs each test file in its own child process)",
+      "pass": 27,
+      "fail": 0
+    },
+    {
+      "id": "L3-suite-run5",
+      "command": "node --test poc/q1e-l3/test/l3-contract.test.mjs poc/q1e-l3/test/l3-faults.test.mjs",
+      "exit": 0,
+      "ms": 214,
+      "peakRssMiB": 47.4,
+      "rssScope": "parent node process (node --test runs each test file in its own child process)",
+      "pass": 27,
+      "fail": 0
+    },
+    {
+      "id": "L3-check",
+      "command": "node poc/q1e-l3/scripts/check.mjs",
+      "exit": 0,
+      "ms": 242,
+      "peakRssMiB": 45.7,
+      "rssScope": "parent node process (node --test runs each test file in its own child process)",
+      "pass": null,
+      "fail": null
+    },
+    {
+      "id": "L3-mutation",
+      "command": "node poc/q1e-l3/scripts/mutation-check.mjs",
+      "exit": 0,
+      "ms": 3377,
+      "peakRssMiB": 48.4,
+      "rssScope": "parent node process (node --test runs each test file in its own child process)",
+      "pass": null,
+      "fail": null
+    }
+  ]
+}
