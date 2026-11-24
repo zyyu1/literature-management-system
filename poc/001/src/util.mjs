@@ -85,7 +85,7 @@ export function createRequestBudget({ limits = ACCESS01_LIMITS, cleanupReserve =
    *   admitDispatchWrite (file/size caps) before dispatch.
    * - Cleanup phase (after beginCleanup()): only (a) a conditional DELETE of an own synthetic file admitted
    *   earlier by admitWrite, each at most once, and (b) ONE final PROPFIND of the exact parent collection
-   *   of an own file. Everything else (PUT, MKCOL, GET, extra/foreign PROPFIND, unconditional, foreign or
+   *   of an own file, admitted only after every own file's DELETE attempt (R10). Everything else (PUT, MKCOL, GET, extra/foreign PROPFIND, unconditional, foreign or
    *   collection DELETE) is refused before dispatch without consuming a slot and without a STOP.
    *   Admitted cleanup still obeys the hard cap and any 401/429 / hard-cap STOP.
    */
@@ -107,6 +107,9 @@ export function createRequestBudget({ limits = ACCESS01_LIMITS, cleanupReserve =
     if (method === 'PROPFIND') {
       if (verified) return CLEANUP_REFUSED('CLEANUP_VERIFICATION_ALREADY_USED');
       if (![...files.keys()].some((f) => f.slice(0, f.lastIndexOf('/')) === path)) return CLEANUP_REFUSED('CLEANUP_VERIFICATION_SCOPE');
+      // R10 (P2-R09-QA-1): the single verification is FINAL only — it is refused (no slot, no STOP, token kept)
+      // until every own file has had its one conditional DELETE attempt admitted (a 412 counts as attempted).
+      if ([...files.keys()].some((f) => !cleaned.has(f))) return CLEANUP_REFUSED('CLEANUP_VERIFICATION_PREMATURE');
       const r = admitRequest('cleanup');
       if (r.ok) verified = true;
       return r;

@@ -220,6 +220,16 @@ const MUTANTS = [
   { id: 'M82', desc: "R09 B5: refused file/size admission keeps the consumed request slot", file: 'src/util.mjs',
     from: "    if (!w.ok) { sent.pop(); return w; }", to: "    if (!w.ok) return w;", suite: 'test/r09-regressions.test.mjs',
     expect: /R09-B5-03 refused write consumes no request slot/ },
+  // REMEDIATION-10 (D007-A39): early-verification mutants for P2-R09-QA-1, each killed by its NAMED R10 assertion.
+  { id: 'M83', desc: "R10 CLEAN: premature verification admitted (final-only check removed)", file: 'src/util.mjs',
+    from: "      if ([...files.keys()].some((f) => !cleaned.has(f))) return CLEANUP_REFUSED('CLEANUP_VERIFICATION_PREMATURE');", to: "      // final-only check removed", suite: 'test/r10-regressions.test.mjs',
+    expect: /R10-CLEAN-01 early verification refused before dispatch/ },
+  { id: 'M84', desc: "R10 CLEAN: refused premature verification still consumes the unique verification token", file: 'src/util.mjs',
+    from: "      if ([...files.keys()].some((f) => !cleaned.has(f))) return CLEANUP_REFUSED('CLEANUP_VERIFICATION_PREMATURE');", to: "      if ([...files.keys()].some((f) => !cleaned.has(f))) { verified = true; return CLEANUP_REFUSED('CLEANUP_VERIFICATION_PREMATURE'); }", suite: 'test/r10-regressions.test.mjs',
+    expect: /R10-CLEAN-01 verification token preserved/ },
+  { id: 'M85', desc: "R10 CLEAN: refused premature verification still consumes a cleanup slot", file: 'src/util.mjs',
+    from: "      if ([...files.keys()].some((f) => !cleaned.has(f))) return CLEANUP_REFUSED('CLEANUP_VERIFICATION_PREMATURE');", to: "      if ([...files.keys()].some((f) => !cleaned.has(f))) { sent.push({ at: now(), cleanup: true }); return CLEANUP_REFUSED('CLEANUP_VERIFICATION_PREMATURE'); }", suite: 'test/r10-regressions.test.mjs',
+    expect: /R10-CLEAN-01 (early verification consumes no slot|verification token preserved \(unit)/ },
 ];
 
 let failures = 0;
