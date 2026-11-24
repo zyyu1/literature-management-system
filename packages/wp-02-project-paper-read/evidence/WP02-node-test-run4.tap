@@ -1,0 +1,274 @@
+TAP version 13
+# Subtest: Q2-06 every denial class yields the byte-identical neutral 403 body and identical headers
+ok 1 - Q2-06 every denial class yields the byte-identical neutral 403 body and identical headers
+  ---
+  duration_ms: 60.39407
+  type: 'test'
+  ...
+# Subtest: Q2-06 foreign Project/paper never appear for the owner and existence is not distinguishable
+ok 2 - Q2-06 foreign Project/paper never appear for the owner and existence is not distinguishable
+  ---
+  duration_ms: 6.420355
+  type: 'test'
+  ...
+# Subtest: Q2-06 WP-01 Session rules unchanged: revoked and expired Sessions get 401, duplicate cookie 401
+ok 3 - Q2-06 WP-01 Session rules unchanged: revoked and expired Sessions get 401, duplicate cookie 401
+  ---
+  duration_ms: 7.816726
+  type: 'test'
+  ...
+# Subtest: Q2-07 WORKSPACE_READONLY: every WP-02 GET succeeds with the same data as the Owner
+ok 4 - Q2-07 WORKSPACE_READONLY: every WP-02 GET succeeds with the same data as the Owner
+  ---
+  duration_ms: 16.767417
+  type: 'test'
+  ...
+# Subtest: Q2-06 credentialed CORS only for the exact allowed Origin; Vary: Origin always
+ok 5 - Q2-06 credentialed CORS only for the exact allowed Origin; Vary: Origin always
+  ---
+  duration_ms: 3.211349
+  type: 'test'
+  ...
+# Subtest: zz request tally for this file stays within the 5000-request cap
+ok 6 - zz request tally for this file stays within the 5000-request cap
+  ---
+  duration_ms: 0.272569
+  type: 'test'
+  ...
+# WP02_LOCAL_REQUESTS file=auth-neutral n=36
+# Subtest: Q2-01 A6-01 XFAKE001 is ONE canonical paper linked to alpha, beta and gamma
+ok 7 - Q2-01 A6-01 XFAKE001 is ONE canonical paper linked to alpha, beta and gamma
+  ---
+  duration_ms: 32.157136
+  type: 'test'
+  ...
+# Subtest: Q2-01 A6-01 seeded re-import into gamma creates no second paper and no second link; counts unchanged
+ok 8 - Q2-01 A6-01 seeded re-import into gamma creates no second paper and no second link; counts unchanged
+  ---
+  duration_ms: 6.806813
+  type: 'test'
+  ...
+# Subtest: Q2-02 A6-02 same itemKey in another library is a DIFFERENT paper with its own status and note
+ok 9 - Q2-02 A6-02 same itemKey in another library is a DIFFERENT paper with its own status and note
+  ---
+  duration_ms: 3.741874
+  type: 'test'
+  ...
+# Subtest: Q2-02 identical title AND DOI never merge: XFAKE002 is distinct from XFAKE001
+ok 10 - Q2-02 identical title AND DOI never merge: XFAKE002 is distinct from XFAKE001
+  ---
+  duration_ms: 5.976451
+  type: 'test'
+  ...
+# Subtest: Q2-01/Q2-02 owner sees exactly the expected number of distinct canonical papers across all Projects
+ok 11 - Q2-01/Q2-02 owner sees exactly the expected number of distinct canonical papers across all Projects
+  ---
+  duration_ms: 9.7616
+  type: 'test'
+  ...
+# Subtest: STOP guard: a duplicated global paper in a (copied) fixture is refused at load
+ok 12 - STOP guard: a duplicated global paper in a (copied) fixture is refused at load
+  ---
+  duration_ms: 1.045451
+  type: 'test'
+  ...
+# Subtest: zz request tally for this file stays within the 5000-request cap
+ok 13 - zz request tally for this file stays within the 5000-request cap
+  ---
+  duration_ms: 0.168818
+  type: 'test'
+  ...
+# WP02_LOCAL_REQUESTS file=identity n=14
+# Subtest: Q2-03 default and state=active return exactly expected.activeProjects
+ok 14 - Q2-03 default and state=active return exactly expected.activeProjects
+  ---
+  duration_ms: 27.46616
+  type: 'test'
+  ...
+# Subtest: Q2-03 state=archived returns exactly expected.archivedProjects (archived:true)
+ok 15 - Q2-03 state=archived returns exactly expected.archivedProjects (archived:true)
+  ---
+  duration_ms: 4.047042
+  type: 'test'
+  ...
+# Subtest: Q2-03 state=all is the union; counts equal expected.projectCounts; no foreign Project
+ok 16 - Q2-03 state=all is the union; counts equal expected.projectCounts; no foreign Project
+  ---
+  duration_ms: 4.358741
+  type: 'test'
+  ...
+# Subtest: Q2-03 the foreign Project never appears in any state and no owner id is exposed
+ok 17 - Q2-03 the foreign Project never appears in any state and no owner id is exposed
+  ---
+  duration_ms: 8.853039
+  type: 'test'
+  ...
+# Subtest: Q2-03 invalid, repeated or unknown query parameters are rejected (400), not silently defaulted
+ok 18 - Q2-03 invalid, repeated or unknown query parameters are rejected (400), not silently defaulted
+  ---
+  duration_ms: 6.375952
+  type: 'test'
+  ...
+# Subtest: zz request tally for this file stays within the 5000-request cap
+ok 19 - zz request tally for this file stays within the 5000-request cap
+  ---
+  duration_ms: 0.270659
+  type: 'test'
+  ...
+# WP02_LOCAL_REQUESTS file=projects-list n=16
+# Subtest: Q2-07 WORKSPACE_READONLY and Owner: every non-GET on every WP-02 route is 405 (Allow: GET) with no state change
+ok 20 - Q2-07 WORKSPACE_READONLY and Owner: every non-GET on every WP-02 route is 405 (Allow: GET) with no state change
+  ---
+  duration_ms: 80.332432
+  type: 'test'
+  ...
+# Subtest: Q2-07 405 precedes auth: anonymous and foreign non-GET also 405, still no change
+ok 21 - Q2-07 405 precedes auth: anonymous and foreign non-GET also 405, still no change
+  ---
+  duration_ms: 4.355233
+  type: 'test'
+  ...
+# Subtest: Q2-08 state digest is identical before and after a full read sweep (and returned data is a copy)
+ok 22 - Q2-08 state digest is identical before and after a full read sweep (and returned data is a copy)
+  ---
+  duration_ms: 9.968898
+  type: 'test'
+  ...
+# Subtest: Q2-08 the digest is sensitive: a different fixture state yields a different digest
+ok 23 - Q2-08 the digest is sensitive: a different fixture state yields a different digest
+  ---
+  duration_ms: 2.57044
+  type: 'test'
+  ...
+# Subtest: zz request tally for this file stays within the 5000-request cap
+ok 24 - zz request tally for this file stays within the 5000-request cap
+  ---
+  duration_ms: 0.326106
+  type: 'test'
+  ...
+# WP02_LOCAL_REQUESTS file=readonly n=82
+# Subtest: Q2-04 readingStatus and note are GLOBAL: identical through alpha, beta (archived) and gamma
+ok 25 - Q2-04 readingStatus and note are GLOBAL: identical through alpha, beta (archived) and gamma
+  ---
+  duration_ms: 28.735695
+  type: 'test'
+  ...
+# Subtest: Q2-04 important is PROJECT-LOCAL: XFAKE001 important only in alpha
+ok 26 - Q2-04 important is PROJECT-LOCAL: XFAKE001 important only in alpha
+  ---
+  duration_ms: 11.422508
+  type: 'test'
+  ...
+# Subtest: Q2-04 noteState is EMPTY for papers without a note, PRESENT otherwise
+ok 27 - Q2-04 noteState is EMPTY for papers without a note, PRESENT otherwise
+  ---
+  duration_ms: 3.346782
+  type: 'test'
+  ...
+# Subtest: Q2-05 detail associations list alpha, beta (archived:true) and gamma only — never the foreign Project
+ok 28 - Q2-05 detail associations list alpha, beta (archived:true) and gamma only — never the foreign Project
+  ---
+  duration_ms: 2.52682
+  type: 'test'
+  ...
+# Subtest: Q2-05 archived Project is readable and carries archived:true
+ok 29 - Q2-05 archived Project is readable and carries archived:true
+  ---
+  duration_ms: 2.459298
+  type: 'test'
+  ...
+# Subtest: Q2-09 R-BYTES the five note fields are byte-identical to the fixture (no NFC, trim or CRLF rewrite)
+ok 30 - Q2-09 R-BYTES the five note fields are byte-identical to the fixture (no NFC, trim or CRLF rewrite)
+  ---
+  duration_ms: 3.567318
+  type: 'test'
+  ...
+# Subtest: zz request tally for this file stays within the 5000-request cap
+ok 31 - zz request tally for this file stays within the 5000-request cap
+  ---
+  duration_ms: 0.219843
+  type: 'test'
+  ...
+# WP02_LOCAL_REQUESTS file=scope-associations n=13
+# Subtest: egress precondition (zero traffic): only `lo` exists and no proxy variables are set
+ok 32 - egress precondition (zero traffic): only `lo` exists and no proxy variables are set
+  ---
+  duration_ms: 1.282155
+  type: 'test'
+  ...
+# Subtest: Q2-10 non-loopback / wildcard / fixed-port bind and raised request budget are refused
+ok 33 - Q2-10 non-loopback / wildcard / fixed-port bind and raised request budget are refused
+  ---
+  duration_ms: 1.465047
+  type: 'test'
+  ...
+# Subtest: Q2-10 server listens on 127.0.0.1 only and is inert until listen()
+ok 34 - Q2-10 server listens on 127.0.0.1 only and is inert until listen()
+  ---
+  duration_ms: 15.558246
+  type: 'test'
+  ...
+# Subtest: Q2-10 traversal, encoded separators and malformed IDs in {libraryType}/{libraryId}/{itemKey} are rejected
+ok 35 - Q2-10 traversal, encoded separators and malformed IDs in {libraryType}/{libraryId}/{itemKey} are rejected
+  ---
+  duration_ms: 32.946249
+  type: 'test'
+  ...
+# Subtest: Q2-10 absolute-form, protocol-relative and asterisk request targets are rejected (no proxying)
+ok 36 - Q2-10 absolute-form, protocol-relative and asterisk request targets are rejected (no proxying)
+  ---
+  duration_ms: 3.203366
+  type: 'test'
+  ...
+# Subtest: Q2-10 WP-01 limits apply: oversized declared body 413, request budget 429
+ok 37 - Q2-10 WP-01 limits apply: oversized declared body 413, request budget 429
+  ---
+  duration_ms: 6.437936
+  type: 'test'
+  ...
+# Subtest: Q2-10 response over 256 KiB becomes a bounded RESPONSE_LIMIT error (in-memory fixture copy)
+ok 38 - Q2-10 response over 256 KiB becomes a bounded RESPONSE_LIMIT error (in-memory fixture copy)
+  ---
+  duration_ms: 7.412281
+  type: 'test'
+  ...
+# Subtest: Q2-10 sanitized logs: only t/method/route/status/code; no cookie, ID or note text
+ok 39 - Q2-10 sanitized logs: only t/method/route/status/code; no cookie, ID or note text
+  ---
+  duration_ms: 4.625591
+  type: 'test'
+  ...
+# Subtest: provenance: fixtures frozen (SHA-256), Node v22.23.5 linux/x64, zero deps, imports node: or relative only
+ok 40 - provenance: fixtures frozen (SHA-256), Node v22.23.5 linux/x64, zero deps, imports node: or relative only
+  ---
+  duration_ms: 3.909715
+  type: 'test'
+  ...
+# Subtest: zz request tally for this file stays within the 5000-request cap
+ok 41 - zz request tally for this file stays within the 5000-request cap
+  ---
+  duration_ms: 0.331037
+  type: 'test'
+  ...
+# WP02_LOCAL_REQUESTS file=transport n=34
+# Subtest: Q2-11 packages/wp-01-synthetic-auth-api/** is byte-identical to Base (no file added, removed or changed)
+ok 42 - Q2-11 packages/wp-01-synthetic-auth-api/** is byte-identical to Base (no file added, removed or changed)
+  ---
+  duration_ms: 2.672925
+  type: 'test'
+  ...
+# Subtest: Q2-11 the unchanged WP-01 suite still passes 67/67 (separate node --test process, same namespace)
+ok 43 - Q2-11 the unchanged WP-01 suite still passes 67/67 (separate node --test process, same namespace)
+  ---
+  duration_ms: 813.949129
+  type: 'test'
+  ...
+1..43
+# tests 43
+# suites 0
+# pass 43
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1720.878586
