@@ -1,4 +1,4 @@
-<!-- BUS from=DESIGN to=MANAGEMENT seq=3 re=bus/QA_TO_DESIGN.md@0 status=OPEN updated=2026-11-24T17:12+01:00 -->
+<!-- BUS from=DESIGN to=MANAGEMENT seq=4 re=bus/QA_TO_DESIGN.md@0 status=OPEN updated=2026-11-24T17:30+01:00 -->
 # 决策板 / Decision Board — 每轮整体覆盖
 
 > **用法（[A51](governance/D007_A51_DECISION_BOARD_WORKFLOW.md) + [A52](governance/D007_A52_FILE_BUS_POLLING.md)）：** Design 每轮整体覆盖本文件，历史只在 git 里。
@@ -8,42 +8,47 @@
 >
 > G1/G4 的正式授权以 `docs/architecture/D007_A*.md` 为准。
 
-**轮次:** R3（seq 3）· 2026-11-24 17:12 · 基于 `main@83239e2`
+**轮次:** R4（seq 4）· 2026-11-24 17:30 · 基于 `main@0676c891`
 
-**已记录的上一轮选择**（来自 `bus/MANAGEMENT_TO_EXECUTION.md` seq 1）：
-- **DEC-1=A**：开工 WP-01。
-- **DEC-2=A**：PR #2 和 PR #4 保持 OPEN，作为证据存档，不合并。
+**已记录：** DEC-1=A、DEC-2=A、DEC-3=A（改用云端 Linux 执行）。
 
-**新阻塞：** Execution 在 `bus/EXECUTION_TO_QA.md` seq 1 中报告 `status=STOP`。
-- WP-01 的执行指令要求在 Linux x64 上运行，而 Execution 窗口是 Windows 10，也没有 WSL。
-- Execution 停止是正确的，没有改动任何代码。
-- 需要用户选择执行主机，见 DEC-3。
+**上一轮的 STOP（Design 的错误）：** 我在 seq 3 中说云端会话"正好满足"要求。
+- OS 和 Node 版本确实满足。
+- 但云端会话**可以访问外网**，不满足 WP-01 §2 的"出站拒绝"，所以 Execution 停下是对的。
+
+**修正：** [A54](architecture/D007_A54_WP01_EGRESS_BOUNDARY_AMENDMENT.md) 规定，在云端会话里所有测试都用 Design 提供的 `tools/offline/run-offline.sh` 运行。
+- 这个脚本让命令在内核级的独立网络命名空间里执行，只有本机回环可用，外网全部不可达。
+- 它只用系统自带的 `unshare` 和 Python 标准库，不安装任何东西。
+- Design 已在自己的云端会话实测：在命名空间外能连上 1.1.1.1:443；在命名空间内全部返回 ENETUNREACH，探针结果 PASS。
+- 这项修正没有放宽要求，反而比原要求更严。
 
 ## 1. 当前状态
 | 工作线 | 对象 | 状态 |
 | --- | --- | --- |
 | POC-001 R10 | PR #2 `a9131ac` | **G4 PASS_LOCAL**（[A49](architecture/D007_A49_R10_EXACT_G4_PASS_LOCAL.md)），两个 P2 已在本地关闭；按 DEC-2=A 保持 OPEN 存档 |
 | Q1E-L3 | PR #4 `2757aa6` | **G4 PASS_MODEL_ONLY**（[A53](architecture/D007_A53_Q1E_L3_EXACT_G4_PASS_MODEL_ONLY.md)），两个 P2 已在模型层面关闭 |
-| WP-01 合成认证 API | 未开工 | G1 已授权（[A21](architecture/D007_A21_WP01_G1_DECISION.md)），已派发（DEC-1=A），但 **Execution 因主机不是 Linux 而 STOP** |
+| WP-01 合成认证 API | 未开工 | G1 已授权（[A21](architecture/D007_A21_WP01_G1_DECISION.md)）；云端 Linux 执行因出网 STOP，已由 [A54](architecture/D007_A54_WP01_EGRESS_BOUNDARY_AMENDMENT.md) 修正，**待 Management 重派** |
 | 全局 | — | 合并、真实服务、部署（G5/G6/G7）禁止；物理持久性、备份恢复、真实坚果云均未验证 |
 
-**结论：** 两条 POC 补救线已全部收口。产品主线 WP-01 的执行窗口主机不满足要求，需要先决定换主机（DEC-3）。
+**结论：** 两条 POC 补救线已全部收口；WP-01 等 Management 重派后开始执行。
 
-## 2. 待用户决策（Management 逐个呈给用户）
+## 2. 待用户决策
+无。DEC-3=A 已由 A54 落实，不需要新的选择。
 
-### DEC-3：WP-01 在哪里执行？
-**背景：** WP-01 指令写明要求 Linux x64 + Node v22.23.5，并且要证明外网被禁止（outbound-deny）。
-- Execution 窗口是 Windows，不满足这个要求。
-- Claude 云端会话是 Linux x86_64 + Node v22.23.5，正好满足。
+## 3. 进行中：Management 直接执行（无需再问用户）
+**任务：重派 WP-01。** 写入 `bus/MANAGEMENT_TO_EXECUTION.md` seq 4，`re=DECISION_BOARD.md@4`。
 
-| 选项 | 内容 | 派发（选中后由 Management 写入 `bus/MANAGEMENT_TO_EXECUTION.md` seq 2） |
-| --- | --- | --- |
-| **A（推荐）改用云端 Linux 会话执行** | 指令不改，零新风险 | 请用户新开一个 **Claude 云端会话**作为 Execution 窗口，让它读取 `docs/windows/EXECUTION_WINDOW_START.md` 并设置 15 分钟轮询。<br>派发内容与 seq 1 相同：A21、Base `9cfc1d7375f81ab35921a02eebf1a1c9d941476a`、新分支 `exec/WP-01-synthetic-auth-api`、白名单、QA 计划，并注明 **Execution 主机为云端 Linux**。<br>原 Windows 的 Execution 窗口停止轮询。<br>QA 窗口必须再另开一个云端会话，不能和 Execution 共用。 |
-| B 允许 Windows 执行 WP-01 | 需要 Design 先出一个修订，说明在 Windows 上如何证明外网被禁止 | 本轮不派发；Design 在下一轮出修订方案 |
-| C 暂缓 WP-01 | — | 不派发 |
+**派发内容：**
+- 与 seq 3 相同：A21、Base `9cfc1d7375f81ab35921a02eebf1a1c9d941476a`、新分支 `exec/WP-01-synthetic-auth-api`、白名单、QA 计划 `docs/handoffs/WP-01/QA_INSTRUCTION.md`。
+- 新增：**按 [A54](architecture/D007_A54_WP01_EGRESS_BOUNDARY_AMENDMENT.md) §3 执行**。
+  - 先跑出站探针，结果必须是 PASS。
+  - 所有测试和服务器命令都要通过 `run-offline.sh` 运行。
+  - git 命令在命名空间外执行。
+  - 不得把 `tools/` 加到 WP-01 分支。
 
-## 3. 进行中
-无。
+**执行与 QA 的窗口：**
+- 执行窗口沿用当前的云端 Execution 会话。
+- QA 必须另开一个云端会话，同样按 A54 运行。
 
 ## 4. 回传方式
 Management 写 `bus/MANAGEMENT_TO_EXECUTION.md`（含 `DEC-1=?`、`DEC-2=?`）→ Execution 写 `bus/EXECUTION_TO_QA.md`（PR、SHA、QA 计划路径）→ QA 写 `bus/QA_TO_DESIGN.md`（评论 ID、结论）→ Design 核对证据后进行下一轮。
