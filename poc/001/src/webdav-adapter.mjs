@@ -44,10 +44,20 @@ export function createWebDavAdapter({
   // cleartext HTTP. REMEDIATION-08 (D007-A30): the single exception is an EXPLICIT local synthetic TLS
   // test mode — `localTls: { ca }` with a test-only CA — and only towards a loopback host. Without it
   // the R01 behaviour is unchanged. This is NOT a real-upstream TLS transport (ACCESS-02 remains BLOCKED).
-  if (base.protocol === 'https:' && localTls === undefined) {
-    const err = new Error('HTTPS_TRANSPORT_NOT_IMPLEMENTED: refusing to send credentials; TLS transport is not part of the local POC');
-    err.code = 'HTTPS_TRANSPORT_NOT_IMPLEMENTED';
-    throw err;
+  let tlsOptions = null;
+  if (base.protocol === 'https:') {
+    if (localTls === undefined) {
+      const err = new Error('HTTPS_TRANSPORT_NOT_IMPLEMENTED: refusing to send credentials; TLS transport is not part of the local POC');
+      err.code = 'HTTPS_TRANSPORT_NOT_IMPLEMENTED';
+      throw err;
+    }
+    if (localTls === null || typeof localTls !== 'object') throw blocked('TLS_CONFIG_REFUSED', 'localTls must be { ca }');
+    for (const k of Object.keys(localTls)) if (!LOCAL_TLS_KEYS.has(k)) throw blocked('TLS_CONFIG_REFUSED', `option "${k}" is not permitted (no verification overrides)`);
+    if (!(typeof localTls.ca === 'string' || Buffer.isBuffer(localTls.ca)) || !String(localTls.ca).includes('BEGIN CERTIFICATE')) throw blocked('TLS_CONFIG_REFUSED', 'a PEM test CA is required');
+    // Only this CA is trusted (Node's public root store is replaced, not extended). Verification and
+    // hostname/IP checking are forced on explicitly, so NODE_TLS_REJECT_UNAUTHORIZED=0 cannot weaken them.
+    // The loopback host check below still applies: TLS mode never unlocks a non-loopback host.
+    tlsOptions = { ca: localTls.ca, rejectUnauthorized: true, checkServerIdentity: tls.checkServerIdentity, minVersion: 'TLSv1.2' };
   }
   if (base.protocol !== 'http:' && base.protocol !== 'https:') throw new Error('unsupported protocol');
   if (base.protocol === 'http:' && localTls !== undefined) throw blocked('TLS_CONFIG_REFUSED', 'localTls given for a non-https URL');
@@ -68,15 +78,6 @@ export function createWebDavAdapter({
   const basePathOk = !base.search && !base.hash && !/[?#%\\\s]/.test(raw) && !/(^|[/\\])\.\.?([/\\]|$)/.test(rawPath)
     && (base.pathname === '/' || safePath(base.pathname.replace(/\/$/, '')));
   if (!basePathOk) throw blocked('UNSAFE_TARGET', 'base path must be a canonical plain path');
-  let tlsOptions = null;
-  if (base.protocol === 'https:') {
-    if (localTls === null || typeof localTls !== 'object') throw blocked('TLS_CONFIG_REFUSED', 'localTls must be { ca }');
-    for (const k of Object.keys(localTls)) if (!LOCAL_TLS_KEYS.has(k)) throw blocked('TLS_CONFIG_REFUSED', `option "${k}" is not permitted (no verification overrides)`);
-    if (!(typeof localTls.ca === 'string' || Buffer.isBuffer(localTls.ca)) || !String(localTls.ca).includes('BEGIN CERTIFICATE')) throw blocked('TLS_CONFIG_REFUSED', 'a PEM test CA is required');
-    // Only this CA is trusted (Node's public root store is replaced, not extended). Verification and
-    // hostname/IP checking are forced on explicitly, so NODE_TLS_REJECT_UNAUTHORIZED=0 cannot weaken them.
-    tlsOptions = { ca: localTls.ca, rejectUnauthorized: true, checkServerIdentity: tls.checkServerIdentity, minVersion: 'TLSv1.2' };
-  }
   const transport = tlsOptions ? https : http;
   const connectHost = base.hostname.replace(/^\[(.*)\]$/, '$1');
   // R08: a host NAME (`localhost`) is resolved here and the result must be an allowed loopback address;
