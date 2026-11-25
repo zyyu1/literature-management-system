@@ -36,11 +36,11 @@ const BASE_MANIFEST = [
 
 // D007-A60 overlay: the ONLY authorized WP-01 byte changes plus the one new test-only helper.
 // Every other file keeps its literal A56 Base SHA-256 from BASE_MANIFEST above; nothing is derived
-// at runtime and no path is excluded by wildcard.
+// at runtime and no path is excluded by wildcard. A62 hardens the helper; only its overlay hash moves.
 const A60_OVERLAY = Object.freeze({
   'test/auth-contract.test.mjs': '243a5523b4bf285aa7e8e85b6757535e34379d3b10e514cca903c4c4fcbfe753',
   'test/transport-negative.test.mjs': '9ee17908eb1e5338aa0bece83096468c5209fa819925d251761cbdf4b9bbddb1',
-  'support/platform-precondition.mjs': '5e67d2e482ceb53c5a4e3a77c37791355665727558eb89b8dd2469b774975bdf',
+  'support/platform-precondition.mjs': 'ac4ee082a7bba75048bc6de869e8165e37e6beb4560703aca1c1059c7da70500',
 });
 const A60_ADDED = ['support/platform-precondition.mjs'];
 

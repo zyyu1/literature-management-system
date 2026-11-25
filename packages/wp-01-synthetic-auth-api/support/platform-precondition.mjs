@@ -1,13 +1,15 @@
-// D007-A60 — test-only cross-platform egress precondition (shared by the WP-01 and WP-02 suites).
-// Read-only, fail-closed, Node builtins only, no product imports and no machine/network changes.
+// D007-A60 / A61 / A62 — test-only cross-platform egress precondition (shared by the WP-01 and
+// WP-02 suites). Read-only, fail-closed, Node builtins only, no product imports and no machine or
+// network changes.
 //
 // Linux: keep the A54/A55 requirement that the kernel namespace exposes nothing but `lo` and that
 // no proxy variable is inherited.
-// Windows: use read-only, built-in Windows networking queries (Get-NetAdapter -IncludeHidden,
-// Get-NetIPInterface, Get-NetIPAddress, Get-NetRoute) and accept ONLY a fully proven offline state:
-// every non-loopback interface must be unavailable (adapter not Up, media not Connected, IP
-// interface Disconnected), and no usable interface may carry any non-loopback address or default
-// route. Anything ambiguous, inconsistent, empty, malformed, slow or unsupported fails closed.
+// Windows: read-only built-in Windows networking queries (Get-NetAdapter -IncludeHidden,
+// Get-NetIPInterface, Get-NetIPAddress, Get-NetRoute) through an explicit trusted system executable.
+// The classifier accepts ONLY a fully proven offline state and rejects every ambiguous input:
+// unknown adapter state pairs, active paths (even without address or default route), contradictory
+// adapter/IP state, orphan interfaces/routes, malformed or missing collections, unproven loopback
+// identity, non-numeric/invalid IPv6 zones and family mismatches.
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import net from 'node:net';
@@ -20,6 +22,16 @@ export const EXPECTED_ARCH = 'x64';
 export const DEFAULT_QUERY_TIMEOUT_MS = 8000;
 
 const PROXY_NAMES = Object.freeze(['http_proxy', 'https_proxy', 'all_proxy']);
+const REQUIRED_COLLECTIONS = Object.freeze(['adapters', 'ipInterfaces', 'addresses', 'defaultRoutes']);
+const STATUS_ACTIVE = 'Up|Connected';
+// Every other accepted pair must be an explicitly observed, unambiguous unavailable state.
+const STATUS_UNAVAILABLE = new Set(Object.freeze([
+  'Disconnected|Disconnected',
+  'Disconnected|Unknown',
+  'Not Present|Unknown',
+]));
+// Windows software loopback reports this sentinel MTU on its IP interfaces.
+const LOOPBACK_MTU = 4294967295;
 
 function fail(reason) {
   throw new Error(`EGRESS_PRECONDITION_FAILED: ${reason}`);
@@ -30,17 +42,23 @@ function isPositiveInt(v) {
 function isLoopbackAddress(ip) {
   return ip === '127.0.0.1' || ip === '::1' || /^127\./.test(ip);
 }
-// Windows reports IPv6 link-local addresses with a zone suffix (fe80::1%16); strip only a numeric
-// zone, otherwise classify as malformed and fail closed.
-function normalizeIp(ip) {
-  if (typeof ip !== 'string') return null;
-  const zoned = ip.match(/^(.*)%(\d+)$/);
-  const bare = zoned ? zoned[1] : ip;
-  return net.isIP(bare) === 0 ? null : bare;
-}
-function asArray(v) {
-  if (v === undefined || v === null) return [];
-  return Array.isArray(v) ? v : [v];
+
+// Strict IP normalisation. A zone is legal only as a single numeric suffix on a valid IPv6
+// address; non-numeric, empty, multiple or IPv4 zones are malformed and never normalised away.
+export function normalizeIp(raw) {
+  if (typeof raw !== 'string' || raw.length === 0) return null;
+  if (raw.includes('%')) {
+    const parts = raw.split('%');
+    if (parts.length !== 2) return null;
+    const [bare, zone] = parts;
+    if (!/^\d+$/.test(zone)) return null;
+    if (net.isIP(bare) !== 6) return null;
+    return { ip: bare, family: 'IPv6' };
+  }
+  const family = net.isIP(raw);
+  if (family === 4) return { ip: raw, family: 'IPv4' };
+  if (family === 6) return { ip: raw, family: 'IPv6' };
+  return null;
 }
 
 // Pure policy: OS/runtime gate.
@@ -66,11 +84,11 @@ export function evaluateLinuxInterfaceNames(names) {
 
 // Pure policy over an already-read inventory. Never performs I/O.
 export function evaluateWindowsInventory(inv) {
-  if (!inv || typeof inv !== 'object') return { ok: false, reason: 'INVENTORY_MALFORMED' };
-  const { adapters, ipInterfaces, addresses, defaultRoutes } = inv;
-  if (!Array.isArray(adapters) || !Array.isArray(ipInterfaces) || !Array.isArray(addresses) || !Array.isArray(defaultRoutes)) {
-    return { ok: false, reason: 'INVENTORY_MALFORMED' };
+  if (!inv || typeof inv !== 'object' || Array.isArray(inv)) return { ok: false, reason: 'INVENTORY_MALFORMED' };
+  for (const key of REQUIRED_COLLECTIONS) {
+    if (!Array.isArray(inv[key])) return { ok: false, reason: 'INVENTORY_MALFORMED' };
   }
+  const { adapters, ipInterfaces, addresses, defaultRoutes } = inv;
   if (adapters.length === 0 || ipInterfaces.length === 0 || addresses.length === 0) {
     return { ok: false, reason: 'INVENTORY_EMPTY' };
   }
@@ -78,86 +96,129 @@ export function evaluateWindowsInventory(inv) {
   const adapterByIndex = new Map();
   for (const a of adapters) {
     if (!a || !isPositiveInt(a.ifIndex) || typeof a.status !== 'string' || !a.status
-      || typeof a.media !== 'string' || !a.media) return { ok: false, reason: 'INVENTORY_MALFORMED' };
+      || typeof a.media !== 'string' || !a.media
+      || typeof a.physicalMediaType !== 'string' || !a.physicalMediaType
+      || typeof a.virtual !== 'boolean' || typeof a.hardwareInterface !== 'boolean'
+      || typeof a.connectorPresent !== 'boolean'
+      || !Number.isInteger(a.ndisPhysicalMedium) || a.ndisPhysicalMedium < 0) {
+      return { ok: false, reason: 'INVENTORY_MALFORMED' };
+    }
     if (adapterByIndex.has(a.ifIndex)) return { ok: false, reason: 'INVENTORY_AMBIGUOUS' };
     adapterByIndex.set(a.ifIndex, a);
   }
 
-  const ipByIndex = new Map();
+  // Positive OS identity for a non-IP hidden pseudo adapter (for example the WAN Miniports):
+  // virtual, non-hardware, no connector, unspecified physical medium. This profile can never be
+  // mistaken for a physical Ethernet/Wi-Fi path; it is accepted only when it also has no IP
+  // interface rows, no address and no default route (so it cannot carry IP traffic).
+  const isPseudoNonIpAdapter = (a) => a.virtual === true
+    && a.hardwareInterface === false
+    && a.connectorPresent === false
+    && a.ndisPhysicalMedium === 0
+    && a.physicalMediaType === 'Unspecified';
+
+  const ipByKey = new Map();
   for (const row of ipInterfaces) {
     if (!row || !isPositiveInt(row.ifIndex) || (row.family !== 'IPv4' && row.family !== 'IPv6')
-      || (row.state !== 'Connected' && row.state !== 'Disconnected')) return { ok: false, reason: 'INVENTORY_MALFORMED' };
+      || (row.state !== 'Connected' && row.state !== 'Disconnected')
+      || !isPositiveInt(row.nlMtu)) return { ok: false, reason: 'INVENTORY_MALFORMED' };
     const key = `${row.ifIndex}/${row.family}`;
-    if (ipByIndex.has(key)) return { ok: false, reason: 'INVENTORY_AMBIGUOUS' };
-    ipByIndex.set(key, row);
+    if (ipByKey.has(key)) return { ok: false, reason: 'INVENTORY_AMBIGUOUS' };
+    ipByKey.set(key, row);
   }
+  const rowsFor = (index) => [...ipByKey.values()].filter((r) => r.ifIndex === index);
 
-  const addrByIndex = new Map();
   const normalizedAddresses = [];
   for (const a of addresses) {
     if (!a || !isPositiveInt(a.ifIndex)) return { ok: false, reason: 'INVENTORY_MALFORMED' };
-    const ip = normalizeIp(a.ip);
-    if (!ip) return { ok: false, reason: 'INVENTORY_MALFORMED' };
-    normalizedAddresses.push({ ifIndex: a.ifIndex, ip });
-    if (!addrByIndex.has(a.ifIndex)) addrByIndex.set(a.ifIndex, []);
-    addrByIndex.get(a.ifIndex).push(ip);
-  }
-  if (!normalizedAddresses.some((a) => isLoopbackAddress(a.ip))) return { ok: false, reason: 'NO_LOOPBACK' };
-
-  const loopbackIndexes = new Set();
-  for (const [index, ips] of addrByIndex.entries()) {
-    if (ips.every((ip) => isLoopbackAddress(ip))) loopbackIndexes.add(index);
+    const parsed = normalizeIp(a.ip);
+    if (!parsed) return { ok: false, reason: 'INVENTORY_MALFORMED' };
+    normalizedAddresses.push({ ifIndex: a.ifIndex, ip: parsed.ip, family: parsed.family });
   }
 
-  // Every non-loopback address must be linked to a known adapter and a known IP interface.
-  for (const a of normalizedAddresses) {
-    if (isLoopbackAddress(a.ip)) continue;
-    if (!adapterByIndex.has(a.ifIndex)) return { ok: false, reason: 'UNKNOWN_LINKAGE' };
-    const rows = [...ipByIndex.values()].filter((r) => r.ifIndex === a.ifIndex);
-    if (rows.length === 0) return { ok: false, reason: 'UNKNOWN_LINKAGE' };
-  }
+  const normalizedRoutes = [];
   for (const r of defaultRoutes) {
     if (!r || !isPositiveInt(r.ifIndex) || typeof r.dest !== 'string') return { ok: false, reason: 'INVENTORY_MALFORMED' };
-    if (r.dest !== '0.0.0.0/0' && r.dest !== '::/0') return { ok: false, reason: 'INVENTORY_MALFORMED' };
-    if (!adapterByIndex.has(r.ifIndex)) return { ok: false, reason: 'UNKNOWN_LINKAGE' };
-    if (![...ipByIndex.values()].some((x) => x.ifIndex === r.ifIndex)) return { ok: false, reason: 'UNKNOWN_LINKAGE' };
+    const family = r.dest === '0.0.0.0/0' ? 'IPv4' : r.dest === '::/0' ? 'IPv6' : null;
+    if (!family) return { ok: false, reason: 'INVENTORY_MALFORMED' };
+    normalizedRoutes.push({ ifIndex: r.ifIndex, family });
   }
 
-  const rowsFor = (index) => [...ipByIndex.values()].filter((r) => r.ifIndex === index);
-  const usable = (index) => {
-    const adapter = adapterByIndex.get(index);
-    if (!adapter || adapter.status !== 'Up' || adapter.media !== 'Connected') return false;
-    const rows = rowsFor(index);
-    return rows.length > 0 && rows.every((r) => r.state === 'Connected');
-  };
-
-  let usableInterfaces = 0;
-  for (const index of adapterByIndex.keys()) {
-    if (loopbackIndexes.has(index)) continue;
-    if (!usable(index)) continue;
-    usableInterfaces += 1;
-    // Any address on a usable non-loopback interface is an active path (LAN, VPN, virtual, IPv6).
-    if ((addrByIndex.get(index) || []).length > 0) return { ok: false, reason: 'ACTIVE_PATH' };
+  // Positive loopback identity: a real OS loopback interface is the index that is absent from
+  // Get-NetAdapter, carries IPv4 127.0.0.1 with a Connected IPv4 row and the loopback sentinel MTU.
+  const loopCandidates = new Set();
+  for (const a of normalizedAddresses) {
+    if (a.ip !== '127.0.0.1') continue;
+    const row = ipByKey.get(`${a.ifIndex}/IPv4`);
+    if (!row || row.state !== 'Connected') return { ok: false, reason: 'LOOPBACK_MISMATCH' };
+    if (row.nlMtu !== LOOPBACK_MTU) return { ok: false, reason: 'LOOPBACK_MISMATCH' };
+    if (adapterByIndex.has(a.ifIndex)) return { ok: false, reason: 'LOOPBACK_MISMATCH' };
+    loopCandidates.add(a.ifIndex);
   }
-  for (const r of defaultRoutes) {
-    if (usable(r.ifIndex)) return { ok: false, reason: 'USABLE_DEFAULT_ROUTE' };
-  }
-  // A connected IP interface on an adapter that is not Up/Connected is contradictory state.
-  for (const row of ipByIndex.values()) {
-    if (row.state !== 'Connected') continue;
-    const index = row.ifIndex;
-    if (loopbackIndexes.has(index)) continue;
-    if (!adapterByIndex.has(index)) return { ok: false, reason: 'UNKNOWN_LINKAGE' };
-    if (!usable(index)) return { ok: false, reason: 'INVENTORY_INCONSISTENT' };
-  }
-  // A default route on an interface whose IP state is unavailable is accepted only as stale proof.
-  for (const r of defaultRoutes) {
-    const rows = rowsFor(r.ifIndex);
-    if (rows.some((x) => x.state === 'Connected') && !usable(r.ifIndex)) {
-      return { ok: false, reason: 'INVENTORY_INCONSISTENT' };
+  if (loopCandidates.size === 0) return { ok: false, reason: 'NO_LOOPBACK' };
+  if (loopCandidates.size > 1) return { ok: false, reason: 'AMBIGUOUS_LOOPBACK' };
+  const loopIndex = [...loopCandidates][0];
+  for (const a of normalizedAddresses) {
+    if (a.ifIndex !== loopIndex) {
+      if (a.ip === '::1') return { ok: false, reason: 'LOOPBACK_MISMATCH' };
+      continue;
     }
+    if (!isLoopbackAddress(a.ip)) return { ok: false, reason: 'LOOPBACK_MISMATCH' };
+  }
+  for (const r of normalizedRoutes) {
+    if (r.ifIndex === loopIndex) return { ok: false, reason: 'ROUTE_ON_LOOPBACK' };
   }
 
+  // Family linkage: every address and default route must have a matching IP interface row.
+  for (const a of normalizedAddresses) {
+    if (!ipByKey.has(`${a.ifIndex}/${a.family}`)) return { ok: false, reason: 'FAMILY_LINKAGE' };
+  }
+  for (const r of normalizedRoutes) {
+    if (!ipByKey.has(`${r.ifIndex}/${r.family}`)) return { ok: false, reason: 'FAMILY_LINKAGE' };
+  }
+
+  // Orphan IP rows: every IP interface must belong to a known adapter or the proven loopback.
+  for (const row of ipInterfaces) {
+    if (row.ifIndex === loopIndex) continue;
+    if (!adapterByIndex.has(row.ifIndex)) return { ok: false, reason: 'ORPHAN_IP_ROW' };
+  }
+
+  // Adapter states: only an explicit allowlist is accepted; active paths are always refused, even
+  // without an address or a default route; unavailable adapters must have no Connected IP row.
+  let pseudoNonIpAdapters = 0;
+  for (const adapter of adapters) {
+    const pair = `${adapter.status}|${adapter.media}`;
+    const rows = rowsFor(adapter.ifIndex);
+    if (pair === STATUS_ACTIVE) {
+      if (rows.length === 0) {
+        if (isPseudoNonIpAdapter(adapter)) { pseudoNonIpAdapters += 1; continue; }
+        return { ok: false, reason: 'ACTIVE_WITHOUT_IP_ROWS' };
+      }
+      if (!rows.every((r) => r.state === 'Connected')) return { ok: false, reason: 'INVENTORY_INCONSISTENT' };
+      return { ok: false, reason: 'ACTIVE_PATH' };
+    }
+    if (!STATUS_UNAVAILABLE.has(pair)) return { ok: false, reason: 'UNKNOWN_ADAPTER_STATE' };
+    if (rows.some((r) => r.state === 'Connected')) return { ok: false, reason: 'INVENTORY_INCONSISTENT' };
+  }
+
+  // Stale addresses and default routes are accepted only on positively unavailable adapters whose
+  // matching-family rows exist and are all Disconnected.
+  for (const a of normalizedAddresses) {
+    if (a.ifIndex === loopIndex) continue;
+    if (!adapterByIndex.has(a.ifIndex)) return { ok: false, reason: 'UNKNOWN_LINKAGE' };
+  }
+  for (const r of normalizedRoutes) {
+    if (!adapterByIndex.has(r.ifIndex)) return { ok: false, reason: 'UNKNOWN_LINKAGE' };
+    const rows = rowsFor(r.ifIndex);
+    if (rows.length === 0) return { ok: false, reason: 'STALE_ROUTE_WITHOUT_PROOF' };
+    if (rows.some((x) => x.state === 'Connected')) return { ok: false, reason: 'USABLE_DEFAULT_ROUTE' };
+  }
+
+  const states = {};
+  for (const adapter of adapters) {
+    const pair = `${adapter.status}|${adapter.media}`;
+    states[pair] = (states[pair] || 0) + 1;
+  }
   return {
     ok: true,
     reason: null,
@@ -166,16 +227,18 @@ export function evaluateWindowsInventory(inv) {
       ipInterfaceCount: ipInterfaces.length,
       addressCount: addresses.length,
       defaultRouteCount: defaultRoutes.length,
-      usableNonLoopbackInterfaces: usableInterfaces,
-      staleDefaultRoutes: defaultRoutes.length,
+      adapterStates: states,
+      pseudoNonIpAdapters,
+      loopbackIndex: loopIndex,
+      staleDefaultRoutes: normalizedRoutes.length,
     },
   };
 }
 
 const PS_SCRIPT = [
   "$ErrorActionPreference='Stop'",
-  "$adapters = @(Get-NetAdapter -IncludeHidden -ErrorAction Stop | ForEach-Object { [pscustomobject]@{ ifIndex=[int]$_.ifIndex; status=[string]$_.Status; media=[string]$_.MediaConnectionState } })",
-  "$ipInterfaces = @(Get-NetIPInterface -ErrorAction Stop | ForEach-Object { [pscustomobject]@{ ifIndex=[int]$_.InterfaceIndex; family=[string]$_.AddressFamily; state=[string]$_.ConnectionState } })",
+  "$adapters = @(Get-NetAdapter -IncludeHidden -ErrorAction Stop | ForEach-Object { [pscustomobject]@{ ifIndex=[int]$_.ifIndex; status=[string]$_.Status; media=[string]$_.MediaConnectionState; physicalMediaType=[string]$_.PhysicalMediaType; virtual=[bool]$_.Virtual; hardwareInterface=[bool]$_.HardwareInterface; connectorPresent=[bool]$_.ConnectorPresent; ndisPhysicalMedium=[int]$_.NdisPhysicalMedium } })",
+  "$ipInterfaces = @(Get-NetIPInterface -ErrorAction Stop | ForEach-Object { [pscustomobject]@{ ifIndex=[int]$_.InterfaceIndex; family=[string]$_.AddressFamily; state=[string]$_.ConnectionState; nlMtu=[double]$_.NlMtu } })",
   "$addresses = @(Get-NetIPAddress -AddressFamily IPv4,IPv6 -ErrorAction Stop | ForEach-Object { [pscustomobject]@{ ifIndex=[int]$_.InterfaceIndex; ip=[string]$_.IPAddress } })",
   "$defaultRoutes = @(Get-NetRoute -ErrorAction Stop | Where-Object { $_.DestinationPrefix -eq '0.0.0.0/0' -or $_.DestinationPrefix -eq '::/0' } | ForEach-Object { [pscustomobject]@{ ifIndex=[int]$_.InterfaceIndex; dest=[string]$_.DestinationPrefix } })",
   "[pscustomobject]@{ adapters=$adapters; ipInterfaces=$ipInterfaces; addresses=$addresses; defaultRoutes=$defaultRoutes } | ConvertTo-Json -Depth 6 -Compress",
@@ -187,7 +250,8 @@ function defaultPowerShellPath() {
 }
 
 // Read-only inventory. Resolves an explicit trusted system executable (never PATH), no profile, no
-// elevation, bounded timeout. Any failure is returned as a closed reason code.
+// elevation, bounded timeout. Required collections are never coerced: a missing/null/non-array
+// collection is an incomplete or malformed query, not an empty list.
 export function readWindowsInventory(options = {}) {
   const spawn = options.spawnSyncImpl || spawnSync;
   const psPath = options.psPath || defaultPowerShellPath();
@@ -214,15 +278,19 @@ export function readWindowsInventory(options = {}) {
   } catch {
     return { ok: false, reason: 'QUERY_MALFORMED' };
   }
-  if (!parsed || typeof parsed !== 'object') return { ok: false, reason: 'QUERY_MALFORMED' };
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return { ok: false, reason: 'QUERY_MALFORMED' };
+  for (const key of REQUIRED_COLLECTIONS) {
+    if (!Object.hasOwn(parsed, key)) return { ok: false, reason: 'QUERY_INCOMPLETE' };
+    if (!Array.isArray(parsed[key])) return { ok: false, reason: 'QUERY_INCOMPLETE' };
+  }
   return {
     ok: true,
     reason: null,
     inventory: {
-      adapters: asArray(parsed.adapters),
-      ipInterfaces: asArray(parsed.ipInterfaces),
-      addresses: asArray(parsed.addresses),
-      defaultRoutes: asArray(parsed.defaultRoutes),
+      adapters: parsed.adapters,
+      ipInterfaces: parsed.ipInterfaces,
+      addresses: parsed.addresses,
+      defaultRoutes: parsed.defaultRoutes,
     },
   };
 }
