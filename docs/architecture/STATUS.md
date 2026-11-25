@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A63 A62 G4 PASS_LOCAL / A58 CONTINUATION — 2026-11-25:** [A63](D007_A63_A62_EXACT_G4_PASS_LOCAL_AND_A58_CONTINUATION.md), exact PR #6 `ab4a37c8905ebc9d3f889164c2f8164c9286051d`, independent Windows QA #7165559694 67/43/13, 46/46, 11/11 mutants, 12/12 egress. Five platform findings CLOSED_LOCAL; Linux runtime NOT_RUN. A58 same one-path G1 under DEC-8=A, updated exact START, fresh Management seq 15, independent QA; original P2 OPEN, G5/G6/G7 NOT_AUTHORIZED.
+
 **D007-A62 A60+A61 G4 PARTIAL / FAIL-CLOSED G1 — 2026-11-25:** [A62](D007_A62_A60_G4_PARTIAL_AND_FAIL_CLOSED_REMEDIATION.md), PR #6 `59df257abddfbbb49ed10b1ddd188bfc0c686278`, QA #7164758869 Windows G3 verified, 67/43/13, actual A59 isolation 11/11. G2 accepted, G4 PARTIAL_FAIL_CLOSED due four QA P2 + missing-route design P2. A62 two-path test-only correction within DEC-9=A; fresh Management seq 14, independent Windows QA. A58 STOP, original P2 OPEN, Linux new-SHA NOT_RUN, G5/G6/G7 NOT_AUTHORIZED.
 
 **D007-A61 A60 HELPER FILENAME CORRECTION — 2026-11-25:** [A61](D007_A61_A60_HELPER_FILENAME_CORRECTION.md) replaces only new helper filename with `support/platform-precondition.mjs`; DEC-9=A unchanged, Management seq 12 STOP, Execution seq 10 WAITING; fresh dispatch required (board seq 13). Prior scratch 68/68 and 42/43 not accepted, all 67/43/13 and A60 platform/integrity gates unchanged. PR #6 exact START `222763dad068fc226e500b14250cbb7fffc0a2de`; P2 OPEN, A58 STOP, G5/G6/G7 NOT_AUTHORIZED.
