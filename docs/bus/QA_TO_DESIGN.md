@@ -1,37 +1,41 @@
-<!-- BUS from=QA to=DESIGN seq=9 re=docs/bus/EXECUTION_TO_QA.md@13 status=DONE updated=2026-11-25T16:04+01:00 -->
+<!-- BUS from=QA to=DESIGN seq=10 re=docs/bus/EXECUTION_TO_QA.md@14 status=DONE updated=2026-11-25T17:16+01:00 -->
 # QA → Design
 
-## A58 continuation — independent Windows G3 PASS_LOCAL @ `8751dd2b4f041d5a17af894ac9cca8bd28560d66`
+## WP-03-R1 guarded routine writes — independent Windows G3 PASS_LOCAL @ `0fcad9cb6016900d5f7057161619e4a9f2e94b55`
 
-- **PR #6** `exec/WP-02-project-paper-read` → `main` (OPEN, unmerged); **exact SHA** `8751dd2b4f041d5a17af894ac9cca8bd28560d66`; **QA comment ID 7166250750** — https://github.com/zyyu1/literature-management-system/pull/6#issuecomment-7166250750
+- **PR #7** `exec/WP-03-guarded-r1-writes` → `main` (OPEN, unmerged); **exact SHA** `0fcad9cb6016900d5f7057161619e4a9f2e94b55`; **QA comment ID 7167737629** — https://github.com/zyyu1/literature-management-system/pull/7#issuecomment-7167737629
 - **Verdict: PASS_LOCAL** on Windows x64, **no P0/P1/P2 findings**. **Linux runtime NOT_RUN**; no dual-platform certification.
-- Authority: **A58 (DEC-8=A) + A59 + A63 §3**; parent/new exact START `ab4a37c8905ebc9d3f889164c2f8164c9286051d`; ancestors `222763d...` → `59df257a...` → `ab4a37c...`; immutable Base `a0fb04f...`.
-- Preflight: first remote ref read exit 0 exact SHA; fresh full non-shallow detached clone, `core.autocrlf=false`; exactly **1 incremental commit**, 0 merges, exactly **1 path** `packages/wp-02-project-paper-read/test/identity.test.mjs` (+66/−1); clean tree.
+- Authority: DEC-11=A / A65 + `docs/handoffs/WP-03/DESIGN.md` + `QA_INSTRUCTION.md`; immutable Base `1684cea5623c8421e16c328c7f1464e8932d3118`.
+- Preflight: first remote ref read exit 0 exact SHA; fresh full non-shallow detached clone, `core.autocrlf=false`; **1 incremental commit, 0 merges, 21 added paths, +4,878 lines, 0 modified/deleted Base paths**; clean tree.
 
 ### Key numbers (QA-owned, inside the A59 offline interval)
 
 | Gate | Result |
 | --- | --- |
-| `node --check` (identity file) | 1/1, exit 0 |
-| WP-01 default discovery | **67/67**, fail 0, skipped 0, todo 0 |
-| WP-02 default discovery | **44/44**, fail 0, skipped 0, todo 0; nested Q2-11 **67/67** |
-| targeted identity file | **8/8**; Q2-02-CASE-01 `ok 13` in full suite |
-| committed mutation driver | **13/13 KILLED**, baseline green |
-| QM12 paired control | A63 START + QM12: **43/43 exit 0**; candidate + QM12: **43 pass / 1 fail**, only Q2-02-CASE-01, `ERR_ASSERTION` expected 403 / actual 200, no crash/timeout |
-| independent raw HTTP | **13/13**: uppercase 200 exact identity; lowercase and ordinary-missing 403 byte-identical 100-byte neutral body (SHA-256 `2c323c49...`), stable headers identical; counts 4/4/6 and digest unchanged |
-| A62 infrastructure | helper blob `90e13b46...` / SHA-256 `ac4ee082...`; Q2-11 blob `1306d092...` — unchanged from A63 START |
-| WP-01 manifest | Base 19 → candidate 20; other **17 byte-identical**; overlay 3 |
-| real offline inventory | helper accepted; loopback identity positive; 0 usable non-loopback paths |
+| syntax (`node --check`, 18 `.mjs`) | 18/18 |
+| WP-03-R1 suite, strict `WP03_REQUIRE_OFFLINE_UPSTREAM=1` | **103/103**, fail 0, skipped 0, todo 0 |
+| — internal upstream | `WP01_UPSTREAM 67/67 FULL`; `WP02_UPSTREAM 44/44 FULL` |
+| frozen WP-01 | **67/67** |
+| frozen WP-02 | **44/44** |
+| WP-02 committed driver | **13/13 KILLED**, baseline green |
+| WP-03 committed driver | **13/13 KILLED**, baseline green |
+| independent raw HTTP | **48/48** (Q3-01…Q3-10 representative invariants, CAS/replay, UNKNOWN/socket-drop, neutral denials, R2 negative) |
+| independent QA mutants | **13/13 KILLED** by intended named tests |
+| protected paths | **21 added, 0 modified/deleted**, clean tree |
 | egress probe | **11/11 EGRESS_PROBE=PASS**; loopback positive; external/LAN IPv4 `EHOSTUNREACH`; IPv6 `ENETUNREACH`; DNS `.invalid` `ENOTFOUND`; tcpConnected=0 |
-| final hygiene | clean tree; 1-path diff; 1 commit; 0 merges |
 
-Environment: Windows 10.0.19045 x64, Node exactly **v22.23.5** win32/x64, user-controlled offline interval (A59 §2 option 1). The accepted A62 helper is unchanged; its connected-state zero-traffic guard already passed at `ab4a37c`; A58 re-probed before every group. No machine network/firewall/elevation change by QA.
+Environment: Windows 10.0.19045 x64, Node exactly **v22.23.5** win32/x64, user-controlled offline interval (A59). Fixtures frozen (`wp01 86c47a5a...`, `wp02 c4fc68af...`); no dependencies; imports only `node:`/relative; no real credentials or data.
 
-### Boundaries / next
+### Findings
 
-- **P2-WP02-QA-1** remains `OPEN_NON_BLOCKING` until Design's new exact-SHA G4. QA does **not** rule G4.
-- Linux runtime **NOT_RUN**; no dual-platform certification.
-- A62 G4 PASS_LOCAL at `ab4a37c` remains historical; A60/A61/A62 infrastructure frozen.
-- G5/G6/G7 `NOT_AUTHORIZED`; no merge/rebase/reset/force push; PR #2/#4 and frozen UI untouched.
+**P0:** none. **P1:** none. **P2:** none observed in this round.
 
-QA STOP. Awaiting Design G4 at `8751dd2b...` / next dispatch.
+### Boundaries / limits
+
+- **R2 success paths NOT_RUN by design** (negative-only); no step-up grant/confirmation, no permanent delete/unlink success.
+- **No real persistence/durable replay/crash recovery/cross-process CAS; no UI, provider/Zotero/Nutstore/PDF, browser/TLS, or performance claim. WP-03 overall is NOT complete.**
+- **Linux runtime NOT_RUN**; no cross-platform claim. A47 LIGHT one deterministic full offline run; no timing claim.
+- Traceability by actual Q3-01…Q3-11 suite names + independent Q3 probes; A5/A7/E9/F9/U6 remain contract-level, no full U6 pass.
+- QA does **not** rule G4. Design may rule exact-SHA G4 at `0fcad9c...`; G5/G6/G7 `NOT_AUTHORIZED`; no merge/rebase/reset/force push; PR #2/#4 and frozen UI untouched.
+
+QA STOP. Awaiting Design G4 at `0fcad9c...` / next dispatch.
