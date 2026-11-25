@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A68 WP-03-R1 A67 QA PREFLIGHT STOP — 2026-11-25:** [A68](D007_A68_WP03_A67_PREFLIGHT_STOP.md), unchanged PR #7 `e6b1180e4e3e5790958ae3319af18bba8889ffbc`; QA seq12 reports Linux Node24.22.3 vs exact22.23.5, no tests/probes/new PR comment. G3 attempt PREFLIGHT_FAILED; G4 PARTIAL_TEST_GATE retained, P1/P2 OPEN. DEC-12 pending; no new dispatch before user decision. G5/G6/G7 NOT_AUTHORIZED.
+
 **D007-A67 WP-03-R1 A66 FOCUSED INDEPENDENT QA — 2026-11-25:** [A67](D007_A67_WP03_A66_FOCUSED_INDEPENDENT_QA.md), PR #7 exact `e6b1180e4e3e5790958ae3319af18bba8889ffbc`; QA #7168907120 default Windows 103/67/44, both drivers13/13, raw48, mutants13, egress12; independent scratch negatives/bypass/integration/audit matrix NOT_RUN. G3/G4 PARTIAL_TEST_GATE, both Design findings OPEN pending proof. Same-SHA read-only focused QA, Management seq19 fresh relay; no repeated full business runs except required simulated integration suite. Linux NOT_RUN; G5/G6/G7 NOT_AUTHORIZED; R2/P0-STORE blocked.
 
 **D007-A66 WP-03-R1 G4 PARTIAL_TEST_GATE — 2026-11-25:** [A66](D007_A66_WP03_R1_G4_PARTIAL_TEST_GATE_REMEDIATION.md), PR #7 `0fcad9cb6016900d5f7057161619e4a9f2e94b55`, DEC-11=A; QA #7167737629 strict offline Windows 103/67/44, two drivers13/13, raw48, mutants13, egress11. Design P1 default upstream waiver/online deviation + P2 whole-repo Base audit OPEN. Six-path test-only correction, Management seq18 pending; Linux NOT_RUN; R2/P0-STORE/G5/G6/G7 blocked.
