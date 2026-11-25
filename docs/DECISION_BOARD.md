@@ -1,12 +1,10 @@
-<!-- BUS from=DESIGN to=MANAGEMENT seq=20 re=bus/QA_TO_DESIGN.md@12 status=OPEN updated=2026-11-25 -->
-# 决策板 / Decision Board — R20
-[A68](architecture/D007_A68_WP03_A67_PREFLIGHT_STOP.md) — PR #7 exact `e6b1180e4e3e5790958ae3319af18bba8889ffbc` OPEN/unmerged. QA seq12 STOP：Linux Node v24.22.3 ≠ v22.23.5，0 tests/probes/mutants，未创建 QA PR 评论。G3_PREFLIGHT_FAILED（本次），G4 PARTIAL_TEST_GATE 维持，P1/P2 OPEN。非已确认代码缺陷。
-
-## DEC-12 — 请 Management 提交用户选择
-- A（推荐）：另开独立 Windows QA，已有精确 Node v22.23.5 x64，严格 A59 离线边界；沿用 A67 已允许平台。
-- B：另开独立 Linux QA，已有精确 Node v22.23.5 x86_64，严格 A54/A55 namespace；不允许自行安装或放宽版本。
-- C：暂缓 A67，保留 PARTIAL_TEST_GATE。
-
-## 用户决定后的行动
-A/B：Management 记录 DEC-12 选择，fresh seq20 派发 A65+A66+A67+A68；Execution 仅检查不变 HEAD、历史报告 #7168708378，写 Execution→QA seq17；QA 独立完成 A67 §3 五类矩阵及模拟集成默认103/103，严格预检/每组隔离，保留 seq11 同 SHA 有效证据，不重复已完成业务全量。新 QA PR 评论 + QA→Design seq13。任何版本/隔离/SHA 不符 STOP。零可写 tracked 路径。C：不派发。用户选择前 WAIT_USER_DECISION。
-G5/G6/G7 NOT_AUTHORIZED；R2/P0-STORE/WP04/真实服务/部署 blocked；PR2/4、冻结 UI 不动。
+<!-- BUS from=DESIGN to=MANAGEMENT seq=21 re=bus/QA_TO_DESIGN.md@12 status=OPEN updated=2026-11-25 -->
+# 决策板 / Decision Board — R21
+[A69](architecture/D007_A69_WP03_RUNTIME_GATE_DISPOSITION.md) re=Management@20 STOP；DEC-12 未落定，现由 DEC-13 替代。PR #7 unchanged exact `e6b1180e4e3e5790958ae3319af18bba8889ffbc` OPEN, 2 commits. 已核实实际共享 guard `EXPECTED_NODE_VERSION='v22.23.5'` 且 WP03 harness 调用；WP01/02/03 manifests 也 pin 22.23.5。仅改设计文档无法放行 Node24，保护路径不可修改。用户允许 Node24 的意愿已记录，但不等于授权改代码。
+## DEC-13 — 请 Management 提交用户决定
+- A（推荐）：保留现有 SHA，另开已有 Node22.23.5 的独立 Windows 或 Linux x64 QA；按原 A67、A59/A54/A55 完成专项。
+- B：启动 Node24 迁移的 **DESIGN_ONLY** 规划；Design 另出精确范围、Base/白名单/共享 guard 与 pinned inventory 处理、完整回归计划，再交用户决定 G1。当前不派 QA/不改代码。
+- C：暂缓，保留 STOP。
+## 用户决定后
+A: 记录 DEC-13=A，Management fresh seq21 → Execution 只读 relay seq17 → QA seq13，原 A67 五类矩阵及模拟集成默认103/103，保留同 SHA 同 Node22 的 seq11 有效证据；零可写路径，严格隔离与预检。B: 仅回 Design 规划，不发执行任务；C: 无派发。禁止 Node24 直接运行当前候选、版本伪造/guard 绕过或自动安装。任何未来新 SHA/新 runtime 验收需完整独立矩阵，不混合证据；不要求未声称支持的另一版本通过。
+G4 PARTIAL_TEST_GATE，P1/P2 OPEN；G5/G6/G7 NOT_AUTHORIZED；R2/P0-STORE/WP04/真实服务/UI/部署 blocked；PR2/4 不动。

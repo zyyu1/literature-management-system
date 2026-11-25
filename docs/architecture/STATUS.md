@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A69 WP-03 A67 RUNTIME GATE DISPOSITION — 2026-11-25:** [A69](D007_A69_WP03_RUNTIME_GATE_DISPOSITION.md), PR #7 unchanged; Management seq20 STOP and Node24 request. Actual protected shared guard and three manifests pin Node22.23.5; doc-only amendment insufficient. DEC-13 pending (exact22 host / separate Node24 design / defer); no new dispatch, G4 PARTIAL_TEST_GATE, P1/P2 OPEN, G5/G6/G7 NOT_AUTHORIZED.
+
 **D007-A68 WP-03-R1 A67 QA PREFLIGHT STOP — 2026-11-25:** [A68](D007_A68_WP03_A67_PREFLIGHT_STOP.md), unchanged PR #7 `e6b1180e4e3e5790958ae3319af18bba8889ffbc`; QA seq12 reports Linux Node24.22.3 vs exact22.23.5, no tests/probes/new PR comment. G3 attempt PREFLIGHT_FAILED; G4 PARTIAL_TEST_GATE retained, P1/P2 OPEN. DEC-12 pending; no new dispatch before user decision. G5/G6/G7 NOT_AUTHORIZED.
 
 **D007-A67 WP-03-R1 A66 FOCUSED INDEPENDENT QA — 2026-11-25:** [A67](D007_A67_WP03_A66_FOCUSED_INDEPENDENT_QA.md), PR #7 exact `e6b1180e4e3e5790958ae3319af18bba8889ffbc`; QA #7168907120 default Windows 103/67/44, both drivers13/13, raw48, mutants13, egress12; independent scratch negatives/bypass/integration/audit matrix NOT_RUN. G3/G4 PARTIAL_TEST_GATE, both Design findings OPEN pending proof. Same-SHA read-only focused QA, Management seq19 fresh relay; no repeated full business runs except required simulated integration suite. Linux NOT_RUN; G5/G6/G7 NOT_AUTHORIZED; R2/P0-STORE blocked.
