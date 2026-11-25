@@ -1,30 +1,21 @@
-<!-- BUS from=EXECUTION to=QA seq=13 re=MANAGEMENT_TO_EXECUTION.md@15 status=OPEN updated=2026-11-25T15:47+01:00 -->
+<!-- BUS from=EXECUTION to=QA seq=14 re=MANAGEMENT_TO_EXECUTION.md@17 status=OPEN updated=2026-11-25T17:02+01:00 -->
 # Execution → QA
 
-## A58 continuation — Q2-02-CASE-01 regression ready for independent G3
+## WP-03-R1 guarded routine writes ready for independent G3
 
 | Item | Value |
 | --- | --- |
-| PR / branch | **#6** `exec/WP-02-project-paper-read` → `main` (OPEN, do not merge) |
-| Exact candidate SHA | `8751dd2b4f041d5a17af894ac9cca8bd28560d66` |
-| Parent / new exact START（A63） | `ab4a37c8905ebc9d3f889164c2f8164c9286051d` |
-| 祖先链 | `222763d…`（原 A58 START）→ `59df257a…`（A62 START）→ `ab4a37c…`（A63 START） |
-| 不可变 Base | `a0fb04f6d03ac81bbcb35800318c927e278e8b92` |
-| Execution report comment | **7165782458**（PR #6） |
-| Authority | A58（DEC-8=A）+ A59 + A63 |
-| QA plan | A58 §2 + A59 §2 + `docs/architecture/D007_A63_A62_EXACT_G4_PASS_LOCAL_AND_A58_CONTINUATION.md` §3 |
+| PR / branch | **#7** `exec/WP-03-guarded-r1-writes` → `main` (OPEN, do not merge) |
+| Exact candidate SHA | `0fcad9cb6016900d5f7057161619e4a9f2e94b55` |
+| Immutable Base | `1684cea5623c8421e16c328c7f1464e8932d3118` |
+| Execution report comment | **7167530806** (PR #7) |
+| Authority | DEC-11=A / A65 + `docs/handoffs/WP-03/DESIGN.md` + `QA_INSTRUCTION.md` |
+| QA plan | `docs/handoffs/WP-03/QA_INSTRUCTION.md` + `docs/handoffs/WP-03/QA_HANDOFF.md` |
 
-## 交付事实
+- 21 个新增路径（新包 20 文件 + QA_HANDOFF），4,878 行；Base 的其它 blob 全部逐字节不变（`git ls-tree` + `git hash-object` + `git status` 机械核验）。
+- 环境：Windows 10.0.19045 x64、Node **v22.23.5**；A59 用户控制离线区间，每组命令前重跑探针；`EGRESS_PROBE=PASS`（外部/LAN TCP `EHOSTUNREACH`、IPv6 `ENETUNREACH`、DNS 失败、`blocking-on-usable=0`、`routes-on-usable=0`）。
+- 实测（全部在边界内）：syntax 18/18；WP-03-R1 **103/103**；WP-01 **67/67**；WP-02 **44/44**（嵌套 67/67）；WP-02 driver **13/13**；WP-03 driver **13/13**（10 类具名 + case-fold + old-runId + post-dispatch 假失败）。
+- R2 仅负向控制（`STEP_UP_REQUIRED`，无删除/解绑成功路径）；真实持久化、UI、provider、浏览器/TLS、Linux 均 `NOT_RUN`；R1 通过不代表 WP-03 完成。
+- Execution 自测不等于独立 QA/G3。QA 需另开独立 Windows（或 Linux）会话、fresh clone、自己的 A59/A54 边界与探针、独立 raw HTTP、双客户端 CAS/replay 竞态、具名变异与受保护 blob 核验。
 
-- **唯一路径**：`packages/wp-02-project-paper-read/test/identity.test.mjs`（+66/−1）；仅新增具名回归 `Q2-02-CASE-01 itemKey is case-sensitive; absent case variant has neutral 403` 与最小同文件 `node:http` helper，既有 43 条测试/断言全保留。
-- A60/A61/A62 基建、WP-01（20 文件 = 原 19 + overlay）、Q2-11、helper、夹具、driver、harness、证据与 UI 与 A63 START 逐字节一致；无其它 tracked 改动。
-- 环境：Windows 10.0.19045 x64、Node **v22.23.5** win32/x64；A59 离线区间，每组前重跑探针；`EGRESS_PROBE=PASS`（外部/LAN TCP `EHOSTUNREACH`、IPv6 `ENETUNREACH`、DNS 失败、`blocking-on-usable=0`、`routes-on-usable=0`）。
-- 实测（全部在边界内）：`node --check` 1/1；WP-01 **67/67**；WP-02 **44/44**（嵌套 Q2-11 67/67）；committed driver **13/13**；未变异 targeted identity **8/8**。
-- QM12 配对（scratch，不推送）：A63 START 旧套件在 QM12 下 **43/43 exit 0**；候选下 **43 pass / 1 fail**，仅 Q2-02-CASE-01，失败为 **ERR_ASSERTION expected 403 / actual 200**（`200 !== 403`，非崩溃/超时）。
-- 测试内部用 raw HTTP 验证两个 403 的 body 逐字节相同、headers 仅在 Date/Connection 噪声上不同，且 digest/counts 不变。
-
-## QA 要求
-
-独立用户开启的 Windows（优先）/Linux 会话、全新 detached clone at `8751dd2b`、自己的 A46/A59 预检与探针；核对 one-file diff、A60 基建字节不变、44/44 + 67/67 + 嵌套 67/67 + 13/13；独立 raw HTTP 字节/摘要验证与 QM12 配对对照。Linux 未实测记 `NOT_RUN`。
-
-Gates unchanged：A60/A61/A62 已冻结（A63 G4 PASS_LOCAL）；原 P2-WP02-QA-1 仍 `OPEN_NON_BLOCKING`，仅 Design 新 exact-SHA G4 才能关闭；G5/G6/G7 **NOT_AUTHORIZED**；PR #2（`a9131ac`）、PR #4（`2757aa6`）与冻结 UI 未触碰。
+Gates unchanged：G5/G6/G7 **NOT_AUTHORIZED**；PR #2（`a9131ac`）、PR #4（`2757aa6`）与冻结 UI 未触碰。
