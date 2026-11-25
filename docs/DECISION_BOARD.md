@@ -1,29 +1,29 @@
-<!-- BUS from=DESIGN to=MANAGEMENT seq=12 re=DECISION_BOARD.md@11 status=OPEN updated=2026-11-25 -->
+<!-- BUS from=DESIGN to=MANAGEMENT seq=13 re=bus/EXECUTION_TO_QA.md@10 status=OPEN updated=2026-11-25 -->
 # 决策板 / Decision Board — 每轮整体覆盖
 
-**轮次:** R12 (seq 12) · 2026-11-25 · observed parent `main@8533cf6881bf55970c9bff3749d8950620646bda`
-**已记录：DEC-9=A**。用户在 Design 窗口直接回复 R11 的 A60 执行授权选项 A；本轮仅将已给出的批准交给 Management 正式记录及派发，不需要再次向用户询问同一决策。原 DEC-9 决策板 seq 11。A58 旧 seq 10 STOP 保留。
+**轮次:** R13 (seq 13) · 2026-11-25 · observed parent `main@a0f414b859772176d2907190e57113a4c67f1e0f`
+已记录 DEC-9=A。Management seq 12 STOP，Execution seq 10 WAITING；A60 scratch helper 被 Node 默认发现为额外测试（68/67）。用户确认继续，Design 发布 [A61 最小文件名修正](architecture/D007_A61_A60_HELPER_FILENAME_CORRECTION.md)。无新 DEC。
 
 ## 1. 当前状态
 | 工作线 | 状态 |
 | --- | --- |
 | WP-01 | 已合并，A55 历史证据不变 |
 | WP-02 | A57 PASS_LOCAL @ `222763dad068fc226e500b14250cbb7fffc0a2de`，PR #6 OPEN |
-| A58 | STOP，P2 OPEN，scratch 测试不构成 G2 |
-| A60 | USER APPROVED (DEC-9=A)，等待 Management fresh dispatch 生效 |
+| A60+A61 | DEC-9=A 有效，等 fresh dispatch；无已验收候选 |
+| A58 | STOP；P2 OPEN |
 | WP-03+ / G5/G6/G7 | NOT_AUTHORIZED |
 
 ## 2. 待用户决策
-无。本轮 DEC-9=A 已由用户明确给出。
+无；沿用 DEC-9=A，用户已确认 A61 修正，不再询问同一批准。
 
 ## 3. Management action
-写 Management→Execution **下一 seq 11**，引用当前 board seq 12 和原 DEC-9 board seq 11，记录 DEC-9=A（来源：Design 用户明确选择，A60 authority 已记载）。授权 [A60](architecture/D007_A60_CROSS_PLATFORM_TEST_INFRASTRUCTURE_G1_DRAFT.md) 的原五路径、原门禁，不扩大；PR #6，branch `exec/WP-02-project-paper-read`，exact START `222763dad068fc226e500b14250cbb7fffc0a2de`，immutable Base `a0fb04f6d03ac81bbcb35800318c927e278e8b92`。派发前核对最新 HEAD 与 STOP。
-- Windows x64 优先；独立 Windows QA 必须；Linux 新 SHA 实测可选，未运行则标 NOT_RUN。Node v22.23.5，A59 等效 OS 隔离。
-- WP-01 67/67、WP-02 43/43、原 Mutation Driver 13/13、A60 平台与清单负例验证；不跳过、不降低标准。
-- A58 保持 STOP，不混入 Q2-02-CASE-01，A60 独立 G4 后另行恢复。禁止合并。
+写 Management→Execution **下一 seq 13**，引用本板 seq 13、原 DEC-9=A、[A60](architecture/D007_A60_CROSS_PLATFORM_TEST_INFRASTRUCTURE_G1_DRAFT.md)+[A61](architecture/D007_A61_A60_HELPER_FILENAME_CORRECTION.md)；同 PR #6、branch `exec/WP-02-project-paper-read`、exact START `222763dad068fc226e500b14250cbb7fffc0a2de`、Base `a0fb04f6d03ac81bbcb35800318c927e278e8b92`。明确替代旧 seq 12 STOP。
+- 五路径白名单仅替换新 helper 文件名为 `packages/wp-01-synthetic-auth-api/support/platform-precondition.mjs`，旧 test-platform.mjs 不得存在；同步相关 imports 和显式 overlay，原 19 条 manifest 保留，其他路径与断言不变。
+- Windows 优先、独立 Windows QA 必须，Node v22.23.5、A59 实测隔离；默认 node --test 发现范围不变，WP-01 67/67、WP-02 43/43、13/13 全绿；所有 A60 平台/完整性负例和具名 mutant 重跑（含旧 inconclusive overlay），无跳过/放宽。只提交一个增量 commit。
+- A58 保持 STOP，不混入 identity 测试；待 A60+A61 新 G4 后另行恢复；不得合并。
 
 ## 4. 回传
-Execution→QA 与 QA→Design 分别写下一 seq，附原始 PR 评论 ID、新 exact SHA、五路径 diff、测试及独立证据。G4 由 Design 裁定。不得自行启动 A58 或 G5。
+Execution→QA 下一 seq，QA→Design 下一 seq，附 PR 原始评论、exact SHA、五路径 diff、真实证据。Design 裁定 G4，G5 独立 DEC。旧 scratch 不作为验收。
 
 ## 5. 边界
-无产品源码、fixture、driver、历史证据、UI 修改；无真实数据/服务、部署或 PR #2/#4 修改。若有任何范围/环境/门禁不满足，STOP。
+无产品源码、fixture、driver、历史证据、依赖、CI、UI、真实服务或部署变化。PR #2/#4 不动。
