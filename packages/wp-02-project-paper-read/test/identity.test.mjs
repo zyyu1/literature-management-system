@@ -1,9 +1,10 @@
 // Q2-01 (A6-01) and Q2-02 (A6-02): canonical paper identity is (ownerScope, libraryType, libraryId, itemKey).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import http from 'node:http';
 import { createCatalog } from '../src/catalog.mjs';
 import {
-  startServer, loadFixtures, requestTally, PAPER_PATH, XFAKE001, GROUP_XFAKE001, XFAKE002,
+  startServer, loadFixtures, requestTally, browserHeaders, PAPER_PATH, XFAKE001, GROUP_XFAKE001, XFAKE002,
 } from '../support/harness.mjs';
 
 const ALL = ['project_synth_alpha', 'project_synth_beta', 'project_synth_gamma'];
@@ -105,6 +106,70 @@ test('STOP guard: a duplicated global paper in a (copied) fixture is refused at 
   const crossOwner = structuredClone(wp02);
   crossOwner.associations.push({ projectId: 'project_synth_alpha', paper: ['user', 'fakeLibForeign', 'XFOREIGN1'], important: false });
   assert.throws(() => createCatalog(crossOwner), /cross-owner links are impossible/);
+});
+
+// Q2-02-CASE-01 (D007-A58 §2, P2-WP02-QA-1): itemKey is case-SENSITIVE. A case variant and an ordinary
+// missing key must be the same neutral 403, byte for byte, and must neither create nor reveal a paper.
+const CASE_VARIANT = ['user', 'fakeLib01', 'xfake001'];
+const ORDINARY_MISS = ['user', 'fakeLib01', 'XNOPE999'];
+const NEUTRAL_BODY = '{"apiVersion":"v1","error":{"code":"NOT_AVAILABLE"},"outcome":"DEFINITE_FAILURE","dispatched":false}';
+
+// Minimal in-file raw client: the shared get() harness parses bodies and does not expose raw bytes.
+function rawGet(port, path, cookie) {
+  return new Promise((resolve, reject) => {
+    const req = http.request({
+      host: '127.0.0.1', port, path, method: 'GET', agent: false, headers: browserHeaders({ cookie }),
+    }, (res) => {
+      const chunks = [];
+      res.on('data', (c) => chunks.push(c));
+      res.on('end', () => resolve({ status: res.statusCode, headers: res.headers, body: Buffer.concat(chunks) }));
+    });
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+// Documented per-request transport noise only; every other header must be identical between the denials.
+function stableHeaders(headers) {
+  const copy = { ...headers };
+  for (const k of ['date', 'connection', 'keep-alive']) delete copy[k];
+  return copy;
+}
+
+test('Q2-02-CASE-01 itemKey is case-sensitive; absent case variant has neutral 403', async (t) => {
+  const { get, owner, srv, addr, wp02, digestBefore } = await startServer(t);
+  const countsBefore = srv.catalog.counts();
+  const inLib = (p) => p.ownerId === 'owner_synth_001' && p.libraryType === 'user' && p.libraryId === 'fakeLib01';
+
+  // The fixture carries the exact tuple, and no case variant / ordinary absent comparator.
+  assert.equal(wp02.papers.some((p) => inLib(p) && p.itemKey === 'XFAKE001'), true, 'fixture has user/fakeLib01/XFAKE001');
+  assert.equal(wp02.papers.some((p) => inLib(p) && p.itemKey === 'xfake001'), false, 'fixture has no exact lowercase tuple');
+  const caseFolded = wp02.papers.filter((p) => inLib(p) && p.itemKey.toLowerCase() === 'xfake001').map((p) => p.itemKey);
+  assert.deepEqual(caseFolded, ['XFAKE001'], 'the only case-folded match is the canonical uppercase paper');
+  assert.equal(wp02.papers.some((p) => inLib(p) && p.itemKey.toLowerCase() === 'xnope999'), false, 'ordinary absent comparator is absent');
+
+  // The exact uppercase tuple still reads normally.
+  const ok = await get(PAPER_PATH(XFAKE001), owner.cookieValue);
+  assert.equal(ok.status, 200);
+  assert.deepEqual(
+    { libraryType: ok.body.paper.libraryType, libraryId: ok.body.paper.libraryId, itemKey: ok.body.paper.itemKey },
+    { libraryType: 'user', libraryId: 'fakeLib01', itemKey: 'XFAKE001' },
+  );
+  assert.equal(ok.body.paper.title, 'Synthetic Shared Paper');
+
+  // Case variant and ordinary missing key are the same neutral denial.
+  const caseVariant = await rawGet(addr.port, PAPER_PATH(CASE_VARIANT), owner.cookieValue);
+  const ordinaryMiss = await rawGet(addr.port, PAPER_PATH(ORDINARY_MISS), owner.cookieValue);
+  for (const [label, r] of [['case variant', caseVariant], ['ordinary missing', ordinaryMiss]]) {
+    assert.equal(r.status, 403, `${label} status`);
+    assert.equal(r.body.toString('utf8'), NEUTRAL_BODY, `${label} body`);
+  }
+  assert.ok(caseVariant.body.equals(ordinaryMiss.body), 'denial bodies are byte-identical');
+  assert.deepEqual(stableHeaders(caseVariant.headers), stableHeaders(ordinaryMiss.headers), 'denial headers are equivalent');
+
+  // No record was created or exposed, and the read-only state digest is unchanged.
+  assert.deepEqual(srv.catalog.counts(), countsBefore, 'counts unchanged');
+  assert.equal(srv.catalog.stateDigest(), digestBefore, 'state digest unchanged');
 });
 
 test('zz request tally for this file stays within the 5000-request cap', (t) => {
