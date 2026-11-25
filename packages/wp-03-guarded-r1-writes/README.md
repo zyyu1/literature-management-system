@@ -2,18 +2,19 @@
 
 **Status: LOCAL_SYNTHETIC_ONLY, MEMORY_ONLY, FAKE_ONLY. Not production-suitable. Not a real API and
 not a datastore.**
-Authority: D007-A65 and the D007-A66 bounded remediation, `docs/handoffs/WP-03/DESIGN.md` (WP-03-R1)
-and `QA_INSTRUCTION.md`, executed on Base `1684cea5623c8421e16c328c7f1464e8932d3118`, branch
-`exec/WP-03-guarded-r1-writes`. The A66 correction point (START) is
-`0fcad9cb6016900d5f7057161619e4a9f2e94b55`; the correction is prepared as one incremental commit
-whose parent is that START. R1 is the first WP-03 slice; it is not full WP-03, not R2, and not a UI
-acceptance.
+Authority: D007-A65, the D007-A66 bounded remediation and the D007-A72 strict-TAP final correction,
+`docs/handoffs/WP-03/DESIGN.md` (WP-03-R1) and `QA_INSTRUCTION.md`, executed on Base
+`1684cea5623c8421e16c328c7f1464e8932d3118`, branch `exec/WP-03-guarded-r1-writes`. The A72 correction
+START **S** is `e6b1180e4e3e5790958ae3319af18bba8889ffbc`; the A72 correction is one incremental commit
+on S. The earlier A66 START `0fcad9cb6016900d5f7057161619e4a9f2e94b55` (and its six-path correction
+commit) is historical and retained in the Git chain. R1 is the first WP-03 slice; it is not full
+WP-03, not R2, and not a UI acceptance.
 
 This package is isolated: it adds routes only on its **own** server factory and never edits
 `packages/wp-01-synthetic-auth-api/**`, `packages/wp-02-project-paper-read/**`, the fixtures, the
-helpers, the manifests, the tools or any other path. The A66 writable paths are this package's test,
-support, mutation-driver, new audit-script and README files plus `docs/handoffs/WP-03/QA_HANDOFF.md`;
-everything else at START is frozen.
+helpers, the manifests, the tools or any other path. The A72 writable paths are the strict-TAP test
+file, this package's audit script and this README; the earlier A66 six-path change (including
+`docs/handoffs/WP-03/QA_HANDOFF.md`) is historical and frozen at S. Everything else at S is frozen.
 
 ## Frozen inputs
 
@@ -113,7 +114,7 @@ separators, traversal, NUL and prototype keys fail closed; no redirects or proxy
 unknown routes never mutate. Logs contain only time, method, route template, status and code — no
 cookies, CSRF tokens, bodies, notes, operation IDs or resource IDs.
 
-## Test gate and candidate scope (D007-A66)
+## Test gate and candidate scope (D007-A66/A72)
 
 - The frozen WP-01 `support/platform-precondition.mjs` is imported read-only. `support/harness.mjs`
   calls it during module evaluation, so every network-capable WP-03 test file (all ten behavioural
@@ -125,21 +126,34 @@ cookies, CSRF tokens, bodies, notes, operation IDs or resource IDs.
   unsupported or ambiguous host the default and targeted commands fail with
   `EGRESS_PRECONDITION_FAILED: <reason>` before test/child execution. The former
   `WP03_REQUIRE_OFFLINE_UPSTREAM` flag is not read anywhere and has no effect.
-- Q3-11 validates the untouched upstream suites' TAP strictly: exactly 67 WP-01 tests and 44 WP-02
-  tests, `pass == expected`, `fail == 0`, `skipped == 0`, `todo == 0`, `cancelled == 0`, exit 0, no
-  signal/error/timeout, the exact TAP plan, every `ok` line, and no missing/malformed/duplicated or
-  partial summary line. The WP-02 run must contain its nested WP-01 67/67 test.
+- Q3-11 validates the untouched upstream suites' TAP with the A72 strict stateful grammar: one
+  `TAP version 13` header; canonical `# Subtest:`/`ok N - <title>` pairs in exact 1..N order with
+  non-empty titles and the exact four-line per-test duration/type block; legitimate diagnostics only
+  between records; exactly one matching terminal `1..N` plan followed by the complete unique summary
+  in canonical order with `fail`/`cancelled`/`skipped`/`todo` all 0 and an optional duration. The
+  summary must be terminal except for blank lines. `Bail out!`, any failure status record (including
+  indented or otherwise noncanonical forms), SKIP/TODO directives, duplicate or malformed
+  header/plan/summary/ok records, contradictory lines and trailing nonblank content are rejected.
+  Exactly 67 WP-01 and 44 WP-02 tests must pass, exit 0, with no signal/error/timeout; the WP-02 run
+  must contain exactly one canonical nested WP-01 67/67 passing proof.
 - Q3-11 pins the actual original Base Git blob IDs and the exact full inventories of both upstream
   packages (including evidence files), the two frozen fixtures and `tools/offline/`; extra, missing
   or changed protected bytes fail. It deliberately does not walk unrelated repository docs or future
   packages, so approved main-only design/QA/bus docs do not break the ordinary regression.
+- D007-A72 is a test-acceptance-only correction. Product sources, fixtures, upstream packages, guard,
+  mutation driver, dependencies, `tools/`, UI and runtime are unchanged. The A66 execution/QA
+  evidence remains historical (committed `QA_HANDOFF.md` is untouched); A72 evidence is recorded in
+  the PR comment and the bus, never by rewriting the historical record.
 - `scripts/verify-candidate-scope.mjs` is the separate explicit candidate audit (not a test file and
-  not discovered by `node --test`). It proves the full original Base tree, the exactly enumerated
-  cumulative additions (this package plus the QA handoff), no modified/deleted Base path, no extra or
-  untracked path, a single-parent incremental commit chain whose newest commit has START as parent,
-  exactly the six A66 paths changed relative to START, a clean checkout and a worktree equal to HEAD.
-  It is read-only local Git and is mandatory at G2/G3/G5. `--base`/`--start` overrides exist only for
-  disposable scratch/simulated tests; the defaults are the A66 constants.
+  not discovered by `node --test`). It proves the full original Base tree B, the exactly enumerated
+  22 cumulative additions, no modified/deleted Base path, no extra or untracked path and 222 tracked
+  paths; B..S as the historic two-commit A66 chain, T..S as exactly the six A66 paths (5 M + 1 A),
+  S..HEAD as exactly one single-parent A72 commit changing exactly the three A72 paths (all M), and
+  B..HEAD as exactly three single-parent commits with no merge. Every S path outside the three A72
+  paths must be byte- and mode-identical at HEAD; the final checkout must be clean and the raw
+  worktree must equal HEAD. B, T and S are fixed constants: the audit accepts no argument or scratch
+  switch that re-targets or relaxes the scope. It is read-only local Git and is mandatory at
+  G2/G3/G5.
 
 ## Exact commands
 

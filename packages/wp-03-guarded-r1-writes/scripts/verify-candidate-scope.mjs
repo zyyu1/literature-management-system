@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// D007-A66 §3b — explicit, read-only candidate-scope audit for the WP-03-R1 remediation.
+// D007-A72 §2 — explicit, read-only candidate-scope audit for the WP-03-R1 A72 correction.
 //
 // This is deliberately NOT a `node --test` file (name and location keep it outside Node's default
 // test discovery) and it is deliberately separate from the long-lived ordinary Q3-11 regression:
@@ -8,27 +8,32 @@
 //   * this audit proves the whole candidate scope of the execution branch.
 //
 // It proves, using Git plumbing/read commands and Node builtins only:
-//   1. the full original Base tree is readable and every Base path outside the approved additions
-//      is byte-identical in the working tree (`git hash-object --no-filters` vs Base blob IDs);
-//   2. no Base path is modified or deleted, and the only cumulative additions relative to Base are
-//      the explicitly enumerated A66-approved files (no extra or untracked path);
-//   3. history since Base is a single-parent chain with no merge commits, the newest incremental
-//      commit's parent is the exact A66 START, and exactly the six A66 paths changed relative to
-//      START (`scripts/verify-candidate-scope.mjs` is an addition, the other five are modifications);
-//   4. the final checkout is clean and the working tree matches the committed candidate tree.
+//   1. the full original Base tree is readable and every Base path is byte-identical in the working
+//      tree (`git hash-object --no-filters`) and byte- and mode-identical in the committed HEAD tree;
+//   2. the only cumulative additions relative to Base are the explicitly enumerated 22 paths, with
+//      no extra or untracked path, no Base modification/deletion and exactly 222 tracked paths;
+//   3. B..S is the historic two-commit A66 chain, T..S is exactly the six A66 paths (5 M + 1 A), and
+//      S..HEAD is exactly one single-parent A72 commit changing exactly the three A72 paths (all M);
+//      B..HEAD is exactly three single-parent commits with no merge;
+//   4. every S path outside the three A72 paths is byte- and mode-identical at HEAD;
+//   5. the final checkout is clean and the raw working tree equals the committed HEAD tree.
 //
-// It fails closed on every mismatch. There is no self-referential candidate SHA (HEAD is read, never
-// pinned) and no expected hash is derived from the candidate tree (Base is the only tree compared).
-// `--base` and `--start` exist only so disposable scratch/simulated trees can be audited; the
-// defaults are the immutable A66 constants.
+// It fails closed on every mismatch. There is no argument, environment or scratch switch that
+// relaxes or re-targets the audit: B, T and S are fixed constants, so the "real audit" cannot be
+// pointed at a different scope. Disposable scratch trees can still be checked by constructing them
+// with the same fixed object IDs; a scratch tree that does not match is expected to fail.
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const REPO = fileURLToPath(new URL('../../../', import.meta.url));
-const DEFAULT_BASE = '1684cea5623c8421e16c328c7f1464e8932d3118';
-const DEFAULT_START = '0fcad9cb6016900d5f7057161619e4a9f2e94b55';
+const BASE = '1684cea5623c8421e16c328c7f1464e8932d3118';
+const A66_START = '0fcad9cb6016900d5f7057161619e4a9f2e94b55';
+const A72_START = 'e6b1180e4e3e5790958ae3319af18bba8889ffbc';
+
+const BASE_TREE_PATHS = 200;
+const EXPECTED_HEAD_PATHS = 222;
 
 // The exact, explicitly enumerated cumulative additions authorized since the immutable Base. No
 // wildcard or prefix-only rule is accepted for the candidate audit; every path is listed.
@@ -57,8 +62,8 @@ export const APPROVED_ADDITIONS = Object.freeze([
   'packages/wp-03-guarded-r1-writes/test/upstream-regression.test.mjs',
 ]);
 
-// The exact six paths D007-A66 §3 authorizes relative to START. The new audit script is an
-// addition; the other five must be modifications of existing START paths.
+// The exact six paths D007-A66 §3 authorizes relative to the A66 START T. The audit script is an
+// addition; the other five must be modifications of existing T paths.
 export const A66_CHANGED_PATHS = Object.freeze([
   'docs/handoffs/WP-03/QA_HANDOFF.md',
   'packages/wp-03-guarded-r1-writes/README.md',
@@ -69,43 +74,16 @@ export const A66_CHANGED_PATHS = Object.freeze([
 ]);
 const A66_ADDED_PATH = 'packages/wp-03-guarded-r1-writes/scripts/verify-candidate-scope.mjs';
 
+// The exact three existing paths D007-A72 §2 authorizes relative to the correction START S. All
+// three must be modifications; no A72 path may be added, deleted or renamed.
+export const A72_CHANGED_PATHS = Object.freeze([
+  'packages/wp-03-guarded-r1-writes/README.md',
+  'packages/wp-03-guarded-r1-writes/scripts/verify-candidate-scope.mjs',
+  'packages/wp-03-guarded-r1-writes/test/upstream-regression.test.mjs',
+]);
+
 class ScopeError extends Error {}
 function fail(reason) { throw new ScopeError(reason); }
-
-function usage() {
-  return [
-    'usage: node scripts/verify-candidate-scope.mjs [--base <40-hex>] [--start <40-hex>]',
-    `defaults: --base ${DEFAULT_BASE} --start ${DEFAULT_START}`,
-  ].join('\n');
-}
-
-function parseArgs(argv) {
-  let base = DEFAULT_BASE;
-  let start = DEFAULT_START;
-  for (let i = 0; i < argv.length; i += 1) {
-    const arg = argv[i];
-    if (arg === '--help' || arg === '-h') {
-      console.log(usage());
-      process.exit(0);
-    }
-    if (arg === '--base' || arg === '--start') {
-      const value = argv[i + 1];
-      if (value === undefined || value.startsWith('--')) fail(`MISSING_ARGUMENT: ${arg}`);
-      if (arg === '--base') base = value; else start = value;
-      i += 1;
-    } else if (arg.startsWith('--base=')) {
-      base = arg.slice('--base='.length);
-    } else if (arg.startsWith('--start=')) {
-      start = arg.slice('--start='.length);
-    } else {
-      fail(`UNKNOWN_ARGUMENT: ${arg}`);
-    }
-  }
-  for (const [name, value] of [['--base', base], ['--start', start]]) {
-    if (!/^[0-9a-f]{40}$/.test(value)) fail(`INVALID_SHA: ${name} ${value}`);
-  }
-  return { base, start };
-}
 
 function git(args) {
   return spawnSync('git', args, {
@@ -144,6 +122,7 @@ function readTree(treeish, label) {
     const [mode, type, sha] = meta;
     const rel = record.slice(tab + 1);
     if (type !== 'blob') fail(`${label}_NON_BLOB_ENTRY: ${rel} (${type})`);
+    if (mode !== '100644' && mode !== '100755') fail(`${label}_NON_REGULAR_MODE: ${rel} (${mode})`);
     if (files.has(rel)) fail(`${label}_DUPLICATE_PATH: ${rel}`);
     files.set(rel, { mode, sha });
   }
@@ -182,36 +161,48 @@ function isAncestor(ancestor, descendant, label) {
   if (r.status !== 0) fail(`${label}: git merge-base exited ${r.status}`);
 }
 
-function verifyHistory(base, start) {
-  resolveCommit(base, 'BASE');
-  resolveCommit(start, 'START');
-  const head = resolveCommit(gitOk(['rev-parse', 'HEAD'], 'HEAD').trim(), 'HEAD');
-  if (head === start) fail('NO_INCREMENTAL_COMMIT_SINCE_START: HEAD equals START');
-  isAncestor(base, head, 'BASE_NOT_ANCESTOR_OF_HEAD');
-  isAncestor(start, head, 'START_NOT_ANCESTOR_OF_HEAD');
+function singleParentChain(from, to, label) {
+  const lines = gitOk(['rev-list', '--reverse', '--parents', `${from}..${to}`], label)
+    .trim().split('\n').filter(Boolean);
+  if (lines.length === 0) fail(`${label}: no commits between ${from} and ${to}`);
+  const chain = lines.map((line) => {
+    const parts = line.split(' ');
+    if (parts.length !== 2) fail(`${label}_NOT_SINGLE_PARENT: ${parts[0]}`);
+    return { sha: parts[0], parent: parts[1] };
+  });
+  if (chain[0].parent !== from) fail(`${label}_WRONG_FIRST_PARENT: ${chain[0].sha} has ${chain[0].parent}`);
+  if (chain[chain.length - 1].sha !== to) fail(`${label}_WRONG_LAST_COMMIT: ${chain[chain.length - 1].sha} is not ${to}`);
+  return chain;
+}
 
-  const mergeCount = Number(gitOk(['rev-list', '--merges', '--count', `${base}..HEAD`], 'MERGE_COUNT').trim());
+function verifyHistory() {
+  resolveCommit(BASE, 'BASE');
+  resolveCommit(A66_START, 'A66_START');
+  resolveCommit(A72_START, 'A72_START');
+  const head = resolveCommit(gitOk(['rev-parse', 'HEAD'], 'HEAD').trim(), 'HEAD');
+  if (head === A72_START) fail('NO_INCREMENTAL_COMMIT_SINCE_A72_START: HEAD equals the correction START');
+  if (head === A66_START) fail('NO_INCREMENTAL_COMMIT_SINCE_A66_START');
+  isAncestor(BASE, A66_START, 'BASE_NOT_ANCESTOR_OF_A66_START');
+  isAncestor(A66_START, A72_START, 'A66_START_NOT_ANCESTOR_OF_A72_START');
+  isAncestor(A72_START, head, 'A72_START_NOT_ANCESTOR_OF_HEAD');
+
+  const mergeCount = Number(gitOk(['rev-list', '--merges', '--count', `${BASE}..HEAD`], 'MERGE_COUNT').trim());
   if (mergeCount !== 0) fail(`MERGE_COMMIT_PRESENT: ${mergeCount} merge commit(s) in Base..HEAD`);
 
-  const chain = gitOk(['rev-list', '--reverse', '--parents', `${base}..HEAD`], 'INCREMENTAL_CHAIN')
-    .trim().split('\n').filter(Boolean);
-  if (chain.length === 0) fail('NO_INCREMENTAL_COMMIT_SINCE_BASE');
-  for (const line of chain) {
-    const parts = line.split(' ');
-    if (parts.length !== 2) fail(`INCREMENTAL_COMMIT_NOT_SINGLE_PARENT: ${parts[0]}`);
-  }
-  const oldest = chain[0].split(' ');
-  const newest = chain[chain.length - 1].split(' ');
-  if (oldest[1] !== base) fail(`BASE_NOT_PARENT_OF_OLDEST_INCREMENTAL_COMMIT: ${oldest[0]} has parent ${oldest[1]}`);
-  if (newest[1] !== start) fail(`START_NOT_PARENT_OF_NEWEST_INCREMENTAL_COMMIT: ${newest[0]} has parent ${newest[1]}`);
-  const countSinceStart = Number(gitOk(['rev-list', '--count', `${start}..HEAD`], 'COUNT_SINCE_START').trim());
-  if (countSinceStart !== 1) fail(`INCREMENTAL_COMMIT_COUNT_SINCE_START: ${countSinceStart} (exactly one is authorized)`);
+  const historic = singleParentChain(BASE, A72_START, 'B_TO_S_CHAIN');
+  if (historic.length !== 2) fail(`B_TO_S_COMMIT_COUNT: ${historic.length} (expected the historic 2 commits)`);
+  const a66 = singleParentChain(A66_START, A72_START, 'T_TO_S_CHAIN');
+  if (a66.length !== 1) fail(`T_TO_S_COMMIT_COUNT: ${a66.length} (expected exactly one A66 commit)`);
+  const a72 = singleParentChain(A72_START, head, 'S_TO_HEAD_CHAIN');
+  if (a72.length !== 1) fail(`S_TO_HEAD_COMMIT_COUNT: ${a72.length} (expected exactly one A72 commit)`);
+  const all = singleParentChain(BASE, head, 'B_TO_HEAD_CHAIN');
+  if (all.length !== 3) fail(`B_TO_HEAD_COMMIT_COUNT: ${all.length} (expected three single-parent commits)`);
   return head;
 }
 
-function verifyIncrementalPaths(start) {
+function verifyA66IncrementalPaths() {
   const actual = parseNameStatus(
-    gitOk(['diff', '--name-status', '--no-renames', start, 'HEAD'], 'A66_DIFF'),
+    gitOk(['diff', '--name-status', '--no-renames', A66_START, A72_START], 'A66_DIFF'),
     'A66_DIFF',
   );
   if (actual.size !== A66_CHANGED_PATHS.length) {
@@ -226,6 +217,23 @@ function verifyIncrementalPaths(start) {
   }
   for (const rel of actual.keys()) {
     if (!A66_CHANGED_PATHS.includes(rel)) fail(`A66_EXTRA_CHANGED_PATH: ${rel}`);
+  }
+}
+
+function verifyA72IncrementalPaths() {
+  const actual = parseNameStatus(
+    gitOk(['diff', '--name-status', '--no-renames', A72_START, 'HEAD'], 'A72_DIFF'),
+    'A72_DIFF',
+  );
+  if (actual.size !== A72_CHANGED_PATHS.length) {
+    fail(`A72_CHANGED_PATH_COUNT: ${actual.size} (expected exactly ${A72_CHANGED_PATHS.length})`);
+  }
+  for (const rel of A72_CHANGED_PATHS) {
+    if (!actual.has(rel)) fail(`A72_PATH_NOT_CHANGED: ${rel}`);
+    if (actual.get(rel) !== 'M') fail(`A72_PATH_STATUS: ${rel} is ${actual.get(rel)} (expected M)`);
+  }
+  for (const rel of actual.keys()) {
+    if (!A72_CHANGED_PATHS.includes(rel)) fail(`A72_EXTRA_CHANGED_PATH: ${rel}`);
   }
 }
 
@@ -257,6 +265,7 @@ function walkWorktree() {
 }
 
 function verifyBaseTreeUnchanged(baseTree, workSet) {
+  if (baseTree.size !== BASE_TREE_PATHS) fail(`BASE_TREE_PATH_COUNT: ${baseTree.size} (expected ${BASE_TREE_PATHS})`);
   const basePaths = [...baseTree.keys()].sort();
   const missing = basePaths.filter((rel) => !workSet.has(rel));
   if (missing.length > 0) {
@@ -270,17 +279,45 @@ function verifyBaseTreeUnchanged(baseTree, workSet) {
   });
 }
 
+// S paths outside the three A72 paths must be byte- and mode-identical at HEAD; paths inside the
+// three must be modified. HEAD must not add, remove or rename any S path.
+function verifyStartTreeScope(a72Tree, headTree) {
+  const a72Paths = [...a72Tree.keys()].sort();
+  const headPaths = [...headTree.keys()].sort();
+  const missing = a72Paths.filter((rel) => !headTree.has(rel));
+  if (missing.length > 0) fail(`A72_START_PATH_MISSING: ${missing[0]} (${missing.length} missing S path(s))`);
+  const extra = headPaths.filter((rel) => !a72Tree.has(rel));
+  if (extra.length > 0) fail(`A72_EXTRA_HEAD_PATH: ${extra[0]} (${extra.length} unexpected path(s))`);
+  for (const rel of a72Paths) {
+    const before = a72Tree.get(rel);
+    const after = headTree.get(rel);
+    if (before.mode !== after.mode) fail(`A72_PATH_MODE_CHANGED: ${rel} (${before.mode} -> ${after.mode})`);
+    const changed = A72_CHANGED_PATHS.includes(rel);
+    if (changed && before.sha === after.sha) fail(`A72_PATH_NOT_MODIFIED: ${rel}`);
+    if (!changed && before.sha !== after.sha) fail(`A72_PATH_CHANGED_OUTSIDE_SCOPE: ${rel}`);
+  }
+}
+
 // One cumulative-scope check group: the approved additions are exactly the added paths relative to
 // Base, no Base path is modified/deleted, and no extra path exists in the working tree or at HEAD.
 // Keeping the whole group together makes a bypass of the extra-path check a single, auditable edit.
-function verifyCumulativeAdditions(base, baseTree, headTree, workFiles) {
+function verifyCumulativeAdditions(baseTree, headTree, workFiles) {
   const approved = new Set(APPROVED_ADDITIONS);
   if (approved.size !== APPROVED_ADDITIONS.length) fail('APPROVED_ADDITION_DUPLICATE');
+  if (APPROVED_ADDITIONS.length !== 22) fail(`APPROVED_ADDITION_COUNT: ${APPROVED_ADDITIONS.length} (expected 22)`);
+  if (headTree.size !== EXPECTED_HEAD_PATHS) {
+    fail(`HEAD_TREE_PATH_COUNT: ${headTree.size} (expected ${EXPECTED_HEAD_PATHS})`);
+  }
+  if (workFiles.length !== EXPECTED_HEAD_PATHS) {
+    fail(`WORKTREE_PATH_COUNT: ${workFiles.length} (expected ${EXPECTED_HEAD_PATHS})`);
+  }
   for (const rel of APPROVED_ADDITIONS) {
     if (baseTree.has(rel)) fail(`APPROVED_ADDITION_EXISTS_IN_BASE: ${rel}`);
   }
   const expected = new Set([...baseTree.keys(), ...APPROVED_ADDITIONS]);
+  if (expected.size !== EXPECTED_HEAD_PATHS) fail(`EXPECTED_PATH_COUNT: ${expected.size} (expected ${EXPECTED_HEAD_PATHS})`);
   const workSet = new Set(workFiles);
+  if (workSet.size !== workFiles.length) fail('WORKTREE_DUPLICATE_PATH');
   const extraWork = workFiles.filter((rel) => !expected.has(rel)).sort();
   if (extraWork.length > 0) fail(`UNEXPECTED_WORKTREE_PATH: ${extraWork[0]} (${extraWork.length} unexpected path(s))`);
   const missingWork = APPROVED_ADDITIONS.filter((rel) => !workSet.has(rel)).sort();
@@ -291,7 +328,7 @@ function verifyCumulativeAdditions(base, baseTree, headTree, workFiles) {
   if (missingHead.length > 0) fail(`MISSING_HEAD_PATH: ${missingHead[0]}`);
 
   const actual = parseNameStatus(
-    gitOk(['diff', '--name-status', '--no-renames', base, 'HEAD'], 'BASE_DIFF'),
+    gitOk(['diff', '--name-status', '--no-renames', BASE, 'HEAD'], 'BASE_DIFF'),
     'BASE_DIFF',
   );
   if (actual.size !== APPROVED_ADDITIONS.length) {
@@ -303,6 +340,14 @@ function verifyCumulativeAdditions(base, baseTree, headTree, workFiles) {
   }
   for (const rel of APPROVED_ADDITIONS) {
     if (!actual.has(rel)) fail(`MISSING_APPROVED_ADDITION: ${rel}`);
+  }
+  // Committed tree evidence: every original Base path is byte- and mode-identical at HEAD. This
+  // also covers the Windows worktree case where the filesystem cannot represent the executable bit.
+  for (const [rel, before] of baseTree) {
+    const after = headTree.get(rel);
+    if (!after) fail(`BASE_PATH_MISSING_AT_HEAD: ${rel}`);
+    if (before.sha !== after.sha) fail(`BASE_PATH_CHANGED_AT_HEAD: ${rel}`);
+    if (before.mode !== after.mode) fail(`BASE_PATH_MODE_CHANGED_AT_HEAD: ${rel} (${before.mode} -> ${after.mode})`);
   }
 }
 
@@ -319,28 +364,32 @@ function verifyWorktreeMatchesHead(headTree, workFiles) {
   });
 }
 
-function audit(base, start) {
-  const head = verifyHistory(base, start);
-  verifyIncrementalPaths(start);
+function audit() {
+  const head = verifyHistory();
+  verifyA66IncrementalPaths();
+  verifyA72IncrementalPaths();
   verifyCleanCheckout();
-  const baseTree = readTree(base, 'BASE_TREE');
-  if (baseTree.size < 150) fail(`BASE_TREE_TOO_SMALL: ${baseTree.size}`);
+  const baseTree = readTree(BASE, 'BASE_TREE');
+  const a72Tree = readTree(A72_START, 'A72_START_TREE');
   const headTree = readTree('HEAD', 'HEAD_TREE');
   const workFiles = walkWorktree();
   const workSet = new Set(workFiles);
   if (workSet.size !== workFiles.length) fail('WORKTREE_DUPLICATE_PATH');
+  if (a72Tree.size !== EXPECTED_HEAD_PATHS) {
+    fail(`A72_START_TREE_PATH_COUNT: ${a72Tree.size} (expected ${EXPECTED_HEAD_PATHS})`);
+  }
   verifyBaseTreeUnchanged(baseTree, workSet);
-  verifyCumulativeAdditions(base, baseTree, headTree, workFiles);
+  verifyStartTreeScope(a72Tree, headTree);
+  verifyCumulativeAdditions(baseTree, headTree, workFiles);
   verifyWorktreeMatchesHead(headTree, workFiles);
   console.log('CANDIDATE_SCOPE_OK');
-  console.log(`base=${base} start=${start} head=${head}`);
-  console.log(`basePaths=${baseTree.size} approvedAdditions=${APPROVED_ADDITIONS.length} a66ChangedPaths=${A66_CHANGED_PATHS.length} worktreePaths=${workFiles.length}`);
+  console.log(`base=${BASE} a66Start=${A66_START} a72Start=${A72_START} head=${head}`);
+  console.log(`basePaths=${baseTree.size} approvedAdditions=${APPROVED_ADDITIONS.length} a66ChangedPaths=${A66_CHANGED_PATHS.length} a72ChangedPaths=${A72_CHANGED_PATHS.length} worktreePaths=${workFiles.length}`);
 }
 
-function main(argv) {
+function main() {
   try {
-    const { base, start } = parseArgs(argv);
-    audit(base, start);
+    audit();
   } catch (error) {
     if (error instanceof ScopeError) {
       console.error(`CANDIDATE_SCOPE_FAILED: ${error.message}`);
@@ -353,5 +402,5 @@ function main(argv) {
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
-  main(process.argv.slice(2));
+  main();
 }

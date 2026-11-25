@@ -12,6 +12,9 @@
 // D007-A66 §3a makes the frozen A62 egress precondition unconditional. It runs during module
 // evaluation, before this file can spawn an upstream child or create any socket, and there is no
 // HOST_PRECONDITION_ONLY relaxation and no WP03_REQUIRE_OFFLINE_UPSTREAM opt-in.
+//
+// D007-A72 §3 replaces only the TAP acceptance oracle with the strict stateful grammar below. The
+// 51 literal pins, expected counts, test titles, guard, spawn and timeout behaviour are unchanged.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -158,53 +161,164 @@ test('Q3-11 protected dependency bytes (both upstream packages and evidence, bot
     'protected dependency bytes changed from the pinned original Base Git blob IDs (git hash-object --no-filters)');
 });
 
-// Strict TAP validation for the frozen upstream suites. Any missing, malformed, duplicated or
-// partial summary line is rejected; the plan and every `ok` line must be present and consistent.
-function parseTapSummary(out, label, expectedTests) {
+// D007-A72 §3 strict TAP acceptance contract. This is deliberately not a generic TAP parser: it
+// accepts exactly the stateful grammar emitted by the frozen Node v22.23.5 `--test-reporter=tap`
+// runs of the untouched WP-01/WP-02 suites (flat top-level tests only), and rejects every other
+// shape, including malformed or contradictory records at any position.
+//
+// Accepted:
+//   TAP version 13
+//   (# Subtest: <title> / ok N - <title> / the 4-line duration/type/... YAML block)+
+//   (# arbitrary diagnostic comment)*
+//   1..N
+//   # tests N, # suites S, # pass N, # fail 0, # cancelled 0, # skipped 0, # todo 0
+//   [# duration_ms D]
+//   (blank line)*
+//
+// Rejected: Bail out!, any failure status record (including indented/noncanonical forms), SKIP/TODO
+// directives, duplicate header/plan/summary lines, malformed or contradictory records anywhere,
+// unknown indented/structural lines, and any nonblank content after the terminal summary. Ordinary
+// diagnostic text that only mentions those words is not a status record. CRLF and LF endings and one
+// optional final newline are accepted. The pure parser is marked so a scratch oracle can extract and
+// exercise this exact candidate source text without weakening the module-load egress guard.
+//
+// A72-STRICT-TAP-BEGIN
+const TAP_HEADER = 'TAP version 13';
+const TAP_SUMMARY_COUNT_KEYS = Object.freeze(['tests', 'suites', 'pass', 'fail', 'cancelled', 'skipped', 'todo']);
+
+function tapLines(out, label) {
   assert.equal(typeof out, 'string', `${label} TAP stdout must be text`);
-  const lines = out.split(/\r?\n/);
-  assert.equal(lines[0], 'TAP version 13', `${label} TAP header`);
-  const requiredKeys = ['tests', 'suites', 'pass', 'fail', 'cancelled', 'skipped', 'todo'];
+  assert.ok(out.length > 0, `${label} TAP stdout must not be empty`);
+  const lines = out.split('\n');
+  if (lines[lines.length - 1] === '') lines.pop();
+  return lines.map((line) => (line.endsWith('\r') ? line.slice(0, -1) : line));
+}
+
+function parseTapCount(text, label, key) {
+  assert.match(text, /^(?:0|[1-9]\d*)$/, `${label} malformed TAP summary value: # ${key} ${text}`);
+  const value = Number(text);
+  assert.ok(Number.isSafeInteger(value), `${label} TAP summary value is not a safe integer: # ${key} ${text}`);
+  return value;
+}
+
+function parseTapSummary(out, label, expectedTests) {
+  assert.ok(Number.isSafeInteger(expectedTests) && expectedTests > 0,
+    `${label} expected test count must be a positive safe integer`);
+
+  const lines = tapLines(out, label);
+  let i = 0;
+  assert.equal(lines[i], TAP_HEADER, `${label} TAP header`);
+  i += 1;
+
+  const titles = [];
+  let pendingSubtest = null;
+  let plan = null;
+
+  while (i < lines.length) {
+    const line = lines[i];
+    assert.ok(line !== '', `${label} unexpected blank line before the TAP plan (line ${i + 1})`);
+    assert.ok(!/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(line), `${label} has a control character in a TAP line`);
+    assert.ok(!/^\s*bail out!/i.test(line), `${label} has a TAP bailout line`);
+    assert.ok(!/^\s*not\s+ok(?:\s|$)/i.test(line), `${label} has a failing TAP status record`);
+
+    if (line === TAP_HEADER) assert.fail(`${label} duplicate TAP header`);
+    assert.ok(!/^TAP version\b/.test(line), `${label} unsupported TAP version line`);
+
+    if (line.startsWith('# Subtest:')) {
+      assert.equal(pendingSubtest, null, `${label} subtest comment without an intervening ok record`);
+      const subtest = /^# Subtest: (.+)$/.exec(line);
+      assert.ok(subtest, `${label} malformed TAP subtest comment`);
+      assert.ok(subtest[1] === subtest[1].trim() && subtest[1].length > 0,
+        `${label} TAP subtest title must be non-empty and unpadded`);
+      pendingSubtest = subtest[1];
+      i += 1;
+      continue;
+    }
+
+    if (/^# (?:tests|suites|pass|fail|cancelled|skipped|todo|duration_ms)\b/i.test(line)) {
+      assert.fail(`${label} TAP summary line before the plan`);
+    }
+
+    if (/^ok\b/.test(line)) {
+      assert.ok(pendingSubtest !== null, `${label} ok record without a matching subtest comment`);
+      const ok = /^ok ([1-9]\d*) - (.+)$/.exec(line);
+      assert.ok(ok, `${label} malformed ok record`);
+      const number = Number(ok[1]);
+      const title = ok[2];
+      assert.ok(!/#\s*(?:SKIP|TODO)\b/i.test(line), `${label} has a SKIP/TODO directive on an ok record`);
+      assert.ok(Number.isSafeInteger(number), `${label} TAP ok number is not a safe integer`);
+      assert.equal(number, titles.length + 1, `${label} TAP ok numbers must be exactly 1..N in order`);
+      assert.equal(title, pendingSubtest, `${label} ok title does not match its subtest comment`);
+      assert.ok(title.length > 0 && title === title.trim(), `${label} TAP ok title must be non-empty and unpadded`);
+      pendingSubtest = null;
+      titles.push(title);
+      i += 1;
+
+      assert.equal(lines[i], '  ---', `${label} missing TAP YAML block after ok ${number}`);
+      assert.match(lines[i + 1] ?? '', /^  duration_ms: (?:0|[1-9]\d*)(?:\.\d+)?$/,
+        `${label} malformed TAP duration_ms for ok ${number}`);
+      assert.equal(lines[i + 2], "  type: 'test'", `${label} malformed TAP type for ok ${number}`);
+      assert.equal(lines[i + 3], '  ...', `${label} missing TAP YAML terminator for ok ${number}`);
+      i += 4;
+      continue;
+    }
+
+    if (/^1\.\./.test(line)) {
+      const planMatch = /^1\.\.([1-9]\d*)$/.exec(line);
+      assert.ok(planMatch, `${label} malformed TAP plan line`);
+      assert.equal(pendingSubtest, null, `${label} TAP plan after an unpaired subtest comment`);
+      assert.ok(titles.length > 0, `${label} TAP plan before any ok record`);
+      const declared = Number(planMatch[1]);
+      assert.ok(Number.isSafeInteger(declared), `${label} TAP plan count is not a safe integer`);
+      assert.equal(declared, expectedTests, `${label} TAP plan test count`);
+      assert.equal(titles.length, expectedTests, `${label} TAP ok record count`);
+      plan = declared;
+      i += 1;
+      break;
+    }
+
+    if (/^#(?: |$)/.test(line)) {
+      assert.equal(pendingSubtest, null, `${label} diagnostic comment between subtest comment and ok record`);
+      assert.ok(!/^#\s*(?:SKIP|TODO)\b/i.test(line), `${label} has a SKIP/TODO directive`);
+      i += 1;
+      continue;
+    }
+
+    assert.fail(`${label} unrecognized TAP line: ${JSON.stringify(line.slice(0, 80))}`);
+  }
+
+  assert.notEqual(plan, null, `${label} missing TAP plan line 1..N`);
+  assert.equal(pendingSubtest, null, `${label} subtest comment without an ok record`);
+
   const summary = new Map();
-  for (const line of lines) {
-    const m = /^# (tests|suites|pass|fail|cancelled|skipped|todo|duration_ms) (.*)$/.exec(line);
-    if (!m) continue;
-    assert.ok(!summary.has(m[1]), `${label} duplicate TAP summary line: # ${m[1]}`);
-    summary.set(m[1], m[2]);
+  for (const key of TAP_SUMMARY_COUNT_KEYS) {
+    const line = lines[i];
+    assert.equal(typeof line, 'string', `${label} missing TAP summary line: # ${key}`);
+    const m = new RegExp(`^# ${key} (\\S+)$`).exec(line);
+    assert.ok(m, `${label} missing or out-of-order TAP summary line: # ${key}`);
+    summary.set(key, parseTapCount(m[1], label, key));
+    i += 1;
   }
-  for (const key of requiredKeys) {
-    assert.ok(summary.has(key), `${label} missing TAP summary line: # ${key}`);
-    assert.match(summary.get(key), /^\d+$/, `${label} malformed TAP summary value: # ${key} ${summary.get(key)}`);
+  if (typeof lines[i] === 'string' && /^# duration_ms\b/.test(lines[i])) {
+    const duration = /^# duration_ms ((?:0|[1-9]\d*)(?:\.\d+)?)$/.exec(lines[i]);
+    assert.ok(duration, `${label} malformed TAP duration_ms line`);
+    assert.ok(Number.isFinite(Number(duration[1])), `${label} TAP duration_ms is not finite`);
+    summary.set('duration_ms', duration[1]);
+    i += 1;
   }
-  if (summary.has('duration_ms')) {
-    assert.match(summary.get('duration_ms'), /^\d+(?:\.\d+)?$/, `${label} malformed TAP duration_ms`);
+  for (; i < lines.length; i += 1) {
+    assert.ok(!/^\s*bail out!/i.test(lines[i]), `${label} has a TAP bailout line`);
+    assert.ok(/^\s*$/.test(lines[i]), `${label} trailing content after the terminal TAP summary`);
   }
-  const plans = lines.map((line) => /^1\.\.(\d+)$/.exec(line)).filter(Boolean);
-  assert.equal(plans.length, 1, `${label} exactly one TAP plan line 1..N`);
-  assert.equal(Number(plans[0][1]), expectedTests, `${label} TAP plan test count`);
-  const notOk = lines.filter((line) => /^not ok \d+ - /.test(line));
-  assert.deepEqual(notOk, [], `${label} has a failing TAP test line`);
-  const ok = lines.filter((line) => /^ok \d+ - /.test(line));
-  assert.equal(ok.length, expectedTests, `${label} TAP ok line count`);
-  const numbers = [];
-  for (const line of ok) {
-    numbers.push(Number(/^ok (\d+) - /.exec(line)[1]));
-  }
-  assert.deepEqual([...numbers].sort((a, b) => a - b), Array.from({ length: expectedTests }, (_, i) => i + 1),
-    `${label} TAP test numbers must be exactly 1..${expectedTests} without duplicates`);
-  assert.deepEqual(
-    lines.filter((line) => /^(?:ok|not ok) \d+ - .*#\s*(?:SKIP|TODO)\b/i.test(line)
-      || /^# (?:SKIP|TODO)\b/.test(line)),
-    [],
-    `${label} has a SKIP/TODO directive`,
-  );
-  const num = (key) => Number(summary.get(key));
+
+  const num = (key) => summary.get(key);
   assert.equal(num('tests'), expectedTests, `${label} summary test count`);
   assert.equal(num('pass'), expectedTests, `${label} summary pass count`);
   assert.equal(num('fail'), 0, `${label} summary fail count`);
   assert.equal(num('cancelled'), 0, `${label} summary cancelled count`);
   assert.equal(num('skipped'), 0, `${label} summary skipped count`);
   assert.equal(num('todo'), 0, `${label} summary todo count`);
+  assert.equal(plan, num('tests'), `${label} TAP plan and summary test count disagree`);
   return {
     tests: num('tests'), pass: num('pass'), fail: num('fail'),
     cancelled: num('cancelled'), skipped: num('skipped'), todo: num('todo'),
@@ -221,10 +335,17 @@ function assertStrictUpstream(r, { label, expectedTests }) {
 }
 
 function assertTapTestOk(out, title, label) {
-  const wanted = ` - ${title}`;
-  assert.ok(out.split(/\r?\n/).some((line) => line.startsWith('ok ') && line.endsWith(wanted)),
-    `${label} missing the required passing test: ${title}`);
+  const lines = tapLines(out, label);
+  const subtest = `# Subtest: ${title}`;
+  const subtestCount = lines.filter((line) => line === subtest).length;
+  const passCount = lines.filter((line) => {
+    const m = /^ok ([1-9]\d*) - (.+)$/.exec(line);
+    return m !== null && m[2] === title;
+  }).length;
+  assert.equal(subtestCount, 1, `${label} must contain exactly one subtest comment for the nested proof: ${title}`);
+  assert.equal(passCount, 1, `${label} must contain exactly one canonical passing nested proof: ${title}`);
 }
+// A72-STRICT-TAP-END
 
 function runTapSuite(cwd) {
   const env = { ...process.env };
