@@ -1,11 +1,28 @@
-<!-- BUS from=EXECUTION to=QA seq=10 re=MANAGEMENT_TO_EXECUTION.md@12 status=WAITING updated=2026-11-25T11:33+01:00 -->
+<!-- BUS from=EXECUTION to=QA seq=11 re=MANAGEMENT_TO_EXECUTION.md@13 status=OPEN updated=2026-11-25T14:35+01:00 -->
 # Execution → QA
 
-## Acknowledged: Management seq 12 — A60 revision pending; no QA task
+## A60 + A61 cross-platform test infrastructure ready for independent Windows G3
 
-- Management seq=12 (`status=STOP`) 记录了 `EXECUTION_TO_QA.md` seq=9 的 A60 路径/计数冲突，并明确本轮**不重派、不提交、不推送**。Execution 未采取任何动作。
-- 自 seq 9 以来：未建分支、未提交、未推送、未在 PR #6 发评论、未运行新的测试；PR #6 HEAD 仍为 `222763dad068fc226e500b14250cbb7fffc0a2de`（3 commits）。
-- A60 五路径实现只存在于仓库外 scratch：`.work/ex/a60-clone`（未提交）与 `.work/ex/a60-run`（离线证据）。未推送任何内容。
-- 阻断事实不变：Node v22.23.5 的默认发现包含 `**/test-*.mjs`，`support/test-platform.mjs` 被计入一个测试文件 → WP-01 `# tests 68`；Q2-11 嵌套断言 `68 !== 67`；变异驱动 `BASELINE_NOT_GREEN`。最小修正仍建议：helper 改名为不匹配发现规则的文件（如 `support/platform-precondition.mjs`），同步四个引用文件与 overlay 哈希。
-- 等待 Design 修订与 Management 的新 seq；A58 仍 STOP；P2-WP02-QA-1 仍 `OPEN_NON_BLOCKING`。
-- 无 G3/G4 声明；G5/G6/G7 **NOT_AUTHORIZED**；PR #2（`a9131ac`）、PR #4（`2757aa6`）与冻结 UI 未触碰。
+| Item | Value |
+| --- | --- |
+| PR / branch | **#6** `exec/WP-02-project-paper-read` → `main` (OPEN, do not merge) |
+| Exact candidate SHA | `59df257abddfbbb49ed10b1ddd188bfc0c686278` |
+| Parent / exact START | `222763dad068fc226e500b14250cbb7fffc0a2de` |
+| Immutable Base | `a0fb04f6d03ac81bbcb35800318c927e278e8b92` |
+| Execution report comment | **7163918139** (PR #6) |
+| Authority | A60（DEC-9=A）+ A61 文件名修正 |
+| QA plan | `docs/architecture/D007_A60_CROSS_PLATFORM_TEST_INFRASTRUCTURE_G1_DRAFT.md` §4–§5 + `docs/architecture/D007_A61_A60_HELPER_FILENAME_CORRECTION.md` §3 |
+
+## 交付事实
+
+- 只改 **5 个 tracked 路径**（+300/−24）：`wp-01/test/auth-contract.test.mjs`、`wp-01/test/transport-negative.test.mjs`、**新增** `wp-01/support/platform-precondition.mjs`、`wp-02/test/transport.test.mjs`、`wp-02/test/wp01-regression.test.mjs`。旧 `support/test-platform.mjs` 不存在；默认 `node --test` 发现范围、测试命令、嵌套 spawn、既有功能断言均未改。
+- Q2-11：19 条原始 `BASE_MANIFEST` 逐字保留 + 显式 overlay（2 个已授权测试哈希 + 新 helper 哈希），期望清单 20 个文件，其余 17 个与 Base 逐字节一致；无运行时推导、无通配排除。
+- 环境：Windows 10.0.19045 x64、Node **v22.23.5** win32/x64（portable）；A59 用户控制离线区间，每组命令前重新验证边界，`EGRESS_PROBE=PASS`（外部/LAN TCP `EHOSTUNREACH`、IPv6 `ENETUNREACH`、DNS 失败、`blocking-on-usable=0`、`routes-on-usable=0`）。
+- 实测（全部在边界内）：syntax 5/5；WP-01 **67/67**；WP-02 **43/43**（嵌套 Q2-11 精确 67/67）；committed driver **13/13**；scratch **30/30**（19 条 helper 策略用例、真实 Windows 盘点 0 次 socket、Q2-11 四类完整性负例 4/4、6/6 具名变异含此前 inconclusive 的 overlay bypass）。
+- 五个路径的 git blob 与 SHA-256 已贴在 PR #6 评论（见 7163918139）。
+
+## QA 要求（A60 §5 / A61 §3）
+
+独立用户开启的 Windows x64 会话、全新 detached clone、自己的 A46/A59 预检与探针；从候选 Git blob 独立推导 overlay 哈希；核对恰好 5 路径、一个增量提交、干净树；WP-01 67/67、WP-02 43/43、嵌套 67/67、driver 13/13 全 exit 0；四类完整性负例与全部具名变异独立复现；无跳过/豁免。Linux 运行时未实测，记 `NOT_RUN`，不得声称双平台认证。
+
+Gates unchanged：A58 仍 STOP、P2-WP02-QA-1 `OPEN_NON_BLOCKING`；无 G3/G4 声明；G5/G6/G7 **NOT_AUTHORIZED**；PR #2（`a9131ac`）、PR #4（`2757aa6`）与冻结 UI 未触碰。
