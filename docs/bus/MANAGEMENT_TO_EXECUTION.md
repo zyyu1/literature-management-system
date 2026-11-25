@@ -1,45 +1,52 @@
-<!-- BUS from=MANAGEMENT to=EXECUTION seq=10 re=DECISION_BOARD.md@10 status=OPEN updated=2026-11-25T10:20+01:00 -->
+<!-- BUS from=MANAGEMENT to=EXECUTION seq=11 re=DECISION_BOARD.md@12 status=OPEN updated=2026-11-25T10:55+01:00 -->
 # Management → Execution
 
-**来源:** `docs/DECISION_BOARD.md` seq 10（R10，2026-11-25）§3 + **A59 环境修正**。本轮无新 DEC，DEC-8=A 仍有效。
+**来源:** `docs/DECISION_BOARD.md` seq 12（R12，2026-11-25）§3；原 DEC-9 决策轮为 board seq 11。
+**DEC-9 = A（用户已在 Design 窗口明确选择）** —— 本文件只做正式记录与派发，不重复询问。
 
-**本单替代 `seq=9` 的 Linux-only 派发**；旧 `EXECUTION_TO_QA.md` seq=7 的 STOP 保留为历史记录，不是自动重启。
+**本单替代 `seq=10`（A58+A59 Windows 重派）**；`EXECUTION_TO_QA.md` seq=8 的 STOP 保留为历史。**A58 保持 STOP**，本轮**不得**改 `identity.test.mjs`、不得加入 `Q2-02-CASE-01`。
 
 ## 授权与基线
 
-- **授权文件:** `docs/architecture/D007_A58_WP02_P2_TEST_ONLY_G1_DRAFT.md`（已由 DEC-8=A 生效）
-- **环境修正:** `docs/architecture/D007_A59_A58_WINDOWS_ENVIRONMENT_AMENDMENT.md`（仅适用于 A58）
+- **授权文件:** `docs/architecture/D007_A60_CROSS_PLATFORM_TEST_INFRASTRUCTURE_G1_DRAFT.md`（DEC-9=A 生效）
 - **PR / 分支:** PR **#6**，沿用 `exec/WP-02-project-paper-read`（OPEN / 未合并）
 - **原始不可变 Base:** `a0fb04f6d03ac81bbcb35800318c927e278e8b92`
 - **精确增量 START:** `222763dad068fc226e500b14250cbb7fffc0a2de`
-- **唯一可写路径:** `packages/wp-02-project-paper-read/test/identity.test.mjs`（只加一条 `Q2-02-CASE-01`，既有测试与断言全保留）
-- **禁止:** 改 src / 夹具 / `scripts/mutation-check.mjs`（M01–M13 不变）/ WP-01 / 历史证据 / 依赖 / CI / UI；不 merge、不 rebase、不 force push；不接真实服务。
+- **只推一个** infrastructure-only 增量提交；不 merge / rebase / reset / force push。
 
-## 执行主机（A59 §1）
+## 恰好五个可写路径（其余一律只读）
 
-- **原生 Windows x64 或 Linux x86_64 均可**；优先沿用现有 Windows Execution 窗口；无需 Linux/WSL2/VM，也无需跨 OS 二次运行。
-- Node 必须 **精确 v22.23.5**（含子进程解析到同一可执行文件与架构）；禁止使用默认 v26.13.0。
-- 预检仍按 A46：首次远程 ref 读回精确 START、Base 为祖先、无 merge、`core.autocrlf=false`、夹具与受保护 blob 一致、干净克隆。
+1. `packages/wp-01-synthetic-auth-api/test/auth-contract.test.mjs` —— 只放宽 runtime 的平台允许列表，保留 Node/架构等其余检查。
+2. `packages/wp-01-synthetic-auth-api/test/transport-negative.test.mjs` —— 用共享 helper 替换平台相关前置条件，保留 Q08 断言。
+3. `packages/wp-01-synthetic-auth-api/support/test-platform.mjs` —— **新增**，test-only helper，只用 Node 内置模块，不导入产品代码、不改系统网络设置。
+4. `packages/wp-02-project-paper-read/test/transport.test.mjs` —— 同样经相对路径用该 helper，仅平台 provenance，功能断言全保留。
+5. `packages/wp-02-project-paper-read/test/wp01-regression.test.mjs` —— 只做 Q2-11 的 manifest overlay 与诚实标题/注释，嵌套 67/67 的 exit/test/pass/fail 检查不变。
 
-## Egress 边界（A59 §2，不降低标准）
+**禁止:** 改应用 src、夹具、既有 harness、`package.json`、变异驱动、历史证据、CI、wrapper、UI、依赖；不改 PR #2/#4。测试注册总数保持 WP-01 **67**、WP-02 **43**。
 
-- **Windows：** 不需要 Linux 脚本或 `unshare`。必须使用**已可用的 OS 级 loopback-only 边界**，二选一：
-  1. **用户可控的离线测试区间**：测试前切断全部外部网络路径（以太网、Wi‑Fi、移动、VPN、虚拟网桥/网卡等），保留回环；在隔离期间与结束后记录经脱敏的网卡/路由清单，证明无可用的非回环路径；测试/服务器/子进程全部退出前不得重连；Git 与报告在重连后进行。
-  2. **既有的隔离 Windows 环境**（预置虚拟机/沙箱，测试上下文无非回环外联能力，但保留回环）。
-- **不得**自动切换用户网络、改持久防火墙/系统设置、提权或安装组件；需要管理员操作时须单独征得用户同意。
-- **每次命令组前**记录：OS/构建/架构、解析到的 Node 路径与版本、脱敏的网卡/路由状态、隔离方法与时间窗、最小环境变量白名单（只列名字，不含值、无代理/凭证变量）。
-- 探针必须同时证明正例（127.0.0.1 bind/connect）与反例（非回环 IPv4/IPv6 TCP、UDP、`.invalid` DNS，含外部与 LAN 目标）；只有证据一致时才可记 `EGRESS_PROBE=PASS`，并在整个命令组期间保持边界覆盖所有后代进程（含变异驱动）。
-- 若既无可用隔离、也无法执行用户可控离线区间 → **ENVIRONMENT_BLOCKED / STOP**。联网状态下、无等效隔离的 Windows **不算通过**。
+## 平台与安全契约（A60 §3）
 
-## 必做（A58 §3 + A59）
+- Node **精确 v22.23.5** x64；只接受 `process.platform` 为 `linux` 或 `win32`；其它 fail-closed。
+- Linux 保留原 `Object.keys(os.networkInterfaces()) == ['lo']` 与 A54/A55 wrapper/探针；Windows 用 A59 等效隔离。
+- 共享 helper 必须**只读、fail-closed**：平台不支持、查询失败/超时、清单为空或歧义、未知适配器映射、存在可用非回环路径（即使无默认路由）、IPv6/VPN/虚拟/LAN 路径、缺失回环、继承代理变量 —— 任一命中即拒绝。不得依赖接口名、DNS 失败、UDP 返回、环境标记或手写 PASS 字符串；不得伪造成功或降级绕过。
+- 主机级隔离与 A59 探针仍需在**每组命令前**执行；in-suite 检查不能替代持续隔离。若必须在联网主机上验证负例，只允许在与应用/测试套件隔离的零流量守卫中跑，或用独立合成清单；**不得在未隔离主机上跑全套**。
+- 不得自动改动机器网络、提权或安装组件。
 
-1. 预检并记录上述环境与 egress 证据；任何不匹配 → STOP。
-2. 实现该单条回归；语法检查；目标测试通过；WP-02 全套 **44/44**、WP-01 独立 **67/67**，均 exit 0；既有变异驱动 **13/13** 不变。
-3. 仅在仓库外 scratch 复现 QM12（大小写不敏感 fallback，限同一 ownerScope/libraryType/libraryId），记录补丁与命令；新测试必须以 **ERR_ASSERTION（期望 403、实际 200）** 失败；建议同时证明 START 处旧套件在 QM12 下仍 43/43。
-4. 还原 scratch、复查 tracked diff 与干净状态；推**一个** test-only 提交到同一 PR；PR 评论贴精确 HEAD、START、diff、计数与退出码、host/隔离方法与探针结果、具名断言；写 `docs/bus/EXECUTION_TO_QA.md` 下一 seq，然后 **EXECUTION STOP**。
+## Q2-11 完整性过渡（A60 §4）
+
+- 原 19 条 `BASE_MANIFEST` 逐条保留；新增显式 A60 overlay，仅替换 `auth-contract` 与 `transport-negative` 的 SHA-256，并加入新 helper 的哈希。
+- 新期望清单 = 原名单 + 恰好一个 helper；其余 17 个 WP-01 文件哈希不变；逐文件比对，不得运行时推导期望值、不得通配排除。
+- 记录五个路径的旧/new blob 与 SHA-256（新 helper 无旧 blob）。
+
+## 必做（A60 §5）
+
+1. 预检：首次远程 ref 精确 START、干净全新检出、Base 为祖先、无 merge、受保护字节与当前派发/STOP 状态核对；不匹配 → STOP。
+2. Windows x64 优先（A59 边界）：语法 + WP-01 **67/67** + WP-02 **43/43** + 既有驱动 **13/13**，全部 exit 0；不跳过、不加 todo、嵌套 WP-01 计数精确。
+3. 自写 scratch 平台 helper 测试：Linux lo-only 接受 / 多接口拒绝；Windows 断网+陈旧路由（须完整证据）接受、活跃 LAN（含无默认路由）拒绝、可用默认路由拒绝、IPv6/VPN/虚拟拒绝、未知映射拒绝、查询失败/超时/畸形/空清单拒绝、缺回环拒绝、代理变量拒绝、平台不支持拒绝；并证明 fail-closed 且无网络/系统副作用。至少覆盖 guard bypass、忽略活跃路径、接受查询失败、代理绕过、Linux lo 检查绕过、Q2-11 overlay/完整性绕过 —— 以具名断言击杀（scratch，事后还原）。
+4. PR #6 评论贴：精确候选 SHA、START、五路径 diff、环境/探针、计数与退出码、manifest 证据、scratch 探针/变异结果与限制；写 `docs/bus/EXECUTION_TO_QA.md` 下一 seq；然后 **EXECUTION STOP**。
 
 ## 边界
 
-- **独立 QA**：另开的会话（同物理 Windows 主机可以，但不得同会话/子代理），先跑自己的隔离与探针，再做配对对照。
-- **不得合并**（G5 需另行 DEC）；G6/G7 未授权；PR #2（`a9131ac`）与 PR #4（`2757aa6`）不动；冻结 UI 不动。
-- 若 Windows 上既有测试/驱动失败：如实报 FAIL/STOP，不得改源码、夹具、驱动或跳过测试。
+- **不得合并**（G5 另行 DEC）；G6/G7 未授权；WP-03 仍被 P2 阻断。
+- A58 的 Q2-02-CASE-01 只能等 A60 新 G4 后再由 Design 出续作授权，本轮不得混入。
+- PR #2（`a9131ac`）、PR #4（`2757aa6`）、冻结 UI 不动；不使用真实数据/服务。
