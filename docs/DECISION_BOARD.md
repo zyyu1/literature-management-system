@@ -1,10 +1,9 @@
-<!-- BUS from=DESIGN to=MANAGEMENT seq=21 re=bus/QA_TO_DESIGN.md@12 status=OPEN updated=2026-11-25 -->
-# 决策板 / Decision Board — R21
-[A69](architecture/D007_A69_WP03_RUNTIME_GATE_DISPOSITION.md) re=Management@20 STOP；DEC-12 未落定，现由 DEC-13 替代。PR #7 unchanged exact `e6b1180e4e3e5790958ae3319af18bba8889ffbc` OPEN, 2 commits. 已核实实际共享 guard `EXPECTED_NODE_VERSION='v22.23.5'` 且 WP03 harness 调用；WP01/02/03 manifests 也 pin 22.23.5。仅改设计文档无法放行 Node24，保护路径不可修改。用户允许 Node24 的意愿已记录，但不等于授权改代码。
-## DEC-13 — 请 Management 提交用户决定
-- A（推荐）：保留现有 SHA，另开已有 Node22.23.5 的独立 Windows 或 Linux x64 QA；按原 A67、A59/A54/A55 完成专项。
-- B：启动 Node24 迁移的 **DESIGN_ONLY** 规划；Design 另出精确范围、Base/白名单/共享 guard 与 pinned inventory 处理、完整回归计划，再交用户决定 G1。当前不派 QA/不改代码。
-- C：暂缓，保留 STOP。
+<!-- BUS from=DESIGN to=MANAGEMENT seq=22 re=bus/QA_TO_DESIGN.md@12 status=OPEN updated=2026-11-25 -->
+# 决策板 / Decision Board — R22
+[A70](architecture/D007_A70_WP03_NODE24_MIGRATION_DESIGN.md) re=Management@21，DEC-13=B 已落实为 DESIGN_ONLY / G1 DRAFT。PR7 unchanged exact `e6b1180e4e3e5790958ae3319af18bba8889ffbc`，OPEN，2 commits；QA seq12 STOP，无新测试。A70 采用单一精确 Node v24.22.3 x64，独立后继分支从原 HEAD 启动，13 个精确修改路径、0 新增/删除，原 Base 保留；Q2 SHA256、Q3 51-path pins、候选审计均显式 overlay，完整新 SHA/新 runtime 回归；不改产品源码、不混用旧证据。
+## DEC-14 — Management 提交用户选择
+- A（推荐，按 Node24 迁移意愿）：批准 A70 §§1–4 bounded G1，独立后继 PR，Node24-only，完整 G2/G3。原 PR7 保留不动。
+- B：暂不迁移，回到精确 Node22 宿主执行 A67 原只读 QA。
+- C：暂缓。
 ## 用户决定后
-A: 记录 DEC-13=A，Management fresh seq21 → Execution 只读 relay seq17 → QA seq13，原 A67 五类矩阵及模拟集成默认103/103，保留同 SHA 同 Node22 的 seq11 有效证据；零可写路径，严格隔离与预检。B: 仅回 Design 规划，不发执行任务；C: 无派发。禁止 Node24 直接运行当前候选、版本伪造/guard 绕过或自动安装。任何未来新 SHA/新 runtime 验收需完整独立矩阵，不混合证据；不要求未声称支持的另一版本通过。
-G4 PARTIAL_TEST_GATE，P1/P2 OPEN；G5/G6/G7 NOT_AUTHORIZED；R2/P0-STORE/WP04/真实服务/UI/部署 blocked；PR2/4 不动。
+A: Management seq22 引用 DEC-14=A 与 A70，Execution 在 S 上创建独立后继分支、严格13路径、1 commit、新PR、G2 完整证据；Design 核验范围和 literal hash overlay 后 Management 再安排独立完整 G3，禁止提前 QA。B: A69/A67 原 read-only relay；C: no dispatch。任何漂移、额外路径、环境/测试失败 STOP。不得安装、伪造版本或放宽 TAP/隔离。G4 原 PR7 PARTIAL_TEST_GATE，P1/P2 OPEN；G5/G6/G7 NOT_AUTHORIZED，R2/P0-STORE/WP04/UI/真实服务/部署 blocked。
