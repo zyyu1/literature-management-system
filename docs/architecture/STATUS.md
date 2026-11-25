@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A66 WP-03-R1 G4 PARTIAL_TEST_GATE — 2026-11-25:** [A66](D007_A66_WP03_R1_G4_PARTIAL_TEST_GATE_REMEDIATION.md), PR #7 `0fcad9cb6016900d5f7057161619e4a9f2e94b55`, DEC-11=A; QA #7167737629 strict offline Windows 103/67/44, two drivers13/13, raw48, mutants13, egress11. Design P1 default upstream waiver/online deviation + P2 whole-repo Base audit OPEN. Six-path test-only correction, Management seq18 pending; Linux NOT_RUN; R2/P0-STORE/G5/G6/G7 blocked.
+
 **D007-A65 WP-02 G5 VERIFIED / WP-03-R1 G1 DRAFT — 2026-11-25:** [A65](D007_A65_WP02_G5_VERIFIED_AND_WP03_R1_G1_DRAFT.md) DEC-10=A Management seq 16; PR #6 merged `f1e3ac3e1ed0244ad5a5f4af31228d3015dea87d`, 30/30 tested blobs equal; WP-02 G4 PASS_LOCAL historical exact HEAD; P2 CLOSED_LOCAL. WP-03-R1 [design](../handoffs/WP-03/DESIGN.md) and [QA](../handoffs/WP-03/QA_INSTRUCTION.md) G1 DRAFT, DEC-11 pending. R2 delete/current/all unlink denied, no real persistence, P0-STORE blocked, G6/G7 NOT_AUTHORIZED.
 
 **D007-A64 WP-02 FINAL G4 PASS_LOCAL — 2026-11-25:** [A64](D007_A64_WP02_FINAL_EXACT_G4_PASS_LOCAL.md), exact PR #6 `8751dd2b4f041d5a17af894ac9cca8bd28560d66`, independent Windows QA #7166250750 44/67/13, identity 8/8, raw 13/13, egress 11/11, QM12 paired 43/43 vs named failure expected 403 actual 200. Original P2 CLOSED_LOCAL; five platform P2 remain CLOSED_LOCAL. Linux NOT_RUN. G5 pending DEC-10 (board seq 16); WP-03 separate G1; G6/G7 NOT_AUTHORIZED.
