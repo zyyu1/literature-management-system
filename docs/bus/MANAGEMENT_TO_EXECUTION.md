@@ -1,32 +1,49 @@
-<!-- BUS from=MANAGEMENT to=EXECUTION seq=16 re=DECISION_BOARD.md@16 status=DONE updated=2026-11-25T16:25+01:00 -->
+<!-- BUS from=MANAGEMENT to=EXECUTION seq=17 re=DECISION_BOARD.md@17 status=OPEN updated=2026-11-25T16:40+01:00 -->
 # Management → Execution
 
-**来源:** `docs/DECISION_BOARD.md` seq 16（R16）§2–§3。用户在 Management 窗口选定 **DEC-10=A**（批准 G5）。
+**来源:** `docs/DECISION_BOARD.md` seq 17（R17）§2–§3。用户在 Management 窗口选定 **DEC-11=A**（批准 WP-03-R1 synthetic-only G1）。
 
-## 记录：DEC-10 = A（G5 合并 PR #6）
+## 授权与基线
 
-| 项 | 值 |
-| --- | --- |
-| 决策 | **DEC-10=A**：仅合并 PR #6 的 exact HEAD 到 `main`，正常 merge commit |
-| PR | **#6** `exec/WP-02-project-paper-read` → `main` |
-| 合并前 exact HEAD | `8751dd2b4f041d5a17af894ac9cca8bd28560d66`（合并前复核未漂移，`mergeable=true`） |
-| 合并前 main | `1963168e15129f33bcfb7da0b84916d2d07ee60d` |
-| **实际 merge commit** | **`f1e3ac3e1ed0244ad5a5f4af31228d3015dea87d`** |
-| 父链 | `1963168e`（合并前 main）+ `8751dd2b`（PR head） |
-| 合并后 main | `f1e3ac3e1ed0244ad5a5f4af31228d3015dea87d` |
-| PR 状态 | `closed` / `merged=true` |
-| 合并方式 | **merge commit**，未 squash、未 rebase、未 force push、未改代码、未绕过 checks |
+- **授权文件:** `docs/architecture/D007_A65_WP02_G5_VERIFIED_AND_WP03_R1_G1_DRAFT.md`
+- **设计 / QA 计划:** `docs/handoffs/WP-03/DESIGN.md`、`docs/handoffs/WP-03/QA_INSTRUCTION.md`（均在 main，作为 authority 阅读；执行检出以 Base 为准）
+- **Exact immutable Base:** `1684cea5623c8421e16c328c7f1464e8932d3118`（已含合并后的 WP-01/WP-02 两个包）
+- **新分支:** `exec/WP-03-guarded-r1-writes`，向 `main` 开**新 PR**
+- 从 Base 起一个增量分支；不得 rebase 或把移动的 main 合入。
 
-## 合并后核验
+## 唯一可写路径
 
-- merge commit 恰为 `f1e3ac3e`，父提交为原 main 与 PR head，父链正确。
-- 相对第一父提交（原 main）变更 **30 个文件**，与决策板所述范围一致（A56 的 27 个路径 + A60 的三个 WP-01 测试路径）。
-- `packages/wp-02-project-paper-read/test/identity.test.mjs` 在合并后 blob 为 `48a6b38f9adbffb12fcc202653e1264df4701915`，与 PR head `8751dd2b` 上的 blob **逐字节相同**。
-- 分支**未删除**。
+- `packages/wp-03-guarded-r1-writes/**`
+- `docs/handoffs/WP-03/QA_HANDOFF.md`
 
-## 不变项
+**全部只读冻结:** WP-01 与 WP-02 包、两者的 fixture、既有 helper/manifest（A60/A61/A62 已验收）、mutation driver、`tools/`、UI、历史证据、CI、依赖、PR #2/#4。
+若需要 hook 或重构既有包才能实现 → **STOP 回 Design**，不得自行改。
 
-- A64 的 **G4 PASS_LOCAL** 与 `P2-WP02-QA-1 CLOSED_LOCAL` 保持不变；G4 不等于合并成功，本记录只记 G5 事实。
-- **WP-03 G1 NOT_AUTHORIZED**；G6 真实服务 / G7 部署 **NOT_AUTHORIZED**；不接真实数据或服务，不发布。
-- P0-STORE 未 GO，真实持久化写入仍阻断；PR #2（`a9131ac`）与 PR #4（`2757aa6`）保持 OPEN 存档，冻结 UI 不动。
-- Linux 新 SHA **NOT_RUN**；不声称双平台认证。
+## R1 范围（A65 §2）
+
+- 只在隔离的合成内存 HTTP 契约替身中实现**受控写入**：Project 创建、改名、归档、恢复；全局 Reading Status；关联级 Important；精确 revision、operation identity、CAS/operationId/UNKNOWN 语义与故障/结果测试。
+- **R2 动作一律禁用**：Project 永久删除、**Current** unlink、All unlink —— 只允许实现「拒绝」的负向控制；它们需要单独的 step-up / intent / UI-AMEND 与持久化决策。
+- 不做批量写入、笔记、引用、导入、新 UI、真实 provider、真实账户或持久化存储。**R1 通过不代表 WP-03 完成。**
+
+## 环境与隔离
+
+- Node **精确 v22.23.5 x64**；无外部依赖、无 `npm install`、无 lockfile、无 CI、无网络/系统设置改动。
+- **本包专属**的 A59 等效资格（因 DEC-11=A 生效）：Windows 原生优先；Linux 走 A54/A55 wrapper；两种都由用户另开独立会话做 G3。不构成对 A47 R4 的普遍修订。
+- 每组命令前独立探针；所有测试/服务器/子进程都在 loopback-only 边界内；不得自动改机器网络或提权。另一平台未实测记 `NOT_RUN`，不声称双平台。
+
+## 测试与证据
+
+- 按 `docs/handoffs/WP-03/QA_INSTRUCTION.md` 覆盖 **Q3-01..Q3-11**；上游回归 WP-01 **67/67**、WP-02 **44/44**、committed driver **13/13**，全部 exit 0、零 skip/todo。
+- 独立 raw HTTP 探针（自己写，不复用执行测试结论）；R2 负向控制的具名断言；至少一个具名 mutant 被杀。
+- A47 LIGHT：确定性全量各跑一次；记录实际命令、计数、退出码与环境事实。
+
+## 交付
+
+- 推分支、开 PR、发 Execution 报告（精确 SHA、diff、计数、环境与探针、限制）。
+- 写 `docs/bus/EXECUTION_TO_QA.md` 下一 seq，然后 **EXECUTION STOP**。
+
+## 边界
+
+- **不得合并**（G5 需你单独批准）；G6/G7 **NOT_AUTHORIZED**；不接真实数据/服务；不部署。
+- P0-STORE 未 GO；真实持久化写入仍阻断；R2 与 WP-04 均未授权。
+- PR #2（`a9131ac`）、PR #4（`2757aa6`）与冻结 UI 不动。
