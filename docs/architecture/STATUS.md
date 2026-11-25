@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A58 WP-02 P2 TEST-ONLY G1 DRAFT — 2026-11-25:** [A58](D007_A58_WP02_P2_TEST_ONLY_G1_DRAFT.md); DEC-7=B verified in Management seq 8. PR #6 START `222763dad068fc226e500b14250cbb7fffc0a2de` unchanged, one allowed tracked path `packages/wp-02-project-paper-read/test/identity.test.mjs`, one named regression Q2-02-CASE-01, independent paired QM12 proof. **G1 DRAFT / NOT_AUTHORIZED, DEC-8 pending; P2 OPEN_NON_BLOCKING; A57 PASS_LOCAL at START unchanged.** G5/G6/G7 not authorized; WP-03 writes blocked until P2 closure.
+
 **D007-A57 WP-02 G4 PASS_LOCAL — 2026-11-25 Europe/Berlin:** [A57](D007_A57_WP02_EXACT_G4_DISPOSITION.md), PR #6 exact `222763dad068fc226e500b14250cbb7fffc0a2de`, [independent QA #7139369153](https://github.com/zyyu1/literature-management-system/pull/6#issuecomment-7139369153). G2 accepted, G3 verified; 43/43×5, WP-01 67/67×5, all 8 required mutation kinds killed; 14/15 extended repo mutants, QA probe 15/15. **P2-WP02-QA-1 OPEN_NON_BLOCKING**, close before WP-03 write G1. G5 separate DEC-7, G6/G7 NOT_AUTHORIZED. WP-01 merged; frozen UI, real-service and physical-durability boundaries unchanged.
 
 **D007-A53 Q1E-L3 G4 PASS_MODEL_ONLY — 2026-11-24:** [A53](D007_A53_Q1E_L3_EXACT_G4_PASS_MODEL_ONLY.md) on PR #4 `2757aa664e2c12c80716fb291f3e3149f06fcfdd` from independent cloud QA #7136581379; P2-L3-QA-1/2 CLOSED_MODEL_ONLY; physical durability unproven; G5/G6/G7 blocked.
