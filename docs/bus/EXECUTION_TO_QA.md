@@ -1,35 +1,35 @@
-<!-- BUS from=EXECUTION to=QA seq=18 re=MANAGEMENT_TO_EXECUTION.md@27 status=STOP updated=2026-11-25T19:22+01:00 -->
+<!-- BUS from=EXECUTION to=QA seq=19 re=MANAGEMENT_TO_EXECUTION.md@29 status=OPEN updated=2026-11-25T19:30+01:00 -->
 # Execution → QA
 
-**status=STOP — 缺平台级 `network=none`（或等价无网络附加）证据。** 第 0A 步未通过；依 A71 §2–§3，未进入 OS 事实核验、探针、guard、A70 实现或 G2。
+## A67 只读续作 — 同一 exact SHA 的聚焦独立 QA
 
-## 收到的任务（seq 27）
-
-- DEC-15=A：按 A70 §1–§4 与 A71 §2–§3，在平台强制断网的云 Linux 容器中执行 A70 Node24 迁移。
-- 只有平台证据、同上下文 OS 事实、探针与 guard 四者一致，才可记录 `EGRESS_PROBE=PASS` 并修改候选。
-
-## 平台实际观测（脱敏）
-
-| 项 | 平台返回 |
+| Item | Value |
 | --- | --- |
-| 提供方 / 会话 | managed cloud；会话标识已核对并脱敏 |
-| 运行阶段 | ready |
-| 网络策略 | `restricted`，不是 `disabled` / `network=none` |
-| 允许出口 | `effective_allowed_hosts` 非空，包含 Git/包管理等类别 |
-| portal | 配置了 SSH portal（TCP 22） |
-| 强制状态 | 网络策略 `state=unknown`；没有平台证明为无网络附加 |
+| PR / 分支 | **#7** `exec/WP-03-guarded-r1-writes` → `main`（OPEN / 未合并；G5 未授权，禁止 merge） |
+| Exact candidate HEAD | `e6b1180e4e3e5790958ae3319af18bba8889ffbc` |
+| 父提交 / A66 START | `0fcad9cb6016900d5f7057161619e4a9f2e94b55` |
+| 不可变 Base | `1684cea5623c8421e16c328c7f1464e8932d3118`（已验证为 HEAD 祖先） |
+| 既有 Execution 报告 | **#7168708378**（PR #7） |
+| 既有 QA 评论 | **#7168907120**（PR #7，`PARTIAL_TEST_GATE`） |
+| 授权 | DEC-11=A；A65 + A66 + A67 |
+| QA 计划 | `docs/architecture/D007_A67_WP03_A66_FOCUSED_INDEPENDENT_QA.md` **§3** |
 
-平台没有提供以下必需证明：无 host network、无 bridge、无共享网络命名空间、无继承的可联网 fd、无 host proxy/daemon/control socket、无可重新挂网的提权或逃逸接口，以及覆盖测试全过程的隔离区间与所有后代进程的同一命名空间归属。当前元数据反而表明这是受限联网策略，而不是 A71 接受的预先存在 `network=none` 上下文。
+## 本轮性质（A67 只读续作）
 
-## 边界处理
+- 同一 PR、同一分支、同一 exact SHA；**没有**实现、新提交、新分支/PR、merge/rebase/reset/force push。
+- 这是 **A67 只读续作**：不重跑既有全量/变异/探针，**不产生新的 Execution 报告**；既有主门证据仅在本 SHA 保留（A67 §2）。
+- A70 Node24 迁移保持暂停；PR #7 基线仍为 Node **v22.23.5**（A69）。
+- 本轮唯一 tracked 修改是这份 `docs/bus/EXECUTION_TO_QA.md`（seq 19）；候选分支、源码与其他 main 路径均未触碰。
 
-- 未用容器内命令替代平台证据，也未做主动外网/LAN/DNS 探测。
-- 未运行 OS 隔离核验、A54/A55 探针、guard、语法检查、回归、驱动、矩阵、raw48 或 integration。
-- 未创建迁移分支、未修改 A70 的 13 个路径、未提交候选、未开 PR、未改或关闭 PR #7。
-- 仅在隔离外执行了 `git fetch origin main` 和只读对象/文档核对；本 STOP 消息是本轮唯一 tracked 修改。
+## 只读核对（2026-11-25，Windows）
 
-## 解除阻塞所需
+- PR #7：`state=open`、`merged=false`、base=`main`；远程分支 tip = `e6b1180e…`。
+- 新 full clone 后 detached `e6b1180e…`：HEAD 精确一致；父提交 = `0fcad9cb…`；`1684cea…` 祖先检查 exit 0；Base 以来 2 个提交；工作树干净（无 modified/untracked）。
+- 最新 A66 提交恰为 6 个已授权路径（5 M + 1 A），与 A66 白名单一致。
+- 既有评论仍存在：#7168708378（Execution）、#7168907120（QA）。
 
-由平台/操作员提供一个已经存在的、可验证的 `network=none` 或等价无网络附加上下文，并给出 A71 §3 要求的脱敏平台证据、连续隔离区间及安全的隔离内外传输机制；随后需由新的 Execution 派发重新从第 0 步开始。不得把当前 `restricted` 策略、容器内失败探针或清空代理变量升级为等效证明。
+## QA 要求
 
-Gates unchanged：G3 NOT_RUN，G5/G6/G7 **NOT_AUTHORIZED**；R2、真实持久化、WP-04、UI、真实服务/部署未授权；PR #2/#4/#7 与冻结 UI 未触碰。
+按 `docs/architecture/D007_A67_WP03_A66_FOCUSED_INDEPENDENT_QA.md` **§3** 独立执行；在同一 exact SHA 发新 PR 评论，引用既有 QA #7168907120 与 A67，并回写 `docs/bus/QA_TO_DESIGN.md` 下一 seq。
+
+Gates unchanged：G3/G4 仍为 `PARTIAL_TEST_GATE`（本 SHA，待 §3 矩阵补齐）；G5/G6/G7 **NOT_AUTHORIZED**；R2、真实持久化、WP-04、UI、真实服务/部署未授权；PR #2/#4 与冻结 UI 未触碰；A70 迁移暂停。
