@@ -1,10 +1,8 @@
-<!-- BUS from=DESIGN to=MANAGEMENT seq=23 re=bus/QA_TO_DESIGN.md@13 status=OPEN updated=2026-11-25 -->
-# 决策板 / Decision Board — R23
-[A71](architecture/D007_A71_A70_CONTAINER_EGRESS_EQUIVALENCE.md) re=Management@26 / Execution@17 / QA@13。DEC-14=A 已核实，A70 G1 approved / ENVIRONMENT_BLOCKED；PR7 exact S `e6b1180e4e3e5790958ae3319af18bba8889ffbc` OPEN、后继分支不存在。QA13 是旧 PR7 的提前/过期目标预检 STOP，非 A70 G3。Management26 转述未隔离旧 main 全套49/50、33/34，排除全部结果，禁止重复，不推定实际外泄或候选缺陷。
-## DEC-15 — Management 向用户提交
-- A（有条件推荐）：接受 A71 已有容器级 network-none 等效隔离；必须可信平台证据 + 实际 lo-only + IPv4/IPv6 路由/代理/进程边界 + 每组正反探针。当前容器未认证；无证据 STOP。不得自动修改宿主/网络、安装、提权或绕过 guard。
-- B：另找已有精确 Node24 且 A54/A55 或 A59 合格宿主。
-- C：暂停 A70，回原 PR7 Node22 A67 零可写专项。
-- D：暂停两者。
-## 用户选择后
-A/B: Management fresh seq27，引用 DEC-14=A、DEC-15 与 A70/A71；先预检、再13路径一提交后继 PR、完整 G2；Design 核验新 SHA/overlay 后才能独立 G3。Git/传输阶段与隔离测试分离；无平台控制证据或无法安全转移结果 STOP。C: A69/A67 exact Node22；D: no dispatch。未选择前 WAIT_USER_DECISION。旧 seq 不得重跑。G4 PR7 PARTIAL_TEST_GATE、P1/P2 OPEN，G5/G6/G7 NOT_AUTHORIZED，R2/P0-STORE/WP04/UI/真实服务/部署 blocked。
+<!-- BUS from=DESIGN to=MANAGEMENT seq=24 re=bus/QA_TO_DESIGN.md@14 status=OPEN updated=2026-11-25 -->
+# 决策板 / Decision Board — R24
+[A72](architecture/D007_A72_WP03_STRICT_TAP_FINAL_REMEDIATION_DRAFT.md) re=Management@29/Execution@19/QA@14。DEC-15=C，A70/A71 suspended。PR7 exact `e6b1180e4e3e5790958ae3319af18bba8889ffbc` OPEN。QA #7172355241 五矩阵已运行：4+/33−、5/5 bypass、integration103/67/44、audit6/6、pins8/8、egress8/8；F1–F3 trailing TAP false FULL，且首次 ls-remote exit128 违反 A46（第二次成功不豁免）。G4 PARTIAL_TEST_GATE；P1 OPEN_BLOCKING，P2 技术矩阵绿/正式 OPEN。无产品行为失败实证。
+## DEC-16 — Management 提交用户选择
+- A（推荐）：批准 A72 bounded G1，Node22.23.5，原 PR7 同分支从 S 起单增量提交，严格三处 M（Q3 TAP、scope auditor、README），无 src/guard/fixture/upstream 改动；完整新 SHA 独立验收。
+- B：暂缓，保留原 SHA / PARTIAL，不派发。
+## 用户决定后
+A: Management fresh seq30 → Execution 完整 G2/新 PR 评论及 bus seq20 → Design 核验新 SHA 与白名单 → 独立 QA 完整 A66/A67/A72 矩阵，QA next seq15 或最新+1，不得写回过期 seq13。首次 ref 失败立即 STOP，TLS 配置事先完成。零新增删除，B/T/S 不变，禁止联网全套。B: no dispatch。用户决定前 WAIT_USER_DECISION。G5/G6/G7 NOT_AUTHORIZED；R2/P0-STORE/WP04/真实服务/UI/部署 blocked，PR2/4 不动。
