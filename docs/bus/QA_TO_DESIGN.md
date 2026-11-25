@@ -1,41 +1,41 @@
-<!-- BUS from=QA to=DESIGN seq=10 re=docs/bus/EXECUTION_TO_QA.md@14 status=DONE updated=2026-11-25T17:16+01:00 -->
+<!-- BUS from=QA to=DESIGN seq=11 re=docs/bus/EXECUTION_TO_QA.md@15 status=DONE updated=2026-11-25T18:02+01:00 -->
 # QA → Design
 
-## WP-03-R1 guarded routine writes — independent Windows G3 PASS_LOCAL @ `0fcad9cb6016900d5f7057161619e4a9f2e94b55`
+## A66 test-gate remediation — independent Windows G3 — **PARTIAL_TEST_GATE** @ `e6b1180e4e3e5790958ae3319af18bba8889ffbc`
 
-- **PR #7** `exec/WP-03-guarded-r1-writes` → `main` (OPEN, unmerged); **exact SHA** `0fcad9cb6016900d5f7057161619e4a9f2e94b55`; **QA comment ID 7167737629** — https://github.com/zyyu1/literature-management-system/pull/7#issuecomment-7167737629
-- **Verdict: PASS_LOCAL** on Windows x64, **no P0/P1/P2 findings**. **Linux runtime NOT_RUN**; no dual-platform certification.
-- Authority: DEC-11=A / A65 + `docs/handoffs/WP-03/DESIGN.md` + `QA_INSTRUCTION.md`; immutable Base `1684cea5623c8421e16c328c7f1464e8932d3118`.
-- Preflight: first remote ref read exit 0 exact SHA; fresh full non-shallow detached clone, `core.autocrlf=false`; **1 incremental commit, 0 merges, 21 added paths, +4,878 lines, 0 modified/deleted Base paths**; clean tree.
+- **PR #7** `exec/WP-03-guarded-r1-writes` → `main` (OPEN, unmerged); **exact SHA** `e6b1180e4e3e5790958ae3319af18bba8889ffbc`; **QA comment ID 7168907120** — https://github.com/zyyu1/literature-management-system/pull/7#issuecomment-7168907120
+- **Verdict: PARTIAL_TEST_GATE** — main gates pass; the independent A66 §4 scratch bypass / strict-TAP negative matrix was **not independently executed**. This is a QA coverage gap, not an observed candidate failure. **Linux NOT_RUN**.
+- Authority: A66 + DEC-11=A / A65; parent/START `0fcad9cb6016900d5f7057161619e4a9f2e94b55`; Base `1684cea...`; Base..HEAD 2 single-parent commits, START..HEAD exactly 1; 6-path A66 diff (+859/−197), 22 cumulative added paths, 0 modified/deleted Base paths.
 
-### Key numbers (QA-owned, inside the A59 offline interval)
+### Verified main gates (QA-owned, A59 offline)
 
 | Gate | Result |
 | --- | --- |
-| syntax (`node --check`, 18 `.mjs`) | 18/18 |
-| WP-03-R1 suite, strict `WP03_REQUIRE_OFFLINE_UPSTREAM=1` | **103/103**, fail 0, skipped 0, todo 0 |
-| — internal upstream | `WP01_UPSTREAM 67/67 FULL`; `WP02_UPSTREAM 44/44 FULL` |
-| frozen WP-01 | **67/67** |
-| frozen WP-02 | **44/44** |
-| WP-02 committed driver | **13/13 KILLED**, baseline green |
-| WP-03 committed driver | **13/13 KILLED**, baseline green |
-| independent raw HTTP | **48/48** (Q3-01…Q3-10 representative invariants, CAS/replay, UNKNOWN/socket-drop, neutral denials, R2 negative) |
-| independent QA mutants | **13/13 KILLED** by intended named tests |
-| protected paths | **21 added, 0 modified/deleted**, clean tree |
-| egress probe | **11/11 EGRESS_PROBE=PASS**; loopback positive; external/LAN IPv4 `EHOSTUNREACH`; IPv6 `ENETUNREACH`; DNS `.invalid` `ENOTFOUND`; tcpConnected=0 |
+| syntax (19 `.mjs`) | **19/19** |
+| WP-03 default suite, obsolete env flag **not set** | **103/103**, fail/skipped/todo 0 |
+| — upstream diagnostics | `WP01_UPSTREAM 67/67 FULL`; `WP02_UPSTREAM 44/44 FULL` |
+| candidate scope audit | **`CANDIDATE_SCOPE_OK`** (basePaths=200, approvedAdditions=22, a66ChangedPaths=6, worktreePaths=222) |
+| WP-01 / WP-02 | **67/67** / **44/44** |
+| WP-02 driver / WP-03 driver | **13/13** / **13/13** KILLED, baseline green |
+| independent raw HTTP / mutants | **48/48** / **13/13 KILLED** |
+| protected paths | 22 added, 0 modified/deleted; clean |
+| egress probes | **12/12 PASS**; external/LAN IPv4 `EHOSTUNREACH`, IPv6 `ENETUNREACH`, DNS `.invalid` `ENOTFOUND`; tcpConnected=0 |
 
-Environment: Windows 10.0.19045 x64, Node exactly **v22.23.5** win32/x64, user-controlled offline interval (A59). Fixtures frozen (`wp01 86c47a5a...`, `wp02 c4fc68af...`); no dependencies; imports only `node:`/relative; no real credentials or data.
+Guard evidence on the connected/sandbox host: direct harness import threw `EGRESS_PRECONDITION_FAILED` during module evaluation; a targeted test file failed before any `Q3-*` execution/server; the mutation driver failed at module-load preflight before scratch/baseline/mutants. Obsolete env flag is not read.
 
-### Findings
+### Not independently run (A66 §4)
 
-**P0:** none. **P1:** none. **P2:** none observed in this round.
+- Synthetic strict-TAP negative matrix (malformed/partial/duplicate/missing summary, plan, skip/todo, not-ok, wrong count, nonzero, timeout/error, signal) and old/new failed-input comparison.
+- Four named A66 bypass mutants: upstream-failure tolerance, pre-child guard omission, pinned-integrity bypass, full candidate-audit bypass.
+- Paired scratch old/new main-only-docs integration proof.
+- Independent candidate-audit negative proofs (extra committed/untracked/extra path/changed/missing protected Base byte).
+- Independent pinned-dependency negative proofs (upstream extra/missing/changed, fixture/tool changed).
 
-### Boundaries / limits
+**No P0/P1/P2 candidate finding is asserted; the P1/P2 fixes appear addressed in the main gates, but QA cannot call PASS_LOCAL without the missing independent scratch matrix.** Execution scratch claims are not reused as QA evidence. Historical A65 evidence at `0fcad9c` is not evidence for this candidate.
 
-- **R2 success paths NOT_RUN by design** (negative-only); no step-up grant/confirmation, no permanent delete/unlink success.
-- **No real persistence/durable replay/crash recovery/cross-process CAS; no UI, provider/Zotero/Nutstore/PDF, browser/TLS, or performance claim. WP-03 overall is NOT complete.**
-- **Linux runtime NOT_RUN**; no cross-platform claim. A47 LIGHT one deterministic full offline run; no timing claim.
-- Traceability by actual Q3-01…Q3-11 suite names + independent Q3 probes; A5/A7/E9/F9/U6 remain contract-level, no full U6 pass.
-- QA does **not** rule G4. Design may rule exact-SHA G4 at `0fcad9c...`; G5/G6/G7 `NOT_AUTHORIZED`; no merge/rebase/reset/force push; PR #2/#4 and frozen UI untouched.
+### Boundaries
 
-QA STOP. Awaiting Design G4 at `0fcad9c...` / next dispatch.
+- R2 success, real persistence, UI, provider/browser/TLS, WP-04 and release remain NOT_RUN.
+- QA does not rule G4; G5/G6/G7 `NOT_AUTHORIZED`; no merge/rebase/reset/force push; PR #2/#4 and frozen UI untouched.
+
+**Requested Design action:** accept the main-gate partial with an explicit decision on the missing matrix, or dispatch a focused A66 gate-verification round. QA STOP.
