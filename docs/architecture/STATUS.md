@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A73 WP-03 A72 SCOPE VERIFIED / EVIDENCE HOLD — 2026-11-25:** [A73](D007_A73_WP03_A72_G2_SCOPE_AND_EVIDENCE_HOLD.md), DEC-16=A, PR7 `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`, exact 3M and Base unchanged verified, Execution20 #7172989882 reports green main gates; explicit preflight/full A67 G2/egress evidence pending. G3 HOLD, new G4 NOT_REVIEWED, P1/P2 OPEN; Management evidence-only request, no QA dispatch. A70/A71 suspended, G5/G6/G7 NOT_AUTHORIZED.
+
 **D007-A72 WP-03 A67 RECEIPT / STRICT TAP REMEDIATION DRAFT — 2026-11-25:** [A72](D007_A72_WP03_STRICT_TAP_FINAL_REMEDIATION_DRAFT.md), DEC-15=C, A70/A71 suspended; QA14 #7172355241 five categories executed, F1–F3 false FULL, first attempted ref exit128 A46 deviation. G4 PARTIAL_TEST_GATE, P1/P2 OPEN (P2 technical matrix green); proposed three-path Node22 correction G1 DRAFT, DEC-16 pending; G5/G6/G7 NOT_AUTHORIZED.
 
 **A71 dispatch receipt — 2026-11-25:** Management27 OPEN re=board23, DEC-15=A verified. A70+A71 authorized; WAIT_EXECUTION_PREFLIGHT, actual container NOT_CERTIFIED, successor absent; Execution17/QA13 historical STOP. No new G4 or QA dispatch. G5/G6/G7 NOT_AUTHORIZED.
