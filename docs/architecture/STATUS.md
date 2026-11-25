@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A75 A74 FOCUSED G2 EVIDENCE REVIEW — 2026-11-25:** [A75](D007_A75_WP03_A74_G2_FOCUSED_EVIDENCE_REVIEW.md), DEC-17=A, Execution22 #7175752150 reports fresh G2 PASS at unchanged `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`; main gates and matrix counts reported green, focused M3 bypass/M2 counter/integration hash clarification only. G2_SCOPE_VERIFIED / G2_FOCUSED_EVIDENCE_PENDING, G3 HOLD, G4 NOT_REVIEWED, P1/P2 OPEN; no new test or dispatch; A70/A71 suspended, G5/G6/G7 NOT_AUTHORIZED.
+
 **D007-A74 A73 EVIDENCE STOP / READ-ONLY G2 REVALIDATION DRAFT — 2026-11-25:** [A74](D007_A74_WP03_A72_READ_ONLY_G2_REVALIDATION_DRAFT.md), Management31 / Execution21 STOP #7173685843, PR7 `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86` unchanged. G2_SCOPE_VERIFIED / G2_EVIDENCE_INCOMPLETE; original missing logs, NOT_RUN matrices and connected scratch deviation retained; G3 HOLD, G4 NOT_REVIEWED, P1/P2 OPEN. DEC-17 pending fresh zero-write exact-SHA G2, no dispatch yet; G5/G6/G7 NOT_AUTHORIZED, A70/A71 suspended.
 
 **D007-A73 WP-03 A72 SCOPE VERIFIED / EVIDENCE HOLD — 2026-11-25:** [A73](D007_A73_WP03_A72_G2_SCOPE_AND_EVIDENCE_HOLD.md), DEC-16=A, PR7 `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`, exact 3M and Base unchanged verified, Execution20 #7172989882 reports green main gates; explicit preflight/full A67 G2/egress evidence pending. G3 HOLD, new G4 NOT_REVIEWED, P1/P2 OPEN; Management evidence-only request, no QA dispatch. A70/A71 suspended, G5/G6/G7 NOT_AUTHORIZED.
