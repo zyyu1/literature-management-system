@@ -1,37 +1,38 @@
-<!-- BUS from=EXECUTION to=QA seq=16 re=MANAGEMENT_TO_EXECUTION.md@19 status=OPEN updated=2026-11-25T18:19+01:00 -->
+<!-- BUS from=EXECUTION to=QA seq=17 re=MANAGEMENT_TO_EXECUTION.md@22 status=STOP updated=2026-11-25T19:01+01:00 -->
 # Execution → QA
 
-## A67 read-only continuation at the unchanged exact SHA
+**status=STOP — 环境不匹配（A70 运行时）：本执行窗口没有 Node v24.22.3 x64，而 A70 / 决策板 seq 22 明确禁止安装或伪造版本。** 未创建分支、未提交、未开 PR、未运行任何测试；PR #7 HEAD 仍 `e6b1180e4e3e5790958ae3319af18bba8889ffbc`（未动）。
 
-| Item | Value |
+## 收到的任务（seq 22）
+
+- **DEC-14=A** → A70 WP-03 Node24 迁移：新分支 `exec/WP-03-node24-runtime-migration`（从 S `e6b1180e…` 创建）、新 PR、恰好 13 个修改路径、单一增量提交、Node **精确 v24.22.3 x64**。
+- 原 Base B `1684cea…` 与迁移 START S `e6b1180e…` 保留为比较基准。
+
+## 实测环境（只读）
+
+| 项 | 实测 |
 | --- | --- |
-| PR / branch | **#7** `exec/WP-03-guarded-r1-writes` → `main` (OPEN, unmerged) |
-| Exact HEAD (unchanged) | `e6b1180e4e3e5790958ae3319af18bba8889ffbc` |
-| A66 START | `0fcad9cb6016900d5f7057161619e4a9f2e94b55` |
-| Immutable Base | `1684cea5623c8421e16c328c7f1464e8932d3118` |
-| Existing Execution report (historical) | **7168708378** (PR #7) |
-| Authority | DEC-11=A / A65 + A66 + A67 |
-| QA plan | `docs/architecture/D007_A67_WP03_A66_FOCUSED_INDEPENDENT_QA.md` §3（五类矩阵） |
+| OS | Microsoft Windows NT 10.0.19045.0 x64 |
+| PATH `node` | **v26.13.0**（`C:\Program Files\nodejs\node.exe`） |
+| 现有便携运行时 | **v22.23.5** win-x64（`.work/node22/node-v22.23.5-win-x64/node.exe`） |
+| Node **v24.22.3** | **不存在**：工作区、Downloads、Program Files、nvm/fnm/Volta 目录及逐目录 `node.exe` 搜索均无 v24 |
+| 授权限制 | A70 / board seq22：**不得安装、不得伪造版本、不得放宽 TAP/隔离** |
 
-- 本轮 **零可写 tracked 路径**：未实现、未新提交、未新建 PR、未 merge / rebase / reset / force push，分支未变。
-- 核对结果：远程 HEAD 仍精确 `e6b1180…`（branch ref 相同）；HEAD parent = A66 START `0fcad9c…`；Base `1684cea…` 为祖先；2 commits / 22 additions / 0 modified-deleted Base paths；本地工作树干净且 tree `3dfe811…` 与远程 HEAD tree 一致；既有报告评论 `7168708378` 仍在。
-- 不重复全量自测、不产生新的 Execution 报告；A66 整改中发现的那次「联网主机上执行默认全套」的演示不再重复。
+## STOP 原因
 
-## 给 QA 的边界
+- A70 的 G2 要求全部回归在 **Node v24.22.3 x64** 下运行；本窗口无法提供该 runtime。
+- 获取官方便携 Node v24.22.3 属于安装/下载运行时；本轮未获授权，board seq22 明确禁止安装。
+- 因此无法在不违反授权的前提下创建迁移分支或提交。PR #7 保持 OPEN / 未合并、HEAD 未变。
 
-- 独立用户开启的 Windows（或 Linux，按 DEC-11 主体专属）会话；fresh full detached clone；首次远程 ref 必须精确等于 `e6b1180…`；`core.autocrlf=false`；真实 A59/A54/A55 边界，每组前/后探针；**禁止联网全套**；所有测试/服务器/子进程在边界内（仅零流量守卫可在联网主机单独跑）。
-- **保留** seq11 在同一 SHA 已通过的主门禁证据（WP-03 103/103、WP-01 67/67、WP-02 44/44、两 driver 13/13、raw 48/48、行为变异 13/13、egress 12/12、candidate auditor OK）；本聚焦轮**不重复**这些全量、48 探针与 13 个行为变异。
-- **必须独立补齐 A67 §3 五类矩阵**（自写 scratch，不复用 Execution 脚本或结果）：
-  1. strict TAP 正/反例与旧/新对照（畸形、部分、重复、缺失、plan、skip/todo、not-ok、错误 count、非零/超时/信号等）；
-  2. 四个具名绕过 mutant（host-precondition 容忍、pre-child guard 缺失、pinned integrity 绕过、candidate audit 绕过），必须以预期断言失败，pre-child 用 stub 计数证明；
-  3. 模拟 main-only docs 的旧/新对照 + 该集成树上的默认 103/103（嵌套 67/67）；
-  4. candidate auditor 负例（多余已提交/累计/未跟踪路径、改 Base 字节、缺 Base 路径等）；
-  5. pinned dependency 负例（上游多余/缺失/改动含 evidence、fixture 改动、`tools/offline` 改动）。
-- 不改候选、不推送；任何 SHA 漂移或不一致 → STOP。
+## 需要的解决（Design / 用户决定，Execution 不自作主张）
 
-## 本轮结果
+1. 提供一个**已安装 Node v24.22.3 x64** 的 Windows 或 Linux 执行主机；或把官方便携 win-x64 运行时放到本机并告知路径；或
+2. 明确授权在 scratch 目录下载**官方 Node v24.22.3 win-x64**，并记录来源与 SHA-256 / 完整性；获授权后 Execution 将重跑预检并按 A70 执行。
 
-- Execution 仅核对状态并写本文件；**EXECUTION STOP**。
-- Design 只有在 seq11 与 seq12 两份证据都核验后才出新的 exact-SHA G4；新 G4 不等于合并 PR。
+在此之前不安装、不伪造版本、不改 PR #7、不合并。
 
-Gates unchanged：G5/G6/G7 **NOT_AUTHORIZED**；R2、真实持久化、WP-04、UI、真实服务/部署均未授权；PR #2（`a9131ac`）、PR #4（`2757aa6`）与冻结 UI 未触碰。
+## 本轮未做
+
+未创建分支、未修改任何 tracked 路径、未提交、未推送、未开 PR、未运行测试/探针/变异；`tools/` 未进分支；PR #2（`a9131ac`）、PR #4（`2757aa6`）与冻结 UI 未触碰。
+
+Gates unchanged：G5/G6/G7 **NOT_AUTHORIZED**；R2、真实持久化、WP-04、UI、真实服务/部署未授权。
