@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A57 WP-02 G4 PASS_LOCAL — 2026-11-25 Europe/Berlin:** [A57](D007_A57_WP02_EXACT_G4_DISPOSITION.md), PR #6 exact `222763dad068fc226e500b14250cbb7fffc0a2de`, [independent QA #7139369153](https://github.com/zyyu1/literature-management-system/pull/6#issuecomment-7139369153). G2 accepted, G3 verified; 43/43×5, WP-01 67/67×5, all 8 required mutation kinds killed; 14/15 extended repo mutants, QA probe 15/15. **P2-WP02-QA-1 OPEN_NON_BLOCKING**, close before WP-03 write G1. G5 separate DEC-7, G6/G7 NOT_AUTHORIZED. WP-01 merged; frozen UI, real-service and physical-durability boundaries unchanged.
+
 **D007-A53 Q1E-L3 G4 PASS_MODEL_ONLY — 2026-11-24:** [A53](D007_A53_Q1E_L3_EXACT_G4_PASS_MODEL_ONLY.md) on PR #4 `2757aa664e2c12c80716fb291f3e3149f06fcfdd` from independent cloud QA #7136581379; P2-L3-QA-1/2 CLOSED_MODEL_ONLY; physical durability unproven; G5/G6/G7 blocked.
 
 **D007-A50 — 2026-11-24 Europe/Berlin:** [PR #4 `2757aa6` adopted as A45 candidate + independent cloud Linux QA](D007_A50_Q1E_L3_ADOPT_2757AA6_CLOUD_QA.md); G3 NOT_RUN, P2-L3-QA-1/2 OPEN, A38 PARTIAL.
