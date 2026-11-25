@@ -1,0 +1,70 @@
+PASS node --check scripts\check.mjs
+PASS node --check scripts\mutation-check.mjs
+PASS node --check src\model.mjs
+PASS node --check src\recovery.mjs
+PASS node --check src\snapshot.mjs
+PASS node --check test\l3-contract.test.mjs
+PASS node --check test\l3-faults.test.mjs
+PASS A36-C01 mapped to a named test (11 assertions)
+PASS A36-C02 mapped to a named test (5 assertions)
+PASS A36-C03 mapped to a named test (6 assertions)
+PASS A36-C04 mapped to a named test (8 assertions)
+PASS A36-C05 mapped to a named test (11 assertions)
+PASS A36-C06 mapped to a named test (7 assertions)
+PASS A36-C07 mapped to a named test (8 assertions)
+PASS A36-C08 mapped to a named test (7 assertions)
+PASS A36-C09 mapped to a named test (6 assertions)
+PASS A36-C10 mapped to a named test (6 assertions)
+PASS A36-C11 mapped to a named test (9 assertions)
+PASS A36-C12 mapped to a named test (6 assertions)
+PASS A36-T01 mapped to a named test (8 assertions)
+PASS A36-T02 mapped to a named test (7 assertions)
+PASS A36-T03 mapped to a named test (7 assertions)
+PASS A36-T04 mapped to a named test (4 assertions)
+PASS A36-T05 mapped to a named test (5 assertions)
+PASS A36-T06 mapped to a named test (7 assertions)
+PASS A36-T07 mapped to a named test (7 assertions)
+PASS A36-R01 mapped to a named test (5 assertions)
+PASS A36-R02 mapped to a named test (5 assertions)
+PASS A36-R03 mapped to a named test (5 assertions)
+PASS A36-R04 mapped to a named test (8 assertions)
+PASS A36-R05 mapped to a named test (6 assertions)
+PASS A36-R06 mapped to a named test (5 assertions)
+PASS A36-R07 mapped to a named test (3 assertions)
+PASS no L1 (A36-L01..L09) cases implemented (out of A37 scope)
+PASS A36-C02 reported as UNSUPPORTED_COMPLETENESS
+PASS src/model.mjs imports only node:crypto and local modules ()
+PASS src/model.mjs uses no network API or environment secrets
+PASS src/recovery.mjs imports only node:crypto and local modules (node:crypto, ./snapshot.mjs, ./model.mjs)
+PASS src/recovery.mjs uses no network API or environment secrets
+PASS src/snapshot.mjs imports only node:crypto and local modules (node:crypto, ./model.mjs)
+PASS src/snapshot.mjs uses no network API or environment secrets
+PASS no package.json / node_modules under poc/q1e-l3 (zero dependencies)
+PASS no key/token/PDF bytes in evidence\L3-cases.json
+PASS no key/token/PDF bytes in evidence\L3-check.txt
+PASS no key/token/PDF bytes in evidence\L3-mutation.txt
+PASS no key/token/PDF bytes in evidence\L3-node-check-check_mjs.txt
+PASS no key/token/PDF bytes in evidence\L3-node-check-l3_contract_test_mjs.txt
+PASS no key/token/PDF bytes in evidence\L3-node-check-l3_faults_test_mjs.txt
+PASS no key/token/PDF bytes in evidence\L3-node-check-model_mjs.txt
+PASS no key/token/PDF bytes in evidence\L3-node-check-mutation_check_mjs.txt
+PASS no key/token/PDF bytes in evidence\L3-node-check-recovery_mjs.txt
+PASS no key/token/PDF bytes in evidence\L3-node-check-snapshot_mjs.txt
+PASS no key/token/PDF bytes in evidence\L3-results.json
+PASS no key/token/PDF bytes in evidence\L3-suite-run1.txt
+PASS no key/token/PDF bytes in evidence\L3-suite-run2.txt
+PASS no key/token/PDF bytes in evidence\L3-suite-run3.txt
+PASS no key/token/PDF bytes in evidence\L3-suite-run4.txt
+PASS no key/token/PDF bytes in evidence\L3-suite-run5.txt
+PASS no key/token/PDF bytes in README.md
+PASS no key/token/PDF bytes in scripts\check.mjs
+PASS no key/token/PDF bytes in scripts\mutation-check.mjs
+PASS no key/token/PDF bytes in src\model.mjs
+PASS no key/token/PDF bytes in src\recovery.mjs
+PASS no key/token/PDF bytes in src\snapshot.mjs
+PASS no key/token/PDF bytes in test\l3-contract.test.mjs
+PASS no key/token/PDF bytes in test\l3-faults.test.mjs
+PASS README states MODEL_ONLY / PHYSICAL_DURABILITY_UNPROVEN / UNSUPPORTED_COMPLETENESS
+PASS every changed path vs 1dd8b51 is on the A37 whitelist (25 paths)
+PASS zero merge commits since the immutable base
+CHECK: all checks passed (MODEL_ONLY / PHYSICAL_DURABILITY_UNPROVEN)

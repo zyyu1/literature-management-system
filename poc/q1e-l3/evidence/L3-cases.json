@@ -1,0 +1,330 @@
+{
+  "labels": [
+    "MODEL_ONLY",
+    "PHYSICAL_DURABILITY_UNPROVEN",
+    "UNSUPPORTED_COMPLETENESS",
+    "NOT_RESTORE_CERTIFIED"
+  ],
+  "gitHead": "2cfc4ba6c1269264a7370a4681725a3111e7c60a",
+  "cases": [
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-C01",
+      "independent_oracle": "PREDECLARED_TEST_FIXTURE",
+      "oracle_digest": "f5b772b947714bca2f144c238ddfdb5d1138ebd90e754d40a478a1493bc6d1cf",
+      "positive": "KNOWN_FIXTURE_ENUMERATION_OBSERVED",
+      "negative": "KNOWN_ID_OMITTED",
+      "missing": [
+        "assoc:project:owner-a:alpha|paper:owner-a:user:1001:ZXCV6789"
+      ]
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-C02",
+      "verdict": "UNSUPPORTED_COMPLETENESS",
+      "independent_oracle": "NONE (self-derived)",
+      "negative_control": "KNOWN_ID_OMITTED"
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-C03",
+      "rejected": {
+        "cross": "CROSS_OWNER_REFERENCE",
+        "dangling": "DANGLING_REFERENCE",
+        "duplicate": "DUPLICATE_NORMALIZED_ID",
+        "identity": "PAPER_IDENTITY_MISMATCH"
+      },
+      "state_unchanged": true
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-C04",
+      "expected_operation_status": [
+        "CONFIRMED",
+        "CONFLICT"
+      ],
+      "observed": [
+        "CONFIRMED",
+        "CONFLICT"
+      ],
+      "note_rev": 2
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-C05",
+      "deleted_project": "project:owner-a:beta",
+      "deletion_checkpoint": 3,
+      "retained_globals": true
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-C06",
+      "fault_barrier": [
+        "before-publish",
+        "after-publish-before-ack"
+      ],
+      "expected_operation_status": "UNKNOWN -> DEFINITE_FAILURE | CONFIRMED (observed)"
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-C07",
+      "expected_commit_and_snapshot": "K=1",
+      "concurrent_writer": "K+1=2",
+      "bundle_digest": "b03b4cf1ae96f93847ee4cac95d2c8a2615f0885268c31526f1aa3d2c7d01364"
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-C08",
+      "expected_deletion_checkpoint": 2,
+      "actual_deletion_checkpoint": 2,
+      "archive_checkpoint": 1,
+      "result": "RESTORE_BLOCKED_STALE_DELETION_STATE"
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-C09",
+      "negatives": [
+        "missing",
+        "same-domain",
+        "rolled-back",
+        "lagging"
+      ],
+      "result": "DELETION_WITNESS_UNVERIFIABLE"
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-C10",
+      "tag": "FIXTURE_ONLY_HMAC",
+      "negatives": [
+        "recomputed-checksum",
+        "owner-aad",
+        "wrong-key",
+        "lost-key"
+      ]
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-C11",
+      "stage_digest": "863c0d894161dd8194d62f73bd16bc3df0f197812d074030564a9ceee0dd7d50",
+      "negatives": [
+        "half-restore",
+        "path-traversal",
+        "bad-schema",
+        "foreign-owner",
+        "cutover"
+      ]
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-R01",
+      "expected_deletion_checkpoint": 2,
+      "actual_deletion_checkpoint": 2,
+      "result": "RESTORE_BLOCKED_STALE_DELETION_STATE"
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-R02",
+      "last_seen_witness_seq": 1,
+      "results": [
+        "WITNESS",
+        "WITNESS",
+        "WITNESS",
+        "ROLLBACK"
+      ]
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-R03",
+      "orders": [
+        "store-first",
+        "witness-first"
+      ],
+      "crash": "between",
+      "result": "UNKNOWN + RECONCILIATION_PENDING"
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-R04",
+      "staged_count": 14,
+      "stage_digest": "7d05263dffaefb6004c7dbc9ab8e1006c99c70c38111ee5e7c6d5b2028bd66e6"
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-R05",
+      "negatives": [
+        "wrong-key-version",
+        "lost-key",
+        "wrong-owner",
+        "stale-manifest"
+      ]
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-R06",
+      "fault_barrier": "stage-record #7",
+      "result": "STAGE_FAILED_ACTIVE_UNCHANGED"
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-R07",
+      "result": "POLICY_DECISION_PENDING"
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-C12",
+      "egress_attempts": 0,
+      "scanned_files": 5
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-T01",
+      "fault_barrier": [
+        {
+          "barrier": "after-validate",
+          "visible": false,
+          "checkpoint": 1
+        },
+        {
+          "barrier": "after-build",
+          "visible": false,
+          "checkpoint": 1
+        },
+        {
+          "barrier": "before-publish",
+          "visible": false,
+          "checkpoint": 1
+        },
+        {
+          "barrier": "after-publish-before-ack",
+          "visible": true,
+          "checkpoint": 2
+        }
+      ],
+      "positive_commit": "c2-2"
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-T02",
+      "expected_operation_status": "UNKNOWN -> CONFIRMED (observed)",
+      "reused_op": "OPERATION_ID_REUSED_WITH_DIFFERENT_INTENT"
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-T03",
+      "schedules": [
+        "delete-first",
+        "add-first"
+      ],
+      "result": "CONFIRMED + CONFLICT"
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-T04",
+      "expected_commit_and_snapshot": "K=1",
+      "concurrent_commits": [
+        2,
+        3,
+        4
+      ],
+      "bundle_digest": "b03b4cf1ae96f93847ee4cac95d2c8a2615f0885268c31526f1aa3d2c7d01364"
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-T05",
+      "expected_deletion_checkpoint": 2,
+      "actual_deletion_checkpoint": 2,
+      "store_checkpoint_after_rollback": 1
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-T06",
+      "conflict": "SERIALIZATION_CONFLICT",
+      "ambiguous": "UNKNOWN -> DEFINITE_FAILURE (witness)"
+    },
+    {
+      "route": "L3",
+      "fixture_digest": "978af7986034a58de341c2a352251822041795194dbeab661edbcb910728229e",
+      "model": "MODEL_ONLY",
+      "durability": "PHYSICAL_DURABILITY_UNPROVEN",
+      "case_id": "A36-T07",
+      "manifest": "MANIFEST_WRITE_FAILED",
+      "certification": "NOT_RESTORE_CERTIFIED",
+      "egress_attempts": 0
+    }
+  ]
+}
