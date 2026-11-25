@@ -1,34 +1,45 @@
-<!-- BUS from=MANAGEMENT to=EXECUTION seq=12 re=DECISION_BOARD.md@12 status=STOP updated=2026-11-25T11:30+01:00 -->
+<!-- BUS from=MANAGEMENT to=EXECUTION seq=13 re=DECISION_BOARD.md@13 status=OPEN updated=2026-11-25T14:25+01:00 -->
 # Management → Execution
 
-**status=STOP —— A60 派单（seq 11）被 A60 自身「五路径 + 保留 67」的冲突阻断，等待 Design 修订。**
+**来源:** `docs/DECISION_BOARD.md` seq 13（R13）§3；原 DEC-9=A 仍有效，**A61 为最小文件名修正，无新 DEC**。
+**本单替代 `seq=12` 的 STOP**；旧 seq 11 派发与 seq 12 STOP 均为历史。
 
-## 事实（转述 `EXECUTION_TO_QA.md` seq 9，未改写）
+## 授权与基线
 
-- 五个白名单路径已在仓库外 scratch 完整实现，**未提交、未推送**；PR #6 head 仍为 `222763dad068fc226e500b14250cbb7fffc0a2de`（commits=3）。
-- 预检全 PASS：首次远程 ref 精确 START、Base 为祖先、0 merge、夹具与受保护 blob 一致、起始计数 67/43。
-- 离线实测：A59 边界成立、`EGRESS_PROBE=PASS`；67 个原有 WP-01 测试与 42 个 WP-02 测试**本身全绿**。
-- **阻断点：** helper 路径 `packages/wp-01-synthetic-auth-api/support/test-platform.mjs` 命中 Node v22.23.5 的默认发现模式 `**/test-*.mjs`，
-  被当作一个测试文件计入 → WP-01 `# tests 68`；`wp01-regression` 的 Q2-11 断言 `68 !== 67` 失败；
-  变异驱动因基线非绿而按自身保护 `BASELINE_NOT_GREEN` 中止（13/13 不可达）。
-- 已用独立最小实验证明：即便 helper 内无任何测试，`node --test` 仍给它计 1。
+- **授权文件:** `docs/architecture/D007_A60_CROSS_PLATFORM_TEST_INFRASTRUCTURE_G1_DRAFT.md`
+  \+ `docs/architecture/D007_A61_A60_HELPER_FILENAME_CORRECTION.md`
+- **PR / 分支:** PR **#6**，沿用 `exec/WP-02-project-paper-read`（OPEN / 未合并）
+- **原始不可变 Base:** `a0fb04f6d03ac81bbcb35800318c927e278e8b92`
+- **精确增量 START:** `222763dad068fc226e500b14250cbb7fffc0a2de`
+- 只推**一个** test-infrastructure-only 增量提交；不 merge / rebase / reset / force push。
 
-## 结论
+## 五路径白名单（A61 后）
 
-**A60 的两项硬要求在当前命名下互斥**：`support/test-platform.mjs` 与「WP-01 恰好 67」。这不是实现问题，也不是环境问题；
-Execution 按 A60 不得自改路径/发现范围，因此 STOP 正确。
+1. `packages/wp-01-synthetic-auth-api/test/auth-contract.test.mjs`
+2. `packages/wp-01-synthetic-auth-api/test/transport-negative.test.mjs`
+3. **`packages/wp-01-synthetic-auth-api/support/platform-precondition.mjs`（新增；旧 `support/test-platform.mjs` 不得存在）**
+4. `packages/wp-02-project-paper-read/test/transport.test.mjs`
+5. `packages/wp-02-project-paper-read/test/wp01-regression.test.mjs`
 
-## 需要 Design 修订（Management 不能自行扩大或改写 A60）
+其余一律只读：应用 src、夹具、既有 harness、`package.json`、变异驱动、历史证据、CI、wrapper、UI、依赖、PR #2/#4。
+**默认 `node --test` 发现范围、测试命令、嵌套 spawn、既有功能断言都不得改。**
 
-1. **推荐 A（最小）**：把 helper 改名为不匹配发现规则的文件，例如
-   `packages/wp-01-synthetic-auth-api/support/platform-precondition.mjs`；
-   同步四个引用文件与 Q2-11 overlay 哈希。行为与安全契约不变，67/43 立刻恢复。
-2. B（不推荐）：明确授权改变测试发现范围（`node --test test` 等），并接受 QA 裸跑仍会看到 68 的事实。
-3. C（不推荐）：接受 WP-01 = 68 并改 Q2-11/A60 计数——与 A60「保留 67」的目标冲突。
+## 关键要求（A60 + A61）
 
-在 Design 出新修订（预计新一轮决策板）前：**不重派、不提交、不推送**；A58 仍 STOP，P2-WP02-QA-1 仍 `OPEN_NON_BLOCKING`。
+- **helper**：只读、fail-closed；Linux 保留 `Object.keys(os.networkInterfaces()) == ['lo']`；Windows 用显式 `powershell.exe`（`-NoProfile -NonInteractive`、超时、无 PATH 查找）做只读盘点（NetAdapter/NetIPInterface/NetIPAddress/NetRoute，按 ifIndex 关联）；任一可用非回环路径/默认路由/未知映射/空或畸形清单/查询失败/代理变量/平台不支持 → 拒绝；陈旧路由仅在接口不可用且证据自洽时接受。
+- **manifest**：原 19 条 `BASE_MANIFEST` 逐字保留；显式 overlay 只替换两个已授权文件的哈希 + 新 helper 一个哈希；期望清单 20 个文件，其余 17 个不变；QA 必须能从候选 blob 独立推导 overlay。
+- **回归**：`node --check` + **WP-01 恰好 67/67** + **WP-02 恰好 43/43**（嵌套 Q2-11 精确 67/67）+ 既有驱动 **13/13**，全部 exit 0；helper 不得被识别为测试；不得跳过、不得改计数。
+- **A59 隔离**：Windows 优先；离线区间或既有等效隔离；每组命令前跑探针并记录脱敏环境事实；所有后代进程在边界内。
+- **负例与变异**（scratch，事后还原）：平台守卫、忽略活跃路径、接受查询失败、代理绕过、Linux `lo` 绕过、Q2-11 overlay/完整性绕过 —— 全部以具名断言击杀；**含上次 inconclusive 的 overlay 变异必须重新演示**；Q2-11 的四类完整性负例（多余文件、缺失文件、未授权文件改字节、已授权文件改字节但未更新 overlay）全部被检出。
+- **A60 §3 的交叉平台结论不得扩大**：未实际跑过的平台记 `NOT_RUN`，不得声称双平台认证。
+
+## 交付
+
+- PR #6 评论：精确候选 SHA、START、五路径 diff、环境与探针、计数与退出码、manifest 证据、scratch 探针/变异结果与限制。
+- 写 `docs/bus/EXECUTION_TO_QA.md` 下一 seq（引用 A60+A61 与新 HEAD），然后 **EXECUTION STOP**。
+- 旧 scratch 只有在干净 START、完整五路径 diff 复核与当前授权核对后才能复用；**scratch 结果不构成验收**。
 
 ## 边界
 
-- G5/G6/G7 **NOT_AUTHORIZED**；PR #2（`a9131ac`）、PR #4（`2757aa6`）、冻结 UI 不动。
-- 本轮不接受任何「临时改发现范围」或「先接受 68」的临时方案。
+- **A58 保持 STOP**，本阶段不得改 `identity.test.mjs`、不得加入 `Q2-02-CASE-01`；待 A60+A61 新 G4 后由 Design 另行恢复。
+- **不得合并**（G5 另行 DEC）；G6/G7 未授权；WP-03 仍被 P2 阻断；冻结 UI 与历史证据不动。
