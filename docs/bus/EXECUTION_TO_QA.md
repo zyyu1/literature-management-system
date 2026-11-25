@@ -1,35 +1,35 @@
-<!-- BUS from=EXECUTION to=QA seq=19 re=MANAGEMENT_TO_EXECUTION.md@29 status=OPEN updated=2026-11-25T19:30+01:00 -->
+<!-- BUS from=EXECUTION to=QA seq=20 re=MANAGEMENT_TO_EXECUTION.md@30 status=OPEN updated=2026-11-25T20:58+01:00 -->
 # Execution → QA
 
-## A67 只读续作 — 同一 exact SHA 的聚焦独立 QA
+## A72 strict-TAP final remediation ready for independent new-SHA G3
 
 | Item | Value |
 | --- | --- |
 | PR / 分支 | **#7** `exec/WP-03-guarded-r1-writes` → `main`（OPEN / 未合并；G5 未授权，禁止 merge） |
-| Exact candidate HEAD | `e6b1180e4e3e5790958ae3319af18bba8889ffbc` |
-| 父提交 / A66 START | `0fcad9cb6016900d5f7057161619e4a9f2e94b55` |
-| 不可变 Base | `1684cea5623c8421e16c328c7f1464e8932d3118`（已验证为 HEAD 祖先） |
-| 既有 Execution 报告 | **#7168708378**（PR #7） |
-| 既有 QA 评论 | **#7168907120**（PR #7，`PARTIAL_TEST_GATE`） |
-| 授权 | DEC-11=A；A65 + A66 + A67 |
-| QA 计划 | `docs/architecture/D007_A67_WP03_A66_FOCUSED_INDEPENDENT_QA.md` **§3** |
+| Exact candidate | `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86` |
+| 父提交 / A72 START S | `e6b1180e4e3e5790958ae3319af18bba8889ffbc` |
+| A66 START T | `0fcad9cb6016900d5f7057161619e4a9f2e94b55` |
+| 不可变 Base B | `1684cea5623c8421e16c328c7f1464e8932d3118` |
+| Execution 报告 | **#7172989882**（PR #7） |
+| 既有 QA 评论 | **#7168907120**（历史；不替代新 SHA 的独立 G3） |
+| 授权 | DEC-16=A；A65 + A66 + A72 |
+| QA 计划 | `docs/architecture/D007_A72_WP03_STRICT_TAP_FINAL_REMEDIATION_DRAFT.md` **§3** |
 
-## 本轮性质（A67 只读续作）
+## 交付事实
 
-- 同一 PR、同一分支、同一 exact SHA；**没有**实现、新提交、新分支/PR、merge/rebase/reset/force push。
-- 这是 **A67 只读续作**：不重跑既有全量/变异/探针，**不产生新的 Execution 报告**；既有主门证据仅在本 SHA 保留（A67 §2）。
-- A70 Node24 迁移保持暂停；PR #7 基线仍为 Node **v22.23.5**（A69）。
-- 本轮唯一 tracked 修改是这份 `docs/bus/EXECUTION_TO_QA.md`（seq 19）；候选分支、源码与其他 main 路径均未触碰。
+- 单个增量提交：S..HEAD 恰 1 个单父提交；B..S 为历史 2 提交；B..HEAD 为 3 个单父提交、0 merge。
+- 恰 3 个修改路径（0 新增/删除/改名，+331/−147）：`README.md`、`scripts/verify-candidate-scope.mjs`、`test/upstream-regression.test.mjs`。
+- 22 个累计新增、0 个 Base 修改/删除、222 tracked 路径；S 上三路径以外的路径字节与 mode 不变；worktree 干净且等于 HEAD。
+- 产品 `src`、fixtures、上游包、guard、mutation driver、依赖、`tools/`、UI、runtime 均未改；`docs/handoffs/WP-03/QA_HANDOFF.md` 保持历史记录；A70 迁移分支未创建。
 
-## 只读核对（2026-11-25，Windows）
+## G2 证据（A59 离线区间 2026-11-25T20:54:13+01:00–20:55:53+01:00）
 
-- PR #7：`state=open`、`merged=false`、base=`main`；远程分支 tip = `e6b1180e…`。
-- 新 full clone 后 detached `e6b1180e…`：HEAD 精确一致；父提交 = `0fcad9cb…`；`1684cea…` 祖先检查 exit 0；Base 以来 2 个提交；工作树干净（无 modified/untracked）。
-- 最新 A66 提交恰为 6 个已授权路径（5 M + 1 A），与 A66 白名单一致。
-- 既有评论仍存在：#7168708378（Execution）、#7168907120（QA）。
+- Windows 10.0.19045 x64；Node **v22.23.5** x64；零流量平台守卫 PASS；**6/6** egress probe PASS（loopback `CONNECTED`；外部 `EHOSTUNREACH`；DNS `ENOTFOUND`）。
+- syntax **19/19**；WP-03 默认 **103/103**（fail/cancelled/skipped/todo 0）；WP-01 **67/67**；WP-02 **44/44**（嵌套 WP-01 67/67）；两个 driver 各 **13/13**；candidate audit `CANDIDATE_SCOPE_OK`（basePaths=200 / additions=22 / A66=6 / A72=3 / worktree=222）。
+- 合成配对 oracle **88/88**；F1–F3 旧解析 `FULL`、新解析断言失败；解析器变异 **5/5 KILLED**，审计新范围绕过变异 **1/1 KILLED**（均为预期断言失败，非崩溃/超时）。
 
 ## QA 要求
 
-按 `docs/architecture/D007_A67_WP03_A66_FOCUSED_INDEPENDENT_QA.md` **§3** 独立执行；在同一 exact SHA 发新 PR 评论，引用既有 QA #7168907120 与 A67，并回写 `docs/bus/QA_TO_DESIGN.md` 下一 seq。
+按 A72 §3 独立执行 full new-SHA G3；在同一 exact SHA 发新 PR 评论（引用 #7172989882、既有 QA #7168907120 与 A72），逐项报告实际输入/命令/断言/exit/计数/findings/NOT_RUN；然后写 `docs/bus/QA_TO_DESIGN.md` 下一 seq（**15**）并 STOP。不得把 S 的结果当作新 SHA 验收；任何 SHA 漂移即 STOP。
 
-Gates unchanged：G3/G4 仍为 `PARTIAL_TEST_GATE`（本 SHA，待 §3 矩阵补齐）；G5/G6/G7 **NOT_AUTHORIZED**；R2、真实持久化、WP-04、UI、真实服务/部署未授权；PR #2/#4 与冻结 UI 未触碰；A70 迁移暂停。
+Gates unchanged：G3 待独立复核；G4 由 Design 裁定；G5/G6/G7 **NOT_AUTHORIZED**；Linux runtime NOT_RUN；R2、真实持久化、WP-04、UI、真实服务/部署未授权；PR #2/#4 与冻结 UI 未触碰；A70/A71 继续暂停。
