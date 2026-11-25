@@ -3,17 +3,18 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import net from 'node:net';
 import { createProjectPaperReadServer } from '../src/server.mjs';
 import { startServer, loadFixtures, requestTally, PAPER_PATH, XFAKE001 } from '../support/harness.mjs';
+import { assertPlatformEgressPrecondition } from '../../wp-01-synthetic-auth-api/support/platform-precondition.mjs';
 
 const PKG = new URL('../', import.meta.url);
 
-test('egress precondition (zero traffic): only `lo` exists and no proxy variables are set', () => {
-  assert.deepEqual(Object.keys(os.networkInterfaces()), ['lo'], 'run inside run-offline.sh (D007-A54); STOP otherwise');
-  const env = process['env'];
-  for (const k of ['HTTPS_PROXY', 'HTTP_PROXY', 'https_proxy', 'http_proxy', 'ALL_PROXY', 'all_proxy']) assert.equal(env[k], undefined, k);
+// A60: shared fail-closed platform precondition (Linux: only `lo`; Windows: proven offline state).
+test('egress precondition (zero traffic): no usable non-loopback path and no proxy variables are set', () => {
+  const evidence = assertPlatformEgressPrecondition();
+  assert.equal(evidence.ok, true);
+  assert.ok(['linux', 'win32'].includes(evidence.platform));
 });
 
 test('Q2-10 non-loopback / wildcard / fixed-port bind and raised request budget are refused', () => {
@@ -101,12 +102,12 @@ test('Q2-10 sanitized logs: only t/method/route/status/code; no cookie, ID or no
   for (const e of srv.logs) assert.deepEqual(Object.keys(e).sort(), ['code', 'method', 'route', 'status', 't']);
 });
 
-test('provenance: fixtures frozen (SHA-256), Node v22.23.5 linux/x64, zero deps, imports node: or relative only', () => {
+test('provenance: fixtures frozen (SHA-256), Node v22.23.5 on a supported x64 platform, zero deps, imports node: or relative only', () => {
   const { wp02 } = loadFixtures(); // throws on SHA/size mismatch
   assert.equal(wp02.fixtureSchemaVersion, 'WP02-SYNTHETIC-v1.0.0');
   assert.equal(wp02.seed, 22002);
   assert.equal(process.version, 'v22.23.5');
-  assert.equal(process.platform, 'linux');
+  assert.ok(process.platform === 'linux' || process.platform === 'win32', `unsupported platform ${process.platform}`);
   assert.equal(process.arch, 'x64');
   const pkg = JSON.parse(fs.readFileSync(new URL('package.json', PKG), 'utf8'));
   assert.deepEqual(pkg.dependencies, {});

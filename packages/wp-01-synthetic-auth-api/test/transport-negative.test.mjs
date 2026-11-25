@@ -1,16 +1,16 @@
 // Q08 (PATH-01, REDIRECT-01): malicious path/__proto__, unsafe URL/redirect/destination, non-loopback bind/fetch
 // fail closed with ZERO outbound connections; sanitized logs; WP-01 body/response/request limits.
-// Also an in-process, zero-traffic egress-isolation precondition (A54 namespace: only `lo` exists).
+// Also an in-process, zero-traffic egress-isolation precondition (A60: Linux `lo`-only or a proven Windows offline state).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import net from 'node:net';
-import os from 'node:os';
 import http from 'node:http';
 import { createSyntheticAuthServer } from '../src/server.mjs';
 import { LIMITS } from '../src/policy.mjs';
 import {
   loadFixture, fixtureCase, startServer, createFakeClient, browserHeaders, newOperationId, requestTally,
 } from '../support/harness.mjs';
+import { assertPlatformEgressPrecondition } from '../support/platform-precondition.mjs';
 
 function spyConnections() {
   const calls = [];
@@ -36,13 +36,13 @@ function rawRequest(port, text) {
   });
 }
 
-test('egress precondition (zero traffic): only the loopback interface exists and no proxy variables are set', () => {
-  const ifaces = Object.keys(os.networkInterfaces());
-  assert.deepEqual(ifaces, ['lo'], 'run inside tools/offline/run-offline.sh (D007-A54); STOP otherwise');
-  const env = process['env'];
-  for (const k of ['HTTPS_PROXY', 'HTTP_PROXY', 'https_proxy', 'http_proxy', 'ALL_PROXY', 'all_proxy']) {
-    assert.equal(env[k], undefined, `${k} must be unset`);
-  }
+// A60: shared fail-closed platform precondition (Linux: only `lo`; Windows: proven offline state).
+test('egress precondition (zero traffic): no usable non-loopback path and no proxy variables are set', () => {
+  const evidence = assertPlatformEgressPrecondition();
+  assert.equal(evidence.ok, true);
+  assert.ok(['linux', 'win32'].includes(evidence.platform));
+  assert.equal(evidence.node, 'v22.23.5');
+  assert.equal(evidence.arch, 'x64');
 });
 
 test('Q08 non-loopback / wildcard / non-ephemeral bind is refused before any socket exists', () => {

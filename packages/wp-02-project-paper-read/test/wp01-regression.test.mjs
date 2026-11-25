@@ -1,5 +1,7 @@
-// Q2-11: WP-01 regression. (a) packages/wp-01-synthetic-auth-api/** is byte-identical to the A56 Base
-// a0fb04f6d03ac81bbcb35800318c927e278e8b92 (SHA-256 manifest taken from Base); (b) the unchanged WP-01 suite is 67/67.
+// Q2-11: WP-01 regression. (a) packages/wp-01-synthetic-auth-api/** equals the A56 Base
+// a0fb04f6d03ac81bbcb35800318c927e278e8b92 plus exactly the D007-A60 test-only overlay (the two
+// test preconditions and the new support/platform-precondition.mjs; every other byte unchanged);
+// (b) the WP-01 suite is 67/67.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -32,6 +34,23 @@ const BASE_MANIFEST = [
   ['test/transport-negative.test.mjs', 'c85a3c5d5e0ce39fe5245e4f7253bdcaf6192b05b45ea6c75d7b220dfe01a343'],
 ];
 
+// D007-A60 overlay: the ONLY authorized WP-01 byte changes plus the one new test-only helper.
+// Every other file keeps its literal A56 Base SHA-256 from BASE_MANIFEST above; nothing is derived
+// at runtime and no path is excluded by wildcard.
+const A60_OVERLAY = Object.freeze({
+  'test/auth-contract.test.mjs': '243a5523b4bf285aa7e8e85b6757535e34379d3b10e514cca903c4c4fcbfe753',
+  'test/transport-negative.test.mjs': '9ee17908eb1e5338aa0bece83096468c5209fa819925d251761cbdf4b9bbddb1',
+  'support/platform-precondition.mjs': '5e67d2e482ceb53c5a4e3a77c37791355665727558eb89b8dd2469b774975bdf',
+});
+const A60_ADDED = ['support/platform-precondition.mjs'];
+
+function expectedShaFor(relPath) {
+  if (Object.hasOwn(A60_OVERLAY, relPath)) return A60_OVERLAY[relPath];
+  const row = BASE_MANIFEST.find(([p]) => p === relPath);
+  if (!row) throw new Error(`Q2-11 unexpected path: ${relPath}`);
+  return row[1];
+}
+
 function listFiles(dirUrl, prefix = '', out = []) {
   for (const e of fs.readdirSync(dirUrl, { withFileTypes: true })) {
     if (e.isDirectory()) listFiles(new URL(e.name + '/', dirUrl), prefix + e.name + '/', out);
@@ -40,12 +59,13 @@ function listFiles(dirUrl, prefix = '', out = []) {
   return out;
 }
 
-test('Q2-11 packages/wp-01-synthetic-auth-api/** is byte-identical to Base (no file added, removed or changed)', () => {
+test('Q2-11 packages/wp-01-synthetic-auth-api/** equals the A56 Base plus the explicit A60 test-only overlay (no other change)', () => {
   const actual = listFiles(WP01).sort();
-  assert.deepEqual(actual, BASE_MANIFEST.map(([p]) => p).sort());
-  for (const [p, sha] of BASE_MANIFEST) {
+  const expected = [...BASE_MANIFEST.map(([p]) => p), ...A60_ADDED].sort();
+  assert.deepEqual(actual, expected);
+  for (const p of expected) {
     const got = createHash('sha256').update(fs.readFileSync(new URL(p, WP01))).digest('hex');
-    assert.equal(got, sha, p);
+    assert.equal(got, expectedShaFor(p), p);
   }
 });
 
