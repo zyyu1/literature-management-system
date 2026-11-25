@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A64 WP-02 FINAL G4 PASS_LOCAL — 2026-11-25:** [A64](D007_A64_WP02_FINAL_EXACT_G4_PASS_LOCAL.md), exact PR #6 `8751dd2b4f041d5a17af894ac9cca8bd28560d66`, independent Windows QA #7166250750 44/67/13, identity 8/8, raw 13/13, egress 11/11, QM12 paired 43/43 vs named failure expected 403 actual 200. Original P2 CLOSED_LOCAL; five platform P2 remain CLOSED_LOCAL. Linux NOT_RUN. G5 pending DEC-10 (board seq 16); WP-03 separate G1; G6/G7 NOT_AUTHORIZED.
+
 **D007-A63 A62 G4 PASS_LOCAL / A58 CONTINUATION — 2026-11-25:** [A63](D007_A63_A62_EXACT_G4_PASS_LOCAL_AND_A58_CONTINUATION.md), exact PR #6 `ab4a37c8905ebc9d3f889164c2f8164c9286051d`, independent Windows QA #7165559694 67/43/13, 46/46, 11/11 mutants, 12/12 egress. Five platform findings CLOSED_LOCAL; Linux runtime NOT_RUN. A58 same one-path G1 under DEC-8=A, updated exact START, fresh Management seq 15, independent QA; original P2 OPEN, G5/G6/G7 NOT_AUTHORIZED.
 
 **D007-A62 A60+A61 G4 PARTIAL / FAIL-CLOSED G1 — 2026-11-25:** [A62](D007_A62_A60_G4_PARTIAL_AND_FAIL_CLOSED_REMEDIATION.md), PR #6 `59df257abddfbbb49ed10b1ddd188bfc0c686278`, QA #7164758869 Windows G3 verified, 67/43/13, actual A59 isolation 11/11. G2 accepted, G4 PARTIAL_FAIL_CLOSED due four QA P2 + missing-route design P2. A62 two-path test-only correction within DEC-9=A; fresh Management seq 14, independent Windows QA. A58 STOP, original P2 OPEN, Linux new-SHA NOT_RUN, G5/G6/G7 NOT_AUTHORIZED.
