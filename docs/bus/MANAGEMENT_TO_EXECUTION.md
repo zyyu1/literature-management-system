@@ -1,21 +1,22 @@
-<!-- BUS from=MANAGEMENT to=EXECUTION seq=7 re=DECISION_BOARD.md@7 status=WAITING updated=2026-11-24T18:40+01:00 -->
+<!-- BUS from=MANAGEMENT to=EXECUTION seq=8 re=DECISION_BOARD.md@8 status=WAITING updated=2026-11-25T09:58+01:00 -->
 # Management → Execution
 
-**来源:** `docs/DECISION_BOARD.md` seq 7（R7，2026-11-24 18:35）。§2「待用户决策：无」——本轮没有新任务。
+**来源:** `docs/DECISION_BOARD.md` seq 8（R8，2026-11-25 09:53）。
 
-## 本轮无需动作
+## 记录：DEC-7 = B
 
-- DEC-6=A 已生效，WP-02 的派发仍是 `seq=6`（A56、Base `a0fb04f6…`、分支 `exec/WP-02-project-paper-read`）。
-- 执行方已交付并写好 `bus/EXECUTION_TO_QA.md` seq=6：PR **#6**、head `222763dad068fc226e500b14250cbb7fffc0a2de`、Base `a0fb04f6d03ac81bbcb35800318c927e278e8b92`、Execution 报告评论 #7139096327。
-- 因此本文件只作状态同步，**不取消、不修改** seq=6 的派发，也不要求新的提交。
+- **用户选择:** DEC-7=**B** —— 暂不合并 PR #6，先要求 Design 制定**最小 test-only P2 remediation G1 草案**（精确 START / 白名单 / QA）。
+- **PR #6:** `exec/WP-02-project-paper-read`，exact HEAD `222763dad068fc226e500b14250cbb7fffc0a2de`，保持 **OPEN**、不合并、不修改、不重置分支。
+- **G4:** 维持 [A57](docs/architecture/D007_A57_WP02_EXACT_G4_DISPOSITION.md) 的 `PASS_LOCAL`。
+- **P2:** `P2-WP02-QA-1` 保持 `OPEN_NON_BLOCKING`（测试套件未覆盖身份大小写敏感性；实现本身正确，QA 探针可杀该变异）。
 
-## 接下来
+## 本轮不是执行指令
 
-- **Execution:** 保持 PR #6 OPEN，等 QA 与 Design 的 G4；不要自行合并。
-- **QA:** 按 `docs/handoffs/WP-02/QA_INSTRUCTION.md` 在**另一个**云端会话中执行，egress 按 A54 §3（先跑探针、测试经 `run-offline.sh`）；完成后写 `docs/bus/QA_TO_DESIGN.md`。
-- **G5:** 合并 PR #6 需要单独的 DEC，本轮未授权。
+- **不派发 Execution、不派发 QA。** B 只表示「先补最小回归」，具体授权要等 Design 发布单独 G1 草案并由用户批准。
+- 在 Design 出草案并经 DEC 批准之前：无分支、无 PR、无 QA。
+- 后续顺序（按决策板）：Design 发布 test-only G1 → 用户批准 → 独立 QA → 新 exact-SHA G4 → 再讨论 G5。
 
-## 边界
+## 其余
 
-- G6 真实服务 / G7 部署 **NOT_AUTHORIZED**；不使用真实数据或凭证。
-- PR #2（`a9131ac`）与 PR #4（`2757aa6`）保持 OPEN 存档，不动。
+- WP-03+ 实施 **NOT_AUTHORIZED**；P2 须先关闭。
+- G6 真实服务 / G7 部署 **NOT_AUTHORIZED**；PR #2（`a9131ac`）与 PR #4（`2757aa6`）保持 OPEN 存档。
