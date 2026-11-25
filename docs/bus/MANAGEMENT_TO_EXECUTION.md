@@ -1,70 +1,49 @@
-<!-- BUS from=MANAGEMENT to=EXECUTION seq=30 re=DECISION_BOARD.md@24 status=OPEN updated=2026-11-25T20:55+01:00 -->
+<!-- BUS from=MANAGEMENT to=EXECUTION seq=31 re=DECISION_BOARD.md@25 status=OPEN updated=2026-11-25T21:35+01:00 -->
 # Management → Execution
 
-**来源:** `docs/DECISION_BOARD.md` seq 24（R24）§2，用户选定 **DEC-16 = A**。
-**授权:** `D007_A72_WP03_STRICT_TAP_FINAL_REMEDIATION_DRAFT.md` §2–§3 + A66/A67（历史契约不变）。
+**来源:** `docs/DECISION_BOARD.md` seq 25（R25）§Management action；授权范围仍在 **DEC-16=A / A72** 内，**没有新 G1、没有新 DEC**。
+**授权文件:** `D007_A73_WP03_A72_G2_SCOPE_AND_EVIDENCE_HOLD.md` §2–§3。
 
-## 基线（一个增量提交，同一 PR #7）
+## 本单只做一件事：补齐**已经存在**的同期证据
 
-- **PR #7**、同分支 `exec/WP-03-guarded-r1-writes`；不新建 PR。
-- **START S:** `e6b1180e4e3e5790958ae3319af18bba8889ffbc`
-- **A66 START T:** `0fcad9cb6016900d5f7057161619e4a9f2e94b55`
-- **原 Base B:** `1684cea5623c8421e16c328c7f1464e8932d3118`
-- 恰好**一个**单父增量提交；不 merge/rebase/reset/force push；不改 PR #7 的既有提交。
+- 对象不变：PR **#7**，exact HEAD **`c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`**（OPEN / 未合并）。
+- **禁止**：新测试、新运行、改代码、提交、建分支、换宿主；**不得**重跑既有矩阵；
+  **不得**编辑原报告 `#7172989882`；**不得**把后续的 ref 读取说成“首次”。
+- **只允许**：把本轮 G2 期间**当时已记录**的日志/输出/命令，重新整理成一条新 PR 评论
+  （引用原评论、同 SHA、脱敏），并写 `EXECUTION_TO_QA.md` 下一 seq（**21**）。
 
-## 恰好三个修改路径（0 新增 / 0 删除 / 0 改名）
+## 需要补齐的三类（A73 §2）
 
-1. `packages/wp-03-guarded-r1-writes/test/upstream-regression.test.mjs`
-   —— **只**改 strict TAP 解析与必要的嵌套具名通过断言加固；保留 51 条 literal pins、测试标题、计数、guard、spawn、超时；不引入废弃环境旗标。
-2. `packages/wp-03-guarded-r1-writes/scripts/verify-candidate-scope.mjs`
-   —— 把显式历史/增量审计扩展到 A72：保留 B 与 T；钉住 S 为新的修正 START；
-   证明 B..S 为历史 2 提交、T..S 恰 6 路径（5 M + 1 A）、S..HEAD 恰 1 提交且恰 3 M、
-   B..HEAD 恰 3 个单父提交、22 个新增 / 0 个 Base 修改或删除、222 个 tracked 路径；
-   S 上除三个 M 外的所有路径字节与 mode 不变；raw worktree 等于 HEAD；无多余/未跟踪/非常规文件；
-   真实审计中不得有宽松的 scratch 开关。
-3. `packages/wp-03-guarded-r1-writes/README.md`
-   —— 说明 A72 修正与审计语义；把 A66 的证据标为历史；`QA_HANDOFF.md` 保持不动。
+**1. 首次 subject ref 读取**
+- 原始命令、时间、`exit 0`、返回的精确 SHA = `e6b1180e…`（A72 的 S），且在**任何编辑之前**；
+- 证明此前没有重试；给出 preflight/clone provenance 与 push 前的 live 授权检查记录。
 
-**禁止:** 产品 src、fixture、上游包、guard、变异驱动、依赖、`tools/`、UI、runtime 改动；不创建 Node24 迁移分支。
+**2. 完整 A67 矩阵（不是摘要）**
+- 四个 A66 绕过类的完整证据（含 pre-child guard 的 stub 计数、pinned 完整性、candidate audit 绕过）；
+- **隔离的模拟 integration**：钉住 main 文档的旧/新对照 + 该集成树上的默认 **103/103**（含嵌套 67/67）；
+- **完整 candidate auditor 负例矩阵**：多余已提交/未跟踪、Base 字节被改、Base 路径缺失、越权增量、
+  mode 变化、符号链接替换、以及新增的 S-scope 负例；
+- **完整 pinned dependency 负例**：上游多余/缺失/改动（含 evidence）、夹具、`tools/offline`；
+- 正向 oracle 所用的**真实 WP01 67/67 与 WP02 44/44 绿色 transcript**、A67 全部既有负例；
+  给出实际命令、退出码与计数，并区分「嵌套套件结果」与「单独调用套件结果」。
 
-## TAP 接受契约（A72 §3，按此实现，不许放宽）
+**3. A59 OS 边界与逐组探针**
+- 完整的脱敏网卡/路由/代理事实，覆盖**整个 G2 区间**；
+- **每个命令组**（含 scratch oracle、变异、负例、integration 组）的前/后探针记录；
+- 6 次探针成功不足以代表整个组计划；不得据此推断“实际无外泄”。
 
-- 以 **Node22 真实的 67/44 绿色 transcript** 作为正向语法基准，不做通用 TAP 支持。
-- 有状态文法：一个初始 header；编号 `ok` 记录必须按精确序列与集合、标题非空；
-  Node22 合法的 subtest 注释/诊断块只在应有位置允许；恰好一个匹配的顶层 plan；
-  恰好一个唯一的数字 summary，其 fail/cancelled/skipped/todo 全为 0；可选的合法 duration；
-  summary 之后除允许的空行外**必须终止**。
-- **拒绝**：`Bail out!`、任何失败状态记号（含非规范/缩进的 `not ok`）、skip/todo 指令、
-  重复 header/plan/summary、任何位置的畸形或矛盾行；不得把「普通诊断文本中提到这些词」误判为状态记录。
-- 不得静默忽略畸形结构行；不得弱化 exit0/error/signal/timeout 与嵌套 WP01 具名通过的断言；
-  嵌套证明必须恰好一个规范通过、且无矛盾重复。
-- 保留合法诊断格式、CRLF/LF、可选末尾换行；计数用有限安全整数。
+## 处置规则
 
-## 自测与证据（本轮 G2）
-
-- 独立编写的合成配对 oracle：旧解析对 F1/F2/F3 判 `FULL`、新解析必须断言失败；
-  变体覆盖 plan 前、summary 之间、完整 summary 之后、空白/大小写/缩进/控制字符、重复、
-  意外尾随文本、畸形 summary/header/plan/ok、嵌套重复；外加 A67 的全部既有负例与 process 错误；
-  真实 WP01/02 正向 + 合法诊断 + CRLF/LF 控制。
-- 为每个新增拒绝类各写一个具名 scratch 变异（含绕过尾随校验、bailout/失败记录拒绝、审计新范围绕过），
-  必须以预期断言失败，不得以崩溃/超时。
-- 环境：**Node 精确 v22.23.5 x64**；A59 Windows 离线区间 或 A54/A55 Linux 命名空间；
-  每组命令前后探针；不得跑联网全套。
-- **A46 硬要求**：本轮**首次**尝试的远程 ref 读取必须 `exit 0` 且精确匹配。
-  进入正式预检前先把 TLS backend/凭证 helper 配好（不得关闭 TLS 校验、不得用重试豁免）。
-  首次失败即 STOP，不得重试后宣称通过。
-- 完整 G2：默认 **103/103**、WP-01 **67/67**、WP-02 **44/44**（嵌套 67/67）、两个 driver 各 **13/13**、
-  syntax 全过、A72 新增正反例；全部 exit 0、零 skip/todo。
-
-## 交付
-
-- 推那一个增量提交；在 PR #7 发新评论：新 SHA、三路径 diff、old/new 哈希、命令与计数、
-  环境与探针、F1–F3 的旧/新对照、变异击杀、限制。
-- 写 `docs/bus/EXECUTION_TO_QA.md` 下一 seq（**20**），然后 **EXECUTION STOP**。
+- 记录**存在** → 脱敏后贴到新 PR 评论，逐项对应上面三类。
+- 记录**不存在** → 该项写 `NOT_RECORDED`（或 `NOT_RUN`），**不得补造、不得用别的运行替代**。
+- 记录存在但结果**是失败** → 如实写失败并 **STOP**，不要包装。
+- 若发现必须新增运行才能补齐：**不要自行运行**，写 STOP，由 Design 另出决定（A73 §3）。
+- 完成后写 `docs/bus/EXECUTION_TO_QA.md` 下一 seq（21），只提交该文件，提交信息 `bus(execution): seq 21`；
+  **EXECUTION STOP**。
 
 ## 边界
 
-- **Design 先核验新 SHA 与三路径白名单**，之后才可安排独立 QA（QA 下一 seq 从 **15** 起，不得写回过期 seq13）。
-- **不得合并**（G5 未授权）；G6/G7 未授权；R2、真实持久化、WP-04、UI、真实服务/部署未授权；
+- **不派 QA**；Design 复核补证后才会释放独立 G3。
+- 不得合并；G5/G6/G7 **NOT_AUTHORIZED**；R2、真实持久化、WP-04、UI、真实服务/部署未授权；
   PR #2/#4 与冻结 UI 不动；A70/A71 继续暂停。
-- 新 SHA 需要完整独立矩阵；**不得**把 S 的结果当新验收。
+- 不修改候选、不改 A72 的三个路径、不改历史 QA_HANDOFF。
