@@ -1,35 +1,36 @@
-<!-- BUS from=MANAGEMENT to=EXECUTION seq=19 re=DECISION_BOARD.md@19 status=OPEN updated=2026-11-25T18:15+01:00 -->
+<!-- BUS from=MANAGEMENT to=EXECUTION seq=20 re=DECISION_BOARD.md@20 status=STOP updated=2026-11-25T18:50+01:00 -->
 # Management → Execution
 
-**来源:** `docs/DECISION_BOARD.md` seq 19（R19）§3。DEC-11=A 仍有效；**A67 是同 SHA 的只读聚焦 QA 续作，无新 DEC、不放开 A66、不增功能**。
+**status=STOP —— DEC-12 未能在现有授权内落定，A67 的 QA 重跑暂缓，等待 Design 修订。**
 
-## 性质：零可写路径
+## 事实
 
-- **PR / 分支:** PR **#7**，`exec/WP-03-guarded-r1-writes`（OPEN / 未合并）
-- **HEAD 必须保持不变:** `e6b1180e4e3e5790958ae3319af18bba8889ffbc`
-- **A66 START:** `0fcad9cb6016900d5f7057161619e4a9f2e94b55`；**Base:** `1684cea5623c8421e16c328c7f1464e8932d3118`
-- **本单不允许**：任何实现、任何新提交、新建 PR、merge / rebase / reset / force push、任何 tracked 路径修改。
+- QA seq12（Linux 宿主）在**环境门禁**处 STOP：宿主 Node 为 **v24.22.3**，而 A65/A66/A67 要求精确 **v22.23.5**；
+  `G3_PREFLIGHT_FAILED`，**0 次测试 / 0 探针 / 0 变异 / 未发 PR 评论**。
+- Design 已发 A68 记录该 STOP，并给出 DEC-12 的 A/B/C 三个选项。
+- 用户在本窗口表示「可以用 Node v24.22.3」。
 
-## Execution 本轮只做三件事
+## 为什么还不能派发
 
-1. 核对远程 HEAD 仍精确等于 `e6b1180e…`，工作区干净，既有报告 `#7168708378` 仍在。
-2. 写 `docs/bus/EXECUTION_TO_QA.md` 下一 seq（16），内容：
-   - PR #7 / exact HEAD `e6b1180e…`；
-   - 声明这是 **A67 只读续作**，不重复全量自测、不产生新的 Execution 报告；
-   - QA 计划指向 **`docs/architecture/D007_A67_WP03_A66_FOCUSED_INDEPENDENT_QA.md`**（§3 五类矩阵）；
-   - 引用既有报告 `#7168708378` 作为历史证据。
-3. **EXECUTION STOP**。若 HEAD 漂移或状态不一致 → 直接 STOP 报告，不自行修复。
+运行时版本是 A65/A66/A67 的**硬门禁**，Management 无权放宽；A68 只是 STOP 记录，不是修订。
+在 Design 出正式修订前派 QA，只会在同一门禁处再 STOP 一次，浪费一轮。
 
-## 给 QA 的边界（写进总线即可，由用户另开会话执行）
+因此：**DEC-12 处于 PENDING_DESIGN_AMENDMENT**。Management 已按用户意愿向 Design 提出修订请求（见聊天转交的 memorandum）。
 
-- 独立 Windows（或 Linux，按 DEC-11 主体专属）会话、fresh full detached clone、首次远程 ref 必须精确等于该 SHA、`core.autocrlf=false`、真实 A59/A54/A55 边界与每组前探针；**禁止联网全套**。
-- **保留** seq11 在本 SHA 已通过的主门禁证据（103/67/44、双 driver 13/13、raw 48、行为变异 13、egress 12、candidate auditor OK），**不重复**这些全量/48 探针/13 行为变异。
-- **必须**独立补齐 A67 §3 的五类矩阵：strict TAP 正反例与旧/新对照、四个具名绕过 mutant、模拟 integration docs 的旧/新对照 + 该树上的默认 103/103（含嵌套 67/67）、candidate auditor 负例、pinned dependency 负例。
-- 用**自己的** scratch 探针与变异，不复用 Execution 的脚本/结果；不改候选、不推送；任何 SHA 漂移或不一致 → STOP。
-- 完成后在 PR #7 发新评论（同 SHA，引用 `#7168907120` 与 A67），写 `QA_TO_DESIGN` 下一 seq（12），STOP。
+## 本轮动作
+
+- **零可写 tracked 路径**；不实现、不提交、不新建 PR、不 merge/rebase/force push。
+- PR #7 保持 `open`、HEAD `e6b1180e4e3e5790958ae3319af18bba8889ffbc`、2 提交；
+  既有 Execution 报告 `#7168708378` 与 QA 报告 `#7168907120` 保留。
+- A67 维持 `G4 PARTIAL_TEST_GATE`；P1-WP03-DESIGN-1 / P2-WP03-DESIGN-2 仍 OPEN。
+
+## 下一步（待 Design 修订后）
+
+- 若 Design 发布「A67 允许 Node v24.22.3（或 22/24 双版本）」的修订：Management 会写 seq=21，
+  零可写路径，Execution 仅核对 HEAD 后写 `EXECUTION_TO_QA` 下一 seq，QA 按 A67 §3 五类矩阵执行。
+- 若 Design 改判为「换 22.23.5 宿主」：同样走 seq=21，只是 QA 宿主不同。
 
 ## 边界
 
-- **不得合并**（G5 独立批准）；G6/G7 未授权；R2、真实持久化、WP-04、UI、真实服务/部署均未授权；PR #2/#4 与冻结 UI 不动。
-- Linux 未实测记 `NOT_RUN`；不声称双平台认证。
-- 本轮 Design 只有在 seq11 与 seq12 两份证据都核验通过后，才会出新的 exact-SHA G4；**不等于合并 PR**。
+- G5/G6/G7 **NOT_AUTHORIZED**；R2、真实持久化、WP-04、UI、真实服务/部署未授权；PR #2/#4 与冻结 UI 不动。
+- 不把 Node 24 上的结果自动等同 22.23.5 的基线证据；这一点必须由 Design 明确。
