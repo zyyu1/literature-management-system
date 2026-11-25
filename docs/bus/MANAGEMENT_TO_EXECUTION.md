@@ -1,36 +1,31 @@
-<!-- BUS from=MANAGEMENT to=EXECUTION seq=20 re=DECISION_BOARD.md@20 status=STOP updated=2026-11-25T18:50+01:00 -->
+<!-- BUS from=MANAGEMENT to=EXECUTION seq=21 re=DECISION_BOARD.md@21 status=WAITING updated=2026-11-25T19:05+01:00 -->
 # Management → Execution
 
-**status=STOP —— DEC-12 未能在现有授权内落定，A67 的 QA 重跑暂缓，等待 Design 修订。**
+**来源:** `docs/DECISION_BOARD.md` seq 21（R21）§2。用户在 Management 窗口选定 **DEC-13 = B**。
 
-## 事实
+## 记录：DEC-13 = B（先做 Node 24 迁移的仅设计规划）
 
-- QA seq12（Linux 宿主）在**环境门禁**处 STOP：宿主 Node 为 **v24.22.3**，而 A65/A66/A67 要求精确 **v22.23.5**；
-  `G3_PREFLIGHT_FAILED`，**0 次测试 / 0 探针 / 0 变异 / 未发 PR 评论**。
-- Design 已发 A68 记录该 STOP，并给出 DEC-12 的 A/B/C 三个选项。
-- 用户在本窗口表示「可以用 Node v24.22.3」。
+- **当前不派发**任何 Execution / QA 任务；不改代码、不新建分支、不跑测试。
+- Design 将另出 **DESIGN_ONLY** 规划，须包含：精确范围、适用的 Base、白名单、
+  共享 guard（`EXPECTED_NODE_VERSION`）与 pinned inventory（WP-01/02/03 manifests）的处理方式、
+  以及完整的回归/验收计划；随后再交用户决定是否给 G1。
+- 该规划发布并经 DEC 批准前，**Node 24 不得运行当前候选**；禁止版本伪造、guard 绕过、自动安装 Node。
 
-## 为什么还不能派发
+## 为什么不能只改文档放行
 
-运行时版本是 A65/A66/A67 的**硬门禁**，Management 无权放宽；A68 只是 STOP 记录，不是修订。
-在 Design 出正式修订前派 QA，只会在同一门禁处再 STOP 一次，浪费一轮。
+A69 已核实：共享 guard 内 `EXPECTED_NODE_VERSION = 'v22.23.5'` 且被 WP-03 harness 调用；
+WP-01/02/03 的 manifest 也 pin 22.23.5；这些路径在 A67 的零可写范围内，属受保护字节。
+因此「允许 Node24」是一个**代码 + 清单 + 回归**层面的变更，必须走新 G1，不能靠设计文件声明。
 
-因此：**DEC-12 处于 PENDING_DESIGN_AMENDMENT**。Management 已按用户意愿向 Design 提出修订请求（见聊天转交的 memorandum）。
+## 当前状态（不变）
 
-## 本轮动作
+- PR **#7** 保持 OPEN / 未合并：HEAD `e6b1180e4e3e5790958ae3319af18bba8889ffbc`，2 个提交，零可写路径。
+- 既有证据保留：Execution 报告 `#7168708378`、QA 报告 `#7168907120`（主门禁）、QA seq12（环境 STOP）。
+- 门禁：`G4 PARTIAL_TEST_GATE`；`P1-WP03-DESIGN-1` 与 `P2-WP03-DESIGN-2` 仍 OPEN；
+  G5/G6/G7 **NOT_AUTHORIZED**；R2、真实持久化、WP-04、UI、真实服务/部署未授权；PR #2/#4 与冻结 UI 不动。
+- Linux 新 SHA 仍 `NOT_RUN`；不把任何 Node 24 结果当 22.23.5 的等价证据。
 
-- **零可写 tracked 路径**；不实现、不提交、不新建 PR、不 merge/rebase/force push。
-- PR #7 保持 `open`、HEAD `e6b1180e4e3e5790958ae3319af18bba8889ffbc`、2 提交；
-  既有 Execution 报告 `#7168708378` 与 QA 报告 `#7168907120` 保留。
-- A67 维持 `G4 PARTIAL_TEST_GATE`；P1-WP03-DESIGN-1 / P2-WP03-DESIGN-2 仍 OPEN。
+## 下一步
 
-## 下一步（待 Design 修订后）
-
-- 若 Design 发布「A67 允许 Node v24.22.3（或 22/24 双版本）」的修订：Management 会写 seq=21，
-  零可写路径，Execution 仅核对 HEAD 后写 `EXECUTION_TO_QA` 下一 seq，QA 按 A67 §3 五类矩阵执行。
-- 若 Design 改判为「换 22.23.5 宿主」：同样走 seq=21，只是 QA 宿主不同。
-
-## 边界
-
-- G5/G6/G7 **NOT_AUTHORIZED**；R2、真实持久化、WP-04、UI、真实服务/部署未授权；PR #2/#4 与冻结 UI 不动。
-- 不把 Node 24 上的结果自动等同 22.23.5 的基线证据；这一点必须由 Design 明确。
+- 等 Design 在下一轮决策板发布 Node24 迁移规划（含 G1 草案）；用户批准后 Management 再派发。
+- 若在那之前用户改主意要"换 22.23.5 宿主"，Management 会按 DEC-13=A 写新的 seq 重派 A67（零可写路径）。
