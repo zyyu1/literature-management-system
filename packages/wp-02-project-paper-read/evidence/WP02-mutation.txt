@@ -1,0 +1,15 @@
+BASELINE exit=0 failed=0
+M01 KILLED — title/DOI merge of papers — exit=1 failing=5 by="Q2-02 identical title AND DOI never merge: XFAKE002 is distinct from XFAKE001"
+M02 KILLED — itemKey-only identity — exit=1 failing=32 by="Q2-02 A6-02 same itemKey in another library is a DIFFERENT paper with its own status and note"
+M03 KILLED — important made global — exit=1 failing=1 by="Q2-04 important is PROJECT-LOCAL: XFAKE001 important only in alpha"
+M04 KILLED — foreign Project leaked (owner scope ignored) — exit=1 failing=6 by="Q2-03 state=all is the union; counts equal expected.projectCounts; no foreign Project"
+M05 KILLED — archived Project hidden from detail — exit=1 failing=4 by="Q2-05 detail associations list alpha, beta (archived:true) and gamma only — never the foreign Project"
+M06 KILLED — distinguishable 403 for missing vs foreign (404 for missing paper) — exit=1 failing=2 by="Q2-06 every denial class yields the byte-identical neutral 403 body and identical headers"
+M07 KILLED — a non-GET mutates state (DELETE drops the Project) — exit=1 failing=2 by="Q2-07 WORKSPACE_READONLY and Owner: every non-GET on every WP-02 route is 405 (Allow: GET) with no state change"
+M08 KILLED — note normalisation (CRLF->LF + trim) — exit=1 failing=1 by="Q2-09 R-BYTES the five note fields are byte-identical to the fixture (no NFC, trim or CRLF rewrite)"
+M09 KILLED — ANONYMOUS distinguishable (401 instead of neutral 403) — exit=1 failing=1 by="Q2-06 every denial class yields the byte-identical neutral 403 body and identical headers"
+M10 KILLED — state=active filter includes archived — exit=1 failing=1 by="Q2-03 default and state=active return exactly expected.activeProjects"
+M11 KILLED — WORKSPACE_READONLY denied on reads — exit=1 failing=2 by="Q2-07 WORKSPACE_READONLY: every WP-02 GET succeeds with the same data as the Owner"
+M12 KILLED — re-import creates a second link (no dedupe) — exit=1 failing=2 by="Q2-01 A6-01 seeded re-import into gamma creates no second paper and no second link; counts unchanged"
+M13 KILLED — dot accepted in libraryId (traversal-prone ID grammar) — exit=1 failing=1 by="Q2-10 traversal, encoded separators and malformed IDs in {libraryType}/{libraryId}/{itemKey} are rejected"
+MUTATION_SUMMARY killed=13/13

@@ -1,0 +1,12 @@
+{
+  "name": "wp-02-project-paper-read",
+  "version": "0.0.0-synthetic",
+  "private": true,
+  "type": "module",
+  "description": "WP-02 LOCAL_SYNTHETIC_ONLY read-only Project/Paper slice on the WP-01 auth boundary (D007-A56). Not production-suitable.",
+  "engines": {
+    "node": "22.23.5"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

@@ -21,9 +21,10 @@ test('Q10 fixture is the frozen canonical file (SHA-256, size, schema, seed, clo
   assert.equal(fixture.privacy.realCredentialsPresent, false);
 });
 
-test('Q10 runtime is Node v22.23.5 on Linux x64', () => {
+// A60: the runtime platform allowlist is cross-platform; Node version and architecture are unchanged.
+test('Q10 runtime is Node v22.23.5 on a supported 64-bit platform', () => {
   assert.equal(process.version, 'v22.23.5');
-  assert.equal(process.platform, 'linux');
+  assert.ok(process.platform === 'linux' || process.platform === 'win32', `unsupported platform ${process.platform}`);
   assert.equal(process.arch, 'x64');
 });
 

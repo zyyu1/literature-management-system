@@ -1,0 +1,9 @@
+# WP-02 egress probe (D007-A54/A55) at code commit 1da0a752f480c3b2844ac9005cf312343082fc5c
+# date_utc=2026-11-24T17:20:08Z
+loopback 127.0.0.1     CONNECTED
+1.1.1.1:443            ENETUNREACH
+8.8.8.8:53             ENETUNREACH
+140.82.112.3:443       ENETUNREACH
+dns github.com         EAI_AGAIN
+EGRESS_PROBE=PASS (loopback ok, external denied)
+# exit=0
