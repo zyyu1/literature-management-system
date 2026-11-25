@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A65 WP-02 G5 VERIFIED / WP-03-R1 G1 DRAFT — 2026-11-25:** [A65](D007_A65_WP02_G5_VERIFIED_AND_WP03_R1_G1_DRAFT.md) DEC-10=A Management seq 16; PR #6 merged `f1e3ac3e1ed0244ad5a5f4af31228d3015dea87d`, 30/30 tested blobs equal; WP-02 G4 PASS_LOCAL historical exact HEAD; P2 CLOSED_LOCAL. WP-03-R1 [design](../handoffs/WP-03/DESIGN.md) and [QA](../handoffs/WP-03/QA_INSTRUCTION.md) G1 DRAFT, DEC-11 pending. R2 delete/current/all unlink denied, no real persistence, P0-STORE blocked, G6/G7 NOT_AUTHORIZED.
+
 **D007-A64 WP-02 FINAL G4 PASS_LOCAL — 2026-11-25:** [A64](D007_A64_WP02_FINAL_EXACT_G4_PASS_LOCAL.md), exact PR #6 `8751dd2b4f041d5a17af894ac9cca8bd28560d66`, independent Windows QA #7166250750 44/67/13, identity 8/8, raw 13/13, egress 11/11, QM12 paired 43/43 vs named failure expected 403 actual 200. Original P2 CLOSED_LOCAL; five platform P2 remain CLOSED_LOCAL. Linux NOT_RUN. G5 pending DEC-10 (board seq 16); WP-03 separate G1; G6/G7 NOT_AUTHORIZED.
 
 **D007-A63 A62 G4 PASS_LOCAL / A58 CONTINUATION — 2026-11-25:** [A63](D007_A63_A62_EXACT_G4_PASS_LOCAL_AND_A58_CONTINUATION.md), exact PR #6 `ab4a37c8905ebc9d3f889164c2f8164c9286051d`, independent Windows QA #7165559694 67/43/13, 46/46, 11/11 mutants, 12/12 egress. Five platform findings CLOSED_LOCAL; Linux runtime NOT_RUN. A58 same one-path G1 under DEC-8=A, updated exact START, fresh Management seq 15, independent QA; original P2 OPEN, G5/G6/G7 NOT_AUTHORIZED.

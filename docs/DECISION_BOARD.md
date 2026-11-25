@@ -1,29 +1,28 @@
-<!-- BUS from=DESIGN to=MANAGEMENT seq=16 re=bus/QA_TO_DESIGN.md@9 status=OPEN updated=2026-11-25 -->
-# 决策板 / Decision Board — R16
+<!-- BUS from=DESIGN to=MANAGEMENT seq=17 re=bus/MANAGEMENT_TO_EXECUTION.md@16 status=OPEN updated=2026-11-25 -->
+# 决策板 / Decision Board — R17
 
-**轮次:** R16 (seq 16) · 2026-11-25 · observed parent `main@c95906ff613dfb646638b35d45e34507bc95bfb0`
-已核验 Management seq 15 / Execution seq 13 / QA seq 9。A64 裁定 PR #6 exact `8751dd2b4f041d5a17af894ac9cca8bd28560d66` G4 PASS_LOCAL，原 P2-WP02-QA-1 CLOSED_LOCAL。Windows 完整回归 44/67/13；Linux 新 SHA NOT_RUN。
+**轮次:** R17 (seq 17) · 2026-11-25 · observed parent `main@1684cea5623c8421e16c328c7f1464e8932d3118`
+DEC-10=A；PR #6 G5 已由 Design 核验：merge `f1e3ac3e1ed0244ad5a5f4af31228d3015dea87d`，30/30 tested blobs 一致，原 main 保留。A64 G4 PASS_LOCAL，P2 CLOSED_LOCAL，Linux 新 SHA NOT_RUN。
 
 ## 1. 当前状态
 | 工作线 | 状态 |
 | --- | --- |
-| WP-01 | 已合并；A55 历史证据不变 |
-| WP-02 | [A64](architecture/D007_A64_WP02_FINAL_EXACT_G4_PASS_LOCAL.md) G4 PASS_LOCAL，原 P2 与五平台 P2 CLOSED_LOCAL |
-| G5 | 等 DEC-10 |
-| WP-03 | G1 NOT_AUTHORIZED；需独立设计与批准 |
-| G6/G7 | NOT_AUTHORIZED |
+| WP-01 | MERGED |
+| WP-02 | [A65](architecture/D007_A65_WP02_G5_VERIFIED_AND_WP03_R1_G1_DRAFT.md) G5 MERGED VERIFIED |
+| WP-03-R1 | [DESIGN](handoffs/WP-03/DESIGN.md) / [QA](handoffs/WP-03/QA_INSTRUCTION.md) G0 ready, G1 DRAFT |
+| WP-03-R2 / real persistence / G6/G7 | BLOCKED / NOT_AUTHORIZED |
 
-## 2. 待用户决策 — DEC-10（Management 窗口）
+## 2. 待用户决策 — DEC-11
 | 选项 | 含义 |
 | --- | --- |
-| A（推荐） | 批准 G5，仅合并 PR #6 exact HEAD `8751dd2b4f041d5a17af894ac9cca8bd28560d66` 到 main，正常 merge commit；按 A64 §3 核对最新 HEAD、main、授权 diff 和保护规则，合并后核验真实 merge SHA/父链/测试文件字节与范围。不删除分支，不发布、不接真实服务，不授权 WP-03。 |
-| B | 暂缓合并，PR #6 保持 OPEN，G5 NOT_AUTHORIZED。 |
+| A（推荐） | 批准 WP-03-R1 synthetic-only G1：Project 创建/改名/归档/恢复、全局 Reading Status、关联 Important、CAS/operationId/UNKNOWN；R2 永久删除、Current/All unlink 只验拒绝；Windows/Linux 独立 QA subject-specific；按 A65 和伴随设计/QA exact scope。 |
+| B | 保留 WP-03 G0 设计，不实施。 |
 
 ## 3. Management action
-呈现 DEC-10 并记录用户明确选择。未批准前不得合并。A 时按 [A64 §3](architecture/D007_A64_WP02_FINAL_EXACT_G4_PASS_LOCAL.md) 精确范围执行 G5，使用 expected head SHA；Base..HEAD 6 commits / 30 paths（A56 27 + A60 三个 WP-01 测试路径）；不得 squash/rebase/force push/改代码/绕过 required checks。任何不一致 → STOP。B 则只记录暂缓，不动 PR。无代码执行派单。
+A 时记录 DEC-11=A 并写 Management→Execution 下一 seq 17，引用 board seq 17、A65、WP-03 DESIGN/QA。Exact immutable Base `1684cea5623c8421e16c328c7f1464e8932d3118`（已含合并后的两个包；设计文档另作 authority）；新 branch `exec/WP-03-guarded-r1-writes`、新 PR。仅 `packages/wp-03-guarded-r1-writes/**` 和 `docs/handoffs/WP-03/QA_HANDOFF.md` 可写；WP-01/02、fixture、helper/manifest/driver/UI 全冻结。Node v22.23.5 x64，A59 等效隔离 Windows 优先、独立 Windows/Linux QA、另一平台未实测记 NOT_RUN；A47 LIGHT。Q3-01..11、上游 67/44/13、独立 raw probes 和具名 mutants。B 只记录暂缓。不合并、不部署、不接真实数据/服务。未批准不得派发。
 
 ## 4. 回传
-记录 DEC-10、PR exact HEAD、实际 merge SHA（若已合并）、pre/post main、父链、merged diff/字节核验、限制及原始证据。Management 通过既有 bus 下一 seq 回传；Design 复核后直接发布下一步 WP-03 G1 设计/决策（未批准前不实施）。不把当前 G4 当作 merge 成功。
+Execution/QA 各下一 seq 和 PR 原始评论，exact SHA、diff、真实测试计数、退出码、环境、故障/变异/独立证据及限制；Design G4。R1 通过不代表 WP-03 R2 完成。
 
 ## 5. 边界
-G6/G7 未授权；无真实数据/服务、部署、PR #2/#4 或冻结 UI 修改；P0-STORE 未 GO，真实持久化写入仍阻断。
+P0-STORE 未 GO，R2 受 A16/UI-AMEND/step-up 门禁；G5/G6/G7 独立审批。PR #2/#4 与冻结 UI 不动。无 WP-04 实施授权。
