@@ -1,0 +1,22 @@
+$ node --test --test-reporter=spec test/r06-regressions.test.mjs
+# exit 0 · 362 ms · gitHead bb30e1d07ac18412021e5bcb05919ea6d87057cd
+
+✔ R06 constants: explicit PROPFIND body is 114 bytes with the expected media type (1.021184ms)
+✔ R06-207 malformed/truncated XML (root and kind listing) → 503, exactly one explicit PROPFIND, no allprop retry (97.374416ms)
+✔ R06-207 well-formed but unsupported nested DAV property/href → 503, exactly one explicit PROPFIND, no allprop retry (25.984725ms)
+✔ R06-207 non-conforming server answers allprop to the explicit request (locks=true) → 503, exactly one explicit PROPFIND, no retry (11.583523ms)
+✔ R06-207 non-conforming server answers allprop to the explicit request (locks=false) → 503, exactly one explicit PROPFIND, no retry (17.083044ms)
+✔ R06 non-207 400 → 503, exactly one explicit PROPFIND (body/length/type/depth), no GET, no writes (14.907208ms)
+✔ R06 non-207 403 → 503, exactly one explicit PROPFIND (body/length/type/depth), no GET, no writes (15.116529ms)
+✔ R06 non-207 415 → 503, exactly one explicit PROPFIND (body/length/type/depth), no GET, no writes (11.645377ms)
+✔ R06 non-207 500 → 503, exactly one explicit PROPFIND (body/length/type/depth), no GET, no writes (15.460239ms)
+✔ R06-207 adapter: malformed 207 returns outcome malformed after exactly one explicit PROPFIND (no second request) (9.092375ms)
+✔ R06 non-regression: valid resourcetype-only 207 exports normally with one explicit PROPFIND per listing (21.763944ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 329.29122

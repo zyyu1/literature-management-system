@@ -1,0 +1,14 @@
+$ node --test --test-reporter=spec test/poc07-backup.test.mjs
+# exit 0 · 633 ms · gitHead bb30e1d07ac18412021e5bcb05919ea6d87057cd
+
+✔ POC-07 export → restore to fresh namespace → hashes, counts, identities match; source untouched (282.97438ms)
+✔ POC-07 restore safety: tampered bundle, active namespace and non-restore targets refused before any write (100.382151ms)
+✔ POC-07 failures are honest: export during outage is incomplete (no partial bundle); restore write failure reported (122.81362ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 597.778503

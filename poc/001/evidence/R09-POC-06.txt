@@ -1,0 +1,28 @@
+$ node --test --test-reporter=spec test/poc06-faults.test.mjs
+# exit 0 · 2036 ms · gitHead 8d9929b5ad9d52ce6f4a29956ac640af932feaac
+
+✔ POC-06 upstream 401: definite not_saved (upstream_auth), single attempt, data intact (64.861685ms)
+✔ POC-06 upstream 403: definite not_saved (upstream_forbidden), single attempt, data intact (20.104637ms)
+✔ POC-06 upstream 409: definite not_saved (upstream_conflict), single attempt, data intact (20.551181ms)
+✔ POC-06 upstream 423: definite not_saved (locked), single attempt, data intact (14.374716ms)
+✔ POC-06 upstream 429: definite not_saved (rate_limited), single attempt, data intact (19.261855ms)
+✔ POC-06 upstream 412 (stale): conflict with current content, nothing written (15.928817ms)
+✔ POC-06 hang: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat (345.183902ms)
+✔ POC-06 status 500: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat (39.059058ms)
+✔ POC-06 status 503: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat (32.604562ms)
+✔ POC-06 commit-then-drop: Unknown → verify → committed; no blind repeat (12.633487ms)
+✔ POC-06 commit-then-hang: Unknown → verify → committed; no blind repeat (319.075013ms)
+✔ POC-06 commit-then-status 502: Unknown → verify → committed; no blind repeat (27.331758ms)
+✔ POC-06 Unknown, then another writer changes the record → verify says indeterminate (not guessed) (321.698387ms)
+✔ POC-06 identical text from another writer is NOT treated as proof our op landed (314.491993ms)
+✔ POC-06 corrupt write: storage acknowledges but bytes differ → verification_failed, never saved (9.206876ms)
+✔ POC-06 offline (storage down): writes definite not_saved/offline, reads unavailable, verify unavailable (316.344087ms)
+✔ POC-06 read-path errors (401 expired creds, 429, 500) are surfaced, not masked as empty data (12.428304ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1997.270436

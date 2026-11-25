@@ -1,0 +1,32 @@
+$ node --test --test-reporter=spec test/r02-regressions.test.mjs
+# exit 0 · 5357 ms · gitHead c95fe067a1b95c928e52fca5cf31665dc9b94acf
+
+✔ P1-R1 content-hash ETags: identical-bytes fence keeps the ETag → fence_not_confirmed, never terminal; late commit then resolves to committed (327.159863ms)
+✔ P1-R1 generation ETags, race order A (fence → late release): terminal not_committed holds; late write rejected (333.284244ms)
+✔ P1-R1 generation ETags, race order B (late release → fence): fence observes our write → committed (274.736936ms)
+✔ P1-R1 fence PUT without ETag / with untrusted ETag is not terminal (267.32994ms)
+✔ P2-N1 PROPFIND namespace style "d": 2 stored records → export count 2 (25.061733ms)
+✔ P2-N1 PROPFIND namespace style "D": 2 stored records → export count 2 (14.2837ms)
+✔ P2-N1 PROPFIND namespace style "default": 2 stored records → export count 2 (14.882795ms)
+✔ P2-N1 PROPFIND namespace style "z": 2 stored records → export count 2 (16.539052ms)
+✔ P2-N1 malformed / foreign / incomplete listings fail closed (never 200 with a short or empty list) (51.721304ms)
+✔ P2-N2 absolute deadline beats a byte-trickling peer: write → Unknown (not pending), read → unavailable (1811.865051ms)
+✔ P2-N2 response bodies are bounded (no unbounded buffering) (2.49302ms)
+✔ P2-N3 evicted operations are tombstoned: replay refused (operation_expired), zero re-dispatch (21.561945ms)
+✔ P2-N3 beyond the tombstone window / after restart: unsupported, but conditional writes still prevent a lost update (32.577948ms)
+✔ P2-N4 stable principal ids across instances with reversed token order: no cross-principal poisoning (266.159167ms)
+✔ P2-N4 forged envelopes (well-formed tag, wrong/missing provenance) are rejected on read, export and restore (20.831658ms)
+✔ P2-N4 reserved restore- prefix: an active namespace may not be restore-* (0.553103ms)
+✔ P2-N5 per-principal quota: one principal exhausting its slots does not block another (530.029271ms)
+✔ P2-N6 concurrent fences are serialised; fence timeout stays Unknown; deleted record → record_missing (1184.299723ms)
+✔ P2-N7 POC If-Match profile: RFC-legal comma tag refused as out-of-profile; lists refused; zero upstream (12.604481ms)
+✔ P2-N8 weak ETags (local negative fixture): never "saved", never stripped, updates refused explicitly (10.341781ms)
+✔ P2-N8 differing strong ETag between PUT response and GET → committed_unverified (readback_mismatch) (14.956443ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5316.639689

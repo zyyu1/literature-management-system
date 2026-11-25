@@ -1,0 +1,79 @@
+$ node scripts/mutation-check.mjs   (FIRST R08 run, superseded)
+# gitHead 9128c611c16e34a5638bceb4bfcd487703620bb1 · kept for transparency: legacy M10 SURVIVED here and was fixed in c95fe06
+
+M1 KILLED (suite exit 1) — adapter treats 5xx as committed
+M2 KILLED (suite exit 1) — API forwards writes without If-Match (naive overwrite)
+M3 KILLED (suite exit 1) — API re-sends an operation whose outcome is Unknown
+M4 KILLED (suite exit 1) — API access log records request headers (session token leak)
+M5 KILLED (suite exit 1) — restore allowed into the active namespace
+M6 KILLED (suite exit 1) — path id allowlist removed (traversal possible)
+M7 KILLED (suite exit 1) — P1-1 regression: verify treats unchanged base as terminal not_committed
+M8 KILLED (suite exit 1) — P1-2 regression: ledger reservation moved after the body await
+M9 KILLED (suite exit 1) — P1-3 regression: If-Match syntax validation removed
+M10 SURVIVED (suite exit 0) — P1-4 regression: https accepted and sent over node:http
+M11 KILLED (suite exit 1) — P2-5 regression: kind lookup via plain object (prototype keys)
+M12 KILLED (suite exit 1) — P2-7 regression: export skips unrecognized entries silently
+M13 KILLED (suite exit 1) — P2-12 regression: refused-after-connect classified as not_sent
+M14 KILLED (suite exit 1) — P1-R1 regression: fence terminal without ETag-change guard
+M15 KILLED (suite exit 1) — P2-N1 regression: DAV elements matched by d: prefix instead of namespace URI
+M16 KILLED (suite exit 1) — P2-N2 regression: absolute deadline effectively disabled
+M17 KILLED (suite exit 1) — P2-N3 regression: tombstones ignored on replay
+M18 KILLED (suite exit 1) — P2-N4 regression: principal id from token array position
+M19 KILLED (suite exit 1) — P2-N4 regression: provenance not checked on read
+M20 KILLED (suite exit 1) — P2-N5 regression: no per-principal quota
+M21 KILLED (suite exit 1) — P2-N6 regression: concurrent fences not serialised
+M22 KILLED (suite exit 1) — P2-N7 regression: comma allowed in POC If-Match profile
+M23 KILLED (suite exit 1) — P2-N8 regression: weak ETag treated as trusted (W/ stripped)
+M24 KILLED (suite exit 1) — Q1 regression: missing canonical kind collection read as empty
+M25 KILLED (suite exit 1) — Q1 regression: adapter silently accepts duplicate normalized hrefs
+M26 KILLED (suite exit 1) — Q1 regression: response-level status + propstat accepted
+M27 KILLED (suite exit 1) — Q1 regression: absent namespace exported as empty
+M28 KILLED (suite exit 1) — Q2 regression: fence trusts PUT-response ETag (no GET read-back)
+M29 KILLED (suite exit 1) — Q2 regression: read-back ETag not compared with PUT ETag
+M30 KILLED (suite exit 1) — Q2 regression: read-back bytes not compared with fence payload
+M31 KILLED (suite exit 1) — R04-1 regression: whole-tree structure validation not called (silent-ignore restored)
+M32 KILLED (suite exit 1) — R04-1 regression: DAV structural parent rule disabled
+M33 KILLED (suite exit 1) — R04-1 regression: container child allowlists disabled
+M34 KILLED (suite exit 1) — R04-1 regression: foreign response-shaped elements accepted
+M35 KILLED (suite exit 1) — R04-1 regression: element children allowed inside text-only DAV elements
+M36 KILLED (suite exit 1) — R04-2 regression: collection marker accepted from any propstat (incl. 404)
+M37 KILLED (suite exit 1) — R04-2 regression: adapter treats trailing-slash href as collection
+M38 KILLED (suite exit 1) — R05-1 regression: nesting-depth guard removed
+M39 KILLED (suite exit 1) — R05-1 regression: element-count guard removed
+M40 KILLED (suite exit 1) — R05-1 regression: per-element attribute guard removed
+M41 KILLED (suite exit 1) — R05-1 regression: total attribute guard removed
+M42 KILLED (suite exit 1) — R05-1 regression: namespace-declaration guard removed
+M43 KILLED (suite exit 1) — R05-1 regression: per-element namespace Map copy restored
+M44 KILLED (suite exit 1) — R05-1 regression: multi-colon qname accepted
+M45 KILLED (suite exit 1) — R05-2 regression: empty-body (allprop) PROPFIND restored
+M46 KILLED (suite exit 1) — R05-2 regression: PROPFIND Content-Type header dropped
+M47 KILLED (suite exit 1) — R05-2 regression: allprop fallback after a non-207 PROPFIND
+M48 KILLED (suite exit 1, failing tests 5, expected assertion observed) — R06 regression: extra bodyless (allprop) PROPFIND after a malformed/unparseable HTTP 207
+M49 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R07 regression: extra bodyless PROPFIND before the post-parse 'foreign href' malformed return (HTTP 207)
+M50 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R07 regression: extra bodyless PROPFIND before the post-parse 'non-2xx response entry' malformed return (HTTP 207)
+M51 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R07 regression: extra bodyless PROPFIND before the post-parse 'duplicate href' malformed return (HTTP 207)
+M52 KILLED (suite exit 1, failing tests 6, expected assertion observed) — R08 TLS: certificate verification disabled (rejectUnauthorized false)
+M53 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R08 TLS: peer name check bypassed (checkServerIdentity no-op)
+M54 KILLED (suite exit 1, failing tests 2, expected assertion observed) — R08 NET: adapter loopback host guard removed
+M55 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R08 NET: resolved-address allowlist removed (name may resolve off-loopback)
+M56 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R08 PATH: request-path canonicalisation reverted to the pre-R08 '..' substring check
+M57 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R08 PATH: base-path canonical check bypassed
+M58 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R08 NET: explicit-port requirement bypassed
+M59 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R08 NET: canonical-authority check bypassed (obfuscated hosts accepted)
+M60 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R08 TLS: localTls option allowlist removed (verification overrides accepted)
+M61 KILLED (suite exit 1, failing tests 5, expected assertion observed) — R08 TLS/Q5: TCP connect treated as 'request may have been sent' (TLS refusal becomes Unknown)
+M62 KILLED (suite exit 1, failing tests 4, expected assertion observed) — R08 Q4: absolute body deadline never armed (stalled body holds the slot; late chunks complete the write)
+M63 KILLED (suite exit 1, failing tests 2, expected assertion observed) — R08 Q4: reservation not released after a body deadline
+M64 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R08 Q5: applied-but-unconfirmed fence made terminal not_committed
+M65 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R08 Q5: blind fence retry after an unconfirmed fence PUT
+M66 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R08 Q5: Unknown entries evicted under quota pressure
+M67 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R08 Q5: post-restart observation reported as terminal
+M68 KILLED (suite exit 1, failing tests 2, expected assertion observed) — R08 CAP: over-cap kind listing skipped (partial 200 export)
+M69 KILLED (suite exit 1, failing tests 2, expected assertion observed) — R08 BUD: cleanup reserve ignored for ordinary requests
+M70 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R08 BUD: rolling window never expires requests
+M71 KILLED (suite exit 1, failing tests 2, expected assertion observed) — R08 BUD: 20-file cap removed
+M72 KILLED (suite exit 1, failing tests 2, expected assertion observed) — R08 BUD: upstream 401/429 no longer stops the run
+M73 KILLED (suite exit 1, failing tests 2, expected assertion observed) — R08 BUD: adapter dispatches despite a refused request admission
+M74 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R08 NET/Q5: socket destroyed before connect counted as connected (refusal becomes Unknown)
+MUTATION CHECK: 74 mutants run, 73 killed, 1 problem(s)
+MUTATION CHECK: 1 problem(s)

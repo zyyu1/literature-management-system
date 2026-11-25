@@ -1,0 +1,56 @@
+$ node scripts/mutation-check.mjs
+# exit 0 · 510068 ms
+
+M1 KILLED (suite exit 1) — adapter treats 5xx as committed
+M2 KILLED (suite exit 1) — API forwards writes without If-Match (naive overwrite)
+M3 KILLED (suite exit 1) — API re-sends an operation whose outcome is Unknown
+M4 KILLED (suite exit 1) — API access log records request headers (session token leak)
+M5 KILLED (suite exit 1) — restore allowed into the active namespace
+M6 KILLED (suite exit 1) — path id allowlist removed (traversal possible)
+M7 KILLED (suite exit 1) — P1-1 regression: verify treats unchanged base as terminal not_committed
+M8 KILLED (suite exit 1) — P1-2 regression: ledger reservation moved after the body await
+M9 KILLED (suite exit 1) — P1-3 regression: If-Match syntax validation removed
+M10 KILLED (suite exit 1) — P1-4 regression: https accepted and sent over node:http
+M11 KILLED (suite exit 1) — P2-5 regression: kind lookup via plain object (prototype keys)
+M12 KILLED (suite exit 1) — P2-7 regression: export skips unrecognized entries silently
+M13 KILLED (suite exit 1) — P2-12 regression: refused-after-connect classified as not_sent
+M14 KILLED (suite exit 1) — P1-R1 regression: fence terminal without ETag-change guard
+M15 KILLED (suite exit 1) — P2-N1 regression: DAV elements matched by d: prefix instead of namespace URI
+M16 KILLED (suite exit 1) — P2-N2 regression: absolute deadline effectively disabled
+M17 KILLED (suite exit 1) — P2-N3 regression: tombstones ignored on replay
+M18 KILLED (suite exit 1) — P2-N4 regression: principal id from token array position
+M19 KILLED (suite exit 1) — P2-N4 regression: provenance not checked on read
+M20 KILLED (suite exit 1) — P2-N5 regression: no per-principal quota
+M21 KILLED (suite exit 1) — P2-N6 regression: concurrent fences not serialised
+M22 KILLED (suite exit 1) — P2-N7 regression: comma allowed in POC If-Match profile
+M23 KILLED (suite exit 1) — P2-N8 regression: weak ETag treated as trusted (W/ stripped)
+M24 KILLED (suite exit 1) — Q1 regression: missing canonical kind collection read as empty
+M25 KILLED (suite exit 1) — Q1 regression: adapter silently accepts duplicate normalized hrefs
+M26 KILLED (suite exit 1) — Q1 regression: response-level status + propstat accepted
+M27 KILLED (suite exit 1) — Q1 regression: absent namespace exported as empty
+M28 KILLED (suite exit 1) — Q2 regression: fence trusts PUT-response ETag (no GET read-back)
+M29 KILLED (suite exit 1) — Q2 regression: read-back ETag not compared with PUT ETag
+M30 KILLED (suite exit 1) — Q2 regression: read-back bytes not compared with fence payload
+M31 KILLED (suite exit 1) — R04-1 regression: whole-tree structure validation not called (silent-ignore restored)
+M32 KILLED (suite exit 1) — R04-1 regression: DAV structural parent rule disabled
+M33 KILLED (suite exit 1) — R04-1 regression: container child allowlists disabled
+M34 KILLED (suite exit 1) — R04-1 regression: foreign response-shaped elements accepted
+M35 KILLED (suite exit 1) — R04-1 regression: element children allowed inside text-only DAV elements
+M36 KILLED (suite exit 1) — R04-2 regression: collection marker accepted from any propstat (incl. 404)
+M37 KILLED (suite exit 1) — R04-2 regression: adapter treats trailing-slash href as collection
+M38 KILLED (suite exit 1) — R05-1 regression: nesting-depth guard removed
+M39 KILLED (suite exit 1) — R05-1 regression: element-count guard removed
+M40 KILLED (suite exit 1) — R05-1 regression: per-element attribute guard removed
+M41 KILLED (suite exit 1) — R05-1 regression: total attribute guard removed
+M42 KILLED (suite exit 1) — R05-1 regression: namespace-declaration guard removed
+M43 KILLED (suite exit 1) — R05-1 regression: per-element namespace Map copy restored
+M44 KILLED (suite exit 1) — R05-1 regression: multi-colon qname accepted
+M45 KILLED (suite exit 1) — R05-2 regression: empty-body (allprop) PROPFIND restored
+M46 KILLED (suite exit 1) — R05-2 regression: PROPFIND Content-Type header dropped
+M47 KILLED (suite exit 1) — R05-2 regression: allprop fallback after a non-207 PROPFIND
+M48 KILLED (suite exit 1, failing tests 5, expected assertion observed) — R06 regression: extra bodyless (allprop) PROPFIND after a malformed/unparseable HTTP 207
+M49 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R07 regression: extra bodyless PROPFIND before the post-parse 'foreign href' malformed return (HTTP 207)
+M50 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R07 regression: extra bodyless PROPFIND before the post-parse 'non-2xx response entry' malformed return (HTTP 207)
+M51 KILLED (suite exit 1, failing tests 1, expected assertion observed) — R07 regression: extra bodyless PROPFIND before the post-parse 'duplicate href' malformed return (HTTP 207)
+MUTATION CHECK: 51 mutants run, 51 killed, 0 problem(s)
+MUTATION CHECK: all mutants killed

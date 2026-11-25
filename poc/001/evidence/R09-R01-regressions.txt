@@ -1,0 +1,32 @@
+$ node --test --test-reporter=spec test/r01-regressions.test.mjs
+# exit 0 · 3115 ms · gitHead 8d9929b5ad9d52ce6f4a29956ac640af932feaac
+
+✔ P1-1 late commit after timeout: verify is non-terminal until observed; late commit → committed, never a prior false negative (323.942212ms)
+✔ P1-1 fence before late release: terminal not_committed stays true because the late request now fails CAS (342.923699ms)
+✔ P1-1 create-only Unknown cannot be fenced: stays Unknown (documented UNSUPPORTED) (263.506038ms)
+✔ P1-2 same Operation-Id concurrently: reserved before first await → exactly one upstream PUT (416.328839ms)
+✔ P1-2 overlapping body arrival with the same Operation-Id: second request refused while first body still streaming (48.121356ms)
+✔ P1-2 same Operation-Id with a different payload or target is refused; replay agrees with the real result (19.00203ms)
+✔ P1-2/P2-8 exception after reservation never strands an entry as pending (18.635832ms)
+✔ P2-8 ledger is scoped per principal: another token cannot verify, fence or spoof an operation (271.283519ms)
+✔ P2-8 ledger is bounded and fails closed rather than evicting Unknown entries (798.848256ms)
+✔ P1-3 If-Match must be exactly one strong entity-tag; malformed variants never reach storage (22.830882ms)
+✔ P1-4 https base URL fails closed: zero connections, zero Authorization sent (123.141337ms)
+✔ P2-5 prototype-like kinds rejected on every path (records, verify, restore) before any upstream call (23.623891ms)
+✔ P2-6 restore validates decoded envelopes, not just self-consistent hashes (18.247722ms)
+✔ P2-7 export fails closed on unrecognized or invalid entries (never a silently short ok) (19.940205ms)
+✔ P2-9 concurrent restores into the same target: exactly one restored (in-process and across instances) (26.076929ms)
+✔ P2-10 committed_unverified when the storage returns no ETag (never "saved") (7.702533ms)
+✔ P2-10 verify after API restart: caller restates target; results are never terminal (13.581649ms)
+✔ P2-10 corrupt read is reported as corrupt, not returned as data (10.625397ms)
+✔ P2-11 validators reject unexpected fields and non-string identifiers without coercion (20.259048ms)
+✔ P2-12 transport classification: never-connected → not_sent; connected-then-dropped → unknown (205.508086ms)
+✔ P2-12 (QA probe G5/G6) redirects are never followed; truncated 2xx bodies are not data (3.755414ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3077.841462

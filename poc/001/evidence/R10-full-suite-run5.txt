@@ -1,0 +1,1321 @@
+$ node --test test/*.test.mjs
+# exit 0 · 43527 ms · gitHead bb30e1d07ac18412021e5bcb05919ea6d87057cd
+
+TAP version 13
+# Subtest: POC-01 adapter CRUD: exact payload, status codes, conditional update/delete
+ok 1 - POC-01 adapter CRUD: exact payload, status codes, conditional update/delete
+  ---
+  duration_ms: 35.533138
+  type: 'test'
+  ...
+# Subtest: POC-01 API CRUD (create/read/update via safe API; delete intentionally not exposed)
+ok 2 - POC-01 API CRUD (create/read/update via safe API; delete intentionally not exposed)
+  ---
+  duration_ms: 34.549304
+  type: 'test'
+  ...
+# Subtest: POC-02 authentication and request validation
+ok 3 - POC-02 authentication and request validation
+  ---
+  duration_ms: 58.575684
+  type: 'test'
+  ...
+# Subtest: POC-02 path/kind allowlist, traversal, SSRF and origin
+ok 4 - POC-02 path/kind allowlist, traversal, SSRF and origin
+  ---
+  duration_ms: 24.720472
+  type: 'test'
+  ...
+# Subtest: POC-02 credentials never leave the server side (responses, headers, logs, client code)
+ok 5 - POC-02 credentials never leave the server side (responses, headers, logs, client code)
+  ---
+  duration_ms: 55.720867
+  type: 'test'
+  ...
+# Subtest: POC-02 default-deny real network and loopback-only listeners
+ok 6 - POC-02 default-deny real network and loopback-only listeners
+  ---
+  duration_ms: 2.013532
+  type: 'test'
+  ...
+# Subtest: POC-03 codec: Markdown export parses back byte-identical for all five fields
+ok 7 - POC-03 codec: Markdown export parses back byte-identical for all five fields
+  ---
+  duration_ms: 4.658216
+  type: 'test'
+  ...
+# Subtest: POC-03 envelope round trip through API and storage is byte-exact
+ok 8 - POC-03 envelope round trip through API and storage is byte-exact
+  ---
+  duration_ms: 57.056982
+  type: 'test'
+  ...
+# Subtest: POC-03 identity: Zotero library+key mapping is unique; duplicate create refused
+ok 9 - POC-03 identity: Zotero library+key mapping is unique; duplicate create refused
+  ---
+  duration_ms: 31.327317
+  type: 'test'
+  ...
+# Subtest: POC-04 client B observes client A's confirmed revision after explicit refresh
+ok 10 - POC-04 client B observes client A's confirmed revision after explicit refresh
+  ---
+  duration_ms: 433.07784
+  type: 'test'
+  ...
+# Subtest: POC-05 50 forced-overlap rounds: exactly one stale writer wins, loser gets 412 with winner intact
+ok 11 - POC-05 50 forced-overlap rounds: exactly one stale writer wins, loser gets 412 with winner intact
+  ---
+  duration_ms: 1105.941722
+  type: 'test'
+  ...
+# winners: A=18 B=32 over 50 rounds
+# Subtest: POC-05 concurrent create-only race: one create wins, other 412
+ok 12 - POC-05 concurrent create-only race: one create wins, other 412
+  ---
+  duration_ms: 242.125393
+  type: 'test'
+  ...
+# Subtest: POC-05 negative control: naive GET-then-unconditional-PUT LOSES an update (why If-Match is mandatory)
+ok 13 - POC-05 negative control: naive GET-then-unconditional-PUT LOSES an update (why If-Match is mandatory)
+  ---
+  duration_ms: 20.787382
+  type: 'test'
+  ...
+# naive mode: both writers told "committed", one update silently lost (final=naive A)
+# Subtest: POC-06 upstream 401: definite not_saved (upstream_auth), single attempt, data intact
+ok 14 - POC-06 upstream 401: definite not_saved (upstream_auth), single attempt, data intact
+  ---
+  duration_ms: 40.96531
+  type: 'test'
+  ...
+# Subtest: POC-06 upstream 403: definite not_saved (upstream_forbidden), single attempt, data intact
+ok 15 - POC-06 upstream 403: definite not_saved (upstream_forbidden), single attempt, data intact
+  ---
+  duration_ms: 14.041796
+  type: 'test'
+  ...
+# Subtest: POC-06 upstream 409: definite not_saved (upstream_conflict), single attempt, data intact
+ok 16 - POC-06 upstream 409: definite not_saved (upstream_conflict), single attempt, data intact
+  ---
+  duration_ms: 10.08968
+  type: 'test'
+  ...
+# Subtest: POC-06 upstream 423: definite not_saved (locked), single attempt, data intact
+ok 17 - POC-06 upstream 423: definite not_saved (locked), single attempt, data intact
+  ---
+  duration_ms: 18.877668
+  type: 'test'
+  ...
+# Subtest: POC-06 upstream 429: definite not_saved (rate_limited), single attempt, data intact
+ok 18 - POC-06 upstream 429: definite not_saved (rate_limited), single attempt, data intact
+  ---
+  duration_ms: 17.61773
+  type: 'test'
+  ...
+# Subtest: POC-06 upstream 412 (stale): conflict with current content, nothing written
+ok 19 - POC-06 upstream 412 (stale): conflict with current content, nothing written
+  ---
+  duration_ms: 13.523118
+  type: 'test'
+  ...
+# Subtest: POC-06 hang: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat
+ok 20 - POC-06 hang: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat
+  ---
+  duration_ms: 339.283807
+  type: 'test'
+  ...
+# Subtest: POC-06 status 500: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat
+ok 21 - POC-06 status 500: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat
+  ---
+  duration_ms: 36.837649
+  type: 'test'
+  ...
+# Subtest: POC-06 status 503: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat
+ok 22 - POC-06 status 503: Unknown → verify → not_yet_observed (non-terminal) → fence → not_committed; no blind repeat
+  ---
+  duration_ms: 39.341911
+  type: 'test'
+  ...
+# Subtest: POC-06 commit-then-drop: Unknown → verify → committed; no blind repeat
+ok 23 - POC-06 commit-then-drop: Unknown → verify → committed; no blind repeat
+  ---
+  duration_ms: 14.486303
+  type: 'test'
+  ...
+# Subtest: POC-06 commit-then-hang: Unknown → verify → committed; no blind repeat
+ok 24 - POC-06 commit-then-hang: Unknown → verify → committed; no blind repeat
+  ---
+  duration_ms: 316.191516
+  type: 'test'
+  ...
+# Subtest: POC-06 commit-then-status 502: Unknown → verify → committed; no blind repeat
+ok 25 - POC-06 commit-then-status 502: Unknown → verify → committed; no blind repeat
+  ---
+  duration_ms: 13.486428
+  type: 'test'
+  ...
+# Subtest: POC-06 Unknown, then another writer changes the record → verify says indeterminate (not guessed)
+ok 26 - POC-06 Unknown, then another writer changes the record → verify says indeterminate (not guessed)
+  ---
+  duration_ms: 317.652889
+  type: 'test'
+  ...
+# Subtest: POC-06 identical text from another writer is NOT treated as proof our op landed
+ok 27 - POC-06 identical text from another writer is NOT treated as proof our op landed
+  ---
+  duration_ms: 315.750153
+  type: 'test'
+  ...
+# Subtest: POC-06 corrupt write: storage acknowledges but bytes differ → verification_failed, never saved
+ok 28 - POC-06 corrupt write: storage acknowledges but bytes differ → verification_failed, never saved
+  ---
+  duration_ms: 11.397856
+  type: 'test'
+  ...
+# Subtest: POC-06 offline (storage down): writes definite not_saved/offline, reads unavailable, verify unavailable
+ok 29 - POC-06 offline (storage down): writes definite not_saved/offline, reads unavailable, verify unavailable
+  ---
+  duration_ms: 320.719834
+  type: 'test'
+  ...
+# Subtest: POC-06 read-path errors (401 expired creds, 429, 500) are surfaced, not masked as empty data
+ok 30 - POC-06 read-path errors (401 expired creds, 429, 500) are surfaced, not masked as empty data
+  ---
+  duration_ms: 11.828663
+  type: 'test'
+  ...
+# Subtest: POC-07 export → restore to fresh namespace → hashes, counts, identities match; source untouched
+ok 31 - POC-07 export → restore to fresh namespace → hashes, counts, identities match; source untouched
+  ---
+  duration_ms: 348.842662
+  type: 'test'
+  ...
+# Subtest: POC-07 restore safety: tampered bundle, active namespace and non-restore targets refused before any write
+ok 32 - POC-07 restore safety: tampered bundle, active namespace and non-restore targets refused before any write
+  ---
+  duration_ms: 116.416685
+  type: 'test'
+  ...
+# Subtest: POC-07 failures are honest: export during outage is incomplete (no partial bundle); restore write failure reported
+ok 33 - POC-07 failures are honest: export during outage is incomplete (no partial bundle); restore write failure reported
+  ---
+  duration_ms: 114.456344
+  type: 'test'
+  ...
+# Subtest: P1-1 late commit after timeout: verify is non-terminal until observed; late commit → committed, never a prior false negative
+ok 34 - P1-1 late commit after timeout: verify is non-terminal until observed; late commit → committed, never a prior false negative
+  ---
+  duration_ms: 340.49108
+  type: 'test'
+  ...
+# Subtest: P1-1 fence before late release: terminal not_committed stays true because the late request now fails CAS
+ok 35 - P1-1 fence before late release: terminal not_committed stays true because the late request now fails CAS
+  ---
+  duration_ms: 336.100149
+  type: 'test'
+  ...
+# Subtest: P1-1 create-only Unknown cannot be fenced: stays Unknown (documented UNSUPPORTED)
+ok 36 - P1-1 create-only Unknown cannot be fenced: stays Unknown (documented UNSUPPORTED)
+  ---
+  duration_ms: 268.549692
+  type: 'test'
+  ...
+# Subtest: P1-2 same Operation-Id concurrently: reserved before first await → exactly one upstream PUT
+ok 37 - P1-2 same Operation-Id concurrently: reserved before first await → exactly one upstream PUT
+  ---
+  duration_ms: 421.44182
+  type: 'test'
+  ...
+# Subtest: P1-2 overlapping body arrival with the same Operation-Id: second request refused while first body still streaming
+ok 38 - P1-2 overlapping body arrival with the same Operation-Id: second request refused while first body still streaming
+  ---
+  duration_ms: 49.199894
+  type: 'test'
+  ...
+# Subtest: P1-2 same Operation-Id with a different payload or target is refused; replay agrees with the real result
+ok 39 - P1-2 same Operation-Id with a different payload or target is refused; replay agrees with the real result
+  ---
+  duration_ms: 21.469828
+  type: 'test'
+  ...
+# Subtest: P1-2/P2-8 exception after reservation never strands an entry as pending
+ok 40 - P1-2/P2-8 exception after reservation never strands an entry as pending
+  ---
+  duration_ms: 20.914764
+  type: 'test'
+  ...
+# Subtest: P2-8 ledger is scoped per principal: another token cannot verify, fence or spoof an operation
+ok 41 - P2-8 ledger is scoped per principal: another token cannot verify, fence or spoof an operation
+  ---
+  duration_ms: 275.000107
+  type: 'test'
+  ...
+# Subtest: P2-8 ledger is bounded and fails closed rather than evicting Unknown entries
+ok 42 - P2-8 ledger is bounded and fails closed rather than evicting Unknown entries
+  ---
+  duration_ms: 794.983642
+  type: 'test'
+  ...
+# Subtest: P1-3 If-Match must be exactly one strong entity-tag; malformed variants never reach storage
+ok 43 - P1-3 If-Match must be exactly one strong entity-tag; malformed variants never reach storage
+  ---
+  duration_ms: 24.862095
+  type: 'test'
+  ...
+# Subtest: P1-4 https base URL fails closed: zero connections, zero Authorization sent
+ok 44 - P1-4 https base URL fails closed: zero connections, zero Authorization sent
+  ---
+  duration_ms: 99.972898
+  type: 'test'
+  ...
+# Subtest: P2-5 prototype-like kinds rejected on every path (records, verify, restore) before any upstream call
+ok 45 - P2-5 prototype-like kinds rejected on every path (records, verify, restore) before any upstream call
+  ---
+  duration_ms: 25.305192
+  type: 'test'
+  ...
+# Subtest: P2-6 restore validates decoded envelopes, not just self-consistent hashes
+ok 46 - P2-6 restore validates decoded envelopes, not just self-consistent hashes
+  ---
+  duration_ms: 21.361764
+  type: 'test'
+  ...
+# Subtest: P2-7 export fails closed on unrecognized or invalid entries (never a silently short ok)
+ok 47 - P2-7 export fails closed on unrecognized or invalid entries (never a silently short ok)
+  ---
+  duration_ms: 34.586702
+  type: 'test'
+  ...
+# Subtest: P2-9 concurrent restores into the same target: exactly one restored (in-process and across instances)
+ok 48 - P2-9 concurrent restores into the same target: exactly one restored (in-process and across instances)
+  ---
+  duration_ms: 30.96997
+  type: 'test'
+  ...
+# Subtest: P2-10 committed_unverified when the storage returns no ETag (never "saved")
+ok 49 - P2-10 committed_unverified when the storage returns no ETag (never "saved")
+  ---
+  duration_ms: 12.598328
+  type: 'test'
+  ...
+# Subtest: P2-10 verify after API restart: caller restates target; results are never terminal
+ok 50 - P2-10 verify after API restart: caller restates target; results are never terminal
+  ---
+  duration_ms: 20.109102
+  type: 'test'
+  ...
+# Subtest: P2-10 corrupt read is reported as corrupt, not returned as data
+ok 51 - P2-10 corrupt read is reported as corrupt, not returned as data
+  ---
+  duration_ms: 20.014667
+  type: 'test'
+  ...
+# Subtest: P2-11 validators reject unexpected fields and non-string identifiers without coercion
+ok 52 - P2-11 validators reject unexpected fields and non-string identifiers without coercion
+  ---
+  duration_ms: 20.957451
+  type: 'test'
+  ...
+# Subtest: P2-12 transport classification: never-connected → not_sent; connected-then-dropped → unknown
+ok 53 - P2-12 transport classification: never-connected → not_sent; connected-then-dropped → unknown
+  ---
+  duration_ms: 205.344863
+  type: 'test'
+  ...
+# Subtest: P2-12 (QA probe G5/G6) redirects are never followed; truncated 2xx bodies are not data
+ok 54 - P2-12 (QA probe G5/G6) redirects are never followed; truncated 2xx bodies are not data
+  ---
+  duration_ms: 5.264638
+  type: 'test'
+  ...
+# Subtest: P1-R1 content-hash ETags: identical-bytes fence keeps the ETag → fence_not_confirmed, never terminal; late commit then resolves to committed
+ok 55 - P1-R1 content-hash ETags: identical-bytes fence keeps the ETag → fence_not_confirmed, never terminal; late commit then resolves to committed
+  ---
+  duration_ms: 346.049258
+  type: 'test'
+  ...
+# Subtest: P1-R1 generation ETags, race order A (fence → late release): terminal not_committed holds; late write rejected
+ok 56 - P1-R1 generation ETags, race order A (fence → late release): terminal not_committed holds; late write rejected
+  ---
+  duration_ms: 348.60786
+  type: 'test'
+  ...
+# Subtest: P1-R1 generation ETags, race order B (late release → fence): fence observes our write → committed
+ok 57 - P1-R1 generation ETags, race order B (late release → fence): fence observes our write → committed
+  ---
+  duration_ms: 285.642144
+  type: 'test'
+  ...
+# Subtest: P1-R1 fence PUT without ETag / with untrusted ETag is not terminal
+ok 58 - P1-R1 fence PUT without ETag / with untrusted ETag is not terminal
+  ---
+  duration_ms: 269.929158
+  type: 'test'
+  ...
+# Subtest: P2-N1 PROPFIND namespace style "d": 2 stored records → export count 2
+ok 59 - P2-N1 PROPFIND namespace style "d": 2 stored records → export count 2
+  ---
+  duration_ms: 33.647294
+  type: 'test'
+  ...
+# Subtest: P2-N1 PROPFIND namespace style "D": 2 stored records → export count 2
+ok 60 - P2-N1 PROPFIND namespace style "D": 2 stored records → export count 2
+  ---
+  duration_ms: 16.065054
+  type: 'test'
+  ...
+# Subtest: P2-N1 PROPFIND namespace style "default": 2 stored records → export count 2
+ok 61 - P2-N1 PROPFIND namespace style "default": 2 stored records → export count 2
+  ---
+  duration_ms: 16.220591
+  type: 'test'
+  ...
+# Subtest: P2-N1 PROPFIND namespace style "z": 2 stored records → export count 2
+ok 62 - P2-N1 PROPFIND namespace style "z": 2 stored records → export count 2
+  ---
+  duration_ms: 18.877382
+  type: 'test'
+  ...
+# Subtest: P2-N1 malformed / foreign / incomplete listings fail closed (never 200 with a short or empty list)
+ok 63 - P2-N1 malformed / foreign / incomplete listings fail closed (never 200 with a short or empty list)
+  ---
+  duration_ms: 62.039389
+  type: 'test'
+  ...
+# Subtest: P2-N2 absolute deadline beats a byte-trickling peer: write → Unknown (not pending), read → unavailable
+ok 64 - P2-N2 absolute deadline beats a byte-trickling peer: write → Unknown (not pending), read → unavailable
+  ---
+  duration_ms: 1815.267265
+  type: 'test'
+  ...
+# Subtest: P2-N2 response bodies are bounded (no unbounded buffering)
+ok 65 - P2-N2 response bodies are bounded (no unbounded buffering)
+  ---
+  duration_ms: 2.596169
+  type: 'test'
+  ...
+# Subtest: P2-N3 evicted operations are tombstoned: replay refused (operation_expired), zero re-dispatch
+ok 66 - P2-N3 evicted operations are tombstoned: replay refused (operation_expired), zero re-dispatch
+  ---
+  duration_ms: 24.726144
+  type: 'test'
+  ...
+# Subtest: P2-N3 beyond the tombstone window / after restart: unsupported, but conditional writes still prevent a lost update
+ok 67 - P2-N3 beyond the tombstone window / after restart: unsupported, but conditional writes still prevent a lost update
+  ---
+  duration_ms: 36.035137
+  type: 'test'
+  ...
+# Subtest: P2-N4 stable principal ids across instances with reversed token order: no cross-principal poisoning
+ok 68 - P2-N4 stable principal ids across instances with reversed token order: no cross-principal poisoning
+  ---
+  duration_ms: 265.735224
+  type: 'test'
+  ...
+# Subtest: P2-N4 forged envelopes (well-formed tag, wrong/missing provenance) are rejected on read, export and restore
+ok 69 - P2-N4 forged envelopes (well-formed tag, wrong/missing provenance) are rejected on read, export and restore
+  ---
+  duration_ms: 18.375626
+  type: 'test'
+  ...
+# Subtest: P2-N4 reserved restore- prefix: an active namespace may not be restore-*
+ok 70 - P2-N4 reserved restore- prefix: an active namespace may not be restore-*
+  ---
+  duration_ms: 0.537179
+  type: 'test'
+  ...
+# Subtest: P2-N5 per-principal quota: one principal exhausting its slots does not block another
+ok 71 - P2-N5 per-principal quota: one principal exhausting its slots does not block another
+  ---
+  duration_ms: 530.615242
+  type: 'test'
+  ...
+# Subtest: P2-N6 concurrent fences are serialised; fence timeout stays Unknown; deleted record → record_missing
+ok 72 - P2-N6 concurrent fences are serialised; fence timeout stays Unknown; deleted record → record_missing
+  ---
+  duration_ms: 1183.957813
+  type: 'test'
+  ...
+# Subtest: P2-N7 POC If-Match profile: RFC-legal comma tag refused as out-of-profile; lists refused; zero upstream
+ok 73 - P2-N7 POC If-Match profile: RFC-legal comma tag refused as out-of-profile; lists refused; zero upstream
+  ---
+  duration_ms: 9.73887
+  type: 'test'
+  ...
+# Subtest: P2-N8 weak ETags (local negative fixture): never "saved", never stripped, updates refused explicitly
+ok 74 - P2-N8 weak ETags (local negative fixture): never "saved", never stripped, updates refused explicitly
+  ---
+  duration_ms: 13.038129
+  type: 'test'
+  ...
+# Subtest: P2-N8 differing strong ETag between PUT response and GET → committed_unverified (readback_mismatch)
+ok 75 - P2-N8 differing strong ETag between PUT response and GET → committed_unverified (readback_mismatch)
+  ---
+  duration_ms: 9.50819
+  type: 'test'
+  ...
+# Subtest: R03-Q1a well-formed root listing omitting projects/ while a project exists → 503 (not 200 count 2)
+ok 76 - R03-Q1a well-formed root listing omitting projects/ while a project exists → 503 (not 200 count 2)
+  ---
+  duration_ms: 107.135497
+  type: 'test'
+  ...
+# Subtest: R03-Q1a missing canonical collection even when it would be empty (progress) → 503
+ok 77 - R03-Q1a missing canonical collection even when it would be empty (progress) → 503
+  ---
+  duration_ms: 33.138078
+  type: 'test'
+  ...
+# Subtest: R03-Q1b duplicates: root kind href, record href, percent-encoded and trailing-slash variants → 503
+ok 78 - R03-Q1b duplicates: root kind href, record href, percent-encoded and trailing-slash variants → 503
+  ---
+  duration_ms: 44.735765
+  type: 'test'
+  ...
+# Subtest: R03-Q1c conflicting response-level vs propstat status, all-non-2xx propstat, nested/unexpected entries → 503
+ok 79 - R03-Q1c conflicting response-level vs propstat status, all-non-2xx propstat, nested/unexpected entries → 503
+  ---
+  duration_ms: 44.465255
+  type: 'test'
+  ...
+# Subtest: R03-Q1d absent namespace is unproven → 503 namespace_absent (not 200 count 0)
+ok 80 - R03-Q1d absent namespace is unproven → 503 namespace_absent (not 200 count 0)
+  ---
+  duration_ms: 5.789115
+  type: 'test'
+  ...
+# Subtest: R03-Q1d valid zero-record managed namespace → 200 count 0; restores once into a fresh namespace
+ok 81 - R03-Q1d valid zero-record managed namespace → 200 count 0; restores once into a fresh namespace
+  ---
+  duration_ms: 20.883238
+  type: 'test'
+  ...
+# Subtest: R03-Q1d valid two-record namespace → count 2, unique manifest, byte-identical one-time restore
+ok 82 - R03-Q1d valid two-record namespace → count 2, unique manifest, byte-identical one-time restore
+  ---
+  duration_ms: 31.502187
+  type: 'test'
+  ...
+# Subtest: R03-Q1e INFO / UNSUPPORTED: a record silently omitted by a well-formed kind listing is NOT detectable
+ok 83 - R03-Q1e INFO / UNSUPPORTED: a record silently omitted by a well-formed kind listing is NOT detectable
+  ---
+  duration_ms: 19.925103
+  type: 'test'
+  ...
+# Subtest: R03-Q2a (QA R1l) dishonest fence PUT ETag + content-hash storage: non-terminal, then late original commits → committed
+ok 84 - R03-Q2a (QA R1l) dishonest fence PUT ETag + content-hash storage: non-terminal, then late original commits → committed
+  ---
+  duration_ms: 280.116192
+  type: 'test'
+  ...
+# Subtest: R03-Q2a same dishonest PUT ETag on generation storage: GET ETag ≠ PUT ETag → non-terminal
+ok 85 - R03-Q2a same dishonest PUT ETag on generation storage: GET ETag ≠ PUT ETag → non-terminal
+  ---
+  duration_ms: 266.951219
+  type: 'test'
+  ...
+# Subtest: R03-Q2b conforming generation ETags: terminal only after matching PUT+GET strong ETags ≠ base and identical bytes (both race orders)
+ok 86 - R03-Q2b conforming generation ETags: terminal only after matching PUT+GET strong ETags ≠ base and identical bytes (both race orders)
+  ---
+  duration_ms: 590.240698
+  type: 'test'
+  ...
+# Subtest: R03-Q2b content-hash identical bytes still non-terminal (P1-R1 preserved)
+ok 87 - R03-Q2b content-hash identical bytes still non-terminal (P1-R1 preserved)
+  ---
+  duration_ms: 264.199225
+  type: 'test'
+  ...
+# Subtest: R03-Q2c GET 500 on read-back → fence_not_confirmed, original Unknown retained, no re-send
+ok 88 - R03-Q2c GET 500 on read-back → fence_not_confirmed, original Unknown retained, no re-send
+  ---
+  duration_ms: 270.963804
+  type: 'test'
+  ...
+# Subtest: R03-Q2c GET hang on read-back (timeout) → fence_not_confirmed, original Unknown retained, no re-send
+ok 89 - R03-Q2c GET hang on read-back (timeout) → fence_not_confirmed, original Unknown retained, no re-send
+  ---
+  duration_ms: 537.377664
+  type: 'test'
+  ...
+# Subtest: R03-Q2c GET weak ETag on read-back → fence_not_confirmed, original Unknown retained, no re-send
+ok 90 - R03-Q2c GET weak ETag on read-back → fence_not_confirmed, original Unknown retained, no re-send
+  ---
+  duration_ms: 267.002666
+  type: 'test'
+  ...
+# Subtest: R03-Q2c GET strong ETag ≠ PUT ETag → fence_not_confirmed, original Unknown retained, no re-send
+ok 91 - R03-Q2c GET strong ETag ≠ PUT ETag → fence_not_confirmed, original Unknown retained, no re-send
+  ---
+  duration_ms: 267.144199
+  type: 'test'
+  ...
+# Subtest: R03-Q2c GET body changed on read-back → fence_not_confirmed, original Unknown retained, no re-send
+ok 92 - R03-Q2c GET body changed on read-back → fence_not_confirmed, original Unknown retained, no re-send
+  ---
+  duration_ms: 268.893015
+  type: 'test'
+  ...
+# Subtest: R03-Q2c read-back finds the object deleted → record_missing (non-terminal)
+ok 93 - R03-Q2c read-back finds the object deleted → record_missing (non-terminal)
+  ---
+  duration_ms: 269.327295
+  type: 'test'
+  ...
+# Subtest: R03-Q2c third-party overwrite between fence PUT and read-back → non-terminal
+ok 94 - R03-Q2c third-party overwrite between fence PUT and read-back → non-terminal
+  ---
+  duration_ms: 274.028377
+  type: 'test'
+  ...
+# Subtest: R03-Q2c fence PUT 5xx / missing / weak ETag → non-terminal
+ok 95 - R03-Q2c fence PUT 5xx / missing / weak ETag → non-terminal
+  ---
+  duration_ms: 779.966367
+  type: 'test'
+  ...
+# Subtest: R03-Q3a INFO: beyond the tombstone window a previously REJECTED op can be re-sent and save (documented)
+ok 96 - R03-Q3a INFO: beyond the tombstone window a previously REJECTED op can be re-sent and save (documented)
+  ---
+  duration_ms: 25.267749
+  type: 'test'
+  ...
+# Subtest: R03-Q4 INFO: Unknown-saturated principal stays blocked; global cap below the sum of quotas starves others
+ok 97 - R03-Q4 INFO: Unknown-saturated principal stays blocked; global cap below the sum of quotas starves others
+  ---
+  duration_ms: 520.843225
+  type: 'test'
+  ...
+# Subtest: R03-Q4 INFO: a slowly uploaded request body keeps its reservation pending
+ok 98 - R03-Q4 INFO: a slowly uploaded request body keeps its reservation pending
+  ---
+  duration_ms: 51.432269
+  type: 'test'
+  ...
+# Subtest: R03-Q5 INFO: an Unknown fence PUT that applies later strands the operation as indeterminate
+ok 99 - R03-Q5 INFO: an Unknown fence PUT that applies later strands the operation as indeterminate
+  ---
+  duration_ms: 719.710884
+  type: 'test'
+  ...
+# Subtest: R03-Q1b adapter level: duplicate normalized hrefs are reported malformed (not de-duplicated)
+ok 100 - R03-Q1b adapter level: duplicate normalized hrefs are reported malformed (not de-duplicated)
+  ---
+  duration_ms: 3.930873
+  type: 'test'
+  ...
+# Subtest: R03-Q2c read-back serves different (older, still authentic) bytes under the fence ETag → readback_bytes_changed
+ok 101 - R03-Q2c read-back serves different (older, still authentic) bytes under the fence ETag → readback_bytes_changed
+  ---
+  duration_ms: 267.778787
+  type: 'test'
+  ...
+# Subtest: R04-Q1c-01 foreign wrapper: 3 stored records, one hidden → 503 export_incomplete, no bundle, zero write effects
+ok 102 - R04-Q1c-01 foreign wrapper: 3 stored records, one hidden → 503 export_incomplete, no bundle, zero write effects
+  ---
+  duration_ms: 88.517748
+  type: 'test'
+  ...
+# fixture: <?xml version="1.0"?><d:multistatus xmlns:d="DAV:" xmlns:x="urn:example:foreign"><d:response><d:href>/lms-poc/poc-ns-a/notes/</d:href><d:propstat><d:prop><d:resourcetype><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response><d:response><d:href>/lms-poc/poc-ns-a/notes/lit-9000001-s0000000.json</d:href><d:propstat><d:prop><d:resourcetype></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response><x:wrap><d:response><d:href>/lms-poc/poc-ns-a/notes/lit-9000001-s0000001.json</d:href><d:propstat><d:prop><d:resourcetype></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response></x:wrap></d:multistatus>
+# R04-Q1c-01 foreign wrapper: fixture 710 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child x:wrap in DAV:multistatus"}
+# Subtest: R04-Q1c-02 response nested in response: 3 stored records, one hidden → 503 export_incomplete, no bundle, zero write effects
+ok 103 - R04-Q1c-02 response nested in response: 3 stored records, one hidden → 503 export_incomplete, no bundle, zero write effects
+  ---
+  duration_ms: 37.16484
+  type: 'test'
+  ...
+# fixture: <?xml version="1.0"?><d:multistatus xmlns:d="DAV:"><d:response><d:href>/lms-poc/poc-ns-a/notes/</d:href><d:propstat><d:prop><d:resourcetype><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response><d:response><d:href>/lms-poc/poc-ns-a/notes/lit-9000001-s0000002.json</d:href><d:propstat><d:prop><d:resourcetype></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat><d:response><d:href>/lms-poc/poc-ns-a/notes/lit-9000001-s0000003.json</d:href><d:propstat><d:prop><d:resourcetype></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response></d:response></d:multistatus>
+# R04-Q1c-02 response nested in response: fixture 663 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child d:response in DAV:response"}
+# Subtest: R04-Q1c-03 response inside responsedescription: 3 stored records, one hidden → 503 export_incomplete, no bundle, zero write effects
+ok 104 - R04-Q1c-03 response inside responsedescription: 3 stored records, one hidden → 503 export_incomplete, no bundle, zero write effects
+  ---
+  duration_ms: 33.57518
+  type: 'test'
+  ...
+# fixture: <?xml version="1.0"?><d:multistatus xmlns:d="DAV:"><d:response><d:href>/lms-poc/poc-ns-a/notes/</d:href><d:propstat><d:prop><d:resourcetype><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response><d:response><d:href>/lms-poc/poc-ns-a/notes/lit-9000001-s0000004.json</d:href><d:propstat><d:prop><d:resourcetype></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response><d:responsedescription><d:response><d:href>/lms-poc/poc-ns-a/notes/lit-9000001-s0000005.json</d:href><d:propstat><d:prop><d:resourcetype></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response></d:responsedescription></d:multistatus>
+# R04-Q1c-03 response inside responsedescription: fixture 710 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: DAV:responsedescription must contain text only"}
+# Subtest: R04-Q1c-04 foreign-namespace response: 3 stored records, one hidden → 503 export_incomplete, no bundle, zero write effects
+ok 105 - R04-Q1c-04 foreign-namespace response: 3 stored records, one hidden → 503 export_incomplete, no bundle, zero write effects
+  ---
+  duration_ms: 37.581868
+  type: 'test'
+  ...
+# fixture: <?xml version="1.0"?><d:multistatus xmlns:d="DAV:" xmlns:x="urn:example:foreign"><d:response><d:href>/lms-poc/poc-ns-a/notes/</d:href><d:propstat><d:prop><d:resourcetype><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response><d:response><d:href>/lms-poc/poc-ns-a/notes/lit-9000001-s0000006.json</d:href><d:propstat><d:prop><d:resourcetype></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response><x:response><x:href>/lms-poc/poc-ns-a/notes/lit-9000001-s0000007.json</x:href><x:status>HTTP/1.1 200 OK</x:status></x:response></d:multistatus>
+# R04-Q1c-04 foreign-namespace response: fixture 618 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child x:response in DAV:multistatus"}
+# Subtest: R04-Q1c-05 misplaced DAV structure anywhere in the tree → parser throws and export fails closed
+ok 106 - R04-Q1c-05 misplaced DAV structure anywhere in the tree → parser throws and export fails closed
+  ---
+  duration_ms: 61.296409
+  type: 'test'
+  ...
+# href inside propstat: fixture 294 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child d:href in DAV:propstat"}
+# propstat directly under multistatus: fixture 323 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child d:propstat in DAV:multistatus"}
+# status inside prop: fixture 289 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: misplaced DAV:status under d:prop"}
+# prop directly under response: fixture 287 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child d:prop in DAV:response"}
+# resourcetype directly under propstat: fixture 270 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child d:resourcetype in DAV:propstat"}
+# collection directly under prop: fixture 268 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: misplaced DAV:collection under d:prop"}
+# multistatus nested in prop: fixture 269 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: misplaced DAV:multistatus under d:prop"}
+# unknown DAV child of multistatus: fixture 283 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child d:sync-token in DAV:multistatus"}
+# foreign wrapper at root with no response inside: fixture 292 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child x:wrap in DAV:multistatus"}
+# foreign child of response: fixture 293 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child x:extra in DAV:response"}
+# foreign child of propstat: fixture 293 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unsupported child x:extra in DAV:propstat"}
+# foreign response-shaped element hidden inside a property: fixture 349 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: response-shaped element in foreign namespace: x:response"}
+# element inside href: fixture 289 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: DAV:href must contain text only"}
+# stray text in multistatus: fixture 264 chars → HTTP 503 {"outcome":"export_incomplete","reason":"malformed_listing","detail":"DAV_XML: unexpected text in DAV:multistatus"}
+# Subtest: R04-COL-01 collection marker only inside a 404 propstat is NOT a collection → required kind fails closed
+ok 107 - R04-COL-01 collection marker only inside a 404 propstat is NOT a collection → required kind fails closed
+  ---
+  duration_ms: 27.004879
+  type: 'test'
+  ...
+# notes collection only via 404 propstat: fixture 946 chars → HTTP 503 {"outcome":"export_incomplete","reason":"unrecognized_entry","detail":null}
+# Subtest: R04-COL-02 2xx collection plus a separate 404 for an unrelated property stays accepted
+ok 108 - R04-COL-02 2xx collection plus a separate 404 for an unrelated property stays accepted
+  ---
+  duration_ms: 40.124861
+  type: 'test'
+  ...
+# Subtest: R04-COL-03 existing response-status vs propstat conflict check still effective
+ok 109 - R04-COL-03 existing response-status vs propstat conflict check still effective
+  ---
+  duration_ms: 0.346935
+  type: 'test'
+  ...
+# Subtest: R04-POS-01 legitimate shapes still accepted: responsedescription text, foreign properties, prefixes, default namespace
+ok 110 - R04-POS-01 legitimate shapes still accepted: responsedescription text, foreign properties, prefixes, default namespace
+  ---
+  duration_ms: 90.09507
+  type: 'test'
+  ...
+# Subtest: R04-Q5-01 INFO missing PUT ETag: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay
+ok 111 - R04-Q5-01 INFO missing PUT ETag: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay
+  ---
+  duration_ms: 300.431044
+  type: 'test'
+  ...
+# Subtest: R04-Q5-01 INFO weak PUT ETag: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay
+ok 112 - R04-Q5-01 INFO weak PUT ETag: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay
+  ---
+  duration_ms: 296.214171
+  type: 'test'
+  ...
+# Subtest: R04-Q5-01 INFO dishonest PUT ETag: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay
+ok 113 - R04-Q5-01 INFO dishonest PUT ETag: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay
+  ---
+  duration_ms: 301.64673
+  type: 'test'
+  ...
+# Subtest: R04-Q5-01 INFO read-back GET 500: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay
+ok 114 - R04-Q5-01 INFO read-back GET 500: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay
+  ---
+  duration_ms: 303.266269
+  type: 'test'
+  ...
+# Subtest: R04-Q5-01 INFO read-back GET mismatched ETag: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay
+ok 115 - R04-Q5-01 INFO read-back GET mismatched ETag: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay
+  ---
+  duration_ms: 304.961825
+  type: 'test'
+  ...
+# Subtest: R04-Q5-01 INFO apply-then-503: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay
+ok 116 - R04-Q5-01 INFO apply-then-503: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay
+  ---
+  duration_ms: 298.277642
+  type: 'test'
+  ...
+# Subtest: R04-Q5-01 INFO apply-then-hang: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay
+ok 117 - R04-Q5-01 INFO apply-then-hang: fence applied but unconfirmed → indeterminate, non-terminal, quota slot held, no replay
+  ---
+  duration_ms: 547.414093
+  type: 'test'
+  ...
+# Subtest: R04-Q5-01 INFO sibling Unknown operations on the same record are stranded too
+ok 118 - R04-Q5-01 INFO sibling Unknown operations on the same record are stranded too
+  ---
+  duration_ms: 532.435781
+  type: 'test'
+  ...
+#   \# resource-probe env {"node":"v22.23.5","platform":"Linux 6.18.44-fc-v819 x64","cpus":2,"cpuModel":"Intel(R) Xeon(R) Processor @ 2.10GHz","heapLimitMb":256,"osKillAfterMs":20000,"targetMs":2000}
+#   \# PASS H1-442KB-1000xmlns-60000deep parser exit=0 wall=47ms rss=48.6MB bytes=434890 depth=60000 elements=60000 xmlns=1000 outcome=DAV_XML detail="DAV_XML: resource limit: nesting depth > 64"
+#   \# PASS H1-442KB-1000xmlns-60000deep api-export exit=0 wall=123ms rss=64MB bytes=434890 depth=60000 elements=60000 xmlns=1000 outcome=503 export_incomplete detail="DAV_XML: resource limit: nesting depth > 64"
+#   \# PASS H2-396KB-2000xmlns-50000deep parser exit=0 wall=42ms rss=47.6MB bytes=380890 depth=50000 elements=50000 xmlns=2000 outcome=DAV_XML detail="DAV_XML: resource limit: nesting depth > 64"
+#   \# PASS H2-396KB-2000xmlns-50000deep api-export exit=0 wall=135ms rss=62.5MB bytes=380890 depth=50000 elements=50000 xmlns=2000 outcome=503 export_incomplete detail="DAV_XML: resource limit: nesting depth > 64"
+#   \# PASS H3-at-limits-256xmlns-9996wide parser exit=0 wall=56ms rss=52.6MB bytes=95148 depth=4 elements=10000 xmlns=256 outcome=DAV_XML detail="DAV_XML: root is not DAV:multistatus"
+#   \# PASS H3-at-limits-256xmlns-9996wide api-export exit=0 wall=135ms rss=67.9MB bytes=95148 depth=4 elements=10000 xmlns=256 outcome=503 export_incomplete detail="DAV_XML: root is not DAV:multistatus"
+#   \# PASS H4-2MB-element-flood parser exit=0 wall=58ms rss=52.8MB bytes=1999999 depth=1 elements=499999 xmlns=0 outcome=DAV_XML detail="DAV_XML: resource limit: more than 10000 elements"
+#   \# PASS H4-2MB-element-flood api-export exit=0 wall=129ms rss=76.7MB bytes=1999999 depth=1 elements=499999 xmlns=0 outcome=503 export_incomplete detail="DAV_XML: resource limit: more than 10000 elements"
+#   \# RESOURCE PROBE: all current-code cases PASS (target < 2000 ms wall incl. node start-up, heap 256 MB)
+# Subtest: R05-1 limits are the authorized values
+ok 119 - R05-1 limits are the authorized values
+  ---
+  duration_ms: 1.588351
+  type: 'test'
+  ...
+# Subtest: R05-1 depth 64 accepted / 65 rejected
+ok 120 - R05-1 depth 64 accepted / 65 rejected
+  ---
+  duration_ms: 1.589036
+  type: 'test'
+  ...
+# Subtest: R05-1 elements 10000 accepted / 10001 rejected
+ok 121 - R05-1 elements 10000 accepted / 10001 rejected
+  ---
+  duration_ms: 30.836828
+  type: 'test'
+  ...
+# Subtest: R05-1 attributes per element 64 accepted / 65 rejected
+ok 122 - R05-1 attributes per element 64 accepted / 65 rejected
+  ---
+  duration_ms: 0.715164
+  type: 'test'
+  ...
+# Subtest: R05-1 total attributes 10000 accepted / 10001 rejected
+ok 123 - R05-1 total attributes 10000 accepted / 10001 rejected
+  ---
+  duration_ms: 24.323906
+  type: 'test'
+  ...
+# Subtest: R05-1 namespace declarations 256 accepted / 257 rejected
+ok 124 - R05-1 namespace declarations 256 accepted / 257 rejected
+  ---
+  duration_ms: 1.588487
+  type: 'test'
+  ...
+# Subtest: R05-1 namespace scopes are shared, not copied per element
+ok 125 - R05-1 namespace scopes are shared, not copied per element
+  ---
+  duration_ms: 21.99586
+  type: 'test'
+  ...
+# Subtest: R05-1 existing byte ceiling and DTD/ENTITY refusal preserved; malformed qname refused
+ok 126 - R05-1 existing byte ceiling and DTD/ENTITY refusal preserved; malformed qname refused
+  ---
+  duration_ms: 2.508282
+  type: 'test'
+  ...
+# Subtest: R05-1 historical hostile fixtures in ISOLATED child processes (256 MB heap, OS SIGKILL timeout): fail closed < 2 s, no OOM
+ok 127 - R05-1 historical hostile fixtures in ISOLATED child processes (256 MB heap, OS SIGKILL timeout): fail closed < 2 s, no OOM
+  ---
+  duration_ms: 771.367156
+  type: 'test'
+  ...
+# Subtest: R05-1 resource-limit violations in a listing → 503 export_incomplete, no bundle, no writes
+ok 128 - R05-1 resource-limit violations in a listing → 503 export_incomplete, no bundle, no writes
+  ---
+  duration_ms: 114.520229
+  type: 'test'
+  ...
+# Subtest: R05-2 outbound PROPFIND: exact resourcetype-only body, Content-Type, Content-Length, Depth; never allprop
+ok 129 - R05-2 outbound PROPFIND: exact resourcetype-only body, Content-Type, Content-Length, Depth; never allprop
+  ---
+  duration_ms: 30.184136
+  type: 'test'
+  ...
+# Subtest: R05-2 locked records on a conforming server: export succeeds with the correct count; restore works
+ok 130 - R05-2 locked records on a conforming server: export succeeds with the correct count; restore works
+  ---
+  duration_ms: 44.911201
+  type: 'test'
+  ...
+# Subtest: R05-2 non-conforming server ignoring the requested scope (allprop extras with nested DAV:href) → 503, no bundle
+ok 131 - R05-2 non-conforming server ignoring the requested scope (allprop extras with nested DAV:href) → 503, no bundle
+  ---
+  duration_ms: 18.414994
+  type: 'test'
+  ...
+# Subtest: R05-2 nested DAV:href inside an unexpected property → 503 (not silently dropped)
+ok 132 - R05-2 nested DAV:href inside an unexpected property → 503 (not silently dropped)
+  ---
+  duration_ms: 10.328032
+  type: 'test'
+  ...
+# Subtest: R05-2 no allprop fallback: PROPFIND answered 400 → fail closed, exactly one PROPFIND, never an empty body
+ok 133 - R05-2 no allprop fallback: PROPFIND answered 400 → fail closed, exactly one PROPFIND, never an empty body
+  ---
+  duration_ms: 10.441262
+  type: 'test'
+  ...
+# Subtest: R05-2 no allprop fallback: PROPFIND answered 403 → fail closed, exactly one PROPFIND, never an empty body
+ok 134 - R05-2 no allprop fallback: PROPFIND answered 403 → fail closed, exactly one PROPFIND, never an empty body
+  ---
+  duration_ms: 8.768662
+  type: 'test'
+  ...
+# Subtest: R05-2 no allprop fallback: PROPFIND answered 415 → fail closed, exactly one PROPFIND, never an empty body
+ok 135 - R05-2 no allprop fallback: PROPFIND answered 415 → fail closed, exactly one PROPFIND, never an empty body
+  ---
+  duration_ms: 13.228592
+  type: 'test'
+  ...
+# Subtest: R05-2 no allprop fallback: PROPFIND answered 500 → fail closed, exactly one PROPFIND, never an empty body
+ok 136 - R05-2 no allprop fallback: PROPFIND answered 500 → fail closed, exactly one PROPFIND, never an empty body
+  ---
+  duration_ms: 13.084395
+  type: 'test'
+  ...
+# Subtest: R05-2 canonical checks, 0- and 2-record export/restore, and prefixes still work with the explicit request
+ok 137 - R05-2 canonical checks, 0- and 2-record export/restore, and prefixes still work with the explicit request
+  ---
+  duration_ms: 86.998231
+  type: 'test'
+  ...
+# Subtest: R05 non-regression: R04 hidden-response protection intact with the new request
+ok 138 - R05 non-regression: R04 hidden-response protection intact with the new request
+  ---
+  duration_ms: 10.267189
+  type: 'test'
+  ...
+# Subtest: R06 constants: explicit PROPFIND body is 114 bytes with the expected media type
+ok 139 - R06 constants: explicit PROPFIND body is 114 bytes with the expected media type
+  ---
+  duration_ms: 0.745112
+  type: 'test'
+  ...
+# Subtest: R06-207 malformed/truncated XML (root and kind listing) → 503, exactly one explicit PROPFIND, no allprop retry
+ok 140 - R06-207 malformed/truncated XML (root and kind listing) → 503, exactly one explicit PROPFIND, no allprop retry
+  ---
+  duration_ms: 79.823511
+  type: 'test'
+  ...
+# Subtest: R06-207 well-formed but unsupported nested DAV property/href → 503, exactly one explicit PROPFIND, no allprop retry
+ok 141 - R06-207 well-formed but unsupported nested DAV property/href → 503, exactly one explicit PROPFIND, no allprop retry
+  ---
+  duration_ms: 27.571197
+  type: 'test'
+  ...
+# Subtest: R06-207 non-conforming server answers allprop to the explicit request (locks=true) → 503, exactly one explicit PROPFIND, no retry
+ok 142 - R06-207 non-conforming server answers allprop to the explicit request (locks=true) → 503, exactly one explicit PROPFIND, no retry
+  ---
+  duration_ms: 13.388942
+  type: 'test'
+  ...
+# Subtest: R06-207 non-conforming server answers allprop to the explicit request (locks=false) → 503, exactly one explicit PROPFIND, no retry
+ok 143 - R06-207 non-conforming server answers allprop to the explicit request (locks=false) → 503, exactly one explicit PROPFIND, no retry
+  ---
+  duration_ms: 12.715519
+  type: 'test'
+  ...
+# Subtest: R06 non-207 400 → 503, exactly one explicit PROPFIND (body/length/type/depth), no GET, no writes
+ok 144 - R06 non-207 400 → 503, exactly one explicit PROPFIND (body/length/type/depth), no GET, no writes
+  ---
+  duration_ms: 12.953362
+  type: 'test'
+  ...
+# Subtest: R06 non-207 403 → 503, exactly one explicit PROPFIND (body/length/type/depth), no GET, no writes
+ok 145 - R06 non-207 403 → 503, exactly one explicit PROPFIND (body/length/type/depth), no GET, no writes
+  ---
+  duration_ms: 15.777799
+  type: 'test'
+  ...
+# Subtest: R06 non-207 415 → 503, exactly one explicit PROPFIND (body/length/type/depth), no GET, no writes
+ok 146 - R06 non-207 415 → 503, exactly one explicit PROPFIND (body/length/type/depth), no GET, no writes
+  ---
+  duration_ms: 12.159662
+  type: 'test'
+  ...
+# Subtest: R06 non-207 500 → 503, exactly one explicit PROPFIND (body/length/type/depth), no GET, no writes
+ok 147 - R06 non-207 500 → 503, exactly one explicit PROPFIND (body/length/type/depth), no GET, no writes
+  ---
+  duration_ms: 15.052766
+  type: 'test'
+  ...
+# Subtest: R06-207 adapter: malformed 207 returns outcome malformed after exactly one explicit PROPFIND (no second request)
+ok 148 - R06-207 adapter: malformed 207 returns outcome malformed after exactly one explicit PROPFIND (no second request)
+  ---
+  duration_ms: 9.217979
+  type: 'test'
+  ...
+# Subtest: R06 non-regression: valid resourcetype-only 207 exports normally with one explicit PROPFIND per listing
+ok 149 - R06 non-regression: valid resourcetype-only 207 exports normally with one explicit PROPFIND per listing
+  ---
+  duration_ms: 13.593092
+  type: 'test'
+  ...
+# Subtest: R07-FH-01 post-parse branch "foreign href" (root and kind listing) → 503, exactly one explicit PROPFIND, no fallback
+ok 150 - R07-FH-01 post-parse branch "foreign href" (root and kind listing) → 503, exactly one explicit PROPFIND, no fallback
+  ---
+  duration_ms: 97.240611
+  type: 'test'
+  ...
+# Subtest: R07-STATUS-02 post-parse branch "non-2xx response entry" (root and kind listing) → 503, exactly one explicit PROPFIND, no fallback
+ok 151 - R07-STATUS-02 post-parse branch "non-2xx response entry" (root and kind listing) → 503, exactly one explicit PROPFIND, no fallback
+  ---
+  duration_ms: 44.697511
+  type: 'test'
+  ...
+# Subtest: R07-DUP-03 post-parse branch "duplicate href" (root and kind listing) → 503, exactly one explicit PROPFIND, no fallback
+ok 152 - R07-DUP-03 post-parse branch "duplicate href" (root and kind listing) → 503, exactly one explicit PROPFIND, no fallback
+  ---
+  duration_ms: 41.400464
+  type: 'test'
+  ...
+# Subtest: R07 positive control: valid parsed 207 listings (same builders, no bad entry) export normally with one explicit PROPFIND per path
+ok 153 - R07 positive control: valid parsed 207 listings (same builders, no bad entry) export normally with one explicit PROPFIND per path
+  ---
+  duration_ms: 24.629991
+  type: 'test'
+  ...
+# R08-EVIDENCE R08-TLS-01 {"cert":"IP Address:127.0.0.1, DNS:localhost, IP Address:0:0:0:0:0:0:0:1","handshakes":18,"appBytes":5654,"propfinds":4,"openssl":"OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)","nodeOpenssl":"3.5.9"}
+# Subtest: R08-TLS-01 strict loopback HTTPS (IP SAN) carries the full API: save, read-back, export, restore
+ok 154 - R08-TLS-01 strict loopback HTTPS (IP SAN) carries the full API: save, read-back, export, restore
+  ---
+  duration_ms: 140.623818
+  type: 'test'
+  ...
+# Subtest: R08-TLS-01 strict loopback HTTPS by name: localhost is verified against the DNS SAN and resolved to loopback
+ok 155 - R08-TLS-01 strict loopback HTTPS by name: localhost is verified against the DNS SAN and resolved to loopback
+  ---
+  duration_ms: 33.257782
+  type: 'test'
+  ...
+# Subtest: R08-TLS-01 controls: plain-HTTP loopback still works; https without explicit localTls still fails closed
+ok 156 - R08-TLS-01 controls: plain-HTTP loopback still works; https without explicit localTls still fails closed
+  ---
+  duration_ms: 7.335156
+  type: 'test'
+  ...
+# R08-EVIDENCE R08-TLS-02 {"label":"wrong CA","code":"UNABLE_TO_VERIFY_LEAF_SIGNATURE","tcp":3,"handshakes":0,"appBytes":0,"backendRequests":0}
+# Subtest: R08-TLS-02 wrong CA: no application request, no Authorization; write is not_sent (not Unknown)
+ok 157 - R08-TLS-02 wrong CA: no application request, no Authorization; write is not_sent (not Unknown)
+  ---
+  duration_ms: 10.466251
+  type: 'test'
+  ...
+# R08-EVIDENCE R08-TLS-02 {"label":"self-signed untrusted","code":"DEPTH_ZERO_SELF_SIGNED_CERT","tcp":3,"handshakes":0,"appBytes":0,"backendRequests":0}
+# Subtest: R08-TLS-02 self-signed untrusted: no application request, no Authorization; write is not_sent (not Unknown)
+ok 158 - R08-TLS-02 self-signed untrusted: no application request, no Authorization; write is not_sent (not Unknown)
+  ---
+  duration_ms: 16.015755
+  type: 'test'
+  ...
+# R08-EVIDENCE R08-TLS-02 {"label":"expired","code":"CERT_HAS_EXPIRED","tcp":3,"handshakes":0,"appBytes":0,"backendRequests":0}
+# Subtest: R08-TLS-02 expired: no application request, no Authorization; write is not_sent (not Unknown)
+ok 159 - R08-TLS-02 expired: no application request, no Authorization; write is not_sent (not Unknown)
+  ---
+  duration_ms: 17.038092
+  type: 'test'
+  ...
+# R08-EVIDENCE R08-TLS-02 {"label":"SAN mismatch","code":"ERR_TLS_CERT_ALTNAME_INVALID","tcp":3,"handshakes":0,"appBytes":0,"backendRequests":0}
+# Subtest: R08-TLS-02 SAN mismatch: no application request, no Authorization; write is not_sent (not Unknown)
+ok 160 - R08-TLS-02 SAN mismatch: no application request, no Authorization; write is not_sent (not Unknown)
+  ---
+  duration_ms: 14.976465
+  type: 'test'
+  ...
+# R08-EVIDENCE R08-TLS-02 {"label":"valid cert but client trusts another CA only","code":"UNABLE_TO_VERIFY_LEAF_SIGNATURE","tcp":3,"handshakes":0,"appBytes":0,"backendRequests":0}
+# Subtest: R08-TLS-02 valid cert but client trusts another CA only: no application request, no Authorization; write is not_sent (not Unknown)
+ok 161 - R08-TLS-02 valid cert but client trusts another CA only: no application request, no Authorization; write is not_sent (not Unknown)
+  ---
+  duration_ms: 18.596728
+  type: 'test'
+  ...
+# Subtest: R08-TLS-02 insecure trust overrides and ambiguous TLS configuration are refused at construction
+ok 162 - R08-TLS-02 insecure trust overrides and ambiguous TLS configuration are refused at construction
+  ---
+  duration_ms: 0.546507
+  type: 'test'
+  ...
+# Subtest: R08-TLS-02 NODE_TLS_REJECT_UNAUTHORIZED=0 cannot weaken verification (separate process)
+ok 163 - R08-TLS-02 NODE_TLS_REJECT_UNAUTHORIZED=0 cannot weaken verification (separate process)
+  ---
+  duration_ms: 73.360222
+  type: 'test'
+  ...
+# Subtest: R08-TLS-02 redirects (downgrade to http:, cross-host https:) are never followed; no second request
+ok 164 - R08-TLS-02 redirects (downgrade to http:, cross-host https:) are never followed; no second request
+  ---
+  duration_ms: 28.237518
+  type: 'test'
+  ...
+# Subtest: R08-NET-03 non-loopback, arbitrary, obfuscated, credentialed or port-less targets are refused at construction
+ok 165 - R08-NET-03 non-loopback, arbitrary, obfuscated, credentialed or port-less targets are refused at construction
+  ---
+  duration_ms: 0.464241
+  type: 'test'
+  ...
+# Subtest: R08-NET-03 a name resolving outside the loopback allowlist is refused before connecting (trap untouched)
+ok 166 - R08-NET-03 a name resolving outside the loopback allowlist is refused before connecting (trap untouched)
+  ---
+  duration_ms: 65.972871
+  type: 'test'
+  ...
+# Subtest: R08-NET-03 positive control: the system resolver maps localhost to an allowed loopback address
+ok 167 - R08-NET-03 positive control: the system resolver maps localhost to an allowed loopback address
+  ---
+  duration_ms: 12.228109
+  type: 'test'
+  ...
+# Subtest: R08-PATH-04 adapter refuses non-canonical request paths before any request
+ok 168 - R08-PATH-04 adapter refuses non-canonical request paths before any request
+  ---
+  duration_ms: 2.095771
+  type: 'test'
+  ...
+# Subtest: R08-PATH-04 non-canonical base paths are refused at construction
+ok 169 - R08-PATH-04 non-canonical base paths are refused at construction
+  ---
+  duration_ms: 0.441096
+  type: 'test'
+  ...
+# Subtest: R08-PATH-04 API refuses encoded traversal and cross-namespace targets; valid note paths still work
+ok 170 - R08-PATH-04 API refuses encoded traversal and cross-namespace targets; valid note paths still work
+  ---
+  duration_ms: 19.598956
+  type: 'test'
+  ...
+# R08-EVIDENCE R08-Q4-05 {"case":"stalled-body","status":408,"ms":1004,"upstreamPut":0}
+# Subtest: R08-Q4-05 deadline: a stalled body is answered 408 by the 1000 ms absolute deadline, before any dispatch
+ok 171 - R08-Q4-05 deadline: a stalled body is answered 408 by the 1000 ms absolute deadline, before any dispatch
+  ---
+  duration_ms: 1008.743189
+  type: 'test'
+  ...
+# Subtest: R08-Q4-05 late chunks after the deadline never become a write; the reservation is released
+ok 172 - R08-Q4-05 late chunks after the deadline never become a write; the reservation is released
+  ---
+  duration_ms: 1915.081503
+  type: 'test'
+  ...
+# Subtest: R08-Q4-05 admission: 2 per principal / 4 global while bodies stall; other principal unaffected; all released by the deadline
+ok 173 - R08-Q4-05 admission: 2 per principal / 4 global while bodies stall; other principal unaffected; all released by the deadline
+  ---
+  duration_ms: 1012.62587
+  type: 'test'
+  ...
+# Subtest: R08-Q4-05 aborted upload releases the reservation; no PUT
+ok 174 - R08-Q4-05 aborted upload releases the reservation; no PUT
+  ---
+  duration_ms: 127.732639
+  type: 'test'
+  ...
+# Subtest: R08-Q4-05 dispatch uncertain: an upstream stall past the body deadline stays Unknown (no 408, no false verdict)
+ok 175 - R08-Q4-05 dispatch uncertain: an upstream stall past the body deadline stays Unknown (no 408, no false verdict)
+  ---
+  duration_ms: 310.685813
+  type: 'test'
+  ...
+# Subtest: R08-Q4-05 body cap, opId reuse with another payload, reuse while pending, upstream 429 (no retry)
+ok 176 - R08-Q4-05 body cap, opId reuse with another payload, reuse while pending, upstream 429 (no retry)
+  ---
+  duration_ms: 1021.897135
+  type: 'test'
+  ...
+# R08-EVIDENCE R08-Q5-06 {"case":"applied-unconfirmed-fence","fence":"fence_not_confirmed","verify":"indeterminate","fencePuts":1}
+# Subtest: R08-Q5-06 applied-but-unconfirmed fence (lost ACK) stays non-terminal; no blind fence retry
+ok 177 - R08-Q5-06 applied-but-unconfirmed fence (lost ACK) stays non-terminal; no blind fence retry
+  ---
+  duration_ms: 17.862164
+  type: 'test'
+  ...
+# Subtest: R08-Q5-06 missing ETag on fence: fence_not_confirmed, Unknown retained, no retry
+ok 178 - R08-Q5-06 missing ETag on fence: fence_not_confirmed, Unknown retained, no retry
+  ---
+  duration_ms: 10.734223
+  type: 'test'
+  ...
+# Subtest: R08-Q5-06 weak ETag on fence: fence_not_confirmed, Unknown retained, no retry
+ok 179 - R08-Q5-06 weak ETag on fence: fence_not_confirmed, Unknown retained, no retry
+  ---
+  duration_ms: 12.066163
+  type: 'test'
+  ...
+# Subtest: R08-Q5-06 mismatched (bogus) fence ETag: fence_not_confirmed, Unknown retained, no retry
+ok 180 - R08-Q5-06 mismatched (bogus) fence ETag: fence_not_confirmed, Unknown retained, no retry
+  ---
+  duration_ms: 12.655504
+  type: 'test'
+  ...
+# Subtest: R08-Q5-06 GET read-back failure: fence_not_confirmed, Unknown retained, no retry
+ok 181 - R08-Q5-06 GET read-back failure: fence_not_confirmed, Unknown retained, no retry
+  ---
+  duration_ms: 16.54563
+  type: 'test'
+  ...
+# Subtest: R08-Q5-06 restart: a fresh instance never terminalises, never fences, never replays
+ok 182 - R08-Q5-06 restart: a fresh instance never terminalises, never fences, never replays
+  ---
+  duration_ms: 17.301269
+  type: 'test'
+  ...
+# Subtest: R08-Q5-06 Unknown entries hold their quota slot (no TTL/pressure eviction); manual STOP is the outcome
+ok 183 - R08-Q5-06 Unknown entries hold their quota slot (no TTL/pressure eviction); manual STOP is the outcome
+  ---
+  duration_ms: 16.351947
+  type: 'test'
+  ...
+# Subtest: R08-Q5-06 sibling write after an Unknown: CAS decides, the Unknown becomes indeterminate (never terminal)
+ok 184 - R08-Q5-06 sibling write after an Unknown: CAS decides, the Unknown becomes indeterminate (never terminal)
+  ---
+  duration_ms: 15.331599
+  type: 'test'
+  ...
+# R08-EVIDENCE R08-CAP-07 {"N":1665,"listingElements":9998,"listingBytes":299981,"status":200,"count":1665,"propfind":4,"get":1665,"writes":0,"exportMs":1163,"responseBytes":1079657,"rssDeltaMB":30.8,"maxRssMB":149.5}
+# Subtest: R08-CAP-07 N=1665: listing has 9998 XML elements -> 200 complete bundle
+ok 185 - R08-CAP-07 N=1665: listing has 9998 XML elements -> 200 complete bundle
+  ---
+  duration_ms: 1240.645522
+  type: 'test'
+  ...
+# R08-EVIDENCE R08-CAP-07 {"N":1666,"listingElements":10004,"listingBytes":300161,"status":503,"count":null,"propfind":4,"get":0,"writes":0,"exportMs":40,"responseBytes":149,"rssDeltaMB":-0.9,"maxRssMB":153.2}
+# Subtest: R08-CAP-07 N=1666: listing has 10004 XML elements -> 503 export_incomplete, no partial bundle, no GET, no write
+ok 186 - R08-CAP-07 N=1666: listing has 10004 XML elements -> 503 export_incomplete, no partial bundle, no GET, no write
+  ---
+  duration_ms: 95.64344
+  type: 'test'
+  ...
+# Subtest: R08-BUD-08 arithmetic: 100/rolling 30 min incl. cleanup reserve, files, bytes, writers, 401/429 stop
+ok 187 - R08-BUD-08 arithmetic: 100/rolling 30 min incl. cleanup reserve, files, bytes, writers, 401/429 stop
+  ---
+  duration_ms: 1.056145
+  type: 'test'
+  ...
+# R08-EVIDENCE R08-BUD-08 {"writers":2,"files":20,"requestsTotal":100,"ordinaryStoppedAt":80,"cleanup":21,"upstream":100}
+# Subtest: R08-BUD-08 end-to-end dry run against the local mock: 2 writers, 20 files, stop before the reserve, cleanup in reserve, exactly 100 requests
+ok 188 - R08-BUD-08 end-to-end dry run against the local mock: 2 writers, 20 files, stop before the reserve, cleanup in reserve, exactly 100 requests
+  ---
+  duration_ms: 73.466307
+  type: 'test'
+  ...
+# Subtest: R08-BUD-08 end-to-end: file cap, 1 MiB cap and upstream 429 STOP are enforced before dispatch
+ok 189 - R08-BUD-08 end-to-end: file cap, 1 MiB cap and upstream 429 STOP are enforced before dispatch
+  ---
+  duration_ms: 10.06961
+  type: 'test'
+  ...
+# Subtest: R08-SCOPE-10 malformed HTTP 207 over TLS: exactly one explicit PROPFIND for the failing path, 503, no GET/write
+ok 190 - R08-SCOPE-10 malformed HTTP 207 over TLS: exactly one explicit PROPFIND for the failing path, 503, no GET/write
+  ---
+  duration_ms: 23.559862
+  type: 'test'
+  ...
+# Subtest: R08-SCOPE-10 PROPFIND contract and loopback-only endpoints are unchanged by R08
+ok 191 - R08-SCOPE-10 PROPFIND contract and loopback-only endpoints are unchanged by R08
+  ---
+  duration_ms: 7.479997
+  type: 'test'
+  ...
+# Subtest: R09-CLEAN-01 unit: after beginCleanup ordinary work is refused without STOP and without consuming a slot
+ok 192 - R09-CLEAN-01 unit: after beginCleanup ordinary work is refused without STOP and without consuming a slot
+  ---
+  duration_ms: 1.467755
+  type: 'test'
+  ...
+# R09-EVIDENCE R09-CLEAN-02 {"ordinaryBeforeCleanup":75,"stragglersRefused":10,"extraPut":0,"cleanupDeletes":20,"verification":1,"serverRequests":96,"ownFilesLeft":0}
+# Subtest: R09-CLEAN-01/02 early cleanup at 75 requests: 10 straggler PUTs from 2 writers refused, then 20 DELETE + 1 verification empty the own namespace
+ok 193 - R09-CLEAN-01/02 early cleanup at 75 requests: 10 straggler PUTs from 2 writers refused, then 20 DELETE + 1 verification empty the own namespace
+  ---
+  duration_ms: 181.971434
+  type: 'test'
+  ...
+# Subtest: R09-CLEAN-02 legacy profile kept: 79 ordinary + 21 cleanup = 100, request 101 refused (server-verified)
+ok 194 - R09-CLEAN-02 legacy profile kept: 79 ordinary + 21 cleanup = 100, request 101 refused (server-verified)
+  ---
+  duration_ms: 78.216019
+  type: 'test'
+  ...
+# R09-EVIDENCE R09-B5-03 {"earlyCleanupPutRefused":"CLEANUP_PHASE_ORDINARY_REFUSED","upstreamPut":1,"file21":"BUDGET_FILES","budgetRequests":20,"serverRequests":20}
+# Subtest: R09-B5-03 refused write admissions (early cleanup with budget left; 21st file) never reach the store
+ok 195 - R09-B5-03 refused write admissions (early cleanup with budget left; 21st file) never reach the store
+  ---
+  duration_ms: 13.359631
+  type: 'test'
+  ...
+# R09-EVIDENCE R09-Q4B-04 {"chunked":false,"status":408,"ms":1002,"trickledBytes":9,"upstreamPut":0}
+# Subtest: R09-Q4B-04 Content-Length trickle every 100 ms: 408 at the ABSOLUTE 1000 ms deadline, no PUT, slot released
+ok 196 - R09-Q4B-04 Content-Length trickle every 100 ms: 408 at the ABSOLUTE 1000 ms deadline, no PUT, slot released
+  ---
+  duration_ms: 1304.174016
+  type: 'test'
+  ...
+# R09-EVIDENCE R09-Q4B-04 {"chunked":true,"status":408,"ms":1002,"trickledBytes":10,"upstreamPut":0}
+# Subtest: R09-Q4B-04 chunked trickle every 100 ms: 408 at the ABSOLUTE 1000 ms deadline, no PUT, slot released
+ok 197 - R09-Q4B-04 chunked trickle every 100 ms: 408 at the ABSOLUTE 1000 ms deadline, no PUT, slot released
+  ---
+  duration_ms: 1303.602646
+  type: 'test'
+  ...
+# Subtest: R09-Q4B-04 control: once dispatched, an upstream stall stays Unknown (non-terminal); the body deadline does not apply
+ok 198 - R09-Q4B-04 control: once dispatched, an upstream stall stays Unknown (non-terminal); the body deadline does not apply
+  ---
+  duration_ms: 1312.227624
+  type: 'test'
+  ...
+# R09-EVIDENCE R09-SAFE-05 {"status":401,"deletesSent":1,"residualFiles":3,"stopped":"UPSTREAM_401"}
+# Subtest: R09-SAFE-05 upstream 401 during cleanup is a hard STOP: no further DELETE, no verification, residual files reported
+ok 199 - R09-SAFE-05 upstream 401 during cleanup is a hard STOP: no further DELETE, no verification, residual files reported
+  ---
+  duration_ms: 5.107462
+  type: 'test'
+  ...
+# R09-EVIDENCE R09-SAFE-05 {"status":429,"deletesSent":1,"residualFiles":3,"stopped":"UPSTREAM_429"}
+# Subtest: R09-SAFE-05 upstream 429 during cleanup is a hard STOP: no further DELETE, no verification, residual files reported
+ok 200 - R09-SAFE-05 upstream 429 during cleanup is a hard STOP: no further DELETE, no verification, residual files reported
+  ---
+  duration_ms: 4.452472
+  type: 'test'
+  ...
+# Subtest: R09-SAFE-05 a write in flight when cleanup begins stays Unknown; nothing is retried, reclassified or deleted blindly
+ok 201 - R09-SAFE-05 a write in flight when cleanup begins stays Unknown; nothing is retried, reclassified or deleted blindly
+  ---
+  duration_ms: 313.723775
+  type: 'test'
+  ...
+# Subtest: R09-SAFE-05 ACCESS-01 ceilings and the PROPFIND contract are unchanged
+ok 202 - R09-SAFE-05 ACCESS-01 ceilings and the PROPFIND contract are unchanged
+  ---
+  duration_ms: 0.276567
+  type: 'test'
+  ...
+# Subtest: R10-CLEAN-01 unit: verification refused at 0, 1 and 19 of 20 DELETE attempts; token, slots and STOP state preserved
+ok 203 - R10-CLEAN-01 unit: verification refused at 0, 1 and 19 of 20 DELETE attempts; token, slots and STOP state preserved
+  ---
+  duration_ms: 1.550549
+  type: 'test'
+  ...
+# R10-EVIDENCE R10-CLEAN-02 {"ordinary":75,"earlyVerificationsRefused":3,"stragglersRefused":10,"deletes":20,"finalVerification":1,"serverRequests":96,"ownFilesLeft":0}
+# Subtest: R10-CLEAN-01/02 two writers, early cleanup at 75: early PROPFIND at 0/1/19 of 20 refused, 10 stragglers refused, then 20 DELETE + 1 final = 96, 0 files
+ok 204 - R10-CLEAN-01/02 two writers, early cleanup at 75: early PROPFIND at 0/1/19 of 20 refused, 10 stragglers refused, then 20 DELETE + 1 final = 96, 0 files
+  ---
+  duration_ms: 200.944403
+  type: 'test'
+  ...
+# Subtest: R10-CLEAN-02 legacy profile with an early PROPFIND: 79 + 21 = 100, request 101 refused
+ok 205 - R10-CLEAN-02 legacy profile with an early PROPFIND: 79 + 21 = 100, request 101 refused
+  ---
+  duration_ms: 113.720256
+  type: 'test'
+  ...
+# Subtest: R10-SAFE 412 counts as attempted (not success): final verification allowed and the residual stays visible
+ok 206 - R10-SAFE 412 counts as attempted (not success): final verification allowed and the residual stays visible
+  ---
+  duration_ms: 6.98099
+  type: 'test'
+  ...
+# Subtest: R10-SAFE upstream 401 mid-cleanup: hard STOP still refuses DELETE and the verification
+ok 207 - R10-SAFE upstream 401 mid-cleanup: hard STOP still refuses DELETE and the verification
+  ---
+  duration_ms: 3.950729
+  type: 'test'
+  ...
+# Subtest: R10-SAFE upstream 429 mid-cleanup: hard STOP still refuses DELETE and the verification
+ok 208 - R10-SAFE upstream 429 mid-cleanup: hard STOP still refuses DELETE and the verification
+  ---
+  duration_ms: 4.689588
+  type: 'test'
+  ...
+# R10-EVIDENCE R10-SAFE {"unknownWriteResidual":1,"finalVerification":"refused (finality not assertable)"}
+# Subtest: R10-SAFE lost-ACK own write: its DELETE cannot be claimed, so no final verification and no false "clean"
+ok 209 - R10-SAFE lost-ACK own write: its DELETE cannot be claimed, so no final verification and no false "clean"
+  ---
+  duration_ms: 3.537572
+  type: 'test'
+  ...
+1..209
+# tests 209
+# suites 0
+# pass 209
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 43487.601073

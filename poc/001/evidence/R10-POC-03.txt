@@ -1,0 +1,14 @@
+$ node --test --test-reporter=spec test/poc03-roundtrip.test.mjs
+# exit 0 · 261 ms · gitHead bb30e1d07ac18412021e5bcb05919ea6d87057cd
+
+✔ POC-03 codec: Markdown export parses back byte-identical for all five fields (6.356065ms)
+✔ POC-03 envelope round trip through API and storage is byte-exact (68.644379ms)
+✔ POC-03 identity: Zotero library+key mapping is unique; duplicate create refused (25.661441ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 228.058783

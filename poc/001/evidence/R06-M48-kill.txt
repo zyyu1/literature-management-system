@@ -1,0 +1,75 @@
+# R06 M48 kill detail (tested HEAD afc5b17ccfd9f525bff8ebdb06f30473b0d877f0)
+# probe source:
+#   // R06 M48 kill detail: apply the M48 text substitution to a TEMPORARY copy (never the repo) and show which
+#   // R06 tests fail and on which assertion. Usage: node m48-detail.mjs <path-to-poc/001>
+#   import { cp, mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
+#   import { tmpdir } from 'node:os';
+#   import { join } from 'node:path';
+#   import { spawnSync } from 'node:child_process';
+#   const root = process.argv[2];
+#   const from = "      try { entries = parseMultistatus(r.body); } catch (e) { return { outcome: 'malformed', reason: e.message }; }";
+#   const to = "      try { entries = parseMultistatus(r.body); } catch (e) { await request('PROPFIND', path, { headers: { Depth: depth } }); return { outcome: 'malformed', reason: e.message }; }";
+#   for (const suite of ['test/r06-regressions.test.mjs', 'test/r05-regressions.test.mjs']) {
+#     const dir = await mkdtemp(join(tmpdir(), 'poc001-M48-detail-'));
+#     await cp(root, dir, { recursive: true, filter: (p) => !p.includes('/evidence/') });
+#     const f = join(dir, 'src/webdav-adapter.mjs'), src = await readFile(f, 'utf8');
+#     console.log(`--- ${suite}: pattern occurrences=${src.split(from).length - 1}`);
+#     await writeFile(f, src.replace(from, to));
+#     const r = spawnSync(process.execPath, ['--test', suite], { cwd: dir, encoding: 'utf8', timeout: 180_000 });
+#     const out = r.stdout + r.stderr;
+#     console.log(`exit=${r.status}`);
+#     for (const l of out.split('\n').filter((l) => /^(not ok|ok) \d+ - /.test(l))) console.log(l);
+#     const msgs = [...out.matchAll(/R06 exactly one PROPFIND[^'"\n]*/g)].map((m) => m[0]);
+#     console.log(`R06 request-count assertion messages in failures: ${msgs.length}`); [...new Set(msgs)].forEach((m) => console.log(`  ${m}`));
+#     for (const l of out.split('\n').filter((l) => /^# (tests|pass|fail)/.test(l))) console.log(l);
+#     await rm(dir, { recursive: true, force: true });
+#   }
+
+$ node m48-detail.mjs <poc/001>
+# exit 0
+
+--- test/r06-regressions.test.mjs: pattern occurrences=1
+exit=1
+ok 1 - R06 constants: explicit PROPFIND body is 114 bytes with the expected media type
+not ok 2 - R06-207 malformed/truncated XML (root and kind listing) → 503, exactly one explicit PROPFIND, no allprop retry
+not ok 3 - R06-207 well-formed but unsupported nested DAV property/href → 503, exactly one explicit PROPFIND, no allprop retry
+not ok 4 - R06-207 non-conforming server answers allprop to the explicit request (locks=true) → 503, exactly one explicit PROPFIND, no retry
+not ok 5 - R06-207 non-conforming server answers allprop to the explicit request (locks=false) → 503, exactly one explicit PROPFIND, no retry
+ok 6 - R06 non-207 400 → 503, exactly one explicit PROPFIND (body/length/type/depth), no GET, no writes
+ok 7 - R06 non-207 403 → 503, exactly one explicit PROPFIND (body/length/type/depth), no GET, no writes
+ok 8 - R06 non-207 415 → 503, exactly one explicit PROPFIND (body/length/type/depth), no GET, no writes
+ok 9 - R06 non-207 500 → 503, exactly one explicit PROPFIND (body/length/type/depth), no GET, no writes
+not ok 10 - R06-207 adapter: malformed 207 returns outcome malformed after exactly one explicit PROPFIND (no second request)
+ok 11 - R06 non-regression: valid resourcetype-only 207 exports normally with one explicit PROPFIND per listing
+R06 request-count assertion messages in failures: 5
+  R06 exactly one PROPFIND for the failing listing /lms-poc/poc-ns-a
+  R06 exactly one PROPFIND for the failing listing (adapter level, no second request of any method)
+# tests 11
+# pass 6
+# fail 5
+--- test/r05-regressions.test.mjs: pattern occurrences=1
+exit=0
+ok 1 - R05-1 limits are the authorized values
+ok 2 - R05-1 depth 64 accepted / 65 rejected
+ok 3 - R05-1 elements 10000 accepted / 10001 rejected
+ok 4 - R05-1 attributes per element 64 accepted / 65 rejected
+ok 5 - R05-1 total attributes 10000 accepted / 10001 rejected
+ok 6 - R05-1 namespace declarations 256 accepted / 257 rejected
+ok 7 - R05-1 namespace scopes are shared, not copied per element
+ok 8 - R05-1 existing byte ceiling and DTD/ENTITY refusal preserved; malformed qname refused
+ok 9 - R05-1 historical hostile fixtures in ISOLATED child processes (256 MB heap, OS SIGKILL timeout): fail closed < 2 s, no OOM
+ok 10 - R05-1 resource-limit violations in a listing → 503 export_incomplete, no bundle, no writes
+ok 11 - R05-2 outbound PROPFIND: exact resourcetype-only body, Content-Type, Content-Length, Depth; never allprop
+ok 12 - R05-2 locked records on a conforming server: export succeeds with the correct count; restore works
+ok 13 - R05-2 non-conforming server ignoring the requested scope (allprop extras with nested DAV:href) → 503, no bundle
+ok 14 - R05-2 nested DAV:href inside an unexpected property → 503 (not silently dropped)
+ok 15 - R05-2 no allprop fallback: PROPFIND answered 400 → fail closed, exactly one PROPFIND, never an empty body
+ok 16 - R05-2 no allprop fallback: PROPFIND answered 403 → fail closed, exactly one PROPFIND, never an empty body
+ok 17 - R05-2 no allprop fallback: PROPFIND answered 415 → fail closed, exactly one PROPFIND, never an empty body
+ok 18 - R05-2 no allprop fallback: PROPFIND answered 500 → fail closed, exactly one PROPFIND, never an empty body
+ok 19 - R05-2 canonical checks, 0- and 2-record export/restore, and prefixes still work with the explicit request
+ok 20 - R05 non-regression: R04 hidden-response protection intact with the new request
+R06 request-count assertion messages in failures: 0
+# tests 20
+# pass 20
+# fail 0
