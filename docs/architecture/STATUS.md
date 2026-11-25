@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**A71 dispatch receipt — 2026-11-25:** Management27 OPEN re=board23, DEC-15=A verified. A70+A71 authorized; WAIT_EXECUTION_PREFLIGHT, actual container NOT_CERTIFIED, successor absent; Execution17/QA13 historical STOP. No new G4 or QA dispatch. G5/G6/G7 NOT_AUTHORIZED.
+
 **D007-A71 A70 CONTAINER EGRESS EQUIVALENCE — 2026-11-25:** [A71](D007_A71_A70_CONTAINER_EGRESS_EQUIVALENCE.md), DEC-14=A verified; Management26 STOP, Execution17 STOP, QA13 stale PR7 preflight STOP; no successor. Conditional preexisting platform-enforced loopback-only container alternative, not current host certification. Unisolated old-main reported results excluded. DEC-15 pending; A70 G1 approved ENVIRONMENT_BLOCKED, PR7 G4 PARTIAL_TEST_GATE, P1/P2 OPEN, G5/G6/G7 NOT_AUTHORIZED.
 
 **D007-A70 WP-03 NODE24 MIGRATION DESIGN — 2026-11-25:** [A70](D007_A70_WP03_NODE24_MIGRATION_DESIGN.md), DEC-13=B verified Management seq21 WAITING; G1 DRAFT, proposed exact v24.22.3 single-runtime successor branch from PR7 HEAD with 13 modifications and explicit hash overlays, full fresh independent matrix. DEC-14 pending; original PR7 unchanged G4 PARTIAL_TEST_GATE, P1/P2 OPEN, no dispatch/implementation, G5/G6/G7 NOT_AUTHORIZED.
