@@ -9,6 +9,13 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { assertPlatformEgressPrecondition } from '../../wp-01-synthetic-auth-api/support/platform-precondition.mjs';
+
+// D007-A66 §3a preflight: the frozen A62/A59 egress precondition runs before any scratch-tree
+// creation, baseline run, mutation work or child spawn. It is unconditional; there is no
+// environment opt-in. A connected/unsupported/ambiguous host stops here with EGRESS_PRECONDITION_FAILED
+// and the 13 mutant definitions below are never exercised.
+assertPlatformEgressPrecondition();
 
 const PKG = fileURLToPath(new URL('../', import.meta.url));
 const REPO = path.resolve(PKG, '../..');

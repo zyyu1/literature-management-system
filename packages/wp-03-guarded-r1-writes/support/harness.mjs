@@ -10,6 +10,14 @@ import { createGuardedR1Server } from '../src/server.mjs';
 import {
   assertLoopbackBaseUrl, browserHeaders, createFakeClient, newOperationId, APP_ORIGIN, EVIL_ORIGIN,
 } from '../../wp-01-synthetic-auth-api/support/harness.mjs';
+import { assertPlatformEgressPrecondition } from '../../wp-01-synthetic-auth-api/support/platform-precondition.mjs';
+
+// D007-A66 §3a: unconditional, fail-closed egress gate shared by every WP-03 test file that can
+// create a server or socket. Every network-capable behavioural test imports this module, and the
+// call runs during module evaluation, i.e. before node:test can execute any test body and before
+// any listen()/connect() can happen. It applies to default discovery, targeted runs and scratch
+// mutant copies alike; there is no environment variable or opt-in that can relax it.
+assertPlatformEgressPrecondition();
 
 export { assertLoopbackBaseUrl, browserHeaders, createFakeClient, newOperationId, APP_ORIGIN, EVIL_ORIGIN };
 

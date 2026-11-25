@@ -2,15 +2,18 @@
 
 **Status: LOCAL_SYNTHETIC_ONLY, MEMORY_ONLY, FAKE_ONLY. Not production-suitable. Not a real API and
 not a datastore.**
-Authority: D007-A65, `docs/handoffs/WP-03/DESIGN.md` (WP-03-R1) and
-`docs/handoffs/WP-03/QA_INSTRUCTION.md`, executed on Base
-`1684cea5623c8421e16c328c7f1464e8932d3118`, branch `exec/WP-03-guarded-r1-writes`.
-R1 is the first WP-03 slice; it is not full WP-03, not R2, and not a UI acceptance.
+Authority: D007-A65 and the D007-A66 bounded remediation, `docs/handoffs/WP-03/DESIGN.md` (WP-03-R1)
+and `QA_INSTRUCTION.md`, executed on Base `1684cea5623c8421e16c328c7f1464e8932d3118`, branch
+`exec/WP-03-guarded-r1-writes`. The A66 correction point (START) is
+`0fcad9cb6016900d5f7057161619e4a9f2e94b55`; the correction is prepared as one incremental commit
+whose parent is that START. R1 is the first WP-03 slice; it is not full WP-03, not R2, and not a UI
+acceptance.
 
 This package is isolated: it adds routes only on its **own** server factory and never edits
 `packages/wp-01-synthetic-auth-api/**`, `packages/wp-02-project-paper-read/**`, the fixtures, the
-helpers, the manifests, the tools or any other path. The only other allowed write is
-`docs/handoffs/WP-03/QA_HANDOFF.md`.
+helpers, the manifests, the tools or any other path. The A66 writable paths are this package's test,
+support, mutation-driver, new audit-script and README files plus `docs/handoffs/WP-03/QA_HANDOFF.md`;
+everything else at START is frozen.
 
 ## Frozen inputs
 
@@ -110,10 +113,38 @@ separators, traversal, NUL and prototype keys fail closed; no redirects or proxy
 unknown routes never mutate. Logs contain only time, method, route template, status and code — no
 cookies, CSRF tokens, bodies, notes, operation IDs or resource IDs.
 
+## Test gate and candidate scope (D007-A66)
+
+- The frozen WP-01 `support/platform-precondition.mjs` is imported read-only. `support/harness.mjs`
+  calls it during module evaluation, so every network-capable WP-03 test file (all ten behavioural
+  files import the harness) fails closed before a server or socket exists.
+  `test/upstream-regression.test.mjs` calls the same guard at module load before any upstream child
+  process; `scripts/mutation-check.mjs` calls it before scratch-tree creation, baseline work,
+  mutation work or any child spawn.
+- There is no environment opt-in, relaxed `HOST_PRECONDITION_ONLY` success or bypass. On a connected,
+  unsupported or ambiguous host the default and targeted commands fail with
+  `EGRESS_PRECONDITION_FAILED: <reason>` before test/child execution. The former
+  `WP03_REQUIRE_OFFLINE_UPSTREAM` flag is not read anywhere and has no effect.
+- Q3-11 validates the untouched upstream suites' TAP strictly: exactly 67 WP-01 tests and 44 WP-02
+  tests, `pass == expected`, `fail == 0`, `skipped == 0`, `todo == 0`, `cancelled == 0`, exit 0, no
+  signal/error/timeout, the exact TAP plan, every `ok` line, and no missing/malformed/duplicated or
+  partial summary line. The WP-02 run must contain its nested WP-01 67/67 test.
+- Q3-11 pins the actual original Base Git blob IDs and the exact full inventories of both upstream
+  packages (including evidence files), the two frozen fixtures and `tools/offline/`; extra, missing
+  or changed protected bytes fail. It deliberately does not walk unrelated repository docs or future
+  packages, so approved main-only design/QA/bus docs do not break the ordinary regression.
+- `scripts/verify-candidate-scope.mjs` is the separate explicit candidate audit (not a test file and
+  not discovered by `node --test`). It proves the full original Base tree, the exactly enumerated
+  cumulative additions (this package plus the QA handoff), no modified/deleted Base path, no extra or
+  untracked path, a single-parent incremental commit chain whose newest commit has START as parent,
+  exactly the six A66 paths changed relative to START, a clean checkout and a worktree equal to HEAD.
+  It is read-only local Git and is mandatory at G2/G3/G5. `--base`/`--start` overrides exist only for
+  disposable scratch/simulated tests; the defaults are the A66 constants.
+
 ## Exact commands
 
-Node exactly `v22.23.5` x64. Windows development path used here:
-`D:\claude\literature management system\.work\node22\node-v22.23.5-win-x64\node.exe`.
+Node exactly `v22.23.5` x64 (the pinned executable is provided by the execution environment; `node`
+below means that executable).
 
 ```powershell
 cd packages/wp-03-guarded-r1-writes
@@ -124,22 +155,17 @@ node --check src/model.mjs
 node --check src/server.mjs
 node --check support/harness.mjs
 node --check scripts/mutation-check.mjs
-node --test                                  # full suite, default discovery
-node scripts/mutation-check.mjs              # 13 named mutants, each killed by its named test
+node --check scripts/verify-candidate-scope.mjs
+node --test                                  # fail-closed gate + full suite on the isolated host
+node scripts/mutation-check.mjs              # preflight guard then 13 named mutants
+node scripts/verify-candidate-scope.mjs      # explicit read-only candidate audit (G2/G3/G5)
 ```
 
-On the accepted isolated QA host (offline/A59-A62 boundary) run the suite with the strict upstream
-verification enabled:
-
-```powershell
-$env:WP03_REQUIRE_OFFLINE_UPSTREAM = '1'
-node --test
-```
-
-Without that variable, a development host that is online records the frozen egress-precondition
-failure explicitly (`HOST_PRECONDITION_ONLY`) and still fails on any other upstream regression. The
-suite also spawns the frozen suites itself: WP-01 67 tests, WP-02 44 tests (which nest WP-01). The
-protected-blob check proves every Base path outside the whitelist is byte-identical.
+Run all commands inside the accepted isolated host boundary (A59/A62 or A54/A55). On a normal
+connected development host the guard-only check fails fast with
+`EGRESS_PRECONDITION_FAILED: ACTIVE_PATH`; that is expected and is not a suite result. The suite
+itself spawns the frozen suites: WP-01 67 tests and WP-02 44 tests (which nest WP-01 67). No full
+online suite is an acceptable gate.
 
 The frozen WP-02 committed mutation driver must be run on the isolated QA host:
 
@@ -162,21 +188,26 @@ node scripts/mutation-check.mjs
 | `test/auth-negative.test.mjs` | Q3-08 |
 | `test/r2-negative.test.mjs` | Q3-09 |
 | `test/transport.test.mjs` | Q3-10 |
-| `test/upstream-regression.test.mjs` | Q3-11 |
+| `test/upstream-regression.test.mjs` | Q3-11 strict upstream TAP and pinned protected dependency bytes |
 
 The suite uses its own loopback-only client plus the WP-01 fake client by read-only import and
-contains no skips/todos. The in-process egress spy is not an OS isolation claim.
+contains no skips/todos. Every network-capable test file imports `support/harness.mjs`, whose
+module-load guard is the shared fail-closed entry point for default discovery, targeted runs and
+scratch mutant copies. The in-process egress spy is not an OS isolation claim.
 
 ## Mutation driver
 
-`scripts/mutation-check.mjs` copies this package plus the frozen dependencies and fixtures into a
+`scripts/mutation-check.mjs` first runs the frozen A62 egress precondition (before any scratch tree,
+baseline or child) and then copies this package plus the frozen dependencies and fixtures into a
 scratch tree **outside the repository** (OS temp when writable, otherwise the clone's parent
 directory), applies one exact mutation per mutant, runs the relevant behavioural test files, and
 requires a named failing test — not a crash or timeout. Mutants: drop owner scope; allow Workspace
 write; skip CSRF; bypass revision compare; duplicate operation dispatch; accept changed fingerprint;
 false CONFIRMED/saved on UNKNOWN; make ReadingStatus Project-local; make Important global; allow R2
 destructive dispatch; case-fold identity; accept an old runId; fake DEFINITE_FAILURE after a
-possible dispatch. All 13 are killed; `MUTATION_SUMMARY killed=13/13`.
+possible dispatch. All 13 are killed on an isolated host; `MUTATION_SUMMARY killed=13/13`. The
+preflight guard and the copied harness both fail closed on a non-isolated host, so the driver cannot
+produce a relaxed baseline there.
 
 ## Not covered (NOT_COVERED)
 
