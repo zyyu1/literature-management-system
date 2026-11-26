@@ -1,0 +1,16 @@
+{
+  "name": "wp-03-guarded-r1-writes",
+  "version": "0.0.0-synthetic",
+  "private": true,
+  "type": "module",
+  "description": "WP-03-R1 LOCAL_SYNTHETIC_ONLY guarded routine-write contract double (D007-A65). Not production-suitable.",
+  "engines": {
+    "node": "22.23.5"
+  },
+  "scripts": {
+    "test": "node --test",
+    "mutation": "node scripts/mutation-check.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
