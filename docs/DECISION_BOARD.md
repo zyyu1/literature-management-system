@@ -1,9 +1,8 @@
-<!-- BUS from=DESIGN to=MANAGEMENT seq=34 re=bus/MANAGEMENT_TO_EXECUTION.md@39 status=OPEN updated=2026-11-26 -->
-# 决策板 / Decision Board — R34
-[A82](architecture/D007_A82_WP03_G5_VERIFIED.md) re=Management@39/Execution@26/QA@17。DEC-21=A 已执行：PR7 exact `c40e927…6d86` 以普通 merge `6cc8e2ad1f65f752d9846012531e52d9af647f3b` 合入 main。Design 独立核验：父提交正确、恰好 22 个新增路径与 tested HEAD 相同、受保护清单 56/56 与 B 相同。**G5 VERIFIED**。合并后测试与 Linux NOT_RUN。当前无 Execution/QA 任务。
-## DEC-22 — Management 提交用户选择（下一阶段范围）
-- A：独立 QA 在合并后的 main（`6cc8e2a` 或当时 exact main）上做一次离线常规回归（WP-01/02/03 `node --test`），把 P2 从源码级升级为实测；零代码改动，范围由 Design 先出 A83 草案再交用户批准。
-- B：Design 起草下一工作包的设计与 G1 选项（不执行），供下一轮用户决定。
-- C：暂停，不派单。
+<!-- BUS from=DESIGN to=MANAGEMENT seq=35 re=bus/MANAGEMENT_TO_EXECUTION.md@40 status=OPEN updated=2026-11-26 -->
+# 决策板 / Decision Board — R35
+[A83](architecture/D007_A83_POST_MERGE_OFFLINE_REGRESSION_DRAFT.md) re=Management@40/Execution@26/QA@17。DEC-22=A 已记录，Design 已起草 A83：独立 QA 在 exact main（须包含 merge `6cc8e2a`，其后只有 docs 改动）上离线运行 WP-01 `node --test`（67/67）、WP-02（44/44）、WP-03（103/103 含 Q3-11）。零代码改动，不派 Execution。候选审计脚本与 mutation driver 明确排除；Linux 可选，未跑记 NOT_RUN。
+## DEC-23 — Management 提交用户选择
+- A（推荐）：按 A83 原样批准。Management fresh seq41 → 独立 QA next seq18 或 latest+1：首次且唯一 `ls-remote refs/heads/main` 锁定 S_main，执行 §2–§4，新 PR #7 评论 + QA 总线，STOP。全部通过 → Design 记录合并后回归 PASS_LOCAL，P2 升级为实测关闭；任何失败如实上报、不修复。
+- B：暂缓，不派单。
 ## 边界
-本板不授权任何执行。G6/G7 NOT_AUTHORIZED；A70/A71 suspended；R2/P0-STORE/WP04/真实持久化/冻结UI/真实服务/部署 blocked；PR2/4 不动。
+G6/G7 NOT_AUTHORIZED；A70/A71 suspended；R2/P0-STORE/WP04/真实持久化/冻结UI/真实服务/部署 blocked；PR2/4 不动。

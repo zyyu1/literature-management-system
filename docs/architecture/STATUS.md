@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A83 POST-MERGE OFFLINE REGRESSION DRAFT — 2026-11-26:** [A83](D007_A83_POST_MERGE_OFFLINE_REGRESSION_DRAFT.md), DEC-22=A Management40 requests draft only. Independent QA `node --test` WP-01 67 / WP-02 44 / WP-03 103 on exact main containing merge `6cc8e2a`, offline; candidate audit script and mutation drivers excluded. Not authorized until DEC-23. G5 VERIFIED retained; G6/G7 NOT_AUTHORIZED.
+
 **D007-A82 WP-03-R1 G5 VERIFIED — 2026-11-26:** [A82](D007_A82_WP03_G5_VERIFIED.md), DEC-21=A Management39 / Execution26, merge `6cc8e2ad1f65f752d9846012531e52d9af647f3b` parents (`72d93bf`, tested `c40e927`); exactly 22 added paths equal tested HEAD, protected inventory 56/56 equals B. Post-merge test run NOT_RUN; Linux NOT_RUN. G6/G7 NOT_AUTHORIZED; A70/A71 suspended. DEC-22 next scope pending.
 
 **D007-A81 WP-03-R1 EXACT G4 PASS_LOCAL / G5 DECISION — 2026-11-26:** [A81](D007_A81_WP03_EXACT_G4_PASS_LOCAL_AND_G5_DECISION.md), DEC-20=A Management38 / QA17 #7200384830 nine A80 categories accepted, PR7 `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86` unchanged OPEN mergeable. Combined A78/A79/A80/A81 same-SHA evidence: G2 ACCEPTED, G3 VERIFIED, **G4 PASS_LOCAL**; P1-WP03-DESIGN-1 CLOSED_LOCAL (historical deviation retained), P2-WP03-DESIGN-2 CLOSED_LOCAL source-level (post-merge run NOT_RUN). Linux and filesystem-symlink proof NOT_RUN (INFO). DEC-21 G5 merge pending; G5/G6/G7 NOT_AUTHORIZED, A70/A71 suspended.
