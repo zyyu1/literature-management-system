@@ -1,20 +1,15 @@
-<!-- BUS from=DESIGN to=MANAGEMENT seq=38 re=bus/MANAGEMENT_TO_EXECUTION.md@43 status=OPEN updated=2026-11-26 -->
-# 任务单 / Task order — R38（Design → Management）
-**DEC-25 = A**：用户 2026-11-26 约 20:13 在 Design 窗口点选决定（现行流程：Design 决策 → Management 派发 → Execution/QA）。**WP-04-R1 G1 APPROVED**，权威文件：[A85](architecture/D007_A85_WP04_R1_G1_DRAFT.md)、[DESIGN](handoffs/WP-04/DESIGN.md)、[QA_INSTRUCTION](handoffs/WP-04/QA_INSTRUCTION.md)。不扩不缩。
-
-## Management 本轮动作
-**已完成，不要重派。** Management seq43（commit `d63d808`）已按 DEC-25=A 派发 Execution；Design 逐条核对其内容与 [DESIGN](handoffs/WP-04/DESIGN.md) 一致（Base、白名单、三条路由、字节保真、导出、WP-03 教训、Q4-01..12、≥12 mutant、交付 Execution seq28）。**本轮不派 QA**（G3 待 Design 完成 G2 范围审查后另行释放）。下方任务内容保留为对照。
-
-## 给 Execution 的任务（照 DESIGN 原文执行）
-- Base **`bcc4eaad5183c923f782da0475eea1751be2de3b`**；首次读取该 Base 须 exit 0 并落盘，fresh full clone，`core.autocrlf=false`。新分支 `exec/WP-04-research-notes-r1`，新 PR → `main`。不 rebase、不从移动的 main 合并。
-- 白名单仅：`packages/wp-04-research-notes-r1/**`、`docs/handoffs/WP-04/QA_HANDOFF.md`。WP-01/02/03、两个 fixtures、`tools/**` 及其他所有路径冻结；只允许只读 import 其导出模块。需要改动冻结路径、加依赖、npm install、lockfile、CI、UI → **STOP**。
-- 实现 DESIGN §2–§7：GET 笔记、PUT 整篇（创建 `If-None-Match: *` / 更新强 `If-Match`）、已保存版本 Markdown 导出；五个字段逐字节保真；四种结果与操作账本；仅 127.0.0.1。
-- WP-03 教训从第一个提交起强制：无放宽开关；严格 TAP 语法；只钉住受保护清单（不遍历仓库）；`verify-candidate-scope.mjs` 不被 `node --test` 发现；任何 socket/子进程之前先跑隔离守卫。
-- Node 精确 v22.23.5 x64；所有运行时测试在 A59 Windows 离线边界或合格 A54/A55 Linux 内，前后 guard+probe，子进程在重连前结束；不改宿主/网络、不安装、不提权、无真实数据。Linux 未跑记 NOT_RUN。
-- 自测（G2）：语法；`node --test` 全部 Q4-01..Q4-12；上游严格回归 WP-01 67/67、WP-02 44/44（嵌套 67）、WP-03 103/103；`verify-candidate-scope.mjs` OK + 负例；mutation driver ≥12 个具名 mutant 全部按预期断言击杀。
-
-## 交付
-PR 评论：exact head、diff 路径清单、命令/计数/退出码、原始 TAP 摘要值、fixture 与受保护清单哈希、环境与 probe 映射、mutant 表、NOT_RUN 清单；写 `docs/handoffs/WP-04/QA_HANDOFF.md`；Execution 总线下一 seq，`re=MANAGEMENT_TO_EXECUTION.md@<派单seq>`，STOP。Execution 不自行派 QA、不裁定门禁。
-
+<!-- BUS from=DESIGN to=MANAGEMENT seq=39 re=bus/MANAGEMENT_TO_EXECUTION.md@43 status=OPEN updated=2026-11-26 -->
+# 任务单 / Task order — R39（Design → Management）
+## 1. WP-04-R1（DEC-25=A）
+Management43（`d63d808`）已派 Execution，Design 已核对一致，**不要重派**。本轮仍不派 QA；G3 待 Design G2 审查后释放。
+## 2. 用户在 Design 窗口的新决定（[A86](governance/D007_A86_PROCESS_STREAMLINING_AND_ROADMAP.md)）
+- **DEC-26**：WP-04-R1 的 G4 之后，Design 先起草 P0-STORE 存储路线设计（只出方案，不开账号、不接服务、不花钱）；其余功能切片与前端等用户再定。
+- **DEC-27（从现在起的新派单适用）**：
+  1. Execution 的 G2 报告与独立 QA 的 G3 报告必须**逐项**列出 QA 指令中的每个测试 ID、组、审计负例、mutant、追溯项，标 PASS（附实际输入/断言/退出码）/FAIL/NOT_RUN/NOT_RECORDED；只有聚合 PASS 视为不完整，只退回补表，不另开测试轮。
+  2. 之后的 G5 选项为**一步完成**：Management 合并 exact HEAD → 独立 QA 在含该 merge 的 exact main 上做合并后离线回归 → Design 一次性核验合并与回归。
+  3. 门禁、QA 独立性、exact SHA、隔离、STOP 规则不变。
+- **DEC-28**：Design 继续每 10 分钟轮询。
+## 3. Management 本轮动作
+请把 DEC-27 第 1 条转告 Execution（适用于其即将提交的 WP-04-R1 G2 报告），无需新任务；WP-04 QA 指令已加 §5 逐项报告要求。其余无派单。
 ## 边界
-不含本地草稿/恢复、UI、Typora 认证、Key Quotes、Zotero API、真实存储/身份、部署。G4 由 Design；G5 须用户另行决定。P0-STORE blocked；G6/G7 NOT_AUTHORIZED；A70/A71 suspended；冻结 UI、PR2/4 不动。
+P0-STORE blocked；G5/G6/G7 未授权；A70/A71 suspended；冻结 UI、PR2/4 不动。

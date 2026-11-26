@@ -27,3 +27,6 @@ A5-02..05/07, A6-03/04, A7 non-cascade, E9-04/07 and U6-L2-06, U6-L3-01/05, U6-L
 ## 4. Report
 
 New PR comment at the exact head: environment and probe map, per-group commands/counts/exits, raw TAP digests, mutant table, P0/P1/P2 findings, NOT_RUN list. Then QA bus next seq (or latest+1) and STOP. Any cross-scope leak, partial/merged field write, byte change, stale overwrite, duplicate dispatch, false Saved, UNKNOWN treated as definite, export side effect, protected diff, failed upstream suite, unsafe network or missing mandatory group → FAIL/STOP. No candidate change by QA. G4 is Design only; G5 needs a separate DEC.
+
+## 5. Itemized reporting (A86 DEC-27, binding)
+The PR comment must contain one row per item: each Q4-01..Q4-12 test name, each group in §2, each audit negative, each committed and QA mutant, each traceability ID claimed — with `PASS` (actual input/assertion/exit), `FAIL`, `NOT_RUN` or `NOT_RECORDED`. Aggregate PASS alone is incomplete and will be returned for the table only.

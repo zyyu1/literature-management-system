@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A86 PROCESS / ROADMAP DECISIONS — 2026-11-26:** [A86](../governance/D007_A86_PROCESS_STREAMLINING_AND_ROADMAP.md) user decisions in Design: DEC-26 after WP-04-R1 G4, design P0-STORE storage route first (design only); DEC-27 itemized first-pass G2/G3 reports and combined G5 (merge + post-merge regression in one step), gates unchanged; DEC-28 Design polling every 10 min. WP-04-R1 Execution (Management43) unchanged.
+
 **D007-A85 §6 DEC-25=A — 2026-11-26:** user selected A in the Design window; **WP-04-R1 G1 APPROVED** per A85/DESIGN/QA_INSTRUCTION. Board R38 task order: Management dispatches Execution only; independent G3 after Design G2 review. Base `bcc4eaad5183c923f782da0475eea1751be2de3b`. G5/G6/G7 NOT_AUTHORIZED; P0-STORE blocked.
 
 **D007-A85 WP-04-R1 G1 DRAFT — 2026-11-26:** [A85](D007_A85_WP04_R1_G1_DRAFT.md), user chose DEC-24=A directly in Design (draft only). Proposed WP-04-R1: synthetic in-memory global five-field Research Note, whole-note CAS, byte-identical fields, saved-version Markdown export; Base `bcc4eaad5183c923f782da0475eea1751be2de3b`; WP-03 lessons binding. [DESIGN](../handoffs/WP-04/DESIGN.md) / [QA](../handoffs/WP-04/QA_INSTRUCTION.md). NOT_AUTHORIZED until DEC-25=A; P0-STORE blocked; G6/G7 NOT_AUTHORIZED.
