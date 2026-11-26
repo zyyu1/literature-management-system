@@ -1,38 +1,28 @@
-<!-- BUS from=QA to=DESIGN seq=15 re=MANAGEMENT_TO_EXECUTION.md@36 status=DONE updated=2026-11-26T18:48+01:00 -->
+<!-- BUS from=QA to=DESIGN seq=16 re=MANAGEMENT_TO_EXECUTION.md@37 status=DONE updated=2026-11-26T18:54+01:00 -->
 # QA → Design
 
-## Independent full G3 — **PASS** @ `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`
+## A79 focused records supplement — `DONE` @ `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`
 
-- **PR #7** `exec/WP-03-guarded-r1-writes` → `main`: **OPEN / UNMERGED / 3 commits**, exact HEAD `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`; immutable Base `1684cea5623c8421e16c328c7f1464e8932d3118`; QA did not edit the candidate.
-- **New PR #7 comment: [#7199636809](https://github.com/zyyu1/literature-management-system/pull/7#issuecomment-7199636809)** (same exact SHA; cites Execution #7191708901 and earlier QA #7175752150).
-- Authority: Management seq 36 / A78 §2, A72 §3, `docs/handoffs/WP-03/QA_INSTRUCTION.md`, A66/A67, A74 §2.
+- **PR #7** `exec/WP-03-guarded-r1-writes` → `main`: **OPEN / UNMERGED / 3 commits**, exact HEAD `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`; Base `1684cea5623c8421e16c328c7f1464e8932d3118`.
+- **New PR #7 comment: [#7199809939](https://github.com/zyyu1/literature-management-system/pull/7#issuecomment-7199809939)** — focused records supplement to QA15 [#7199636809], same exact SHA.
+- **No rerun, no QA script change, no candidate change.** Source: final offline-run `18:38:45–18:43:45 +01:00` records only; attempt-1 excluded.
 
-## Environment / isolation
+## Records-only conclusions (A79 §2)
 
-- **Windows 10.0.19045 x64** (DEC-11=A subject-specific host), Node **v22.23.5 x64**, git 2.49.0. **Linux x86_64 NOT_RUN**.
-- A59 user-controlled offline interval: disconnect OS event at `18:38:26 +01:00`; offline proof `18:38:34Z`; tests `18:38:45–18:43:45`; final `18:43:50 +01:00`. **17/17 groups pre/post guard+probe PASS**; loopback positive, external IPv4/IPv6/LAN `EHOSTUNREACH`/`ENETUNREACH`, `.invalid` DNS `ENOTFOUND`; frozen A54 probe `EGRESS_PROBE=PASS`. UDP callback without error not counted. No system/network change, no install, no real credentials/data.
+1. **Auditor coverage.** Symlink replacement: **NOT_RUN** (no final-run case). Modification of an existing unauthorized S-added path: **NOT_RUN** (AUD-05 changed a Base path, not an S-added path; no executed S-scope byte/mode case). Mode control: **EXISTING** — exact extracted `verifyStartTreeScope` on synthetic S/HEAD maps containing the three A72 paths plus `qa-extra-a`; `qa-extra-a` mode `100644→100755` with identical bytes → `A72_PATH_MODE_CHANGED: qa-extra-a (100644 -> 100755)`; mode-check-removed mutant accepts; QA assertion detects. Check order: history → A66 paths → A72 paths → clean checkout → trees/worktree → Base bytes → S-scope → cumulative additions → worktree=HEAD; actual scope target is S (`e6b1180…`) vs HEAD, three A72 paths only. Existing negative reasons: AUD-01/04/05 `A72_CHANGED_PATH_COUNT: 4`; AUD-02/03 `CLEAN_CHECKOUT`; AUD-06 `S_TO_HEAD_COMMIT_COUNT: 2`; control passes.
+2. **M4 / A72 failure classes.** M4 control **EXISTING**: AUD-01 extra committed A72 path → `A72_CHANGED_PATH_COUNT: 4`; same-input M4 audit **bypass NOT_RUN** (mode-only bypass is a different input, not claimed). Nested-duplicate **bypass NOT_RUN** (direct named negative `nested named proof duplicated` EXISTING → `2 !== 1`). Duplicate-header **bypass NOT_RUN** (direct named negative `duplicate header` EXISTING → `duplicate TAP header`). Existing A72 parser bypasses **EXISTING**: P1 trailing-content, P2 bailout, P3 failing-record — precise single-check scratch patches; real rejects / mutant accepts; QA expectation kills; `a72-mutants` exit 0 (4/4).
+3. **TAP list.** Timeout **NOT_RUN**; failed nested proof **NOT_RUN**; missing nested proof **EXISTING** (`0 !== 1`); duplicate nested proof **EXISTING** (`2 !== 1`); flag-set **NOT_RUN** (M1 ran old-relaxed with flag unset; new has no flag path). Whitespace/control/terminal **EXISTING**: CRLF, optional final newline, diagnostic positive; blank line before plan, padded title, control character, trailing Bail out!/not ok/indented/nonblank, F1–F3. Explicit case variants **NOT_RUN**. Process statuses **EXISTING**: non-zero exit, SIGTERM, spawn ENOENT; timeout **NOT_RUN**. Final QA scripts independently authored outside the candidate; oracle uses candidate parser source only, with QA-authored vectors/expectations; no Execution scripts/results and no historical acceptance.
 
-## Preflight
+## Corrections
 
-- **First and only first-attempt subject read** (one shot): `git -c http.sslBackend=openssl -c http.sslCAInfo=... ls-remote ... refs/pull/7/head` → exit 0, stderr empty, exact `c40e927…	refs/pull/7/head`; no retry.
-- Fresh full non-shallow clone, `core.autocrlf=false`, detached, clean. B..HEAD = 3 single-parent commits, 0 merges; 22 additions / 0 modifications / 0 deletions; Base 200 paths / candidate 222; modes 100644/100755; 0 symlinks; protected trees, fixture bytes and blobs equal to Base.
-
-## Results (all inside the offline interval)
-
-- syntax **42/42**; WP-01 **67/67**; WP-02 **44/44** incl nested 67; WP-03 default **103/103**; committed WP-03 and WP-02 mutation drivers **13/13 each**.
-- QA independent raw HTTP **48/48**; QA independent behavioural mutants **13/13** killed by intended assertions.
-- Strict-TAP oracle **60/60**: 7 positives (actual 67/44 transcripts, nested named proof, synthetic, CRLF, final newline, diagnostic) + 49 negatives + old-vs-new **F1–F3** (old FULL/new reject) + **M1** (old relaxed host-precondition-only accept/new strict reject).
-- **M2** 6/6: controls 0/0/0/0; mutant A spawn=2; mutant B listen=1 / request=1 / connect=1.
-- **M3** 5/5: intact `4573 B / 86c47a5a…be65`; damaged `4574 B / 73537b74…4a09`; intact exit 0 / damaged exit 1 intended pinned-bytes assertion / damaged+bypass exit 0; frozen oracle and candidate audit reject.
-- Paired integration **8/8**: 10 pinned main docs, old Q3-11 rejects `/D007_A65…`, new 103/103 + 67/67 + 44/44, runtime subtrees byte-identical.
-- Candidate auditor negatives **7/7** (control + 6; actual reasons A72_CHANGED_PATH_COUNT 4, CLEAN_CHECKOUT, S_TO_HEAD_COMMIT_COUNT 2); pinned-dependency negatives **9/9** (51/51 control + 8); A72 new failure-class mutants **4/4**.
-- Explicit candidate audit: `CANDIDATE_SCOPE_OK`, basePaths=200, additions=22, a66ChangedPaths=6, a72ChangedPaths=3, worktreePaths=222.
+- Actual package subtrees at B and HEAD: **WP-01 `e52af45af9887f7c3ad47f2c620459d87c773ae7`**, **WP-02 `fadc6a7a14289908f3756b9967f5abbce4eb4fb2`**. `5ab00019…` / `efa05f7b…` are `docs/handoffs/WP-01` / `WP-02` trees.
+- `#7175752150` is the **Execution A74** report, not an earlier QA report.
+- Final offline proof: `17:38:34.892Z` = `18:38:34.892+01:00` (bus seq15's `18:38:34Z` shorthand was off by one hour).
 
 ## Findings / limits
 
-- **P0 = 0, P1 = 0, P2 = 0** new product findings. Prior Design-owned **P1-WP03-DESIGN-1** and **P2-WP03-DESIGN-2** remain OPEN as Design left them; QA does not close them and does not rule G4.
-- **NOT_RUN / UNSUPPORTED:** Linux runtime; real Zotero/Nutstore/credentials/user data; durable persistence, crash recovery, durable replay; R2 success path; UI; performance/timing; G4 (Design only); G5/G6/G7; real service/deployment.
-- Honesty note: an earlier offline attempt (`13:38–13:47 +01:00`) produced FAIL solely from QA scratch-harness defects (raw48 calibration, TAP diagnostic index, M2 ESM counter publication, M3 missing `tools/offline`, integration status trim, A72 mutant extraction). No candidate file changed; after fixing QA harness only, this clean full rerun (`18:38–18:43 +01:00`) produced the PASS above. Attempt-1 evidence is preserved separately and not used as final evidence.
-- Candidate checkout remains clean at the exact SHA; PR head unchanged; no candidate commit/push/merge/rebase/reset/force; no test/fixture/product edit.
+- No **true FAIL** in the final run; the above **NOT_RUN** items remain explicit gaps, not waived or inferred from aggregate PASS. Attempt-1 failures were QA scratch-harness defects only and are excluded.
+- No new product P0/P1/P2; prior `P1-WP03-DESIGN-1` / `P2-WP03-DESIGN-2` remain OPEN; G4 not ruled; G5/G6/G7 NOT_AUTHORIZED; Linux NOT_RUN; real persistence/R2/UI/service/deploy not certified.
+- No candidate commit/push/merge/rebase/reset/force; only the new PR comment and this QA bus write.
 
-**Verdict: PASS for independent full G3 at exact `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`. QA STOP; G4 is Design's.**
+**QA STOP.**
