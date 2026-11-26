@@ -1,35 +1,35 @@
-<!-- BUS from=QA to=DESIGN seq=17 re=MANAGEMENT_TO_EXECUTION.md@38 status=DONE updated=2026-11-26T19:23+01:00 -->
+<!-- BUS from=QA to=DESIGN seq=18 re=MANAGEMENT_TO_EXECUTION.md@41 status=DONE updated=2026-11-26T20:03+01:00 -->
 # QA → Design
 
-## A80 targeted nine-category completion — **PASS** @ `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`
+## A83 post-merge offline regression — **PASS** @ `bcc4eaad5183c923f782da0475eea1751be2de3b`
 
-- **PR #7**: OPEN / UNMERGED / 3 commits, exact HEAD `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`, Base `1684cea5623c8421e16c328c7f1464e8932d3118`.
-- **New PR #7 comment: [#7200384830](https://github.com/zyyu1/literature-management-system/pull/7#issuecomment-7200384830)** — A80 §2 checklist 1–9; cites QA15 #7199636809 and QA16 #7199809939.
-- **No full G3 rerun, no candidate change, no Execution dispatch.** All nine categories executed; static candidate audit control PASS.
+- PR **#7** is **closed / merged**; tested HEAD `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`; merge `6cc8e2ad1f65f752d9846012531e52d9af647f3b`.
+- **S_main** = `bcc4eaad5183c923f782da0475eea1751be2de3b`, from the **first and only** `git ls-remote <repo> refs/heads/main` → exit 0, stderr empty, exact stdout (`18:57:54.799Z–18:57:56.400Z`); no retry.
+- **New PR #7 comment: [#7201139654](https://github.com/zyyu1/literature-management-system/pull/7#issuecomment-7201139654)** (A83; cites A81/A82 and merge `6cc8e2a`).
 
-## Environment / preflight
+## Preconditions / environment
 
-- **Windows 10.0.19045 x64**, Node **v22.23.5 x64**, git 2.49.0; **Linux NOT_RUN**.
-- First and only first-attempt subject read: exit 0, stderr empty, exact `c40e927…	refs/pull/7/head` (`18:13:58.813Z–18:14:00.479Z`); no retry.
-- Fresh full non-shallow clone, `core.autocrlf=false`, detached, clean: 222 tracked; B..HEAD 3 single-parent, 0 merges; Base 200 unchanged; modes only 100644/100755; 0 symlinks. Static audit `CANDIDATE_SCOPE_OK` (200/22/6/3/222).
-- A59 offline proof `18:20:24Z`; G0 and G1 pre/post guard+probe PASS; loopback positive, external IPv4/LAN `EHOSTUNREACH`, IPv6 `ENETUNREACH`, `.invalid` DNS `ENOTFOUND`; UDP callback without error not counted. No host/network change, no install, no real data.
+- Merge `6cc8e2a…` is ancestor of S_main; `6cc8e2a..S_main` changes only 7 `docs/` paths, no packages/tools/fixtures; 22 WP-03 blobs equal tested HEAD (WP-03 tree `5db097a62f66c98622d6c7e2fbd0971a43f0d34e`, Q3-11 blob `d0b67734eee63a90b09d480917b0708922c5b069`).
+- Fresh full detached clone at S_main, `core.autocrlf=false`, clean, 243 tracked; separate QA directory, no shared Management/Execution clone.
+- Windows 10.0.19045 x64; Node v22.23.5 x64; A59 offline proof `18:59:59Z`; G1/G2/G3 pre/post guard+probe PASS; external IPv4/LAN `EHOSTUNREACH`, IPv6 `ENETUNREACH`, `.invalid` DNS `ENOTFOUND`; UDP without error not counted. Linux **NOT_RUN**.
 
-## Checklist 1–9
+## Results (one run each; no retries)
 
-1. **Symlink replacement — PASS** via actual `readTree` on a real Git `120000` tree entry (`22d56c08…`, `120000 blob b43bf86b… link-to-readme`) → `SYMLINK_TREE_NON_REGULAR_MODE: link-to-readme (120000)`. No filesystem symlink created; **worktree symlink proof NOT_RUN** (no privilege elevation/OS change).
-2. **Existing unauthorized S-added path — PASS**: `packages/wp-03-guarded-r1-writes/src/model.mjs` verified S−B member (22 additions) and outside the three A72 paths; disposable amend changed only its bytes. Full audit rejects earlier with `A72_CHANGED_PATH_COUNT: 4`; actual extracted `verifyStartTreeScope` control passes and modified S/HEAD map hits `A72_PATH_CHANGED_OUTSIDE_SCOPE: packages/wp-03-guarded-r1-writes/src/model.mjs`.
-3. **M4 same-input extra-path bypass — PASS**: extra `packages/wp-03-guarded-r1-writes/test/QA_EXTRA_TARGETED.test.mjs`; real audit rejects `A72_CHANGED_PATH_COUNT: 4`; 8 precise extra-path/scope edits (allPatched=true) make the full audit accept (`CANDIDATE_SCOPE_OK`, worktreePaths=223); independent `git diff S..HEAD` has 4 paths incl the extra `A` path; history/base/clean/worktree/mode checks retained.
-4. **Nested-duplicate bypass — PASS**: actual `assertTapTestOk` on 2 subtest/2 pass duplicate; real rejects `2 !== 1`; only the two count equalities relaxed to `>= 1`; mutant accepts; independent expectation requires exactly one.
-5. **Duplicate-header bypass — PASS**: actual `parseTapSummary`, duplicate `TAP version 13` before plan; real rejects `duplicate TAP header`; narrow mutant only skips the duplicate header (`continue`), accepts; other malformed lines still fail.
-6. **Child timeout — PASS**: actual `assertStrictUpstream` with `{error: ETIMEDOUT, code: ETIMEDOUT, status: null, signal: null, stdout: green 3-test TAP}` rejects `child must not fail to spawn or time out`; green control returns `FULL`. Bounded synthetic object, no real wait.
-7. **Failed nested named proof — PASS**: actual helper rejects `# Subtest: nested` + `not ok 1 - nested` (`0 !== 1`); strict pipeline rejects the failed record as `has a failing TAP status record`; missing (`0 !== 1`) and duplicate (`2 !== 1`) distinguished.
-8. **Obsolete flag set/unset — PASS**: old `0fcad9c` relaxed helper / current parser on the same synthetic host-precondition failure: old/unset `HOST_PRECONDITION_ONLY` accepted; old/`1` rejected by old strict assert; current/unset and current/`1` both reject (`child exit code must be 0`). No flag waiver; env restored; four isolated child exits 0 with expected outcomes.
-9. **Explicit case variants — PASS**: actual parser rejects uppercase/mixed `BAIL OUT!`, terminal `Bail Out!`, `NOT OK` / `Not Ok`, `# SkIp` / `# TODO` on ok, uppercase `# SKIP`; legal diagnostic merely mentioning all four words is accepted. Exact assertions recorded.
+| group | actual | exit |
+| --- | --- | --- |
+| WP-01 `node --test` | **67/67**, fail/skip/todo/cancelled 0 | 0 |
+| WP-02 `node --test` | **44/44**, nested `ok 44 - Q2-11 … 67/67` | 0 |
+| WP-03 `node --test` | **103/103**, Q3-11 `ok 101` protected bytes / `ok 102` WP-01 67 / `ok 103` WP-02 44 nested 67 | 0 |
 
-## Limits / evidence
+Raw TAP SHA-256: WP-01 `f640013b…f1f11e`; WP-02 `7624271b…a0071a7`; WP-03 `e1974eeb…ad307a4d`; summary `f3b12742…60d963`. Evidence: `qa3\evidence\postmerge-run\`.
 
-- No full G3 rerun; QA15/QA16/A79 evidence unchanged. No new product P0/P1/P2. Linux NOT_RUN; FS symlink NOT_RUN (committed 120000 proof only); real services/persistence/R2 success/UI/deploy not certified.
-- Candidate clean at exact HEAD; no candidate commit/push/merge/rebase/reset/force; no test/fixture/product edit. G4 remains Design's; G5/G6/G7 NOT_AUTHORIZED.
-- Evidence: `qa2\evidence\targeted-run\` (`summary.json` SHA-256 `af8f398f…9e88`, `targeted.json` `0a43bc72…82d6`); static audit `CANDIDATE_SCOPE_OK`; attempt-1 of this targeted round (8/9, M4 harness placement bug) preserved at `targeted-run-prev-1795717221295` and not used; final clean rerun 9/9.
+## Recorded discrepancy
+
+A83 §4 text says Q3-11 protected inventory **56 blobs**. At S_main the literal `PROTECTED_INVENTORY` has **51** entries; the Q3-11 test blob is byte-identical to tested HEAD `c40e927`, and Q3-11 passed `ok 101`. This is a **draft/text count discrepancy (51 actual vs 56 stated)**, not a runtime or code failure; this report does not claim 56. Design should reconcile the wording before using the number as an acceptance count.
+
+## Limits
+
+- Only the three A83 commands; candidate audit, both mutation drivers and syntax checks were not run by design; no full G3. No code/test/fixture/candidate change; no merge/rebase/force by QA.
+- P2 closure and all gate changes are Design's. G6/G7 and real service/persistence/UI/deployment remain blocked; PR #2/#4 untouched.
 
 **QA STOP.**
