@@ -1,28 +1,35 @@
-<!-- BUS from=QA to=DESIGN seq=16 re=MANAGEMENT_TO_EXECUTION.md@37 status=DONE updated=2026-11-26T18:54+01:00 -->
+<!-- BUS from=QA to=DESIGN seq=17 re=MANAGEMENT_TO_EXECUTION.md@38 status=DONE updated=2026-11-26T19:23+01:00 -->
 # QA → Design
 
-## A79 focused records supplement — `DONE` @ `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`
+## A80 targeted nine-category completion — **PASS** @ `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`
 
-- **PR #7** `exec/WP-03-guarded-r1-writes` → `main`: **OPEN / UNMERGED / 3 commits**, exact HEAD `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`; Base `1684cea5623c8421e16c328c7f1464e8932d3118`.
-- **New PR #7 comment: [#7199809939](https://github.com/zyyu1/literature-management-system/pull/7#issuecomment-7199809939)** — focused records supplement to QA15 [#7199636809], same exact SHA.
-- **No rerun, no QA script change, no candidate change.** Source: final offline-run `18:38:45–18:43:45 +01:00` records only; attempt-1 excluded.
+- **PR #7**: OPEN / UNMERGED / 3 commits, exact HEAD `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`, Base `1684cea5623c8421e16c328c7f1464e8932d3118`.
+- **New PR #7 comment: [#7200384830](https://github.com/zyyu1/literature-management-system/pull/7#issuecomment-7200384830)** — A80 §2 checklist 1–9; cites QA15 #7199636809 and QA16 #7199809939.
+- **No full G3 rerun, no candidate change, no Execution dispatch.** All nine categories executed; static candidate audit control PASS.
 
-## Records-only conclusions (A79 §2)
+## Environment / preflight
 
-1. **Auditor coverage.** Symlink replacement: **NOT_RUN** (no final-run case). Modification of an existing unauthorized S-added path: **NOT_RUN** (AUD-05 changed a Base path, not an S-added path; no executed S-scope byte/mode case). Mode control: **EXISTING** — exact extracted `verifyStartTreeScope` on synthetic S/HEAD maps containing the three A72 paths plus `qa-extra-a`; `qa-extra-a` mode `100644→100755` with identical bytes → `A72_PATH_MODE_CHANGED: qa-extra-a (100644 -> 100755)`; mode-check-removed mutant accepts; QA assertion detects. Check order: history → A66 paths → A72 paths → clean checkout → trees/worktree → Base bytes → S-scope → cumulative additions → worktree=HEAD; actual scope target is S (`e6b1180…`) vs HEAD, three A72 paths only. Existing negative reasons: AUD-01/04/05 `A72_CHANGED_PATH_COUNT: 4`; AUD-02/03 `CLEAN_CHECKOUT`; AUD-06 `S_TO_HEAD_COMMIT_COUNT: 2`; control passes.
-2. **M4 / A72 failure classes.** M4 control **EXISTING**: AUD-01 extra committed A72 path → `A72_CHANGED_PATH_COUNT: 4`; same-input M4 audit **bypass NOT_RUN** (mode-only bypass is a different input, not claimed). Nested-duplicate **bypass NOT_RUN** (direct named negative `nested named proof duplicated` EXISTING → `2 !== 1`). Duplicate-header **bypass NOT_RUN** (direct named negative `duplicate header` EXISTING → `duplicate TAP header`). Existing A72 parser bypasses **EXISTING**: P1 trailing-content, P2 bailout, P3 failing-record — precise single-check scratch patches; real rejects / mutant accepts; QA expectation kills; `a72-mutants` exit 0 (4/4).
-3. **TAP list.** Timeout **NOT_RUN**; failed nested proof **NOT_RUN**; missing nested proof **EXISTING** (`0 !== 1`); duplicate nested proof **EXISTING** (`2 !== 1`); flag-set **NOT_RUN** (M1 ran old-relaxed with flag unset; new has no flag path). Whitespace/control/terminal **EXISTING**: CRLF, optional final newline, diagnostic positive; blank line before plan, padded title, control character, trailing Bail out!/not ok/indented/nonblank, F1–F3. Explicit case variants **NOT_RUN**. Process statuses **EXISTING**: non-zero exit, SIGTERM, spawn ENOENT; timeout **NOT_RUN**. Final QA scripts independently authored outside the candidate; oracle uses candidate parser source only, with QA-authored vectors/expectations; no Execution scripts/results and no historical acceptance.
+- **Windows 10.0.19045 x64**, Node **v22.23.5 x64**, git 2.49.0; **Linux NOT_RUN**.
+- First and only first-attempt subject read: exit 0, stderr empty, exact `c40e927…	refs/pull/7/head` (`18:13:58.813Z–18:14:00.479Z`); no retry.
+- Fresh full non-shallow clone, `core.autocrlf=false`, detached, clean: 222 tracked; B..HEAD 3 single-parent, 0 merges; Base 200 unchanged; modes only 100644/100755; 0 symlinks. Static audit `CANDIDATE_SCOPE_OK` (200/22/6/3/222).
+- A59 offline proof `18:20:24Z`; G0 and G1 pre/post guard+probe PASS; loopback positive, external IPv4/LAN `EHOSTUNREACH`, IPv6 `ENETUNREACH`, `.invalid` DNS `ENOTFOUND`; UDP callback without error not counted. No host/network change, no install, no real data.
 
-## Corrections
+## Checklist 1–9
 
-- Actual package subtrees at B and HEAD: **WP-01 `e52af45af9887f7c3ad47f2c620459d87c773ae7`**, **WP-02 `fadc6a7a14289908f3756b9967f5abbce4eb4fb2`**. `5ab00019…` / `efa05f7b…` are `docs/handoffs/WP-01` / `WP-02` trees.
-- `#7175752150` is the **Execution A74** report, not an earlier QA report.
-- Final offline proof: `17:38:34.892Z` = `18:38:34.892+01:00` (bus seq15's `18:38:34Z` shorthand was off by one hour).
+1. **Symlink replacement — PASS** via actual `readTree` on a real Git `120000` tree entry (`22d56c08…`, `120000 blob b43bf86b… link-to-readme`) → `SYMLINK_TREE_NON_REGULAR_MODE: link-to-readme (120000)`. No filesystem symlink created; **worktree symlink proof NOT_RUN** (no privilege elevation/OS change).
+2. **Existing unauthorized S-added path — PASS**: `packages/wp-03-guarded-r1-writes/src/model.mjs` verified S−B member (22 additions) and outside the three A72 paths; disposable amend changed only its bytes. Full audit rejects earlier with `A72_CHANGED_PATH_COUNT: 4`; actual extracted `verifyStartTreeScope` control passes and modified S/HEAD map hits `A72_PATH_CHANGED_OUTSIDE_SCOPE: packages/wp-03-guarded-r1-writes/src/model.mjs`.
+3. **M4 same-input extra-path bypass — PASS**: extra `packages/wp-03-guarded-r1-writes/test/QA_EXTRA_TARGETED.test.mjs`; real audit rejects `A72_CHANGED_PATH_COUNT: 4`; 8 precise extra-path/scope edits (allPatched=true) make the full audit accept (`CANDIDATE_SCOPE_OK`, worktreePaths=223); independent `git diff S..HEAD` has 4 paths incl the extra `A` path; history/base/clean/worktree/mode checks retained.
+4. **Nested-duplicate bypass — PASS**: actual `assertTapTestOk` on 2 subtest/2 pass duplicate; real rejects `2 !== 1`; only the two count equalities relaxed to `>= 1`; mutant accepts; independent expectation requires exactly one.
+5. **Duplicate-header bypass — PASS**: actual `parseTapSummary`, duplicate `TAP version 13` before plan; real rejects `duplicate TAP header`; narrow mutant only skips the duplicate header (`continue`), accepts; other malformed lines still fail.
+6. **Child timeout — PASS**: actual `assertStrictUpstream` with `{error: ETIMEDOUT, code: ETIMEDOUT, status: null, signal: null, stdout: green 3-test TAP}` rejects `child must not fail to spawn or time out`; green control returns `FULL`. Bounded synthetic object, no real wait.
+7. **Failed nested named proof — PASS**: actual helper rejects `# Subtest: nested` + `not ok 1 - nested` (`0 !== 1`); strict pipeline rejects the failed record as `has a failing TAP status record`; missing (`0 !== 1`) and duplicate (`2 !== 1`) distinguished.
+8. **Obsolete flag set/unset — PASS**: old `0fcad9c` relaxed helper / current parser on the same synthetic host-precondition failure: old/unset `HOST_PRECONDITION_ONLY` accepted; old/`1` rejected by old strict assert; current/unset and current/`1` both reject (`child exit code must be 0`). No flag waiver; env restored; four isolated child exits 0 with expected outcomes.
+9. **Explicit case variants — PASS**: actual parser rejects uppercase/mixed `BAIL OUT!`, terminal `Bail Out!`, `NOT OK` / `Not Ok`, `# SkIp` / `# TODO` on ok, uppercase `# SKIP`; legal diagnostic merely mentioning all four words is accepted. Exact assertions recorded.
 
-## Findings / limits
+## Limits / evidence
 
-- No **true FAIL** in the final run; the above **NOT_RUN** items remain explicit gaps, not waived or inferred from aggregate PASS. Attempt-1 failures were QA scratch-harness defects only and are excluded.
-- No new product P0/P1/P2; prior `P1-WP03-DESIGN-1` / `P2-WP03-DESIGN-2` remain OPEN; G4 not ruled; G5/G6/G7 NOT_AUTHORIZED; Linux NOT_RUN; real persistence/R2/UI/service/deploy not certified.
-- No candidate commit/push/merge/rebase/reset/force; only the new PR comment and this QA bus write.
+- No full G3 rerun; QA15/QA16/A79 evidence unchanged. No new product P0/P1/P2. Linux NOT_RUN; FS symlink NOT_RUN (committed 120000 proof only); real services/persistence/R2 success/UI/deploy not certified.
+- Candidate clean at exact HEAD; no candidate commit/push/merge/rebase/reset/force; no test/fixture/product edit. G4 remains Design's; G5/G6/G7 NOT_AUTHORIZED.
+- Evidence: `qa2\evidence\targeted-run\` (`summary.json` SHA-256 `af8f398f…9e88`, `targeted.json` `0a43bc72…82d6`); static audit `CANDIDATE_SCOPE_OK`; attempt-1 of this targeted round (8/9, M4 harness placement bug) preserved at `targeted-run-prev-1795717221295` and not used; final clean rerun 9/9.
 
 **QA STOP.**
