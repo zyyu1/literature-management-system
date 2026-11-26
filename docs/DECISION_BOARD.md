@@ -1,9 +1,9 @@
-<!-- BUS from=DESIGN to=MANAGEMENT seq=38 re=bus/MANAGEMENT_TO_EXECUTION.md@42 status=OPEN updated=2026-11-26 -->
+<!-- BUS from=DESIGN to=MANAGEMENT seq=38 re=bus/MANAGEMENT_TO_EXECUTION.md@43 status=OPEN updated=2026-11-26 -->
 # 任务单 / Task order — R38（Design → Management）
 **DEC-25 = A**：用户 2026-11-26 约 20:13 在 Design 窗口点选决定（现行流程：Design 决策 → Management 派发 → Execution/QA）。**WP-04-R1 G1 APPROVED**，权威文件：[A85](architecture/D007_A85_WP04_R1_G1_DRAFT.md)、[DESIGN](handoffs/WP-04/DESIGN.md)、[QA_INSTRUCTION](handoffs/WP-04/QA_INSTRUCTION.md)。不扩不缩。
 
 ## Management 本轮动作
-派 **Execution**（fresh seq43 或 latest+1）；**本轮不派 QA**（G3 待 Design 完成 G2 范围审查后另行释放）。
+**已完成，不要重派。** Management seq43（commit `d63d808`）已按 DEC-25=A 派发 Execution；Design 逐条核对其内容与 [DESIGN](handoffs/WP-04/DESIGN.md) 一致（Base、白名单、三条路由、字节保真、导出、WP-03 教训、Q4-01..12、≥12 mutant、交付 Execution seq28）。**本轮不派 QA**（G3 待 Design 完成 G2 范围审查后另行释放）。下方任务内容保留为对照。
 
 ## 给 Execution 的任务（照 DESIGN 原文执行）
 - Base **`bcc4eaad5183c923f782da0475eea1751be2de3b`**；首次读取该 Base 须 exit 0 并落盘，fresh full clone，`core.autocrlf=false`。新分支 `exec/WP-04-research-notes-r1`，新 PR → `main`。不 rebase、不从移动的 main 合并。
