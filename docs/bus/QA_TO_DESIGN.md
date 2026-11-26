@@ -1,31 +1,38 @@
-<!-- BUS from=QA to=DESIGN seq=14 re=docs/bus/EXECUTION_TO_QA.md@19 status=DONE updated=2026-11-25T20:30+01:00 -->
+<!-- BUS from=QA to=DESIGN seq=15 re=MANAGEMENT_TO_EXECUTION.md@36 status=DONE updated=2026-11-26T18:48+01:00 -->
 # QA → Design
 
-## A67 聚焦五类矩阵独立 QA — `PASS_WITH_FINDINGS` @ `e6b1180e4e3e5790958ae3319af18bba8889ffbc`
+## Independent full G3 — **PASS** @ `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`
 
-- **PR #7** `exec/WP-03-guarded-r1-writes` → `main`（OPEN / UNMERGED / MERGEABLE；G5 未授权）。
-- **Exact candidate HEAD** `e6b1180e4e3e5790958ae3319af18bba8889ffbc`；父/A66 START `0fcad9cb6016900d5f7057161619e4a9f2e94b55`；不可变 Base `1684cea5623c8421e16c328c7f1464e8932d3118`。
-- **新 PR 评论：[#7172355241](https://github.com/zyyu1/literature-management-system/pull/7#issuecomment-7172355241)**（同 SHA，引用既有 QA #7168907120 与 A67 §3）。
-- 环境：Windows 10.0.19045 x64；Node **v22.23.5** x64（`process.execPath = D:\claude\literature management system\.work\node22\node-v22.23.5-win-x64\node.exe`）；A59 用户控制离线区间 **20:22:36–20:24:23**。
+- **PR #7** `exec/WP-03-guarded-r1-writes` → `main`: **OPEN / UNMERGED / 3 commits**, exact HEAD `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`; immutable Base `1684cea5623c8421e16c328c7f1464e8932d3118`; QA did not edit the candidate.
+- **New PR #7 comment: [#7199636809](https://github.com/zyyu1/literature-management-system/pull/7#issuecomment-7199636809)** (same exact SHA; cites Execution #7191708901 and earlier QA #7175752150).
+- Authority: Management seq 36 / A78 §2, A72 §3, `docs/handoffs/WP-03/QA_INSTRUCTION.md`, A66/A67, A74 §2.
 
-## 预检
+## Environment / isolation
 
-- 首次返回 ref 的远程读取 exit 0，`refs/pull/7/head = e6b1180e…`；`gh pr view 7` 独立确认 head/OPEN/MERGEABLE。（首次 schannel 读取因 `SEC_E_NO_CREDENTIALS` 在返回任何 ref 前 exit 128；仅切换 TLS backend 为 OpenSSL 后成功，无 SHA 重试/猜测，已记录。）
-- fresh full clone、detach、`core.autocrlf=false`、工作树干净；`HEAD~1 = 0fcad9cb…`；Base 为 START 祖先；Base..HEAD **2** commits / START..HEAD **1** commit / merges **0**。
-- A66 增量恰好 **6 paths**（5 M + 1 A，+859/−197）；累计 **22 added paths**，0 Base modified/deleted；Base tree 200 / candidate 222 / worktree 222；受保护 fixtures 字节不变；19/19 `.mjs` 语法 exit 0。
+- **Windows 10.0.19045 x64** (DEC-11=A subject-specific host), Node **v22.23.5 x64**, git 2.49.0. **Linux x86_64 NOT_RUN**.
+- A59 user-controlled offline interval: disconnect OS event at `18:38:26 +01:00`; offline proof `18:38:34Z`; tests `18:38:45–18:43:45`; final `18:43:50 +01:00`. **17/17 groups pre/post guard+probe PASS**; loopback positive, external IPv4/IPv6/LAN `EHOSTUNREACH`/`ENETUNREACH`, `.invalid` DNS `ENOTFOUND`; frozen A54 probe `EGRESS_PROBE=PASS`. UDP callback without error not counted. No system/network change, no install, no real credentials/data.
 
-## 五类矩阵（全部在离线区间内；8/8 egress probe PASS）
+## Preflight
 
-1. **Strict-TAP oracle — PASS**：4 positives（实际 67/67、44/44、嵌套 WP01 具名通过 1 次、direct parse）、**33 negatives**、**0 failures**、exit 0。覆盖 missing/malformed/duplicate/partial summary、plan、not-ok、SKIP/TODO 指令与计数、cancelled、错误/重复/缺失 test 编号、错误计数、坏 header、非零退出、signal、spawn error、timeout、嵌套 WP01 缺失/失败。同一 host-precondition 失败输入：旧 relaxed 接受 `HOST_PRECONDITION_ONLY`，旧旗标拒绝，新 strict 以 `child exit code must be 0` / `has a failing TAP test line` 拒绝；旗标设/不设结果相同。
-2. **四个具名 bypass mutant — 5/5 sub-mutants KILLED**（4 named classes；pre-child guard 类拆为 M2a spawn / M2b listen）：M1 上游失败容忍（strict 拒绝 / START relaxed 接受，另加 end-to-end 桩证明 control exit 1 / mutant exit 0 + `HOST_PRECONDITION_ONLY`）；M2a control spawn=0 / mutant spawn=1；M2b control listen/connect/request/spawn=0 / mutant listen=1；M3 改 fixture 后实际 pinned 测试 exit 1（`protected dependency bytes changed…wp01.v1.json`）/ no-op mutant exit 0；M4 多余已提交路径实际 `A66_CHANGED_PATH_COUNT: 7` / no-op mutant exit 0。均以预期断言失败击杀，无崩溃/超时。
-3. **模拟 integration — PASS**：disposable clone 本地 merge `8589753b4fb0db0dd091cd65b66ab9b1e5a9c762`（HEAD `7ce6d2c…`，parents 精确，clean，10 个 main-only docs，runtime bytes unchanged）。旧默认 Q3-11 拒绝 docs（`unexpected new path outside the whitelist…`）；新默认 **103/103**，嵌套 **WP01 67/67**、**WP02 44/44**；原 clone 显式 candidate audit `CANDIDATE_SCOPE_OK`；候选分支多余路径被审计拒绝。未真实 merge/push。
-4. **Candidate auditor 负例 — 6/6 rejected**：多余已提交路径、未跟踪路径、Base 字节被改（worktree）、Base 路径缺失（worktree）、越权第二提交、已提交 Base 字节改动；check order 提前拒绝的 5 例另做 isolated targeted check，均命中目标检查；0 failures。
-5. **Pinned dependency 负例 — 8/8 rejected**：literal **51/51** 等于独立 Base 推导（WP01 20 / WP02 26 / tools/offline 3 / fixtures 1+1；Base tree 200）；上游多余/缺失/改动（含 evidence）、fixture 改动/缺失、`tools/offline` 改动、嵌套多余路径全部被实际 protected 测试以 inventory/hash/missing 断言拒绝；0 failures。
+- **First and only first-attempt subject read** (one shot): `git -c http.sslBackend=openssl -c http.sslCAInfo=... ls-remote ... refs/pull/7/head` → exit 0, stderr empty, exact `c40e927…	refs/pull/7/head`; no retry.
+- Fresh full non-shallow clone, `core.autocrlf=false`, detached, clean. B..HEAD = 3 single-parent commits, 0 merges; 22 additions / 0 modifications / 0 deletions; Base 200 paths / candidate 222; modes 100644/100755; 0 symlinks; protected trees, fixture bytes and blobs equal to Base.
 
-## Findings / NOT_RUN / 边界
+## Results (all inside the offline interval)
 
-- **F1–F3（记录，未豁免）**：strict TAP 在完整绿色 summary 之后追加 `Bail out!`、非规范 `not ok 67`、缩进 `  not ok 67 - …` 仍返回 `FULL`。建议拒绝任何 trailing `Bail out!` / `^(not ok|  not ok)` 并定义严格 trailing allowlist。属残余健壮性观察，非已建立候选运行失败；未改代码。
-- **NOT_RUN**：Linux runtime；seq11 主门保留不重跑（原候选 WP-03 103/103、WP01 67/67、WP02 44/44、两 driver 13/13、raw 48、行为变异 13、egress 12/12）；R2 成功路径、真实持久化/durable replay、UI、provider/TLS、WP-04、真实服务/部署；G4 不由 QA 裁定；G5/G6/G7 NOT_AUTHORIZED。
-- 清洁：`repo-final` 在 exact SHA clean；`integration-final` clean；PR #7 仍 OPEN/UNMERGED、HEAD 未变；无 merge/rebase/reset/force push。本轮唯一 tracked 修改是本 bus 文件。
+- syntax **42/42**; WP-01 **67/67**; WP-02 **44/44** incl nested 67; WP-03 default **103/103**; committed WP-03 and WP-02 mutation drivers **13/13 each**.
+- QA independent raw HTTP **48/48**; QA independent behavioural mutants **13/13** killed by intended assertions.
+- Strict-TAP oracle **60/60**: 7 positives (actual 67/44 transcripts, nested named proof, synthetic, CRLF, final newline, diagnostic) + 49 negatives + old-vs-new **F1–F3** (old FULL/new reject) + **M1** (old relaxed host-precondition-only accept/new strict reject).
+- **M2** 6/6: controls 0/0/0/0; mutant A spawn=2; mutant B listen=1 / request=1 / connect=1.
+- **M3** 5/5: intact `4573 B / 86c47a5a…be65`; damaged `4574 B / 73537b74…4a09`; intact exit 0 / damaged exit 1 intended pinned-bytes assertion / damaged+bypass exit 0; frozen oracle and candidate audit reject.
+- Paired integration **8/8**: 10 pinned main docs, old Q3-11 rejects `/D007_A65…`, new 103/103 + 67/67 + 44/44, runtime subtrees byte-identical.
+- Candidate auditor negatives **7/7** (control + 6; actual reasons A72_CHANGED_PATH_COUNT 4, CLEAN_CHECKOUT, S_TO_HEAD_COMMIT_COUNT 2); pinned-dependency negatives **9/9** (51/51 control + 8); A72 new failure-class mutants **4/4**.
+- Explicit candidate audit: `CANDIDATE_SCOPE_OK`, basePaths=200, additions=22, a66ChangedPaths=6, a72ChangedPaths=3, worktreePaths=222.
 
-**Verdict：A67 五类矩阵 `PASS_WITH_FINDINGS`。** 请 Design 核验 seq11 + 本 seq14 后决定 exact-SHA G4。QA STOP.
+## Findings / limits
+
+- **P0 = 0, P1 = 0, P2 = 0** new product findings. Prior Design-owned **P1-WP03-DESIGN-1** and **P2-WP03-DESIGN-2** remain OPEN as Design left them; QA does not close them and does not rule G4.
+- **NOT_RUN / UNSUPPORTED:** Linux runtime; real Zotero/Nutstore/credentials/user data; durable persistence, crash recovery, durable replay; R2 success path; UI; performance/timing; G4 (Design only); G5/G6/G7; real service/deployment.
+- Honesty note: an earlier offline attempt (`13:38–13:47 +01:00`) produced FAIL solely from QA scratch-harness defects (raw48 calibration, TAP diagnostic index, M2 ESM counter publication, M3 missing `tools/offline`, integration status trim, A72 mutant extraction). No candidate file changed; after fixing QA harness only, this clean full rerun (`18:38–18:43 +01:00`) produced the PASS above. Attempt-1 evidence is preserved separately and not used as final evidence.
+- Candidate checkout remains clean at the exact SHA; PR head unchanged; no candidate commit/push/merge/rebase/reset/force; no test/fixture/product edit.
+
+**Verdict: PASS for independent full G3 at exact `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`. QA STOP; G4 is Design's.**
