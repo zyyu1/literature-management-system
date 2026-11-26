@@ -29,3 +29,6 @@ G1 on DEC-25=A → Management dispatch to Execution (new branch/PR, full G2 repo
 Neither choice authorizes real persistence, P0-STORE, R2 execution, frozen UI change, G6/G7 or touching PR #2/#4. A70/A71 remain suspended.
 
 **Design STOP — WAITING FOR DEC-25.**
+
+## 6. DEC-25 record — G1 APPROVED
+2026-11-26 ~20:13 +01: the user selected **DEC-25 = A** via clickable option in the Design window (workflow of 2026-11-26 20:11: decisions in Design, Design → Management → Execution/QA). **WP-04-R1 G1 APPROVED** exactly per §3, [DESIGN](../handoffs/WP-04/DESIGN.md) and [QA INSTRUCTION](../handoffs/WP-04/QA_INSTRUCTION.md); no widening. Board R38 is the task order to Management: Execution only in this step; independent G3 is released separately after Design's G2 scope review. G5/G6/G7 NOT_AUTHORIZED; P0-STORE blocked.
