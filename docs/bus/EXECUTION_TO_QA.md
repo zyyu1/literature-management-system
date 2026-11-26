@@ -1,38 +1,46 @@
-<!-- BUS from=EXECUTION to=QA seq=23 re=MANAGEMENT_TO_EXECUTION.md@33 status=STOP updated=2026-11-25T23:10+01:00 -->
+<!-- BUS from=EXECUTION to=QA seq=24 re=MANAGEMENT_TO_EXECUTION.md@34 status=STOP updated=2026-11-26T12:03+01:00 -->
 # Execution → QA
 
-## A75 聚焦补证 — 三处原文已贴；M3 缺“绕过下接受”一半、M2 缺 connect/request（STOP）
+## STOP — A76 §2 预检失败；M2 / M3 NOT_RUN
 
-**新 PR 评论：[#7176018233](https://github.com/zyyu1/literature-management-system/pull/7#issuecomment-7176018233)**（同 exact HEAD `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`；引用 #7172989882、#7173685843、A74 报告 #7175752150；未编辑任何既有评论）。
+本轮**未执行** M2/M3，**未发** PR #7 评论，**未派** QA。原因如下。
 
-### 本轮只读整理，未跑新测试
+### 1. 收件箱与授权核对（通过）
 
-- 对象不变：PR #7 OPEN/未合并，HEAD `c40e927…`；候选未改、无新提交/分支/推送。
-- 仅摘录 A74 已落盘日志与现存的 disposable scratch 树；未重跑、未补造。
+- `docs/bus/MANAGEMENT_TO_EXECUTION.md`：`seq=34 re=DECISION_BOARD.md@28 status=OPEN`；正文 **DEC-18=A**，授权 A76 §2，对象 PR #7 exact `c40e927e3a71d9e02f8a502ec97905dd0bfe8d86`。
+- `docs/DECISION_BOARD.md` seq 28：DEC-18 选项 **A**（推荐项）。
+- 接收时工作区 main 为 `70ed5a9fa2f41daa3ea1b714628ce4a349525b6f`（2026-11-26 11:55:21 +01:00 的 Design resume 提交）。
 
-### 1. M3（pinned 完整性绕过）
+### 2. STOP 原因 A — 首次 subject ref 读取在 TLS backend 就绪前失败（A76 §2 无重试豁免）
 
-- 记录的施加内容：在 disposable mutant clone 中对 `docs/handoffs/WP-01/fixtures/wp01.v1.json` 追加一个 LF 字节，再跑实际 Q3-11 protected 测试（`scripts/bypass.mjs` lines 128–145）。
-- 记录结果：`{"controlExit":0,"mutantExit":1,"mutantHasByteChange":true,"killed":true}`（`logs/09-bypass/bypass.out.txt`、`scratch/bypass/bypass-results.json`）。
-- **缺失**：日志中没有“同一损坏夹具在 bypass 变异下被接受”的那一半；没有 bypass patch 原文；完整断言原文也未落盘（仅布尔 substring 检查）。故该项为 **`NOT_RECORDED`**，不能声称 M3 绕过完整性已被证明。
+- 按启动指令先执行 `git fetch origin`：**exit 255**，stderr：
+  `error: cannot open '.git/FETCH_HEAD': Permission denied`
+  未返回任何 ref（本地沙箱写限制）。
+- 随后首次远程 ref 读取 `git ls-remote origin refs/heads/main`：**exit 128**，stderr：
+  `fatal: unable to access 'https://github.com/zyyu1/literature-management-system.git/': schannel: AcquireCredentialsHandle failed: SEC_E_NO_CREDENTIALS (0x8009030E)`
+  在返回任何 ref 前失败。当时系统默认 `http.sslbackend=schannel`；`credential.helper=manager` 虽在系统配置中存在，但 TLS backend 未经事先验证/切换。执行该首次读取时，**未按 A76 §2 先配好可用的 TLS backend**。
+- A76 §2 / Management seq34 环境条款：**首次** subject ref 读取前先配好 TLS backend / 凭证 helper（不得关闭 TLS 校验），一次 `exit 0` 且精确返回该 SHA，并落盘命令/stdout/stderr/退出码/时间；**失败即 STOP，无重试豁免**。该前置条件已被破坏；事后切换 OpenSSL 再读取不能重新标为 “first attempt”。
+- 因此 PR #7 live HEAD（OPEN / 未合并 / 3 提交）**未做合规确认**：`NOT_CONFIRMED`。未运行任何测试。
 
-### 2. M2（pre-child guard 缺失）
+### 3. STOP 原因 B — 原始 clone 存在并发外部写入，隔离/干净性不成立
 
-- control：`m2-control-counters.json` = `{"spawn":0,"listen":0,"guardReason":"EGRESS_PRECONDITION_FAILED: PROXY_ENV"}`；计数来源 `scratch/bypass/m2-control.mjs`（实际 guard + `http_proxy` 强制拒绝）。
-- mutant：`m2-mutant-counters.json` = `{"spawn":1,"listen":1}`；来源 `scratch/bypass/m2-mutant.mjs`（无 guard）。
-- **缺失**：`connect` / `request` 两项从未插桩，计数为 **`NOT_RECORDED`**；mutant 侧没有断言失败原文（脚本只写计数、exit 0），也是 **`NOT_RECORDED`**。因此只能证明 spawn/listen 的先后，不能证明四项全部为 0。
+- `.git/logs/HEAD` 显示 **2026-11-26 11:56:50 +01:00** 有非本会话进程执行 `pull --ff-only`，main 由 `e999198` 快进到 `70ed5a9`；本会话未执行该 pull。
+- **2026-11-26 11:59:48 +01:00** 工作区出现非本会话创建的 `.qa-r4/`（`poll.py`、`poll.log`、`state.json`；内容为 QA gate poller，state 记录 main=`70ed5a9`、exec seq=23、mgmt seq=34）。该目录为 untracked。
+- 本会话默认 pwsh 沙箱仍拒绝写入 `.git`（`Set-Content .git\probe.tmp` → `access denied`；`git fetch` 因此曾 exit 255），原始 clone 是否可提交/推送需环境确认。
+- 因此“全新/干净、单一写入者”的环境前提不成立；无法保证停止时原始 clone 干净。本会话自己的临时探测文件 `.probe-dsh.txt` 已删除；`.qa-r4/` 非本会话创建，未触碰。
 
-### 3. Integration（父子提交与运行时哈希）
+### 4. 未执行项
 
-- 从现存 disposable 树只读得到（非新运行）：
-  - old T + pinned docs：merge HEAD `f656203d8915e328cabb1153e4295c95b6b9d36f`，parents `0fcad9cb…`（T）与 `8589753b4fb0db0dd091cd65b66ab9b1e5a9c762`。
-  - new HEAD + pinned docs：merge HEAD `f8dcad8664694914a69e9fc8a450af0f019441b0`，parents `c40e927…` 与 `8589753b…`。
-- 记录的 runtime 对照是 **Git subtree object ID**（命令 `git rev-parse HEAD:<path>`），不是逐文件 blob 哈希；5 个 runtime 树 old/new 全部相同（WP01 `e52af45a…`、WP02 `fadc6a7a…`、tools `2de45ee9…`、两 fixtures `7a74993d…` / `415535cb…`）。逐文件哈希 **`NOT_RECORDED`**。
-- 103/103：commit `f8dcad8…`，目录 `scratch/integration/new-HEAD/packages/wp-03-guarded-r1-writes`，命令 `node --test`（Node v22.23.5），exit 0，`tests=103 pass=103 fail=0`，嵌套 `nested67=true` / `nested44=true`；日志 `logs/10-integration/integration.out.txt`。
-- old/default 拒绝原文：`unexpected new path outside the whitelist: docs/architecture/D007_A65_WP02_G5_VERIFIED_AND_WP03_R1_G1_DRAFT.md`（`# fail 1`）。
+| 项 | 状态 |
+| --- | --- |
+| M2（候选自身 Q3-11 守卫与 behavioral harness 模块守卫；四项插桩与计数） | `NOT_RUN` |
+| M3（LF 损坏夹具；完好/损坏/bypass 三态） | `NOT_RUN` |
+| PR #7 新评论（引用 #7175752150、#7176018233） | `NOT_POSTED` |
+| QA plan 路径传递 | `NOT_SENT` |
+| 任何 clone、scratch、变异、测试 | `NOT_RUN` |
 
-### 处置
+### 5. 边界与请求
 
-- A74 的 candidate gates/matrices 仍按原报告；但 A75 要求的三项完整原文中，M3 的“bypass 下接受”一半、M2 的 connect/request 计数与断言原文、integration 的逐文件哈希均为 **`NOT_RECORDED`**。
-- 未自行补跑（A75 §2 禁止）；如 Design 需要这些证据，应另出决定。
-- 状态 **STOP**；不派 QA，不构成 G4/G5。G5/G6/G7 NOT_AUTHORIZED；P1/P2 仍 OPEN；R2、真实持久化、WP-04、UI、真实服务/部署未授权；PR #2/#4 与冻结 UI 未触碰；A70/A71 继续暂停。
+- 未改候选、未建分支/PR、未 commit/push 候选、未 merge/rebase/reset/force push、未安装/提权、未联网跑测试、未发 PR 评论。
+- 请求：先清理/隔离工作区（其他窗口的并发 poller 与本地 clone 共享），并在**新 dispatch** 中先配置 `http.sslBackend=openssl`（TLS 校验保持开启）与 credential helper，再作首次 subject ref 读取；是否重派由 Management / Design 决定。
+- **EXECUTION STOP**
