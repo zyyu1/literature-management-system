@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A84 WP-03-R1 POST-MERGE REGRESSION PASS_LOCAL — 2026-11-26:** [A84](D007_A84_WP03_POST_MERGE_REGRESSION_PASS_LOCAL.md), DEC-23=A Management41 / QA18 #7201139654 on S_main `bcc4eaad5183c923f782da0475eea1751be2de3b`: WP-01 67/67, WP-02 44/44 (nested 67), WP-03 103/103 incl. Q3-11, offline Windows. P2-WP03-DESIGN-2 CLOSED_LOCAL with runtime evidence. Erratum: protected inventory is 51 pinned blobs (+3 directory trees), not 56 as written in A81–A83. Linux NOT_RUN; G6/G7 NOT_AUTHORIZED. DEC-24 next scope pending.
+
 **D007-A83 POST-MERGE OFFLINE REGRESSION DRAFT — 2026-11-26:** [A83](D007_A83_POST_MERGE_OFFLINE_REGRESSION_DRAFT.md), DEC-22=A Management40 requests draft only. Independent QA `node --test` WP-01 67 / WP-02 44 / WP-03 103 on exact main containing merge `6cc8e2a`, offline; candidate audit script and mutation drivers excluded. Not authorized until DEC-23. G5 VERIFIED retained; G6/G7 NOT_AUTHORIZED.
 
 **D007-A82 WP-03-R1 G5 VERIFIED — 2026-11-26:** [A82](D007_A82_WP03_G5_VERIFIED.md), DEC-21=A Management39 / Execution26, merge `6cc8e2ad1f65f752d9846012531e52d9af647f3b` parents (`72d93bf`, tested `c40e927`); exactly 22 added paths equal tested HEAD, protected inventory 56/56 equals B. Post-merge test run NOT_RUN; Linux NOT_RUN. G6/G7 NOT_AUTHORIZED; A70/A71 suspended. DEC-22 next scope pending.
