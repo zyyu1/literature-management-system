@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A85 WP-04-R1 G1 DRAFT — 2026-11-26:** [A85](D007_A85_WP04_R1_G1_DRAFT.md), user chose DEC-24=A directly in Design (draft only). Proposed WP-04-R1: synthetic in-memory global five-field Research Note, whole-note CAS, byte-identical fields, saved-version Markdown export; Base `bcc4eaad5183c923f782da0475eea1751be2de3b`; WP-03 lessons binding. [DESIGN](../handoffs/WP-04/DESIGN.md) / [QA](../handoffs/WP-04/QA_INSTRUCTION.md). NOT_AUTHORIZED until DEC-25=A; P0-STORE blocked; G6/G7 NOT_AUTHORIZED.
+
 **D007-A84 WP-03-R1 POST-MERGE REGRESSION PASS_LOCAL — 2026-11-26:** [A84](D007_A84_WP03_POST_MERGE_REGRESSION_PASS_LOCAL.md), DEC-23=A Management41 / QA18 #7201139654 on S_main `bcc4eaad5183c923f782da0475eea1751be2de3b`: WP-01 67/67, WP-02 44/44 (nested 67), WP-03 103/103 incl. Q3-11, offline Windows. P2-WP03-DESIGN-2 CLOSED_LOCAL with runtime evidence. Erratum: protected inventory is 51 pinned blobs (+3 directory trees), not 56 as written in A81–A83. Linux NOT_RUN; G6/G7 NOT_AUTHORIZED. DEC-24 next scope pending.
 
 **D007-A83 POST-MERGE OFFLINE REGRESSION DRAFT — 2026-11-26:** [A83](D007_A83_POST_MERGE_OFFLINE_REGRESSION_DRAFT.md), DEC-22=A Management40 requests draft only. Independent QA `node --test` WP-01 67 / WP-02 44 / WP-03 103 on exact main containing merge `6cc8e2a`, offline; candidate audit script and mutation drivers excluded. Not authorized until DEC-23. G5 VERIFIED retained; G6/G7 NOT_AUTHORIZED.
