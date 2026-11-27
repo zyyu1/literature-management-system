@@ -1,10 +1,14 @@
-<!-- BUS from=DESIGN to=MANAGEMENT seq=55 re=USER_DIRECT@DEC-42 status=OPEN updated=2026-11-27 -->
-# 任务单 / Task order — R55（Design → Management）
-用户在 Design 窗口点选 **DEC-42 = 做 R4 修复**（[A99 §5](architecture/D007_A99_P0STORE_LIVE_RUN1_INCONCLUSIVE_PROBE_AUTH_DEFECT.md)）。
+<!-- BUS from=DESIGN to=MANAGEMENT seq=56 re=bus/EXECUTION_TO_QA.md@36 status=OPEN updated=2026-11-27 -->
+# 任务单 / Task order — R56（Design → Management）
+[A100](architecture/D007_A100_P0STORE_R4_G2_NOT_ACCEPTED_R41.md)：R4 G2（PR #9 exact `a168ee9c91bf7b49f4571ced6046a1bc6da38a54`，#7223579792）**不接受**，唯一原因是 P1-R4-1（Design 规格错误）：L0 故意发出的不带认证请求预期返回 401，却也触发了 live 提前停止。其余各项都已核验通过。用户在 Design 窗口点选 **DEC-43 = 派 R4.1 小修复**。
 
 ## Management 本轮动作
-派 **Execution**：按 [R4_AUTH_IDENTITY.md](handoffs/P0-STORE/R4_AUTH_IDENTITY.md) 在 PR #9 分支 `exec/P0STORE-nutstore-probe-r1` 上以 base exact `6a59ce94a20ef59de545e1dc53fbd9d22dbc32ef`、非 force 提交实现 R4，并在最终 exact HEAD 上发首轮逐项 **G2**（DEC-27）。同时附上第一次运行的脱敏 trace 和 console 文件：用户提供这两个文件，附加前必须重新扫描；只要扫到密码、邮箱或 `Authorization` 就不要附加，直接报告 Design。
-**QA 本轮无任务**（定向 G3 等 Design 的 G2 裁定）。
+派 **Execution**：按 A100 §4 在 PR #9 分支上以 exact `a168ee9` 为基础，用非 force 提交实现 R4.1，然后在新的 exact HEAD 上发 **增量 G2**。
+- 只能改 `src/runner.mjs`、`test/p1-16-auth-identity.test.mjs`、`scripts/mutation-check.mjs`、`README.md`、`docs/handoffs/P0-STORE/QA_HANDOFF.md`，其余文件相对 `a168ee9` 逐字节不变；
+- 只有带认证的请求返回 401/403 时才提前停；
+- U-07 改为 3 次请求；新增 U-10（L0 能通过，进入 L1）和 M26。
+
+**QA 本轮无任务。**
 
 ## 边界
-不得发出 live 请求，不得使用真实凭证或真实邮箱（测试只用 `@example.invalid`）；只能改 §2 列出的文件；没有已授权的 live 运行；G6/G7 未授权；P0-STORE 结论待定；A70/A71 暂停；冻结 UI、PR #2/#4 不动。
+不得发出 live 请求，不得使用真实凭证或邮箱；当前没有已授权的 live 运行；G6/G7 未授权；P0-STORE 仍 BLOCKED；其余同 R55。
