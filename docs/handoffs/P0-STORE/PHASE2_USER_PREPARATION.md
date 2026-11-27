@@ -19,7 +19,7 @@ You tell Design only: "U1–U7 done", the WebDAV address (U3, not secret), and t
 | Field | Value |
 | --- | --- |
 | Request ID | `P0STORE-ACCESS-02` — **NOT AUTHORIZED** |
-| Probe code | PR #9 exact `88e1bd76dc94fc38876fa28c975d317b1c1573c2` (A92 G4 PASS_LOCAL) **plus** the mandatory pre-Phase-3 change §4 (new exact SHA, its own G2/targeted G3) |
+| Probe code | PR #9 R2 exact `b6fec8e3b0ec217b142b428080454588e6866744` (A95 G4) is live-inert; the live run uses the exact SHA of the Phase 3 readiness slice R3 after its own G4 |
 | Host / port / path prefix | `dav.jianguoyun.com`, port 443, WebDAV root `/dav/` (U3); run prefix `/dav/LMS-P0STORE/<random-run-id>/` |
 | Operator / machine | U4 |
 | Credential | env `P0STORE_WEBDAV_PASSWORD`, set by the user only (U5) |
@@ -28,7 +28,7 @@ You tell Design only: "U1–U7 done", the WebDAV address (U3, not secret), and t
 | After run | User revokes app password (U6); Design rules per A90 §6 incl. INCONCLUSIVE |
 
 ## 3. Status ladder
-`PHASE2_USER_PREP_OPEN` (U1–U4 and U7 done; U5/U6 at run time) → becomes `PHASE2_READY` once the R2 verdict fix is accepted → `PHASE2_READY` (U1–U7 confirmed + §4 change accepted) → `ACCESS02_REQUEST_READY` (Design completes §2) → `ACCESS02_AUTHORIZED` (**only** by a later explicit user click naming SHA/host/namespace/operator) → `PROVIDER_OBSERVED` → Design verdict.
+`PHASE2_USER_PREP_OPEN` (U1–U4 and U7 done; U5/U6 at run time) → **`PHASE2_READY`** (A95, R2 accepted) → `PHASE2_READY` (U1–U7 confirmed + §4 change accepted) → `ACCESS02_REQUEST_READY` (Design completes §2) → `ACCESS02_AUTHORIZED` (**only** by a later explicit user click naming SHA/host/namespace/operator) → `PROVIDER_OBSERVED` → Design verdict.
 
 ## 4. Mandatory change before any live run (A92 DEC-35)
 Add verdict `INCONCLUSIVE` to the probe: any STOP or unresolvable outcome **before L6 completes all 5 rounds** without NO-GO evidence must output `INCONCLUSIVE` (not `PARTIAL`); `PARTIAL` only when L2, L5, L6 and L7 passed. Verdict output must also always list the first failing/limiting step's own reason before any later STOP reason. Small Execution slice on the same package, normal G2 + targeted independent G3 (verdict matrix + mutants for the new rule). Until accepted, any tool output `PARTIAL` with `unresolved: true` is read as INCONCLUSIVE.

@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A95 P0-STORE R2 G4 PASS_LOCAL — 2026-11-27:** [A95](D007_A95_P0STORE_R2_G4_PASS_LOCAL.md), QA22 #7220233158 at exact `b6fec8e3b0ec217b142b428080454588e6866744`: 8 groups PASS, R2 matrix incl. INCONCLUSIVE and root-cause-first, byte proof 8/8, mutants 16+3; P0/P1/P2=0. **LIM-P0S-1 CLOSED**; Phase 2 PHASE2_READY. Live mode still inert by constant → Phase 3 needs readiness slice R3 first (DEC-39 pending). G6/G7 NOT_AUTHORIZED.
+
 **D007-A94 P0-STORE R2 G2 ACCEPTED — 2026-11-27:** [A94](D007_A94_P0STORE_R2_G2_ACCEPTED.md), PR #9 exact `b6fec8e3b0ec217b142b428080454588e6866744` (R2 evidence `4032187`): suite 65/65 incl. P1-14, upstream 67/44/103/91, mutants 16/16; frozen gate/plan/secret/trace/runner/oracle/support byte-identical; P1-03 two-assertion exception accepted (Design spec omission). User DEC-38=A: targeted G3 via Board R47.
 
 **D007-A93 P0-STORE R2 VERDICT FIX G1 — 2026-11-27:** [A93](D007_A93_P0STORE_R2_VERDICT_FIX_G1.md), user DEC-37=A: add INCONCLUSIVE verdict + root-cause-first reasons on PR #9 branch atop `88e1bd7` ([spec](../handoffs/P0-STORE/R2_VERDICT_FIX.md)); Board R46 → Execution. Phase 2 U3 recorded (`https://dav.jianguoyun.com/dav/`); U1/U2/U4–U7 pending. Phase 3 NOT_AUTHORIZED.
