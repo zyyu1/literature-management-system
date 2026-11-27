@@ -1,6 +1,6 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
-**D007-A105 P0-STORE R4/R4.1 G4 PASS_LOCAL — 2026-11-27:** [A105](D007_A105_P0STORE_R4_R41_G4_PASS_LOCAL.md): QA24 #7225443033 at exact `b2b008295736dc09829e5272638c19aedc9c1442`: 7 groups PASS; auth matrix 8/8, early-stop 4/4, canary PASS, byte/carry 6/6, mutants 26+3; P0/P1/P2=0. **G4 PASS_LOCAL; ACCESS02_RUN2_REQUEST_READY**; runbook rev 3 (approval id `P0STORE-ACCESS-02-20261127-b2b0082`). DEC-48 pending.
+**D007-A105 P0-STORE R4/R4.1 G4 PASS_LOCAL — 2026-11-27:** [A105](D007_A105_P0STORE_R4_R41_G4_PASS_LOCAL.md): QA24 #7225443033 at exact `b2b008295736dc09829e5272638c19aedc9c1442`: 7 groups PASS; auth matrix 8/8, early-stop 4/4, canary PASS, byte/carry 6/6, mutants 26+3; P0/P1/P2=0. **G4 PASS_LOCAL; ACCESS02_RUN2_REQUEST_READY**; runbook rev 3 (approval id `P0STORE-ACCESS-02-20261127-b2b0082`). **DEC-48 APPROVED** (one run; the user runs it later per rev 3).
 
 **D007-A104 P0-STORE R4+R4.1 G2 ACCEPTED — 2026-11-27:** [A104](D007_A104_P0STORE_R4_R41_G2_ACCEPTED.md): delta G2 #7225015533 at exact `b2b008295736dc09829e5272638c19aedc9c1442` has suite 94/94, upstream 67/44/103/91, U-07 3 calls, U-10 into L1, mutants 26/26, and passes the carry-forward byte proof. **G2 ACCEPTED**; DEC-47=A releases the independent targeted G3 (A104 §4).
 

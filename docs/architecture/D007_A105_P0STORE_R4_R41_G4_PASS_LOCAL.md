@@ -32,3 +32,6 @@ QA24 (`8f2d58e`) and PR #9 [#7225443033](https://github.com/zyyu1/literature-man
 - A 401 on the authenticated request now ends after 3 requests and points to a wrong e-mail or app password. No retry under the same approval.
 
 G6 beyond this run and G7 remain NOT_AUTHORIZED; P0-STORE stays BLOCKED until the Design verdict.
+
+## 4. DEC-48 outcome (2026-11-27, user, clickable)
+**User approved: "批准，但明天再跑".** Approval `P0STORE-ACCESS-02-20261127-b2b0082` is valid for **one** live run of exact `b2b008295736dc09829e5272638c19aedc9c1442` on `dav.jianguoyun.com:443` under `/dav/LMS-P0STORE/<runtime runId>/`. The operator is the user, following runbook rev 3, at a time the user chooses. The date in the id is the approval date; the run may happen later. Nothing else changes: no retry, no second run, and the credentials stay only in the run window. P0-STORE stays BLOCKED until the Design verdict.
