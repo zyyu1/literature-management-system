@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A104 P0-STORE R4+R4.1 G2 ACCEPTED — 2026-11-27:** [A104](D007_A104_P0STORE_R4_R41_G2_ACCEPTED.md): delta G2 #7225015533 at exact `b2b008295736dc09829e5272638c19aedc9c1442` has suite 94/94, upstream 67/44/103/91, U-07 3 calls, U-10 into L1, mutants 26/26, and passes the carry-forward byte proof. **G2 ACCEPTED**; DEC-47=A releases the independent targeted G3 (A104 §4).
+
 **D007-A103 P0-STORE R4.1 CARRY-FORWARD UPSTREAM — 2026-11-27:** [A103](D007_A103_P0STORE_R41_CARRY_FORWARD_UPSTREAM.md): after the reboot the guard query still takes 3738 ms (4016 ms with Node start-up); Execution39 STOP. Design verified that `16f0cb0..6c59f35` touches only the 5 R4.1 files, so P1-13, the upstream packages and the guard are byte-identical to the 93/93 run in a valid interval. DEC-46=A: carry that evidence forward by byte proof; the current run covers the full suite as-is, upstream with --test-concurrency=1, P1-16, audit and mutants; LIM-P0S-2 recorded.
 
 **D007-A102 P0-STORE R4.1 HOST ENVIRONMENT RESTORE — 2026-11-27:** [A102](D007_A102_P0STORE_R41_ENVIRONMENT_RESTORE.md): Execution38 STOP. PR #9 head is now `6c59f35`. Isolated P1-13 passed 0/3, and the merged WP-03/WP-04 suites fail standalone, all with the frozen guard's PowerShell query timing out at 8 s. The same host passed at 15:11Z and 16:28Z, so this is an environment regression. DEC-45=A: the user reboots; Execution times the guard query (<4 s or STOP), then re-runs A101 (a)(b)(c) unchanged.
