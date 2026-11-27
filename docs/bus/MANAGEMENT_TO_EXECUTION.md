@@ -1,54 +1,34 @@
-<!-- BUS from=MANAGEMENT to=EXECUTION seq=59 re=DECISION_BOARD.md@57 status=OPEN updated=2026-11-27T18:20+01:00 -->
-# Management → Execution（DEC-44=A：P0-STORE R4.1 的 P1-13 隔离取证方法）
+<!-- BUS from=MANAGEMENT to=EXECUTION seq=60 re=DECISION_BOARD.md@58 status=OPEN updated=2026-11-27T18:38+01:00 -->
+# Management → Execution（DEC-45=A：先恢复主机环境再重跑；**等待用户确认**，本轮不派单）
 
 ## 1. 记录同步
 
-- **Execution37**（`8531dba`，STOP）：R4.1 已实现于**本地提交 `6c59f35`**（单亲 `a168ee9`），**尚未推送**；
-  仅改 A100 §4 允许列表；U-07（3 次调用）与 U-10 通过；新增/调整 M25、M26。
-- **现象**：完整 suite **连续 3 次 93/94**，唯一失败在**冻结的 P1-13** 链
-  （WP-04 子进程 Q4-12 → 嵌套 WP-03 strict TAP，exit 1）。Execution 的解释是深层嵌套同时跑多个冻结的
-  A62 egress-guard PowerShell 查询，其 **8 秒超时**在并发下被触发，**与 R4.1 无关**。
-- 另有一次因**网络恢复过早**（`probe post-suite FAIL`）被判无效，Execution 正确地没有计入证据。
-- 参照：P1-13 在 R4 G2（93/93）与 R3 的 QA 运行中都是通过的。
-- **A101 裁定 + 用户 DEC-44 = A**：**把 P1-13 分开跑**；这是证据方法的中期裁定，不是 G2 裁定。
+- **Execution38**（`c1d2553`，STOP）：按 A101 §3 的隔离方法，P1-13 单独运行 **0/3**；
+  **已合并的 WP-03 / WP-04 单独运行也全部失败**——失败特征都是**冻结守卫的 PowerShell 查询超过 8 秒**。
+- 同一台主机今天 **15:11Z 与 16:28Z 都全部通过** → Design 判为**主机环境退化，不是代码问题**（A102）。
+- **DEC-45 = A**（用户在 Design 窗口选定）：**先恢复环境，再重跑**。
 
-## 2. 本轮派单（Execution，按 A101 §3）
+## 2. 本轮动作（Management 等待用户确认）
 
-1. **以普通提交把 `6c59f35` 推到 PR #9**；**不修改任何冻结文件**。
-2. 在**同一个 A59 离线区间**内、用固定版本 Node，且**每组前后都做 guard + probe**，运行：
-   - **(a)** 完整 suite **跑 1 次**，**如实照原样记录**（含失败）；
-   - **(b)** **单独**运行 `node --test --test-concurrency=1 test/p1-13-upstream.test.mjs`，
-     **最多 3 次**，每次都必须保留原始日志；
-   - **(c)** **分别直接**运行 WP-01 / WP-02 / WP-03 / WP-04 各自的 suite，期望 **67 / 44 / 103 / 91**。
-3. **判定（三条同时满足才算完成）**：
-   - (a) 除 P1-13 之外**没有任何失败**；
-   - (b) **至少通过一次**，且 (b) 中**所有**失败都是**同一个 guard 超时特征**；
-   - (c) **全绿**。
-   满足 → 在新的 exact HEAD 上发**增量 G2**（内容按 A100 §4.8），并记入限制 **LIM-P0S-2**
-   （“冻结的 P1-13 嵌套 egress 守卫在并发下对时序敏感；隔离运行为证据”）。
-4. **任一不满足**（例如 (b) 从未通过、或出现不同失败特征）→ **STOP 并报告 Design**，不得自行改冻结文件、
-   不得放宽判定、不得把无效区间计入证据。
+按 R58 的顺序，Management **现在不派单**，先等用户：
+1. **重启这台 A59 Windows 主机**；
+2. 重启后**关闭其他占资源的程序**（多个浏览器标签、Electron/桌面应用、后台同步盘等）；
+3. 向 Management **明确确认**“主机已恢复，可以重跑”。
 
-## 3. G2 内容（A100 §4.8 不变）
+收到该确认后，Management 立刻用**下一序（seq 61）**派发 Execution，内容如下（预置，供各窗口知悉）：
 
-- diff **仅限**允许列表（`src/runner.mjs`、`test/p1-16-auth-identity.test.mjs`、`scripts/mutation-check.mjs`、
-  `README.md`、`docs/handoffs/P0-STORE/QA_HANDOFF.md`）；
-- 对其余全部文件相对 `a168ee9` 的**字节证明**；
-- 完整 suite、上游、audit、mutant（含 **M26**）；
-- **U-07** 与 **U-10**；
-- A59 离线区间与固定 Node v22.23.5 x64；
-- 明确写出 **LIM-P0S-2** 与本轮采用 (a)/(b)/(c) 的证据方法。
+- **前置检查**：用普通权限 `Measure-Command` 单独测**一次**守卫的网络清单查询耗时并记录；
+  **≥ 4 秒 → 立即 STOP 上报**，不再继续。
+- 否则：在**新的** A59 离线区间内**原样**重跑 A101 §3 的 **(a)(b)(c)**，随后再跑 **audit 与 mutants**。
+- 通过 → 按 **A100 §4.8 + A101 §3** 在 exact HEAD 上发**增量 G2**（含 LIM-P0S-2）；
+  **仍然失败 → STOP**，不得改冻结文件、不得放宽判定。
 
-## 4. 交付
+## 3. 边界（不变）
 
-- 然后整份覆写 `docs/bus/EXECUTION_TO_QA.md` 为 seq **38**（或 latest+1），
-  header `re=MANAGEMENT_TO_EXECUTION.md@59`，含 PR 号、最终 exact SHA、G2 评论 ID、QA 计划路径
-  `D007_A100_P0STORE_R4_G2_NOT_ACCEPTED_R41.md` §4 与 `D007_A101_P0STORE_R41_P113_EVIDENCE_METHOD.md` §6（只传路径）；
-  只提交该文件，`bus(execution): seq 38`，**EXECUTION STOP**。
+- 不改冻结文件；不得发出 live 请求；不得使用真实凭证或邮箱；**当前没有任何已授权的 live 运行**。
+- G6/G7 未授权；P0-STORE 仍 **BLOCKED**；A70/A71 暂停；冻结 UI、PR #2/#4 不动；PR #9 保持 OPEN。
+- **QA 本轮无任务**；Execution 在收到 seq 61 之前不得开始任何重跑。
 
-## 5. 边界
+## 4. 状态
 
-- **QA 本轮无任务**（定向 G3 等 Design 的 G2 裁定；届时 G3 的 P1-13 也**用同样的隔离方法**）。
-- 不得发出 live 请求、不得使用真实凭证或邮箱；**当前没有任何已授权的 live 运行**；
-  G6/G7 未授权；P0-STORE 仍 **BLOCKED**；A70/A71 暂停；冻结 UI、PR #2/#4 不动；PR #9 保持 OPEN。
-- 任何越界、需要改冻结文件、或出现 (a)/(b)/(c) 之外的情形 → **STOP 并上报**。
+`WAIT_USER_HOST_RESTORE`（Management 等待用户确认；确认后发 seq 61）。
