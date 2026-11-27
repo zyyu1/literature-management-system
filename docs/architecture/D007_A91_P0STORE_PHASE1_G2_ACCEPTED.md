@@ -23,3 +23,6 @@
 
 ## 4. Ruling
 **G2 ACCEPTED at exact `88e1bd76dc94fc38876fa28c975d317b1c1573c2`.** Independent G3 per [QA_INSTRUCTION](../handoffs/P0-STORE/QA_INSTRUCTION.md) is released only on the user's decision (DEC-34). Phases 2–4, ACCESS-02/G6, G7 NOT_AUTHORIZED; P0-STORE BLOCKED; A70/A71 suspended.
+
+## 5. DEC-34 record
+2026-11-27: the user selected **DEC-34 = A (release independent G3)** in the Design window. Board R44 is the task order (independent QA only, exact `88e1bd76dc94fc38876fa28c975d317b1c1573c2`). G4 remains Design-only; Phases 2–4 still not authorized.
