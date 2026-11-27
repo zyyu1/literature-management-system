@@ -1,0 +1,16 @@
+{
+  "name": "wp-04-research-notes-r1",
+  "version": "0.0.0-synthetic",
+  "private": true,
+  "type": "module",
+  "description": "WP-04-R1 LOCAL_SYNTHETIC_ONLY global five-field Research Note, whole-note CAS and saved-version export contract double (D007-A85). Not production-suitable.",
+  "engines": {
+    "node": "22.23.5"
+  },
+  "scripts": {
+    "test": "node --test",
+    "mutation": "node scripts/mutation-check.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
