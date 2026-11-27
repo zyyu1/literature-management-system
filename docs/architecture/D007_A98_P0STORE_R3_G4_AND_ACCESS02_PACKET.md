@@ -19,3 +19,6 @@
 - **Operator change from A90 §3:** the **user runs** the command per the runbook; no Claude window ever holds or injects the credential. Execution only attaches the redacted trace/console files to PR #9; independent QA re-derives the verdict offline from the trace. The A90 idea of a second QA live re-run is dropped (one live run only, budget preserved).
 - Afterwards the user revokes the app password; Design rules GO / PARTIAL / INCONCLUSIVE / NO-GO per A90 §6/§10.
 G6 for anything beyond this single run, and G7, remain NOT_AUTHORIZED; P0-STORE BLOCKED until the Design verdict.
+
+## 5. DEC-41 outcome (2026-11-27, user, clickable in the Design window)
+**User approved: "批准，我来运行".** ACCESS-02 approval `P0STORE-ACCESS-02-20261127-6a59ce9` is valid for **one** live run of exact `6a59ce94a20ef59de545e1dc53fbd9d22dbc32ef` against `dav.jianguoyun.com:443` under `/dav/LMS-P0STORE/<runtime runId>/`, operator = the user, per [PHASE3_RUNBOOK](../handoffs/P0-STORE/PHASE3_RUNBOOK.md). No retry, no second run, no other host or SHA. The credential stays with the user only; no Claude window receives it. After the run: the user revokes the app password and reports exit code + verdict line to Design; Design then issues the attach/offline-QA task order. G6 beyond this run and G7 remain NOT_AUTHORIZED; the P0-STORE route verdict is pending.
