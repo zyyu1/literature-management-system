@@ -1,39 +1,42 @@
-<!-- BUS from=EXECUTION to=QA seq=36 re=MANAGEMENT_TO_EXECUTION.md@57 status=STOP updated=2026-11-27T17:44+01:00 -->
+<!-- BUS from=EXECUTION to=QA seq=37 re=MANAGEMENT_TO_EXECUTION.md@58 status=STOP updated=2026-11-27T18:16+01:00 -->
 # Execution → QA
 
-## STOP — P0-STORE R4 认证身份修复 G2 已提交；等待 Design；本轮不派 QA
+## STOP — P0-STORE R4.1 代码已就绪，但**冻结嵌套上游 P1-13 无法在本环境稳定取证**；请 Design 裁定
 
-按 `MANAGEMENT_TO_EXECUTION.md` seq 57（DEC-42=A，P0-STORE R4 G1）执行；绑定规范
-`docs/handoffs/P0-STORE/R4_AUTH_IDENTITY.md` 与 `D007_A99…` §5。**无 live 请求、无真实凭证/邮箱、无真实主机接触。**
+### 1. 本轮已完成（本地，未推送）
 
-### 1. 交付对象
+- 按 seq 58 / DEC-43=A / A100 §4 实现 R4.1：live 早停改为**仅对带认证的请求**生效；
+  `classify` 接收 `request.auth !== false`，仅 `ctx.live && authenticated && status ∈ {401,403}` 时
+  `skipCleanup` + `stop('UNEXPECTED_401')`；无认证且 expected 含 401 的 L0 请求保持现有行为；清理分支不变。
+- 仅允许文件变更：`src/runner.mjs`、`test/p1-16-auth-identity.test.mjs`（U-07 重写为 3 次传输、新增 U-10）、
+  `scripts/mutation-check.mjs`（M25 调整 + M26）、`README.md`；其余相对 `a168ee9` 逐字节不变。
+- 本地提交 **`6c59f35`**（单亲，父 `a168ee9`），工作树干净；**未推送**（PR #9 远端仍为 `a168ee9`），
+  因此不构成对 PR #9 的交付。U-07/U-10 在离线运行中已通过。
 
-- PR **#9** — https://github.com/zyyu1/literature-management-system/pull/9
-  - 同一分支 `exec/P0STORE-nutstore-probe-r1`；Base **`663556bc68dc0472f2f392f09ca4bee7c668d2f5`**。
-  - 起点 `6a59ce94…`；**R4 证据提交 `16f0cb0af8d1622067a7b57b05be0acaa97039c6`**（单亲，父 `6a59ce9`）；
-    **最终 exact HEAD `a168ee9c91bf7b49f4571ced6046a1bc6da38a54`**（仅追加 `QA_HANDOFF.md` 的 docs-only 提交）。
-  - R4 允许改动 `6a59ce9..16f0cb0`：11 文件 / +493 −65；**冻结文件** `support/**`、`example-plan.json`、
-    `gate/oracle/verdict` 相对 `6a59ce9` **逐字节不变**（`git diff --quiet` exit 0）；P1-13 与 94 路径清单未动。
-- **G2 评论 #7223579792**（exact final head，A86 DEC-27 逐项表）：
-  https://github.com/zyyu1/literature-management-system/pull/9#issuecomment-7223579792
-- **run-1 脱敏产物附加评论 #7223574650**（console 1892 B + trace 1660 B；独立扫描 0 命中）：
-  https://github.com/zyyu1/literature-management-system/pull/9#issuecomment-7223574650
-- **Design QA 计划路径（只传路径）**：`docs/handoffs/P0-STORE/R4_AUTH_IDENTITY.md` §3。
+### 2. 阻断项（连续 3 次，非候选缺陷）
 
-### 2. G2 证据摘要（在 `16f0cb0` 上实测；手动 A59 区间 `16:28:30Z–16:39:19Z`）
+- 完整 suite 在本机离线运行连续 3 次均为 **93/94 pass**，唯一失败固定为
+  **P1-13 的 WP-04 child**：其 `Q4-12` 的 **WP-03 103/103** 嵌套 strict TAP 子测试 exit 1。
+- 已尝试：普通并行 `node --test`（2 次）与 `node --test --test-concurrency=1`（1 次）；
+  还出现过一次因用户提前恢复网络导致的边界失效（`probe post-suite = FAIL/ACTIVE_PATH`），该次已作废、不计入证据。
+- 失败机理（与 A100 P1-R4-1 无关）：P1-13 的深层嵌套（P0 → WP-04 → WP-03 → WP-01/02）会同时启动多个
+  冻结 A62 egress 守卫的 PowerShell 网络清单查询，8 秒查询超时在嵌套/并发下偶发失败；
+  P1-13 与其上游包均为**逐字节冻结**，不在 R4.1 允许改动范围，无法在本窗口内修复。
+- R4.1 代码只改 `src/runner.mjs` 等 4 个文件，不触及 P1-13/WP-04/WP-03；失败与 R4.1 逻辑无关。
 
-- 探针 **5/5 `EGRESS_PROBE=PASS`**（loopback 正；外部 IPv4/IPv6/LAN TCP 与 `.invalid` DNS 负；无 proxy/凭证变量）；无 live 请求、无真实凭证/邮箱。
-- **suite 93/93 PASS**（fail/skip/todo/cancelled 全 0，119.0 s；P1-16 新增 8 项 U-01…U-08）。
-- 严格上游（P1-13）PASS：WP-01 **67/67**、WP-02 **44/44**（nested 67）、WP-03 **103/103**、WP-04 **91/91**；**94/94** 受保护 Base blob。
-- **audit PASS**：证据提交 `commits=7 basePaths=275 approvedAdditions=32 protectedPaths=94 headPaths=307`；最终 head 重跑（git-only）`commits=8`，计数不变。
-- **mutation PASS**：`MUTATION_SUMMARY killed=25/25`（M01–M22 保留 + M23 硬编码 probe 用户、M24 用户名不脱敏、M25 首个 401/403 不早停）。
-- R4 行为：live 计划强制 `credentialUserEnvVar:"P0STORE_WEBDAV_USER"`（缺键 `PLAN_REJECTED`）；运行时用户名 3–254/邮箱正则/无控制字符/无 `:`，失败 `CREDENTIAL_USER_MISSING`/`CREDENTIAL_USER_MALFORMED`（零传输、空 trace、密码不读）；用户名按机密脱敏（预检只 `user=<redacted, N chars>`）；live `Basic base64(user:pass)`、local/mock 仍 `probe`；live 首个 401/403 立即停止（恰 1 次传输、无清理、INCONCLUSIVE，`UNEXPECTED_401@L0`）；R3 其余条件不变。
-- run-1 产物独立扫描：关键词 `Authorization|Basic |password|PASSWORD=|secret` 0 命中、邮箱正则 0 命中；仅合成 host/prefix/runId/approvalId 与脱敏 trace 字段。
+### 3. 请求 Design 裁定（任一）
 
-### 3. 披露与 NOT_RUN
+1. **修订白名单**：允许最小改动 P1-13（例如把嵌套 `runTapSuite` 的 spawn 串行化/提高超时），或允许
+   WP-04 `Q4-12` 同样的去并发修订；随后重跑完整 evidence。
+2. **限定证据范围**：接受在 `6c59f35` 上以 **P1-13 `NOT_RECORDED`**（其余 93 项 + audit + 26 mutants 全绿）
+   的 G2，并由定向 G3 单独复跑 P1-13/上游。
+3. **换环境**：在并发压力更低的独立主机/会话上重跑完整 evidence。
 
-- “首轮 G2”：本轮为 R4 首轮 Execution G2；QA-owned 定向 G3 项均 `NOT_RUN`（QA auth-identity 矩阵、零传输/未读凭证证明、canary/桩 Authorization、计数中性审计负例、QA 字节证明、≥3 个 QA mutants、Linux）。
-- **当前没有任何已授权的 live 运行**：run-1 approval 已消耗；下一次真实运行必须在 G4 之后、Design 发 runbook rev 3（多一行掩码用户名）并且用户给新 DEC + 新审批号。P0-STORE 结论仍开放（INCONCLUSIVE/认证缺陷）；P0-STORE 仍 **BLOCKED**。
-- 未合并、未派 QA、未 force-push/rebase、未改冻结路径、未加依赖/提权、未联网跑测试；PR #9 保持 OPEN。
+在上述裁定前，Execution 不推送 `6c59f35`、不发 G2 评论、不写 seq 37 的 G2 内容（本序为 STOP）。
 
-**EXECUTION STOP**
+### 4. 边界
+
+- 未合并、未派 QA、未 force-push、未改冻结路径、无 live 请求、无真实凭证/邮箱。
+- PR #9 保持 OPEN @ `a168ee9`；当前没有任何已授权的 live 运行；P0-STORE 仍 BLOCKED。
+
+**EXECUTION STOP（等待 Design 对 P1-13 取证方式的裁定）**
