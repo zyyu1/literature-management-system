@@ -1,58 +1,60 @@
-<!-- BUS from=MANAGEMENT to=EXECUTION seq=45 re=DECISION_BOARD.md@40 status=OPEN updated=2026-11-27T09:47+01:00 -->
-# Management → Execution（DEC-29=A：释放 WP-04-R1 独立 G3 给 QA）
+<!-- BUS from=MANAGEMENT to=EXECUTION seq=46 re=DECISION_BOARD.md@41 status=OPEN updated=2026-11-27T10:30+01:00 -->
+# Management → Execution（DEC-31 合并式 G5：第 1 步已合并；第 2 步派独立 QA 做合并后回归）
 
-**来源:** `docs/DECISION_BOARD.md` seq 40（R40）任务单；**DEC-29 = A 由用户在 Design 窗口选定**（记录，不是 Management 推断）。
-**授权:** `D007_A87_WP04_R1_G2_ACCEPTED_G3_RELEASE.md` §4；QA 内容以
-`docs/handoffs/WP-04/QA_INSTRUCTION.md`（含 §5 逐项报告）与 `docs/handoffs/WP-04/DESIGN.md` 为准，
-**两份都从 `main` 读取**（候选树里没有设计文档，属设计如此）。
-**性质:** G2 已被 Design 接受；本轮只派**独立 QA**，**不派 Execution、不改候选**。
+**来源:** `docs/DECISION_BOARD.md` seq 41（R41）任务单；**DEC-30 / DEC-31 由用户在 Design 窗口选定**：
+DEC-30 接受审计负例遮蔽为限制 **LIM-WP04-AUD-1**；DEC-31 立即执行**合并式 G5**。
+**授权:** `D007_A88_WP04_R1_G4_PASS_LOCAL_AND_COMBINED_G5.md`；合并前检查同 A81 §5。
+**性质:** 第 1 步由 Management 完成合并；第 2 步派独立 QA；**不派 Execution、不改候选**。
 
-## 对象
+## 第 1 步 — 合并（已完成，记录如下）
 
-- PR **#8** `exec/WP-04-research-notes-r1` → `main`：OPEN / 非草稿 / mergeable clean / 2 提交。
-- **exact HEAD `f951f717f7c833fdd00ffbe602bbd6d08ed5a390`**；Base `bcc4eaad5183c923f782da0475eea1751be2de3b`。
-- **首次且唯一** `git ls-remote <repo> refs/pull/8/head` 必须 `exit 0` 且等于该 SHA，否则 STOP；
-  落盘命令/时间/stdout/stderr；**无重试豁免**。
+| 项 | 值 |
+| --- | --- |
+| 合并前 main tip | `c42174db073ef652e55e96a7ebc7c5a96fba0751` |
+| PR **#8** 远端 head | `f951f717f7c833fdd00ffbe602bbd6d08ed5a390`（= tested HEAD） |
+| PR 状态 | OPEN / 非草稿 / mergeable（`refs/pull/8/merge` = `ec1da91…` 存在） |
+| Base 祖先 | `bcc4eaad5183c923f782da0475eea1751be2de3b` 是 main 祖先 |
+| main 自 Base 的改动 | 仅 `docs/`，且**未触碰** `docs/handoffs/WP-04/QA_HANDOFF.md` 与 `packages/` |
+| 合并方式 | `git merge --no-ff`，普通 merge commit；无 squash/rebase/force；分支保留 |
+| **merge SHA (M)** | **`d7dd4237f04559e1097f8dcfc8155164cd73f1c2`** |
+| 父提交 | `c42174db073ef652e55e96a7ebc7c5a96fba0751` + `f951f717f7c833fdd00ffbe602bbd6d08ed5a390` |
+| 内容 | 23 files changed, **+5091 / −0** |
+| 推送 | `c42174d..d7dd423  main -> main`（非 force） |
 
-## 独立 QA 的七组内容（全部要做，不得只做聚合）
+合并后自检：`f951f71..M` 在 23 条候选路径上**零差异**；`c42174d..M` 在
+WP-01/WP-02/WP-03 包、两个 fixtures、`tools/offline` 上**零差异**。
 
-1. **语法**；
-2. **`node --test`（Q4-01..Q4-12）**；
-3. **QA 自写严格 TAP 解析**的上游回归：WP-01 **67/67**、WP-02 **44/44**（嵌套 67）、WP-03 **103/103**；
-4. **候选审计正例 + 负例**：多余路径、改 Base 路径、改受保护 blob、未跟踪文件、mode 变更、symlink 类型；
-5. **QA 自写 raw HTTP 探针**（全部路由与拒绝路径）；
-6. **QA 自建字节保真 oracle 与期望导出**（不沿用 Execution 的期望值）；
-7. **committed mutation driver + ≥6 个 QA 独立 mutant**，必须含：NFC 归一化、CRLF→LF、逐字段部分写、
-   UNKNOWN 报 saved、跨库共享笔记、导出改 revision。
+## 第 2 步 — 独立 QA：合并后离线回归（S_main）
 
-## 环境
+- QA 用**首次且唯一** `git ls-remote <repo> refs/heads/main` 得 **S_main**（exit 0，落盘命令/时间/stdout/stderr，
+  失败即 STOP，无重试）。
+- S_main 前置（任一不满足即 STOP）：① **M = `d7dd423…`** 是 S_main 祖先；② `M..S_main` 只改 `docs/`；
+  ③ WP-04 的 **23** 条路径与 `f951f71…` 相同；④ WP-03 的 **22** 条路径与 `c40e927…` 相同。
+- fresh full clone，`core.autocrlf=false`，工作树干净；独立 QA 目录，不与 Management/Execution 共用 clone。
+- 离线（A59 Windows 或已具备资格的 A54/A55 Linux），Node **精确 v22.23.5 x64**；
+  每组前后 guard+probe，**各跑一次**：
 
-- 独立 QA 会话与**独立可写目录**（不得共用 Management/Execution 的 clone）。fresh full clone，
-  `core.autocrlf=false`、detached 该 HEAD、工作树干净。
-- Node **精确 v22.23.5 x64**；A59 Windows 用户控制离线区间，或已具备资格的 A54/A55 Linux；
-  Linux 未跑记 `NOT_RUN`。
-- 每组前后 guard + probe、脱敏 OS 事实与原始日志；所有子进程在重连前结束；
-  不联网跑测试、不改宿主、不装依赖、不读真实数据/凭证。
+| 组 | 命令 | 期望 |
+| --- | --- | --- |
+| G1 | `cd packages/wp-01-synthetic-auth-api && node --test` | 67/67 |
+| G2 | `cd packages/wp-02-project-paper-read && node --test` | 44/44（嵌套 67） |
+| G3 | `cd packages/wp-03-guarded-r1-writes && node --test` | 103/103 |
+| G4 | `cd packages/wp-04-research-notes-r1 && node --test` | 91/91 |
 
-## 特殊记录项
+- **排除**：两个候选审计脚本（固定于 PR 历史，在 main 上本就应当拒绝）、mutation driver；Linux 未跑记 `NOT_RUN`。
+- 交付：PR #8 新评论，按 **DEC-27 §1 逐项表**（每行 PASS 附输入/断言/退出码，或 FAIL/NOT_RUN/NOT_RECORDED）
+  → 整份覆写 `docs/bus/QA_TO_DESIGN.md` 为 seq **20**（或 latest+1），
+  header `re=MANAGEMENT_TO_EXECUTION.md@46`，只提交该文件，`bus(qa): seq 20`，**QA STOP**。
+- 失败**如实上报、不修复**；merge 保留在历史中，由 Design 裁定 STOP/回滚选项，**不自动回滚**。
 
-- **INFO-1**：导出「无标题/作者/年份/DOI 元数据」的论文时，H1 之后的**实际字节**要如实记录
-  （DESIGN §5 未定义该情形，属观察项，不是缺陷）。
+## 第 3 步 — Design
 
-## 交付
-
-- 在 PR #8 发**一条新评论**：**逐项表**——每个测试 ID / 组 / 审计负例 / mutant / 追溯项各一行，
-  标 `PASS`（附**实际输入、断言原文、退出码**）或 `FAIL` / `NOT_RUN` / `NOT_RECORDED`；
-  聚合 PASS 不完整（DEC-27 §1），只退回补表、不另开测试轮。
-- 然后整份覆写 `docs/bus/QA_TO_DESIGN.md` 为 seq **19**（或 latest+1），
-  header `re=MANAGEMENT_TO_EXECUTION.md@45`，含 PR / exact SHA / QA 评论 ID / verdict / 关键数字 / P0-P2；
-  只提交该文件，`bus(qa): seq 19`，**QA STOP**。
+Design 一次性核验 merge 父提交、23 个 blob、受保护清单与回归证据 → G5 VERIFIED + 合并后回归 PASS_LOCAL；
+随后起草 DEC-26 的存储路线设计。
 
 ## 边界
 
-- **Execution 本轮无任务**：若被唤醒，只回 `status=DONE re=MANAGEMENT_TO_EXECUTION.md@45`
-  并注明“本轮为独立 QA 的 WP-04-R1 G3、Execution 未参与”，随后 STOP；不得改候选或开新提交。
-- QA 不改候选、不合并、不裁定任何门禁；**G4 只由 Design 裁定**；
-  **G5 另行决定**（按 A86 DEC-27 为合并式一步 G5）。
-- P0-STORE blocked；G6/G7 NOT_AUTHORIZED；A70/A71 暂停；冻结 UI、PR #2/#4 不动。
-- 任何 SHA 漂移、环境缺口、权限错误 → 如实 STOP/FAIL，不得伪造 PASS 或把 PARTIAL 写成 PASS。
+- **Execution 本轮无任务**：若被唤醒，只回 `status=DONE re=MANAGEMENT_TO_EXECUTION.md@46` 并注明
+  “本轮为合并式 G5 的合并与 QA 回归、Execution 未参与”，随后 STOP。
+- 不派 Execution；WP-04-R2、WP-05、R2、P0-STORE、真实持久化、冻结 UI、G6/G7 均未授权；
+  A70/A71 暂停；PR #2/#4 不动；不改候选、不合并其他 PR。
