@@ -363,11 +363,26 @@ export const MUTANTS = Object.freeze([
     what: 'do not stop on the first live 401/403',
     edits: [{
       file: 'src/runner.mjs',
-      from: '    if (ctx.live === true && (result.status === 401 || result.status === 403)) {\n',
+      from: '    if (ctx.live === true && authenticated === true && (result.status === 401 || result.status === 403)) {\n',
       to: '    if (false && (result.status === 401 || result.status === 403)) {\n',
+    }, {
+      file: 'src/runner.mjs',
+      from: '    if (result.status === 401) { stop(\'UNEXPECTED_401\', stepId); return; }\n',
+      to: '    if (false && result.status === 401) { stop(\'UNEXPECTED_401\', stepId); return; }\n',
     }],
     files: ['test/p1-16-auth-identity.test.mjs'],
     expect: /P1-16 U-07/,
+  },
+  {
+    id: 'M26',
+    what: 'early stop also on unauthenticated 401',
+    edits: [{
+      file: 'src/runner.mjs',
+      from: '    if (ctx.live === true && authenticated === true && (result.status === 401 || result.status === 403)) {\n',
+      to: '    if (ctx.live === true && (result.status === 401 || result.status === 403)) {\n',
+    }],
+    files: ['test/p1-16-auth-identity.test.mjs'],
+    expect: /P1-16 U-10/,
   },
 ]);
 

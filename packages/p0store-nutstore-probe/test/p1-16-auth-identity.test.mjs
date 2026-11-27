@@ -193,10 +193,14 @@ test('P1-16 U-06 user and password canaries never appear in trace, console, pref
   assert.equal(JSON.stringify(bad).includes(GOOD_USER), false);
 });
 
-test('P1-16 U-07 the first live 401 stops with one transport call, INCONCLUSIVE and no cleanup', async () => {
+test('P1-16 U-07 the first authenticated live 401 stops after the two expected unauthenticated 401s', async () => {
   const seen = [];
   const transport = async (options) => {
-    seen.push(options);
+    seen.push({
+      method: options.method,
+      path: options.path,
+      authenticated: authHeaderOf(options) !== undefined,
+    });
     return response(401, {});
   };
   const result = await runProbe({
@@ -209,14 +213,47 @@ test('P1-16 U-07 the first live 401 stops with one transport call, INCONCLUSIVE 
     allowTestHooks: true,
   });
   assert.equal(result.refused, false);
-  assert.equal(seen.length, 1, 'the first 401 must end the run before any second request');
+  assert.equal(seen.length, 3, 'two unauthenticated 401s + the authenticated PROPFIND 401');
+  assert.deepEqual(seen.map((call) => call.authenticated), [false, false, true]);
   assert.equal(result.verdict, 'INCONCLUSIVE');
   assert.equal(result.stop.rule, 'UNEXPECTED_401');
   assert.equal(result.stop.step, 'L0');
   assert.equal(result.cleanup.length, 0);
-  assert.equal(result.gateStats.egress, 1);
-  assert.equal(result.trace.filter((event) => event.type === 'request').length, 1);
+  assert.equal(result.gateStats.egress, 3);
+  assert.equal(result.trace.filter((event) => event.type === 'request').length, 3);
   assert.equal(result.trace.some((event) => event.type === 'cleanup'), false);
+});
+
+test('P1-16 U-10 unauthenticated 401s do not stop the live run; the authenticated path reaches L1 MKCOL', async () => {
+  const seen = [];
+  const transport = async (options) => {
+    seen.push({
+      method: options.method,
+      path: options.path,
+      authenticated: authHeaderOf(options) !== undefined,
+    });
+    if (authHeaderOf(options) === undefined) return response(401, {});
+    if (options.method === 'PROPFIND' && options.path === '/dav/LMS-P0STORE/') return response(207, { dav: '1,2' });
+    if (options.method === 'MKCOL') return response(201, {});
+    if (options.method === 'PROPFIND') return response(207, { dav: '1,2' });
+    if (options.method === 'PUT') return response(429, {});
+    return response(500, {});
+  };
+  const result = await runProbe({
+    plan: livePlan(),
+    live: true,
+    accessApprovalId: GOOD_APPROVAL,
+    env: envWithSecret(),
+    runtime: GOOD_RUNTIME,
+    transport,
+    allowTestHooks: true,
+  });
+  assert.equal(result.refused, false);
+  const l0 = result.steps.find((step) => step.step === 'L0');
+  assert.equal(l0.status, 'PASS', `L0 was ${l0.status}: ${l0.reason}`);
+  assert.ok(seen.some((call) => call.method === 'MKCOL'), 'the run must proceed to at least one L1 MKCOL');
+  assert.notEqual(result.stop && result.stop.rule, 'UNEXPECTED_401');
+  assert.equal(seen.filter((call) => call.method === 'OPTIONS').length, 1);
 });
 
 test('P1-16 U-08 local/mock runs keep the fixed probe user and the frozen harness identity', async () => {

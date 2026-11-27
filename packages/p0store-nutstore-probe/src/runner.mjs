@@ -365,7 +365,7 @@ export async function runProbe(options = {}) {
     });
   }
 
-  function classify(stepId, result, expectedStatuses) {
+  function classify(stepId, result, expectedStatuses, authenticated = true) {
     if (ctx.stop !== null) return;
     // Intentional socket destruction (L8, L10) surfaces as a transport error; it is a recorded
     // experiment outcome, never a STOP, and the caller resolves it by authoritative read.
@@ -379,10 +379,10 @@ export async function runProbe(options = {}) {
         typeof result.error.code === 'string' ? result.error.code : null);
       return;
     }
-    // R4 live authentication failure: the first 401/403 ends the run immediately, with the existing
-    // rule name (no UNEXPECTED_403 rule exists) and no cleanup request. This check precedes the
-    // expected-status allowance because L0 intentionally probes unauthenticated 401s.
-    if (ctx.live === true && (result.status === 401 || result.status === 403)) {
+    // R4.1 live authentication failure: only a request sent WITH credentials triggers the immediate
+    // stop. L0's unauthenticated OPTIONS/PROPFIND deliberately expect 401 and must continue to the
+    // authenticated PROPFIND. The existing cleanup branch handles its authenticated deletes itself.
+    if (ctx.live === true && authenticated === true && (result.status === 401 || result.status === 403)) {
       ctx.skipCleanup = true;
       stop('UNEXPECTED_401', stepId);
       return;
@@ -409,7 +409,7 @@ export async function runProbe(options = {}) {
       throw error;
     }
     recordRequest(stepId, result);
-    classify(stepId, result, expectedStatuses);
+    classify(stepId, result, expectedStatuses, request.auth !== false);
     return result;
   }
 

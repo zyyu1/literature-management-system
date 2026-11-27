@@ -50,11 +50,12 @@ like the secret: clear user, clear `user:password`, its base64 form and the Basi
 `Secret.contains` / `redact`, and never appear in trace, console, pre-flight, errors or `result`.
 Before the first request the CLI prints a redacted `P0STORE_PREFLIGHT` line (host, port, resolved
 prefix, run id, approval id, `user=<redacted, N chars>`, budget, caps, Node version/arch) and any
-refusal exits non-zero. The approval id is copied into the redacted trace header. In live mode the
-first 401/403 ends the run at once with the existing `UNEXPECTED_401` rule, one transport call and no
-cleanup; the verdict stays INCONCLUSIVE per R2. No environment variable, flag or waiver can skip a
-check. P1-12/P1-15/P1-16 exercise the refusal matrix and the all-satisfied stub-transport path: no
-socket is created, no test names a real host, and no real credential exists.
+refusal exits non-zero. The approval id is copied into the redacted trace header. In live mode a 401/403
+on an **authenticated** request ends the run at once with the existing `UNEXPECTED_401` rule and no
+cleanup; the two unauthenticated L0 401 probes keep their expected-401 behaviour and the authenticated
+PROPFIND follows. The verdict stays INCONCLUSIVE per R2. No environment variable, flag or waiver can
+skip a check. P1-12/P1-15/P1-16 exercise the refusal matrix and the all-satisfied stub-transport path:
+no socket is created, no test names a real host, and no real credential exists.
 
 ## Components
 
@@ -63,7 +64,7 @@ socket is created, no test names a real host, and no real credential exists.
 | `src/plan.mjs` | Closed-schema frozen-plan loader: L0–L12, per-step id/methods/synthetic target/expected oracle/request estimate, host+port+path-prefix pinning, file manifest (the only write/delete allowlist), budget, caps, timing. Unknown keys, extra/duplicate/missing/reordered steps, forbidden verbs, over-cap budgets and non-loopback test plans are rejected with dedicated codes. Live mode accepts only the one pinned host, with a runtime `{runId}` placeholder, `runId:null`, no committed approval id, and the required `credentialUserEnvVar` key; local plans may omit that key and keep `probe`. |
 | `src/gate.mjs` | The only network path. `https:` only; pinned host/port/prefix; verbs `PROPFIND` (Depth 0/1 only), `GET`, `HEAD`, `PUT`, `OPTIONS`, `MKCOL` (the single run directory only) and per-file `DELETE`; canonical path; manifest-only writes; conditional-write requirement; rolling 30-minute budget of 100 with 12 pre-reserved cleanup slots; 20 files / 1 MiB per file / 20 MiB total / 2 writers; strict TLS; redirect never followed; zero egress on refusal. |
 | `src/secret.mjs` | The password and the optional live user name are read only at run time from the environment variables named by the plan. The user is validated before the password, and both are redacted in clear, `user:password`, base64 and Basic-header forms. Missing/malformed values refuse before a gate or socket exists. |
-| `src/runner.mjs` | Executes L0–L12. L6 is a real cross-process race (two OS child processes per round, file barrier, both PIDs recorded). L8 sends the body, destroys the socket and resolves only from authoritative GET/PROPFIND, never by retry. STOP handling cleans up only certain identities and quarantines the rest. Live authorization runs the R3 checks plus the R4 user-before-password check; the resolved live plan gets a fresh run id, a redacted pre-flight print, the runtime Basic identity and a first-401/403 stop with no cleanup. |
+| `src/runner.mjs` | Executes L0–L12. L6 is a real cross-process race (two OS child processes per round, file barrier, both PIDs recorded). L8 sends the body, destroys the socket and resolves only from authoritative GET/PROPFIND, never by retry. STOP handling cleans up only certain identities and quarantines the rest. Live authorization runs the R3 checks plus the R4 user-before-password check; the resolved live plan gets a fresh run id, a redacted pre-flight print, the runtime Basic identity and an authenticated-401/403 stop with no cleanup. |
 | `src/oracle.mjs` | Pure per-step PASS/FAIL/UNRESOLVABLE classification plus anomaly recording (weak validator, delayed visibility, unresolvable late ACK). |
 | `src/verdict.mjs` | A90 §6 / A92 four-verdict rules (GO / PARTIAL / INCONCLUSIVE / NO-GO) with fixed precedence and root-cause-first `REASON@STEP` reasons. |
 | `src/trace.mjs` | Redacted JSONL trace: method, path template + synthetic id, status, validator hash prefix, body SHA-256, duration and budget counters only. Headers, concrete paths, host names and bodies never enter it, and a line that would contain the credential is refused. |
@@ -190,7 +191,7 @@ result.
 cd packages/p0store-nutstore-probe
 Get-ChildItem -Recurse -Filter *.mjs | ForEach-Object { node --check $_.FullName }   # every package .mjs
 node --test                                                                          # guard + P1-01..P1-16
-node scripts/mutation-check.mjs                                                      # guard + 25 named mutants
+node scripts/mutation-check.mjs                                                      # guard + 26 named mutants
 node scripts/verify-candidate-scope.mjs                                              # read-only candidate audit
 ```
 
@@ -239,7 +240,7 @@ and must point into a writable directory (the runner does not create it).
 | `test/p1-13-upstream.test.mjs` | P1-13 strict upstream TAP (67/44 nested/103/91) and 94 pinned Base blobs |
 | `test/p1-14-inconclusive.test.mjs` | P1-14 11-personality verdict matrix, reason order, synthetic precedence cases |
 | `test/p1-15-live-gating.test.mjs` | P1-15 all-conditions stub transport: pre-flight, fresh run id, pinned target, canary scan; mutation-target refusal cases |
-| `test/p1-16-auth-identity.test.mjs` | P1-16 U-01…U-08: user env validation, redaction, exact Basic identity, first-401 stop, local `probe` |
+| `test/p1-16-auth-identity.test.mjs` | P1-16 U-01…U-10: user env validation, redaction, exact Basic identity, authenticated-401 stop, unauthenticated-401 continuation, local `probe` |
 
 Every test imports `support/harness.mjs` first (P1-13 imports the frozen A62 guard directly and calls
 it at module load). Every socket is loopback-only. P1-13 spawns the four upstream suites with
@@ -253,7 +254,7 @@ query timeout under load.
 plus `wp-01-synthetic-auth-api/support/platform-precondition.mjs` into a scratch tree **outside the
 repository**. It runs the union baseline once, then one exact mutation per mutant and requires a named
 failing test (a crash or timeout is classified separately and is not "killed"). It prints
-`MUTATION_SUMMARY killed=N/N` and exits non-zero unless every mutant is killed. Twenty-five mutants:
+`MUTATION_SUMMARY killed=N/N` and exits non-zero unless every mutant is killed. Twenty-six mutants:
 
 | Id | Mutation |
 | --- | --- |
@@ -282,6 +283,7 @@ failing test (a crash or timeout is classified separately and is not "killed"). 
 | M23 | hard-code the synthetic probe user in live Basic headers |
 | M24 | do not redact the runtime user name |
 | M25 | do not stop on the first live 401/403 |
+| M26 | early stop also on unauthenticated 401 |
 
 ## Candidate scope and count-neutral negatives
 
