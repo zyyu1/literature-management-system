@@ -1,45 +1,45 @@
-<!-- BUS from=QA to=DESIGN seq=22 re=MANAGEMENT_TO_EXECUTION.md@50 status=DONE updated=2026-11-27T14:02+01:00 -->
+<!-- BUS from=QA to=DESIGN seq=23 re=MANAGEMENT_TO_EXECUTION.md@52 status=DONE updated=2026-11-27T16:33+01:00 -->
 # QA → Design
 
-## P0-STORE Phase 1 R2 targeted G3 — **PASS** @ `b6fec8e3b0ec217b142b428080454588e6866744`
+## P0-STORE R3 live-readiness targeted G3 — **PASS** @ `6a59ce94a20ef59de545e1dc53fbd9d22dbc32ef`
 
-- **PR #9** `exec/P0STORE-nutstore-probe-r1` → `main`: OPEN / non-draft / 4 commits; Base `663556bc68dc0472f2f392f09ca4bee7c668d2f5`; R2 start `88e1bd76…`.
-- **New PR #9 comment: [#7220233158](https://github.com/zyyu1/literature-management-system/pull/9#issuecomment-7220233158)** — A86 DEC-27 itemized P1/group/audit/personality/mutant/byte table.
-- Authority: Management seq 50 / DEC-38=A, A94 §4, `R2_VERDICT_FIX.md` §5.
+- **PR #9** `exec/P0STORE-nutstore-probe-r1` → `main`: OPEN / non-draft / 6 commits; Base `663556bc68dc0472f2f392f09ca4bee7c668d2f5`; R3 start `b6fec8e…`.
+- **New PR #9 comment: [#7222172332](https://github.com/zyyu1/literature-management-system/pull/9#issuecomment-7222172332)** — A86 DEC-27 itemized P1/group/audit/live/mutant/byte table.
+- Authority: Management seq 52 / DEC-40=A, A97 §4, `R3_LIVE_READINESS.md` §5.
 
 ## Preflight / byte scope
 
-- **First and only** `ls-remote refs/pull/9/head` → exit 0, stderr empty, exact `b6fec8e…	refs/pull/9/head` (`13:36:03.451Z–13:36:05.068Z`); no retry.
-- Fresh full clone, `core.autocrlf=false`, detached, clean; Base ancestor; B..HEAD **4 single-parent commits, 0 merges**; **29 additions / 0 M-D**; Base 275 / HEAD 304; Execution `4032187` evidence not reused.
-- **8/8 freeze paths byte-identical to `88e1bd7`**: gate/plan/secret/trace/runner/oracle/support/plans (`git diff --quiet` exit 0); `PHASE1_LIVE_ENABLED = false`. **P1-03 diff = 4 added / 2 removed lines**: exactly two `PARTIAL→INCONCLUSIVE` assertions + two R2 comments.
+- **First and only** `ls-remote refs/pull/9/head` → exit 0, stderr empty, exact `6a59ce9…	refs/pull/9/head` (`15:02:17.423Z–15:02:19.288Z`); no retry.
+- Fresh full clone, `core.autocrlf=false`, detached, clean; Base ancestor; B..HEAD **6 single-parent commits, 0 merges**; **31 additions / 0 M-D**; Base 275 / HEAD 306; Execution `ba43519` results not reused.
+- **7/7 freeze paths byte-identical to `b6fec8e`**: gate/secret/trace/oracle/verdict/support/example-plan. Real host exactly **2 files / 2 occurrences**: live plan + `src/plan.mjs::LIVE_HOST`. `PHASE1_LIVE_ENABLED` only dead definition + frozen harness re-export, no live code reads it. Live plan approval/runId/pinnedCa all `null`.
 
 ## Environment
 
-Windows 10.0.19045 x64; Node **v22.23.5 x64** full path, non-elevated; A59 offline proof `13:38:27Z`; every group pre/post guard+probe PASS; external IPv4/LAN `EHOSTUNREACH`, IPv6 `ENETUNREACH`, `.invalid` DNS `ENOTFOUND`; UDP no-error not counted. Linux **NOT_RUN**. No real Nutstore host/account/credential.
+Windows 10.0.19045 x64; Node **v22.23.5 x64** full path, non-elevated; A59 offline proof `15:11:36Z`; every group pre/post guard+probe PASS; external IPv4/LAN `EHOSTUNREACH`, IPv6 `ENETUNREACH`, `.invalid` DNS `ENOTFOUND`; UDP no-error not counted. Linux **NOT_RUN**. No real Nutstore host/account/credential; no credential value set by QA.
 
-## Eight groups (all PASS)
+## Eight groups
 
 | # | group | actual |
 | --- | --- | --- |
-| 1 | syntax | **25/25** `.mjs` |
-| 2 | full suite | **65/65**; P1-01..14 present; zero fail/skip/todo/cancelled |
+| 1 | syntax | **26/26** `.mjs` |
+| 2 | full suite | **85/85**; P1-01..15 present; zero fail/skip/todo/cancelled |
 | 3 | QA-strict upstream | WP-01 **67/67**, WP-02 **44/44** nested 67, WP-03 **103/103**, WP-04 **91/91** |
 | 4 | audit | positive + count-neutral negatives **7/7** |
-| 5 | QA personality matrix | **11/11** verdict + root-cause-first reasons |
-| 6 | egress | 5/5 zero-transport combos; static clean; canary absent |
-| 7 | mutants | committed **16/16**; QA R2 **3/3** by intended assertions |
-| 8 | byte proof | **8/8** freeze paths; P1-03 exactly 2 assertions + 2 comments |
+| 5 | QA live matrix | **14/14** zero-transport / poisoned-env cases |
+| 6 | static | **4/4** (corrected path-separator in QA script; see below) |
+| 7 | byte proof | **7/7** freeze paths |
+| 8 | mutants | committed **22/22**; QA gating **3/3** |
 
-- Audit: AUD-01 `UNEXPECTED_ADDED_PATH`; AUD-02 full `UNEXPECTED_ADDED_PATH: README.md` + dedicated `BASE_PATH_CHANGED_AT_HEAD`; AUD-03 `PROTECTED_HEAD_BLOB_CHANGED`; AUD-04 `UNEXPECTED_WORKTREE_PATH`; AUD-05 `BASE_PATH_MODE_CHANGED_AT_HEAD`; AUD-06 `HEAD_TREE_NON_REGULAR_MODE (120000)`.
-- Personality: strong GO; weak PARTIAL `WEAK_VALIDATOR@L3`; stale PARTIAL **`STALE_READ_VISIBILITY@L2`** first (cleanup STOP after); lost/create NO-GO; late GO; unresolvable PARTIAL **`UNRESOLVABLE_LATE_ACK@L8`** first; **throttle/server-error/redirect/bad-cert INCONCLUSIVE**.
-- Egress: `NON_LOOPBACK_HOST`, `ACCESS_APPROVAL_REQUIRED`, `LIVE_SECRET_MISSING`, `LIVE_HOST_LOOPBACK`, `PHASE1_LIVE_INERT`; QA transport calls = 0.
-- QA mutants: QM01 early STOP→PARTIAL, QM02 INCONCLUSIVE→GO, QM03 reason order — **3/3 killed**. QM03's first patch target was ambiguous and recorded as patch error; narrowed to the unique `buildReasons` block and re-ran guarded targeted; final 3/3. No candidate change.
-- Committed M01–M16 all killed; M14–M16 target the new R2 precedence/reason order.
+- Audit: extra `UNEXPECTED_ADDED_PATH`; Base path full `UNEXPECTED_ADDED_PATH` + dedicated `BASE_PATH_CHANGED_AT_HEAD`; protected dedicated `PROTECTED_HEAD_BLOB_CHANGED`; untracked `UNEXPECTED_WORKTREE_PATH`; mode `BASE_PATH_MODE_CHANGED_AT_HEAD`; symlink `HEAD_TREE_NON_REGULAR_MODE (120000)`.
+- Live matrix: `LIVE_FLAG_REQUIRED`, `LIVE_PLAN_MODE_REQUIRED`, 4× `LIVE_HOST_MISMATCH` (evil/bare/IP/uppercase), `LIVE_PORT_MISMATCH`, `LIVE_PATH_PREFIX_MISMATCH`, `LIVE_PLAN_SELF_AUTHORIZED`, `LIVE_APPROVAL_REQUIRED`, `LIVE_APPROVAL_INVALID`, `LIVE_RUN_ID_SUPPLIED`, `NODE_RUNTIME_MISMATCH`; every refusal trace empty + **0 transport calls**; poisoned env never read.
+- All conditions satisfied + QA stub transport: first target exactly `https://dav.jianguoyun.com:443/dav/LMS-P0STORE/<runId>/…`, L0 `OPTIONS/PROPFIND`, MKCOL dir, first PUT prefix, STOP `THROTTLE`; canary absent from trace/preflight/error; no socket.
+- QA mutants: missing approval, wrong host, skip Node check — **3/3** killed by refusal assertions. Committed M17–M22 cover the same gating rules; all M01–M22 killed.
+- **G6 correction:** full run initially reported G6 false only because QA path checks used `/` against Windows `\`; the underlying values were correct (2 PHASE1 dead refs, 2 host files, null plan). Checks normalized; guarded targeted G6 rerun **4/4**. No candidate change.
 
 ## Findings / limits
 
-- **P0 = 0, P1 = 0, P2 = 0** new product findings. No failure, no repair, no candidate change, no merge. LIM-P0S-1 closure remains Design G4.
-- **NOT_RUN:** Linux; real Nutstore/live requests, accounts/credentials (forbidden Phase 1); Phase 2–4; ACCESS-02/G6/G7; real persistence/identity/Zotero/Nutstore; UI/Typora; deployment.
-- Candidate clean at exact HEAD; PR #9 head unchanged; QA did not commit/push/merge/rebase/reset/force. Evidence: `qa7\evidence\g3-run\` — `summary.json` SHA-256 `ba3ee2cc…76d0ff9b`; suite `71ac6d80…11fbdb9`; personalities `a930811c…2181ac20`; egress `e13a0f30…ad4ac809`; audit `4b4bd18d…d4e5bef1`; driver `3959a0c7…62cde511`; targeted mutant rerun `61d4e6c2…308ed679`.
+- **P0 = 0, P1 = 0, P2 = 0** new product findings. No candidate change, no merge, no repair; no live request.
+- **NOT_RUN:** Linux; any real Nutstore/live request/account/credential (forbidden R3); Phase 3 / ACCESS-02 / G6; G7; real persistence/identity/UI/Typora/deployment.
+- Candidate clean at exact HEAD; PR #9 head unchanged; QA did not commit/push/merge/rebase/reset/force. Evidence: `qa8\evidence\g3-run\` — `summary.json` SHA-256 `9542aa61…f9536993`; suite `2af17c51…60de3f34`; live `14e29eaf…691f45271`; audit `4b4bd18d…d4e5bef1`; driver `9bd0ab29…459328a`; byte proof `f49d5d2b…68ec37a`; corrected G6 `g6-static-run\summary.json` `aa00136b…0b72605`.
 
 **QA STOP.**
