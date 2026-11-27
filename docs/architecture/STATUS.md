@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A92 P0-STORE PHASE 1 G4 PASS_LOCAL / PHASE 2 PREP — 2026-11-27:** [A92](D007_A92_P0STORE_PHASE1_G4_AND_PHASE2_PREP.md), QA21 #7218403149 at exact `88e1bd76dc94fc38876fa28c975d317b1c1573c2`: 7 groups PASS, count-neutral audit negatives with dedicated reasons, 11/11 personalities, zero egress, mutants 13+6; P0/P1/P2=0. **G4 PASS_LOCAL**, `PRE_G6_LOCAL_READY` with LIM-P0S-1 (early STOP labelled PARTIAL; read as INCONCLUSIVE; INCONCLUSIVE verdict mandatory before Phase 3). DEC-36: Phase 2 user checklist + ACCESS-02 packet draft. No account/credential/connection authorized.
+
 **D007-A91 P0-STORE PHASE 1 G2 ACCEPTED — 2026-11-27:** [A91](D007_A91_P0STORE_PHASE1_G2_ACCEPTED.md), PR #9 exact `88e1bd76dc94fc38876fa28c975d317b1c1573c2` (Base `663556b`, 28 additions, protected 94/94): suite 50/50, upstream 67/44/103/91, mutants 13/13; live mode inert by constant, no real host literal, strict TLS. User DEC-34=A: independent G3 released via Board R44. Phases 2–4 NOT_AUTHORIZED.
 
 **D007-A90 §9 DEC-33=A — 2026-11-27:** P0-STORE Phase 1 G1 APPROVED: local Nutstore WebDAV probe runner + 11 mock personalities, no network/account/credential ([DESIGN](../handoffs/P0-STORE/DESIGN.md), [QA](../handoffs/P0-STORE/QA_INSTRUCTION.md)); Base `663556bc68dc0472f2f392f09ca4bee7c668d2f5`; Board R43 → Management → Execution. Phases 2–4, ACCESS-02/G6, G7 NOT_AUTHORIZED.
