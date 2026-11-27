@@ -1,49 +1,58 @@
-<!-- BUS from=MANAGEMENT to=EXECUTION seq=44 re=DECISION_BOARD.md@39 status=OPEN updated=2026-11-26T20:20+01:00 -->
-# Management → Execution（DEC-26/27/28 记录同步；DEC-27 逐项报告要求自本轮 G2 起生效）
+<!-- BUS from=MANAGEMENT to=EXECUTION seq=45 re=DECISION_BOARD.md@40 status=OPEN updated=2026-11-27T09:47+01:00 -->
+# Management → Execution（DEC-29=A：释放 WP-04-R1 独立 G3 给 QA）
 
-## 0. 记录来源（不是 Management 推断）
+**来源:** `docs/DECISION_BOARD.md` seq 40（R40）任务单；**DEC-29 = A 由用户在 Design 窗口选定**（记录，不是 Management 推断）。
+**授权:** `D007_A87_WP04_R1_G2_ACCEPTED_G3_RELEASE.md` §4；QA 内容以
+`docs/handoffs/WP-04/QA_INSTRUCTION.md`（含 §5 逐项报告）与 `docs/handoffs/WP-04/DESIGN.md` 为准，
+**两份都从 `main` 读取**（候选树里没有设计文档，属设计如此）。
+**性质:** G2 已被 Design 接受；本轮只派**独立 QA**，**不派 Execution、不改候选**。
 
-`docs/DECISION_BOARD.md` seq 39（R39）与 `docs/governance/D007_A86_PROCESS_STREAMLINING_AND_ROADMAP.md` 载明：
-**DEC-26 / DEC-27 / DEC-28 由用户在 Design 窗口以可点击选项直接决定**。
-Management 在此同步记录；这三个决定不新增任何实现授权，也不改变已派发任务的边界。
+## 对象
 
-## 1. DEC-27 第 1 条 —— 立即适用于 WP-04-R1 的 G2 报告（**重点**）
+- PR **#8** `exec/WP-04-research-notes-r1` → `main`：OPEN / 非草稿 / mergeable clean / 2 提交。
+- **exact HEAD `f951f717f7c833fdd00ffbe602bbd6d08ed5a390`**；Base `bcc4eaad5183c923f782da0475eea1751be2de3b`。
+- **首次且唯一** `git ls-remote <repo> refs/pull/8/head` 必须 `exit 0` 且等于该 SHA，否则 STOP；
+  落盘命令/时间/stdout/stderr；**无重试豁免**。
 
-- 已派发的 WP-04-R1 任务（本文件 seq 43）**不变、不重派**。
-- **从本轮的 G2 报告起**：必须**逐项**列出 QA 指令（`docs/handoffs/WP-04/QA_INSTRUCTION.md`）
-  中的每一个测试 ID / 组 / 审计负例 / mutant / 追溯项，并逐项标注：
-  - `PASS`（附**实际输入、断言原文、退出码**）；
-  - `FAIL`；
-  - `NOT_RUN`；
-  - `NOT_RECORDED`。
-- **只有聚合 PASS、没有逐项表 = 报告不完整**：按 DEC-27 只退回补表，**不另开测试轮**、不要求重跑。
-- 该要求同样适用于之后独立 QA 的 G3 报告（已写入 QA 指令 §5）。
+## 独立 QA 的七组内容（全部要做，不得只做聚合）
 
-## 2. DEC-27 第 2 条 —— 之后 G5 选项改为“一步完成”
+1. **语法**；
+2. **`node --test`（Q4-01..Q4-12）**；
+3. **QA 自写严格 TAP 解析**的上游回归：WP-01 **67/67**、WP-02 **44/44**（嵌套 67）、WP-03 **103/103**；
+4. **候选审计正例 + 负例**：多余路径、改 Base 路径、改受保护 blob、未跟踪文件、mode 变更、symlink 类型；
+5. **QA 自写 raw HTTP 探针**（全部路由与拒绝路径）；
+6. **QA 自建字节保真 oracle 与期望导出**（不沿用 Execution 的期望值）；
+7. **committed mutation driver + ≥6 个 QA 独立 mutant**，必须含：NFC 归一化、CRLF→LF、逐字段部分写、
+   UNKNOWN 报 saved、跨库共享笔记、导出改 revision。
 
-未来的 G5 选项将包含：Management 合并 exact tested HEAD（普通 merge commit，合并前检查同 A81 §5）
-→ **独立 QA 在含该 merge 的 exact main 上跑合并后离线回归**（同 A83）
-→ Design **一次性**核验 merge 字节与回归结果。
-若回归失败：merge 保留在历史中，由 Design 裁定 STOP/回滚选项，**不自动回滚**。
-（本序仅记录规则；本轮 G5 尚未提出。）
+## 环境
 
-## 3. DEC-26 —— 路线图（只记录，不派单）
+- 独立 QA 会话与**独立可写目录**（不得共用 Management/Execution 的 clone）。fresh full clone，
+  `core.autocrlf=false`、detached 该 HEAD、工作树干净。
+- Node **精确 v22.23.5 x64**；A59 Windows 用户控制离线区间，或已具备资格的 A54/A55 Linux；
+  Linux 未跑记 `NOT_RUN`。
+- 每组前后 guard + probe、脱敏 OS 事实与原始日志；所有子进程在重连前结束；
+  不联网跑测试、不改宿主、不装依赖、不读真实数据/凭证。
 
-WP-04-R1 到达 G4 裁定后，Design 的下一项工作是 **P0-STORE 存储路线设计**（只出方案：
-候选后端与事务封装、A5/A6/A10 §5 的整篇 CAS 与多对象一致性如何证明、是否/如何申请 ACCESS-02）。
-**纯设计**：不开账号、不联系 provider、不用真实数据、不做持久化、不花钱。
-其余合成切片（WP-04-R2、WP-05）与前端工作等用户就该设计作出决定后再定。WP-04-R1 本身继续不变。
+## 特殊记录项
 
-## 4. DEC-28 —— 轮询
+- **INFO-1**：导出「无标题/作者/年份/DOI 元数据」的论文时，H1 之后的**实际字节**要如实记录
+  （DESIGN §5 未定义该情形，属观察项，不是缺陷）。
 
-Design 窗口在本会话内每 10 分钟轮询，直到用户叫停；不对其他窗口作后台执行声明。
-Management 仍按 A52 每 15 分钟轮询自己的收件箱。
+## 交付
 
-## 5. 本轮各窗口动作与边界
+- 在 PR #8 发**一条新评论**：**逐项表**——每个测试 ID / 组 / 审计负例 / mutant / 追溯项各一行，
+  标 `PASS`（附**实际输入、断言原文、退出码**）或 `FAIL` / `NOT_RUN` / `NOT_RECORDED`；
+  聚合 PASS 不完整（DEC-27 §1），只退回补表、不另开测试轮。
+- 然后整份覆写 `docs/bus/QA_TO_DESIGN.md` 为 seq **19**（或 latest+1），
+  header `re=MANAGEMENT_TO_EXECUTION.md@45`，含 PR / exact SHA / QA 评论 ID / verdict / 关键数字 / P0-P2；
+  只提交该文件，`bus(qa): seq 19`，**QA STOP**。
 
-- **Execution**：继续按 seq 43 实施 WP-04-R1；本轮**无新任务**，但 G2 报告必须满足第 1 节逐项表要求。
-  交付仍为 `docs/bus/EXECUTION_TO_QA.md` seq **28**（或 latest+1），`re=MANAGEMENT_TO_EXECUTION.md@44`，
-  附 PR 号、exact SHA、G2 评论 ID、QA 计划路径；**不得合并**。
-- **QA**：本轮无任务；G3 待 Design 完成 G2 审查后由 Management 释放。
-- 边界不变：P0-STORE blocked；G5/G6/G7 NOT_AUTHORIZED；A70/A71 suspended；
-  冻结 UI、PR #2/#4 不动；不改候选白名单、不加依赖、不触碰冻结路径（需要时 STOP）。
+## 边界
+
+- **Execution 本轮无任务**：若被唤醒，只回 `status=DONE re=MANAGEMENT_TO_EXECUTION.md@45`
+  并注明“本轮为独立 QA 的 WP-04-R1 G3、Execution 未参与”，随后 STOP；不得改候选或开新提交。
+- QA 不改候选、不合并、不裁定任何门禁；**G4 只由 Design 裁定**；
+  **G5 另行决定**（按 A86 DEC-27 为合并式一步 G5）。
+- P0-STORE blocked；G6/G7 NOT_AUTHORIZED；A70/A71 暂停；冻结 UI、PR #2/#4 不动。
+- 任何 SHA 漂移、环境缺口、权限错误 → 如实 STOP/FAIL，不得伪造 PASS 或把 PARTIAL 写成 PASS。
