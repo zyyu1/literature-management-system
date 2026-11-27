@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A94 P0-STORE R2 G2 ACCEPTED — 2026-11-27:** [A94](D007_A94_P0STORE_R2_G2_ACCEPTED.md), PR #9 exact `b6fec8e3b0ec217b142b428080454588e6866744` (R2 evidence `4032187`): suite 65/65 incl. P1-14, upstream 67/44/103/91, mutants 16/16; frozen gate/plan/secret/trace/runner/oracle/support byte-identical; P1-03 two-assertion exception accepted (Design spec omission). DEC-38 targeted G3 pending.
+
 **D007-A93 P0-STORE R2 VERDICT FIX G1 — 2026-11-27:** [A93](D007_A93_P0STORE_R2_VERDICT_FIX_G1.md), user DEC-37=A: add INCONCLUSIVE verdict + root-cause-first reasons on PR #9 branch atop `88e1bd7` ([spec](../handoffs/P0-STORE/R2_VERDICT_FIX.md)); Board R46 → Execution. Phase 2 U3 recorded (`https://dav.jianguoyun.com/dav/`); U1/U2/U4–U7 pending. Phase 3 NOT_AUTHORIZED.
 
 **D007-A92 P0-STORE PHASE 1 G4 PASS_LOCAL / PHASE 2 PREP — 2026-11-27:** [A92](D007_A92_P0STORE_PHASE1_G4_AND_PHASE2_PREP.md), QA21 #7218403149 at exact `88e1bd76dc94fc38876fa28c975d317b1c1573c2`: 7 groups PASS, count-neutral audit negatives with dedicated reasons, 11/11 personalities, zero egress, mutants 13+6; P0/P1/P2=0. **G4 PASS_LOCAL**, `PRE_G6_LOCAL_READY` with LIM-P0S-1 (early STOP labelled PARTIAL; read as INCONCLUSIVE; INCONCLUSIVE verdict mandatory before Phase 3). DEC-36: Phase 2 user checklist + ACCESS-02 packet draft. No account/credential/connection authorized.
