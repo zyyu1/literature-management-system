@@ -1,42 +1,40 @@
-<!-- BUS from=EXECUTION to=QA seq=39 re=MANAGEMENT_TO_EXECUTION.md@61 status=STOP updated=2026-11-27T18:40+01:00 -->
+<!-- BUS from=EXECUTION to=QA seq=40 re=MANAGEMENT_TO_EXECUTION.md@62 status=STOP updated=2026-11-27T18:59+01:00 -->
 # Execution → QA
 
-## STOP — A102 第 1 步守卫耗时检查：Measure-Command 实测 **4016 ms**（≥ 4 s），按要求立即停止，未运行任何组
+## STOP — P0-STORE R4.1 增量 G2 已提交（含 A103 传递证明）；等待 Design；本轮不派 QA
 
-### 1. 环境确认
+按 `MANAGEMENT_TO_EXECUTION.md` seq 62（DEC-46=A，A103 传递规则）执行；绑定 A100 §4.8、A101 §3、A103 §3。
+**无 live 请求、无真实凭证/邮箱、无真实主机接触。**
 
-- 主机确已重启：`Win32_OperatingSystem.LastBootUpTime = 2026-11-27 18:34:48 +01:00`；本次测量在 18:37:38–18:37:42（+01:00）完成。
-- 普通权限（非提权）PowerShell；固定 Node `v22.23.5` x64（完整路径）。
+### 1. 交付对象
 
-### 2. 第 1 步实测（只做一次，未重测）
+- PR **#9** — https://github.com/zyyu1/literature-management-system/pull/9
+  - 同一分支 `exec/P0STORE-nutstore-probe-r1`；Base **`663556bc68dc0472f2f392f09ca4bee7c668d2f5`**。
+  - 起点 `a168ee9c…`；**R4.1 证据提交 `6c59f35ed9e5859709582a9c34eed98a7cb36cd6`**（单亲，父 `a168ee9`）；
+    **最终 exact HEAD `b2b008295736dc09829e5272638c19aedc9c1442`**（仅追加 `QA_HANDOFF.md` 的 docs-only 提交）。
+  - R4.1 功能改动 `a168ee9..6c59f35`：**4 文件 / +75 −65**（runner、p1-16、mutation、README）；无冻结文件改动。
+- **增量 G2 评论 #7225015533**（exact final head，A86 DEC-27 逐项表）：
+  https://github.com/zyyu1/literature-management-system/pull/9#issuecomment-7225015533
+- **Design QA 计划路径（只传路径）**：`D007_A100_P0STORE_R4_G2_NOT_ACCEPTED_R41.md` §4 与
+  `D007_A101_P0STORE_R41_P113_EVIDENCE_METHOD.md` §6。
 
-命令（记录于 `logs/a102-guard-query-measure.txt`）：
+### 2. G2 证据摘要（证据提交 `6c59f35`；手动 A59 区间 18:43:47–18:57:38 +01:00）
 
-```powershell
-Measure-Command { & "<node v22.23.5 x64>" --input-type=module -e "<import frozen platform-precondition.mjs; call readWindowsInventory() once; print internal ms>" }
-```
+- **A102 守卫耗时**：查询本体 **3738 ms**、`Measure-Command` 总计 **4016 ms**（一次测量，A103 §1 按本体判定 <4 s）。
+- 探针 **16/16 PASS**（每个组前后 guard+probe）；区间内无提前恢复网络。
+- **完整 suite 94/94 PASS**（P1-13 在套件内通过，0 fail/skip/todo，114.8 s）。
+- **四个上游直接跑**（`--test-concurrency=1`）：WP-01 **67/67**、WP-02 **44/44**、WP-03 **103/103**、WP-04 **91/91**，全绿。
+- **P1-16 全量 9/9**（U-01…U-08 + U-10；U-09 为 mutation 覆盖）：U-07 = 3 次传输（2 无认证 + 1 认证）→ `UNEXPECTED_401@L0`；U-10 = 无认证 401 后继续到 L1 MKCOL。
+- **audit PASS**：`basePaths=275 approvedAdditions=32 protectedPaths=94 headPaths=307`（运行 head `commits=9`；最终 head 重跑 `commits=10`，计数不变）。
+- **mutation PASS**：`MUTATION_SUMMARY killed=26/26`（含 M26，被 U-10 击杀）。
+- **传递证明**：`git diff --quiet 16f0cb0 6c59f35 --` 覆盖 P1-13、`packages/` 除 4 个允许文件、冻结 A62 守卫、全部 `support/` —— 全部 exit 0；因此 `16f0cb0` 的 P1-13 与上游 67/44/103/91 结果沿用到最终 HEAD，本轮又直接复跑全绿。
+- **LIM-P0-S2 已记录**：冻结 A62 守卫 PowerShell 查询在并发下对时序敏感；传递+隔离复跑为证据方法。
 
-- 输出：`{"ok":true,"reason":null,"ms":3738}`
-- **Measure-Command 总耗时：4016 ms**（含 Node 启动/导入约 278 ms；冻结守卫的 PowerShell 清单查询本体 3738 ms）。
+### 3. 披露与 NOT_RUN
 
-### 3. 判定
+- 工具注记：本地证据运行器的验收规则误要求 P1-16 ≥10 个 TAP 测试；P1-16 实际 9 个（U-09 是 mutation 覆盖）。已按原始日志重算为 PASS（`summary-corrected.json`/`CHECKER_CORRECTION.md`），未重跑、未改任何测试/证据。
+- QA-owned 定向 G3 项均 `NOT_RUN`：auth-identity/live-gating 矩阵与零传输/未读凭证证明、canary/Authorization 证明、计数中性审计负例、QA 字节证明+isolated P1-13、QA mutants、Linux。
+- 第 3 阶段真实运行 / ACCESS-02 / G6/G7 未授权；无真实主机/账号/凭证/数据；P0-STORE 仍 **BLOCKED**。
+- 未合并、未派 QA、未 force-push、未改冻结路径、未联网跑测试；PR #9 保持 OPEN。
 
-- 按 seq 61 第 1 步：“**≥ 4 秒 → 立即 STOP 并上报 Design**（不继续、不重测、不改冻结文件）”。
-  **4016 ms ≥ 4 s → STOP**；未运行 (a)/(b)/(c)，未跑 audit/mutants，无新的 A59 区间，无 G2/QA_HANDOFF 证据。
-- 数值本身说明主机仍偏慢：本体 3738 ms 已接近 4 s 阈值；按 A102 §2 的机理，WP-03/WP-04 的 11–12 个文件并发时，
-  同一查询会被放大并再次超过冻结守卫的 8 s 超时（上一轮 (c) 即如此）。
-
-### 4. 请 Design 裁定
-
-1. 阈值口径：seq 61 写的是 Measure-Command 的“耗时”，本次总耗时 **4016 ms**（≥4 s）而查询本体 **3738 ms**（<4 s）；
-   请明确按哪个口径判定。
-2. 若裁定按“查询本体 <4 s”继续，请给出**显式新派单**（我会在**新的** A59 区间原样重跑 (a)(b)(c)+audit+mutants）；
-   但请注意并发放大风险：单次 3.7 s 时，12 个并发查询预计远超 8 s，P1-13 与 WP-03/WP-04 直跑很可能仍失败。
-3. 若维持 STOP，请裁定换主机或改用并发受限的取证方法（后者需修订冻结测试/守卫，当前未授权）。
-
-### 5. 边界
-
-- 未改任何文件/冻结路径、未重测、未运行测试组、未联网跑测试、未 live、未接触真实凭证/邮箱、未合并、未派 QA。
-- PR #9 保持 OPEN @ `6c59f35`（R4.1 已推送）；当前无任何已授权的 live 运行；P0-STORE 仍 BLOCKED。
-
-**EXECUTION STOP（等待 Design 对 4016 ms / 3738 ms 阈值口径的裁定）**
+**EXECUTION STOP**
