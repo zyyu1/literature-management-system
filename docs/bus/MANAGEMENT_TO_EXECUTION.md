@@ -1,60 +1,80 @@
-<!-- BUS from=MANAGEMENT to=EXECUTION seq=46 re=DECISION_BOARD.md@41 status=OPEN updated=2026-11-27T10:30+01:00 -->
-# Management → Execution（DEC-31 合并式 G5：第 1 步已合并；第 2 步派独立 QA 做合并后回归）
+<!-- BUS from=MANAGEMENT to=EXECUTION seq=47 re=DECISION_BOARD.md@43 status=OPEN updated=2026-11-27T10:50+01:00 -->
+# Management → Execution（DEC-33=A：P0-STORE 第 1 阶段 G1 派发）
 
-**来源:** `docs/DECISION_BOARD.md` seq 41（R41）任务单；**DEC-30 / DEC-31 由用户在 Design 窗口选定**：
-DEC-30 接受审计负例遮蔽为限制 **LIM-WP04-AUD-1**；DEC-31 立即执行**合并式 G5**。
-**授权:** `D007_A88_WP04_R1_G4_PASS_LOCAL_AND_COMBINED_G5.md`；合并前检查同 A81 §5。
-**性质:** 第 1 步由 Management 完成合并；第 2 步派独立 QA；**不派 Execution、不改候选**。
+**来源:** `docs/DECISION_BOARD.md` seq 43（R43）任务单。
+**用户决定（Design 窗口，2026-11-27 10:42）:** **DEC-32** 存储路线只评估坚果云 WebDAV；
+**DEC-33 = A** 批准 **P0-STORE 第 1 阶段 G1**。
+**授权:** `D007_A90_P0_STORE_NUTSTORE_WEBDAV_ROUTE_DESIGN.md` §3 Phase 1 与 §9；
+**绑定规范文本**：`docs/handoffs/P0-STORE/DESIGN.md`（全文）与 `docs/handoffs/P0-STORE/QA_INSTRUCTION.md`（后续 G3）。
+**性质:** 仅本地就绪切片：**探针工具 + 回路模拟 WebDAV**。
+**不联网、不开账号、不用任何凭证、不出现真实主机**；第 2–4 阶段与 ACCESS-02/G6 均**未授权**。
 
-## 第 1 步 — 合并（已完成，记录如下）
+## 1. Base / 分支 / 白名单
 
-| 项 | 值 |
-| --- | --- |
-| 合并前 main tip | `c42174db073ef652e55e96a7ebc7c5a96fba0751` |
-| PR **#8** 远端 head | `f951f717f7c833fdd00ffbe602bbd6d08ed5a390`（= tested HEAD） |
-| PR 状态 | OPEN / 非草稿 / mergeable（`refs/pull/8/merge` = `ec1da91…` 存在） |
-| Base 祖先 | `bcc4eaad5183c923f782da0475eea1751be2de3b` 是 main 祖先 |
-| main 自 Base 的改动 | 仅 `docs/`，且**未触碰** `docs/handoffs/WP-04/QA_HANDOFF.md` 与 `packages/` |
-| 合并方式 | `git merge --no-ff`，普通 merge commit；无 squash/rebase/force；分支保留 |
-| **merge SHA (M)** | **`d7dd4237f04559e1097f8dcfc8155164cd73f1c2`** |
-| 父提交 | `c42174db073ef652e55e96a7ebc7c5a96fba0751` + `f951f717f7c833fdd00ffbe602bbd6d08ed5a390` |
-| 内容 | 23 files changed, **+5091 / −0** |
-| 推送 | `c42174d..d7dd423  main -> main`（非 force） |
+- Immutable Base：**`663556bc68dc0472f2f392f09ca4bee7c668d2f5`**（A90 设计提交；已核实存在且是 main 祖先）。
+  **首次读取须 exit 0 并落盘命令/时间/stdout/stderr**；fresh full clone，`core.autocrlf=false`；
+  **不得** rebase、不得从移动的 main 合并。
+- 新分支：**`exec/P0STORE-nutstore-probe-r1`** → 新 PR 到 `main`。
+- 白名单**仅**：`packages/p0store-nutstore-probe/**` 与 `docs/handoffs/P0-STORE/QA_HANDOFF.md`。
+  其余全部冻结（WP-01..04 包、fixtures、`tools/**`、docs）；只允许对冻结的 WP-01 egress 前置守卫做**只读 import**。
+  需要改冻结路径、加依赖、`npm install`、lockfile、CI、UI → **STOP**。
+- Node **精确 v22.23.5 x64**，仅用内置模块。
 
-合并后自检：`f951f71..M` 在 23 条候选路径上**零差异**；`c42174d..M` 在
-WP-01/WP-02/WP-03 包、两个 fixtures、`tools/offline` 上**零差异**。
+## 2. 必须实现（DESIGN §2–§3 为准）
 
-## 第 2 步 — 独立 QA：合并后离线回归（S_main）
+- `src/plan.mjs`：冻结 JSON 运行计划的严格加载器（A90 §4 的 L0–L12；封闭 schema；每步 method、合成 target ID、
+  期望 oracle、请求预算估算）；未知键、多余步骤、超上限预算 → 拒绝。
+- `src/gate.mjs`：**唯一**出网路径。强制：仅 `https:`；计划内固定的 host/port/路径前缀；
+  动词白名单 `PROPFIND`(Depth 0/1)、`GET`、`HEAD`、`PUT`、`OPTIONS`、`MKCOL`(仅运行目录)、逐文件 `DELETE`；
+  规范路径（拒绝 `..`、编码分隔符/点、控制字节、双重解码、绝对逃逸）；**不跟随重定向**；
+  严格 TLS（系统或计划固定 CA，**永不** `rejectUnauthorized:false`）；滚动 30 分钟预算 ≤100 且
+  **预保留 12 个清理/中止名额**；≤20 文件、≤1 MiB/文件、≤20 MiB 总量、≤2 写入者；
+  **被拒绝的请求产生零出网**。
+- `src/secret.mjs`：凭证仅在运行时从计划指定的一个环境变量读取；绝不进入日志/trace/URL/错误；脱敏需测试证明。
+- `src/runner.mjs`：执行步骤；L6 竞态用**两个独立 OS 进程**（child_process）由本地 barrier 释放；
+  L8 在 body 发出后中止 socket，再由权威读判定。
+- `src/oracle.mjs` / `src/verdict.mjs`：每步 PASS/FAIL/UNRESOLVABLE + A90 §6 判定（GO/PARTIAL/NO-GO）+ §5 STOP 处理
+  （中止 → 仅对身份确定的文件做清理 → 隔离记录）。
+- `src/trace.mjs`：脱敏 JSONL（method、路径模板+合成 ID、状态、validator 哈希前缀、body SHA-256、耗时、预算计数）。
+- **live 模式存在但第 1 阶段惰性**：需要 `--live` + 非 loopback 的计划 host + `accessApprovalId` + 凭证变量；
+  缺任一必须**在任何 socket 之前**拒绝，且测试永不设置它们；**代码与已提交计划中不得出现任何真实主机字面量**。
 
-- QA 用**首次且唯一** `git ls-remote <repo> refs/heads/main` 得 **S_main**（exit 0，落盘命令/时间/stdout/stderr，
-  失败即 STOP，无重试）。
-- S_main 前置（任一不满足即 STOP）：① **M = `d7dd423…`** 是 S_main 祖先；② `M..S_main` 只改 `docs/`；
-  ③ WP-04 的 **23** 条路径与 `f951f71…` 相同；④ WP-03 的 **22** 条路径与 `c40e927…` 相同。
-- fresh full clone，`core.autocrlf=false`，工作树干净；独立 QA 目录，不与 Management/Execution 共用 clone。
-- 离线（A59 Windows 或已具备资格的 A54/A55 Linux），Node **精确 v22.23.5 x64**；
-  每组前后 guard+probe，**各跑一次**：
+## 3. 模拟服务器（`support/mock-webdav.mjs`，仅 loopback HTTPS）
 
-| 组 | 命令 | 期望 |
-| --- | --- | --- |
-| G1 | `cd packages/wp-01-synthetic-auth-api && node --test` | 67/67 |
-| G2 | `cd packages/wp-02-project-paper-read && node --test` | 44/44（嵌套 67） |
-| G3 | `cd packages/wp-03-guarded-r1-writes && node --test` | 103/103 |
-| G4 | `cd packages/wp-04-research-notes-r1 && node --test` | 91/91 |
+测试用 CA/证书在测试时用宿主 `openssl` 生成到临时目录，或放在 `test/fixtures/` 并明确标注 TEST-ONLY。
+**11 种性格**（按测试选择，`src/` 内无运行时开关）：`strong`、`weak-etag`、`lost-update`、`create-overwrite`、
+`stale-read`、`late-ack`、`unresolvable-ack`、`throttle`、`server-error`、`redirect`、`bad-cert`。
 
-- **排除**：两个候选审计脚本（固定于 PR 历史，在 main 上本就应当拒绝）、mutation driver；Linux 未跑记 `NOT_RUN`。
-- 交付：PR #8 新评论，按 **DEC-27 §1 逐项表**（每行 PASS 附输入/断言/退出码，或 FAIL/NOT_RUN/NOT_RECORDED）
-  → 整份覆写 `docs/bus/QA_TO_DESIGN.md` 为 seq **20**（或 latest+1），
-  header `re=MANAGEMENT_TO_EXECUTION.md@46`，只提交该文件，`bus(qa): seq 20`，**QA STOP**。
-- 失败**如实上报、不修复**；merge 保留在历史中，由 Design 裁定 STOP/回滚选项，**不自动回滚**。
+## 4. 测试与变异（只报实际数字，不设固定总数）
 
-## 第 3 步 — Design
+- **P1-01..P1-13** 全覆盖（含严格上游 WP-01 67、WP-02 44、WP-03 103、WP-04 91 与固定受保护清单），
+  按 DESIGN §4 表逐条实现（判定结果须与表一致：strong→GO；lost-update/create-overwrite→NO-GO；
+  weak-etag/stale-read→PARTIAL；late-ack 3/3；unresolvable→UNRESOLVABLE→PARTIAL；throttle/server-error/401→立即 STOP 不重试；
+  跨进程竞态记录两个 PID、5 轮、恰好一个赢家；live 惰性）。
+- mutation driver 在**仓库外** scratch、egress 守卫之后，**≥12 个具名 mutant**，
+  每个必须被**预期断言**杀死（崩溃/超时不算），覆盖 DESIGN §4 列出的 13 类。
+- 审计脚本放 `scripts/`，不被 `node --test` 发现；**审计负例必须计数中性**。
+- 沿用绑定教训：无 waiver flag、严格 TAP、固定清单而非遍历仓库、任何 socket/子进程前先跑 egress 守卫、
+  **逐项报告**（A86 DEC-27）。
 
-Design 一次性核验 merge 父提交、23 个 blob、受保护清单与回归证据 → G5 VERIFIED + 合并后回归 PASS_LOCAL；
-随后起草 DEC-26 的存储路线设计。
+## 5. 环境
 
-## 边界
+A59 Windows 用户控制离线区间，或已具备资格的 A54/A55 Linux；所有运行时测试在该边界内，
+每组前后 guard + probe、脱敏 OS 事实与原始日志，子进程在重连前结束；不得改宿主/网络、装依赖、提权、
+使用真实凭证或真实数据。Linux 未跑记 `NOT_RUN`。
 
-- **Execution 本轮无任务**：若被唤醒，只回 `status=DONE re=MANAGEMENT_TO_EXECUTION.md@46` 并注明
-  “本轮为合并式 G5 的合并与 QA 回归、Execution 未参与”，随后 STOP。
-- 不派 Execution；WP-04-R2、WP-05、R2、P0-STORE、真实持久化、冻结 UI、G6/G7 均未授权；
-  A70/A71 暂停；PR #2/#4 不动；不改候选、不合并其他 PR。
+## 6. 交付
+
+- PR 新评论：**G2 报告逐项表**（A86 DEC-27）：exact head、diff/白名单清单、命令/计数/退出码、
+  受保护清单比对、mutant 表、NOT_RUN 清单；缺失如实标注。
+- 写 `docs/handoffs/P0-STORE/QA_HANDOFF.md`（含 exact SHA 与脱敏事实）。
+- 然后整份覆写 `docs/bus/EXECUTION_TO_QA.md` 为 seq **30**（或 latest+1），
+  header `re=MANAGEMENT_TO_EXECUTION.md@47`，含 PR 号、exact SHA、G2 评论 ID、QA 计划路径
+  `docs/handoffs/P0-STORE/QA_INSTRUCTION.md`（只传路径）；只提交该文件，`bus(execution): seq 30`，**EXECUTION STOP**。
+
+## 7. 边界
+
+- **不合并、不派 QA**；G2 由 Design 评审，G3 由独立 QA，G4 由 Design。
+- **第 2–4 阶段**（用户准备、真实运行、判定）**均未授权**；ACCESS-02 / G6 / G7 未授权；
+  P0-STORE 仍 **BLOCKED**；A70/A71 暂停；冻结 UI、PR #2/#4 不动；不改候选白名单、不加依赖。
+- 任何越界、需要真实主机/凭证/网络、或冻结路径改动 → **STOP 并上报**，不得自行放宽。
