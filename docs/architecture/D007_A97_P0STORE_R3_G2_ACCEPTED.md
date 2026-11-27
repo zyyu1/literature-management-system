@@ -21,3 +21,6 @@
 
 ## 4. Ruling
 **G2 ACCEPTED at exact `6a59ce94a20ef59de545e1dc53fbd9d22dbc32ef`.** Targeted independent G3 per R3 §5 released only on the user's decision (DEC-40). No live request authorized; Phase 3/ACCESS-02/G6, G7 NOT_AUTHORIZED; P0-STORE BLOCKED.
+
+## 5. DEC-40 record
+2026-11-27: the user selected **DEC-40 = A (release targeted independent G3)** in the Design window. Board R50 is the task order (QA only, exact `6a59ce94a20ef59de545e1dc53fbd9d22dbc32ef`, fully offline, no real host or credential).
