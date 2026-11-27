@@ -1,52 +1,55 @@
-<!-- BUS from=MANAGEMENT to=EXECUTION seq=62 re=DECISION_BOARD.md@59 status=OPEN updated=2026-11-27T18:52+01:00 -->
-# Management → Execution（DEC-46=A：R4.1 沿用逐字节相同的上游证据）
+<!-- BUS from=MANAGEMENT to=EXECUTION seq=63 re=DECISION_BOARD.md@60 status=OPEN updated=2026-11-27T19:06+01:00 -->
+# Management → Execution（DEC-47=A：释放 P0-STORE R4+R4.1 定向独立 G3 给 QA）
 
 ## 1. 记录同步
 
-- **Execution39**（`e37531d`，STOP）按 seq 61 第 1 步执行：主机确于 `18:34:48` 重启，
-  冻结守卫的 PowerShell 清单查询 **本体 3738 ms**、`Measure-Command` **总耗时 4016 ms**；
-  按“总耗时 ≥ 4 s”**立即停止**，未跑 (a)/(b)/(c)、无 audit/mutants、无 G2。**该严格读法是正确的**。
-- Design 核实（A103 §2）：`git diff --stat 16f0cb0 6c59f35` **只改了 5 个文件**——
-  `src/runner.mjs`、`test/p1-16-auth-identity.test.mjs`、`scripts/mutation-check.mjs`、`README.md`、
-  `docs/handoffs/P0-STORE/QA_HANDOFF.md`。因此 **P1-13、WP-01…WP-04 全部上游包、冻结的 A62 守卫、
-  `support/*` 在 `16f0cb0` 与 `6c59f35` 之间逐字节相同**。
-- 在 `16f0cb0`、**有效** A59 区间 `16:28:30Z–16:39:19Z` 内已记录：suite **93/93（含 P1-13）**、
-  上游 **67/44/103/91**、受保护 blob **94/94**。
-- **DEC-46 = A**（用户在 Design 窗口选定）：**沿用**该上游证据。
+- **Execution40**（`5d9c650`）与 PR #9 的增量 G2 `#7225015533`，exact HEAD
+  **`b2b008295736dc09829e5272638c19aedc9c1442`**（单亲 `6c59f35`，只加 `QA_HANDOFF.md`）。
+- Design 复核：`a168ee9..6c59f35` 只改 4 个文件（runner / p1-16 / mutation-check / README），
+  **正是 A100 §4 的允许列表**；`6c59f35..b2b0082` 只改 `QA_HANDOFF.md`；
+  runner 的 live 早停确实以 `authenticated === true`（`request.auth !== false`）为门槛。
+- 报告（同一有效 A59 区间、16/16 探针）：完整 suite **94/94**（此次 P1-13 在套件内为绿）、
+  上游直跑并发 1 → **67/44/103/91**、**P1-16 9/9**（U-07 = 3 次调用 `[false,false,true]` → `UNEXPECTED_401@L0`；
+  U-10 通过 L0 进入 L1 `MKCOL`）、audit 275/32/94/307、mutants **26/26**（M26 被 U-10 击杀）、
+  对照 `16f0cb0` 的传递字节证明全部 exit 0。
+- **DEC-47 = A**（用户在 Design 窗口选定）：**放行定向独立 G3**。
 
-## 2. 本轮任务（按 A103 §3）
+## 2. 本轮派单（独立 QA，按 A104 §4）
 
-### (1) 逐字节证明 + 沿用
+- 对象：PR **#9**，**exact HEAD `b2b008295736dc09829e5272638c19aedc9c1442`**。
+- **首次且唯一** `git ls-remote <repo> refs/pull/9/head` 必须 `exit 0` 且等于该 SHA，否则 STOP（落盘命令/时间/stdout/stderr）。
+- A59 离线区间；固定 Node **v22.23.5 x64**（完整路径、非提权）；**每组前后 guard + probe**。
 
-- 用 `git diff --quiet 16f0cb0 <最终 HEAD> --` 分别覆盖：**P1-13 测试**、**`packages/` 中除 R4.1 允许文件外的一切**、
-  **冻结守卫（A62 平台前置）**；三者都必须退出码 0。
-- 在 G2 中明确声明：`16f0cb0` 的 **P1-13 结果与上游 67/44/103/91 结果沿用到最终 HEAD**，
-  依据是上述逐字节相同 + R4.1 的 diff 未触及它们。
+### 必做内容
 
-### (2) 当前运行证据（在**同一个新的** A59 区间内，最终 exact HEAD 上）
+1. **完整 suite 至少 1 次**。
+2. **P1-13 与上游沿用 A103 传递规则**：QA **自己做**字节证明（对照 `16f0cb0`，覆盖 P1-13、
+   `packages/` 去掉 R4.1 的 4 个文件、冻结守卫、`support/`），并**直接用 `--test-concurrency=1`** 跑上游；
+   P1-13 若**仅**因守卫超时失败，记录但**不阻断**（前提是字节证明成立）。
+3. **QA 自写认证身份矩阵**（QA 自己的桩传输、仅合成值 `*@example.invalid`；每次拒绝都要证明
+   **零传输、trace 为空、毒化密码环境变量未被读取**）：
+   用户变量缺失 → `CREDENTIAL_USER_MISSING`；用户变量为空 → 同上；
+   含 `:`、空格、无 `@`、控制字符、255 字符 → `CREDENTIAL_USER_MALFORMED`；
+   live 计划缺 `credentialUserEnvVar` → `PLAN_REJECTED`。
+4. **QA 自写早停矩阵**：(i) 无认证 401 + 认证 401 → **恰好 3 次**调用、`UNEXPECTED_401@L0`；
+   (ii) 无认证 401 + 认证 207 → **能到 L1**；(iii) 无认证 401 + 认证 403 → 3 次调用并停止；
+   (iv) mock/local 模式的 401 行为与 R3 一致。
+5. **Canary 与 Authorization**：canary 用户名与密码在 trace / console / 预检 / result / 错误中
+   （明文、`user:pass`、base64 三种形式）**均不得出现**；桩观察到的头**精确解码**为 `<user>:<password>`；
+   local/mock 仍用 `probe`。
+6. **字节证明**：全部冻结文件对照 **`6a59ce9` 与 `a168ee9`**；live 计划相对 `6a59ce9` **只差那一个键**；
+   R3 的三个门负例（错误主机、审批缺失、Node 不符）**仍然被拒**。
+7. **audit 正例 + 计数中性负例**（A88 规则）；committed mutants **26/26** + **≥3 个 QA 自写 mutant**。
+8. 交付：PR #9 发**逐项 G3**（A86 DEC-27 表：每行 PASS 附输入/断言/退出码，或 FAIL/NOT_RUN/NOT_RECORDED）；
+   然后整份覆写 `docs/bus/QA_TO_DESIGN.md` 为 seq **24**（或 latest+1），
+   header `re=MANAGEMENT_TO_EXECUTION.md@63`，含 PR / exact SHA / QA 评论 ID / verdict / 关键数字 / P0-P2；
+   只提交该文件，`bus(qa): seq 24`，**QA STOP**。
 
-- **完整 suite 跑 1 次**，如实照原样记录；若失败，**只允许**是 P1-13 的**已知守卫超时特征**。
-- **四个上游包各自直接**用 `--test-concurrency=1` 跑（**仅 CLI 标志，不改任何代码**），各自记录；
-  这一项是**参考性健康检查**：出现守卫超时**记录下来但不阻断**。
-- **P1-16 全部（U-01…U-10）**。
-- **audit**。
-- **mutants（含 M26）**。
-- 每组前后 guard + probe；固定 Node v22.23.5 x64（完整路径、非提权）；
-  任何探针不符即作废该区间，无效区间不得计入证据。
+## 3. 边界
 
-### (3) 交付
-
-- 按 **A100 §4.8** 发**增量 G2**：diff 仅限允许列表、其余文件相对 `a168ee9` 的字节证明、
-  完整 suite/上游/audit/mutant（含 M26）、U-07 与 U-10（**外加 P1-16 全量 U-01…U-10**）、
-  A59 区间与守卫耗时实测值（3738 / 4016 ms 也一并记录）。
-- 并记入限制 **LIM-P0S-2**：“冻结 A62 守卫的 PowerShell 查询在 A59 主机并发下对时序敏感；
-  主机偏慢期间 P1-13 以**逐字节相同**方式沿用”。
-- 然后整份覆写 `docs/bus/EXECUTION_TO_QA.md` 为 seq **40**（或 latest+1），
-  header `re=MANAGEMENT_TO_EXECUTION.md@62`，含 PR 号、最终 exact SHA、G2 评论 ID、QA 计划路径
-  （`D007_A100…` §4、`D007_A103…` §4）；只提交该文件，`bus(execution): seq 40`，**EXECUTION STOP**。
-
-## 3. 边界（不变）
-
-- 不改冻结文件；不得发出 live 请求；不得使用真实凭证或邮箱；**当前没有任何已授权的 live 运行**。
+- **Execution 本轮无任务**：若被唤醒，只回 `status=DONE re=MANAGEMENT_TO_EXECUTION.md@63`
+  并注明“本轮为独立 QA 的 R4+R4.1 定向 G3、Execution 未参与”，随后 STOP。
+- QA 不改候选、不合并、不裁定门禁；**G4 只由 Design**。
+- 不得发出 live 请求、不得使用真实凭证或邮箱；**当前没有任何已授权的 live 运行**
+  （下一次需要 G4 + runbook rev 3 + 新的用户 DEC 与新审批号）。
 - G6/G7 未授权；P0-STORE 仍 **BLOCKED**；A70/A71 暂停；冻结 UI、PR #2/#4 不动；PR #9 保持 OPEN。
-- **QA 本轮无任务**；之后定向 G3 也适用**同样的沿用规则**。
