@@ -6,9 +6,9 @@ Authority: [A92](../../architecture/D007_A92_P0STORE_PHASE1_G4_AND_PHASE2_PREP.m
 | # | Item | How / rule | Status |
 | --- | --- | --- | --- |
 | U1 | **Second, disposable Nutstore account** | New account used only for this test; never the account that syncs Zotero attachments; contains no personal files at all | ☑ user-confirmed new test account, empty (2026-11-27 14:08) |
-| U2 | **App-specific WebDAV password** for U1 | Created in that account's security settings ("third-party application management"); never reuse the login password; revocable | ☐ |
+| U2 | **App-specific WebDAV password** for U1 | Created in that account's security settings ("third-party application management"); never reuse the login password; revocable | ☑ user: generated (2026-11-27 14:09); secret never shared |
 | U3 | **WebDAV address** shown in U1's settings | Write down the server address exactly as Nutstore shows it; Design will pin exactly what you confirm | ☑ `https://dav.jianguoyun.com/dav/` (user, 2026-11-27 13:59) |
-| U4 | **Operator machine** | The Windows machine used for A59 runs, Node v22.23.5 x64; no shared/CI host | ☐ |
+| U4 | **Operator machine** | The Windows machine used for A59 runs, Node v22.23.5 x64; no shared/CI host | ☑ same Windows machine as Execution/QA A59 runs (user). **System `node` is v26.13.0** → Phase 3 must invoke the pinned v22.23.5 x64 binary by full path (SHA-256 `247e9693…bdf38a`, verified before the run) and run in a **non-elevated** PowerShell |
 | U5 | **Secret injection method** | You set the environment variable `P0STORE_WEBDAV_PASSWORD` yourself in the run shell immediately before the run and clear it after; nobody else types it; it is never pasted anywhere | ☐ |
 | U6 | **Revocation plan** | Right after the run (or on any incident) you delete the app password in U1; optionally delete U1 | ☐ |
 | U7 | **Quota check** | Note any request/traffic limits Nutstore shows for U1; the stricter of those and ACCESS_POLICY §4 applies | ☑ free plan: monthly upload 1 GB (84.82 KB used), download 3 GB (0 used); no request limit shown; ACCESS_POLICY §4 governs (user screenshot 2026-11-27 14:08) |
@@ -28,7 +28,7 @@ You tell Design only: "U1–U7 done", the WebDAV address (U3, not secret), and t
 | After run | User revokes app password (U6); Design rules per A90 §6 incl. INCONCLUSIVE |
 
 ## 3. Status ladder
-`PHASE2_USER_PREP_OPEN` (now; U1, U3, U7 done; U2, U4 pending; U5/U6 at run time) → `PHASE2_READY` (U1–U7 confirmed + §4 change accepted) → `ACCESS02_REQUEST_READY` (Design completes §2) → `ACCESS02_AUTHORIZED` (**only** by a later explicit user click naming SHA/host/namespace/operator) → `PROVIDER_OBSERVED` → Design verdict.
+`PHASE2_USER_PREP_OPEN` (U1–U4 and U7 done; U5/U6 at run time) → becomes `PHASE2_READY` once the R2 verdict fix is accepted → `PHASE2_READY` (U1–U7 confirmed + §4 change accepted) → `ACCESS02_REQUEST_READY` (Design completes §2) → `ACCESS02_AUTHORIZED` (**only** by a later explicit user click naming SHA/host/namespace/operator) → `PROVIDER_OBSERVED` → Design verdict.
 
 ## 4. Mandatory change before any live run (A92 DEC-35)
 Add verdict `INCONCLUSIVE` to the probe: any STOP or unresolvable outcome **before L6 completes all 5 rounds** without NO-GO evidence must output `INCONCLUSIVE` (not `PARTIAL`); `PARTIAL` only when L2, L5, L6 and L7 passed. Verdict output must also always list the first failing/limiting step's own reason before any later STOP reason. Small Execution slice on the same package, normal G2 + targeted independent G3 (verdict matrix + mutants for the new rule). Until accepted, any tool output `PARTIAL` with `unresolved: true` is read as INCONCLUSIVE.
