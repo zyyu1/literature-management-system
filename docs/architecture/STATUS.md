@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A101 P0-STORE R4.1 P1-13 EVIDENCE METHOD — 2026-11-27:** [A101](D007_A101_P0STORE_R41_P113_EVIDENCE_METHOD.md): R4.1 local commit `6c59f35` not yet pushed. The full suite is 93/94 three times; the only failure is the frozen nested P1-13 egress-guard timeout, unrelated to R4.1. DEC-44=A: push; run the full suite as-is, P1-13 alone serially (≤3 attempts, all recorded) and the 4 upstream suites directly; record LIM-P0S-2 on pass, STOP otherwise.
+
 **D007-A100 P0-STORE R4 G2 NOT ACCEPTED → R4.1 — 2026-11-27:** [A100](D007_A100_P0STORE_R4_G2_NOT_ACCEPTED_R41.md): G2 #7223579792 at exact `a168ee9` is accepted in every respect except P1-R4-1 (Design spec fault): the live early stop fired on L0's intended unauthenticated 401, so every live run would stop at request 1. DEC-43=A: R4.1 stops only on an authenticated 401/403; U-07 rewritten to 3 calls; new U-10 and M26. Run-1 redacted files attached (#7223574650).
 
 **D007-A99 P0-STORE LIVE RUN 1 INCONCLUSIVE (PROBE AUTH DEFECT) — 2026-11-27:** [A99](D007_A99_P0STORE_LIVE_RUN1_INCONCLUSIVE_PROBE_AUTH_DEFECT.md): the single approved run at exact `6a59ce9` stopped `UNEXPECTED_401@L0` after 3 requests, 0 bytes, no writes, no leak. Root cause: user name hard-coded `probe` in `secret.mjs:43–44` (Design spec omission). Classified `PROBE_DEFECT_AUTH_IDENTITY`; no provider evidence. Approval consumed. **DEC-42=A: R4 fix dispatched** ([spec](../handoffs/P0-STORE/R4_AUTH_IDENTITY.md)).
