@@ -21,3 +21,6 @@
 
 ## 4. Ruling
 **G2 ACCEPTED at exact `b6fec8e3b0ec217b142b428080454588e6866744`.** Targeted independent G3 per R2_VERDICT_FIX §5 released only on the user's decision (DEC-38). LIM-P0S-1 closes at Design G4 after G3. Phase 3/ACCESS-02/G6, G7 NOT_AUTHORIZED; P0-STORE BLOCKED.
+
+## 5. DEC-38 record
+2026-11-27: the user selected **DEC-38 = A (release targeted independent G3)** in the Design window. Board R47 is the task order (QA only, exact `b6fec8e3b0ec217b142b428080454588e6866744`).
