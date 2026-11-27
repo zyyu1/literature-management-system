@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A97 P0-STORE R3 G2 ACCEPTED — 2026-11-27:** [A97](D007_A97_P0STORE_R3_G2_ACCEPTED.md), PR #9 exact `6a59ce94a20ef59de545e1dc53fbd9d22dbc32ef` (R3 evidence `ba43519`): suite 85/85, upstream 67/44/103/91, mutants 22/22; 7 live conditions before any secret/socket, committed live plan cannot self-authorize, real host only in plan + one constant, frozen files byte-identical. DEC-40 targeted G3 pending. No live request.
+
 **D007-A96 P0-STORE R3 LIVE-READINESS G1 — 2026-11-27:** [A96](D007_A96_P0STORE_R3_LIVE_READINESS_G1.md), user DEC-39=A: R3 on PR #9 atop `b6fec8e` enables live mode only with 7 run-time conditions (pinned `dav.jianguoyun.com:443`, prefix `/dav/LMS-P0STORE/<runId>/`, run-time approval id, runId, credential, Node v22.23.5 x64); offline tests only ([spec](../handoffs/P0-STORE/R3_LIVE_READINESS.md)); Board R49 → Execution. No live request authorized.
 
 **D007-A95 P0-STORE R2 G4 PASS_LOCAL — 2026-11-27:** [A95](D007_A95_P0STORE_R2_G4_PASS_LOCAL.md), QA22 #7220233158 at exact `b6fec8e3b0ec217b142b428080454588e6866744`: 8 groups PASS, R2 matrix incl. INCONCLUSIVE and root-cause-first, byte proof 8/8, mutants 16+3; P0/P1/P2=0. **LIM-P0S-1 CLOSED**; Phase 2 PHASE2_READY. Live mode still inert by constant → Phase 3 needs readiness slice R3 first (DEC-39 pending). G6/G7 NOT_AUTHORIZED.
