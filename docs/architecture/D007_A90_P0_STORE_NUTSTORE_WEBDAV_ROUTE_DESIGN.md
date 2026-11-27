@@ -73,3 +73,6 @@ Real Zotero data, the user's main account, PDFs, production deployment, backgrou
 - **B:** revise this design first.
 - **C:** pause.
 Phase 3 always needs its own later explicit user approval naming the exact SHA, host, namespace and operator.
+
+## 9. DEC-33 record — Phase 1 G1 APPROVED
+2026-11-27 10:42 +01: the user selected **DEC-33 = A** in the Design window. **Phase 1 (local probe runner + mock personalities) G1 APPROVED** exactly per [P0-STORE DESIGN](../handoffs/P0-STORE/DESIGN.md) and [QA INSTRUCTION](../handoffs/P0-STORE/QA_INSTRUCTION.md); Base `663556bc68dc0472f2f392f09ca4bee7c668d2f5`. Board R43 is the task order (Execution only this step). Phases 2–4 are **not** authorized; no account, credential, real host or live request. G5 for the probe is not needed unless separately decided; G6/G7 NOT_AUTHORIZED.

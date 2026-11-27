@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A90 §9 DEC-33=A — 2026-11-27:** P0-STORE Phase 1 G1 APPROVED: local Nutstore WebDAV probe runner + 11 mock personalities, no network/account/credential ([DESIGN](../handoffs/P0-STORE/DESIGN.md), [QA](../handoffs/P0-STORE/QA_INSTRUCTION.md)); Base `663556bc68dc0472f2f392f09ca4bee7c668d2f5`; Board R43 → Management → Execution. Phases 2–4, ACCESS-02/G6, G7 NOT_AUTHORIZED.
+
 **D007-A90 P0-STORE NUTSTORE WEBDAV ROUTE DESIGN (DRAFT) — 2026-11-27:** [A90](D007_A90_P0_STORE_NUTSTORE_WEBDAV_ROUTE_DESIGN.md). User DEC-32: Nutstore WebDAV only. Four phases: (1) local probe runner + mock personalities incl. lost-update/stale-read, no network; (2) user-prepared disposable account out of band; (3) one bounded live run ≤88/100 requests, separate explicit approval; (4) pre-fixed GO/PARTIAL/NO-GO rules. DEC-33 (authorize Phase 1) pending. No account, credential or provider contact authorized.
 
 **D007-A89 WP-04-R1 G5 VERIFIED / POST-MERGE PASS_LOCAL — 2026-11-27:** [A89](D007_A89_WP04_R1_G5_VERIFIED_POST_MERGE_PASS.md), merge `d7dd4237f04559e1097f8dcfc8155164cd73f1c2` (parents `c42174d`, tested `f951f71`): 23 added paths equal tested HEAD, protected 72/72 equal Base. QA20 #7214763357 on S_main `61df6b14dfb8c9c9081af2a5d3217f6855ddbffc`: WP-01 67, WP-02 44, WP-03 103, WP-04 91, offline. WP-04-R1 complete (local-synthetic). Next: DEC-26 P0-STORE storage-route design. Linux NOT_RUN; G6/G7 NOT_AUTHORIZED.
