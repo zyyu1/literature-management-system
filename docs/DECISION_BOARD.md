@@ -1,15 +1,17 @@
-<!-- BUS from=DESIGN to=MANAGEMENT seq=39 re=bus/MANAGEMENT_TO_EXECUTION.md@43 status=OPEN updated=2026-11-26 -->
-# 任务单 / Task order — R39（Design → Management）
-## 1. WP-04-R1（DEC-25=A）
-Management43（`d63d808`）已派 Execution，Design 已核对一致，**不要重派**。本轮仍不派 QA；G3 待 Design G2 审查后释放。
-## 2. 用户在 Design 窗口的新决定（[A86](governance/D007_A86_PROCESS_STREAMLINING_AND_ROADMAP.md)）
-- **DEC-26**：WP-04-R1 的 G4 之后，Design 先起草 P0-STORE 存储路线设计（只出方案，不开账号、不接服务、不花钱）；其余功能切片与前端等用户再定。
-- **DEC-27（从现在起的新派单适用）**：
-  1. Execution 的 G2 报告与独立 QA 的 G3 报告必须**逐项**列出 QA 指令中的每个测试 ID、组、审计负例、mutant、追溯项，标 PASS（附实际输入/断言/退出码）/FAIL/NOT_RUN/NOT_RECORDED；只有聚合 PASS 视为不完整，只退回补表，不另开测试轮。
-  2. 之后的 G5 选项为**一步完成**：Management 合并 exact HEAD → 独立 QA 在含该 merge 的 exact main 上做合并后离线回归 → Design 一次性核验合并与回归。
-  3. 门禁、QA 独立性、exact SHA、隔离、STOP 规则不变。
-- **DEC-28**：Design 继续每 10 分钟轮询。
-## 3. Management 本轮动作
-请把 DEC-27 第 1 条转告 Execution（适用于其即将提交的 WP-04-R1 G2 报告），无需新任务；WP-04 QA 指令已加 §5 逐项报告要求。其余无派单。
+<!-- BUS from=DESIGN to=MANAGEMENT seq=40 re=bus/EXECUTION_TO_QA.md@29 status=OPEN updated=2026-11-27 -->
+# 任务单 / Task order — R40（Design → Management）
+[A87](architecture/D007_A87_WP04_R1_G2_ACCEPTED_G3_RELEASE.md)：WP-04-R1 **G2 ACCEPTED** at exact `f951f717f7c833fdd00ffbe602bbd6d08ed5a390`（PR #8）。用户在 Design 窗口点选 **DEC-29 = A：释放独立 G3**。
+
+## Management 本轮动作
+派**独立 QA**（fresh seq，QA 总线下一序号为 19 或 latest+1）；**不派 Execution**。
+
+## 给独立 QA 的任务
+- 权威文本：[WP-04 QA_INSTRUCTION](handoffs/WP-04/QA_INSTRUCTION.md)（含 §5 逐项报告）与 [DESIGN](handoffs/WP-04/DESIGN.md)，从 main 读取（候选树里没有设计文档，属设计如此）。
+- 对象：PR #8 exact HEAD **`f951f717f7c833fdd00ffbe602bbd6d08ed5a390`**；Base `bcc4eaad5183c923f782da0475eea1751be2de3b`。首次且唯一的 `ls-remote refs/pull/8/head` 必须 exit 0 且等于该 SHA，否则 STOP。
+- 全部 7 组：语法；`node --test`（Q4-01..Q4-12）；QA 自写严格 TAP 解析的上游 67/44/103；候选审计正例 + 负例（多余路径、改 Base 路径、改受保护 blob、未跟踪文件、mode 变更、symlink 类型）；QA 自写 raw HTTP 探针；QA 自建字节保真 oracle 与期望导出；committed mutation driver + ≥6 个 QA 独立 mutant（必须含 NFC、CRLF→LF、逐字段部分写、UNKNOWN 报 saved、跨库共享笔记、导出改 revision）。
+- 环境：独立 QA 会话与目录，fresh full clone，`core.autocrlf=false`；Node 精确 v22.23.5 x64；A59 Windows 离线或合格 A54/A55 Linux；每组前后 guard+probe，子进程在重连前结束；Linux 未跑记 NOT_RUN。
+- 记录 INFO-1：无元数据论文导出时 H1 后的实际字节。
+- 交付：PR #8 新评论（逐项表：每行 PASS 附输入/断言/退出码，或 FAIL/NOT_RUN/NOT_RECORDED）→ QA 总线下一序号，`re=MANAGEMENT_TO_EXECUTION.md@<派单seq>`，只提交该文件，QA STOP。QA 不改候选、不合并、不裁定门禁。
+
 ## 边界
-P0-STORE blocked；G5/G6/G7 未授权；A70/A71 suspended；冻结 UI、PR2/4 不动。
+G4 由 Design；G5 另行决定（A86 合并式 G5）。P0-STORE blocked；G6/G7 NOT_AUTHORIZED；A70/A71 suspended；冻结 UI、PR #2/#4 不动。

@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A87 WP-04-R1 G2 ACCEPTED / G3 RELEASED — 2026-11-27:** [A87](D007_A87_WP04_R1_G2_ACCEPTED_G3_RELEASE.md), PR #8 exact `f951f717f7c833fdd00ffbe602bbd6d08ed5a390` (Base `bcc4eaa`, 23 whitelisted additions, protected 72/72). Execution28/29, G2 #7202444023 + addendum #7213804565: suite 91/91, upstream 67/44/103, audit OK, mutants 14/14. User DEC-29=A: independent G3 via Board R40. Linux NOT_RUN; P0-STORE blocked; G5/G6/G7 not authorized.
+
 **D007-A86 PROCESS / ROADMAP DECISIONS — 2026-11-26:** [A86](../governance/D007_A86_PROCESS_STREAMLINING_AND_ROADMAP.md) user decisions in Design: DEC-26 after WP-04-R1 G4, design P0-STORE storage route first (design only); DEC-27 itemized first-pass G2/G3 reports and combined G5 (merge + post-merge regression in one step), gates unchanged; DEC-28 Design polling every 10 min. WP-04-R1 Execution (Management43) unchanged.
 
 **D007-A85 §6 DEC-25=A — 2026-11-26:** user selected A in the Design window; **WP-04-R1 G1 APPROVED** per A85/DESIGN/QA_INSTRUCTION. Board R38 task order: Management dispatches Execution only; independent G3 after Design G2 review. Base `bcc4eaad5183c923f782da0475eea1751be2de3b`. G5/G6/G7 NOT_AUTHORIZED; P0-STORE blocked.
