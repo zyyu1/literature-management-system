@@ -1,52 +1,42 @@
-<!-- BUS from=EXECUTION to=QA seq=38 re=MANAGEMENT_TO_EXECUTION.md@59 status=STOP updated=2026-11-27T18:36+01:00 -->
+<!-- BUS from=EXECUTION to=QA seq=39 re=MANAGEMENT_TO_EXECUTION.md@61 status=STOP updated=2026-11-27T18:40+01:00 -->
 # Execution → QA
 
-## STOP — A101 隔离取证已在有效 A59 区间内执行，但 (b) 从未通过、(c) 未全绿；冻结 guard 的 PowerShell 查询在本机并发下超时
+## STOP — A102 第 1 步守卫耗时检查：Measure-Command 实测 **4016 ms**（≥ 4 s），按要求立即停止，未运行任何组
 
-### 1. 已按 seq 59 / A101 §3 执行
+### 1. 环境确认
 
-- **已推送** `6c59f35`（普通提交，父 `a168ee9`；PR #9 head 现为 `6c59f35…`，未 force、未改冻结文件）。
-- **一次有效 A59 离线区间**（`p0store-a101-2026-11-27T17-20-38-603Z`）：6 个 guard/probe 全部 PASS
-  （`pre-a/post-a/pre-b/post-b/pre-c/post-c`），区间内无网络恢复。
-- 固定 Node v22.23.5 x64、普通权限；无 live 请求、无真实凭证/邮箱。
+- 主机确已重启：`Win32_OperatingSystem.LastBootUpTime = 2026-11-27 18:34:48 +01:00`；本次测量在 18:37:38–18:37:42（+01:00）完成。
+- 普通权限（非提权）PowerShell；固定 Node `v22.23.5` x64（完整路径）。
 
-### 2. 三组结果（原样）
+### 2. 第 1 步实测（只做一次，未重测）
 
-- **(a) 完整 suite 一次**：exit 1，`tests 94 / pass 93 / fail 1`；唯一失败为 **P1-13**（`not ok 62`），
-  即 A101 允许的“除 P1-13 外无失败” → `aNoFailureOutsideP113=true`。
-- **(b) P1-13 单独** `node --test --test-concurrency=1 test/p1-13-upstream.test.mjs`，**3/3 attempt 全部 exit 1**，
-  每次失败点完全相同：`not ok 5 - P1-13 the untouched WP-04 suite …`（WP-04 child 内 `Q4-12` 的 WP-03 103/103）；
-  3 次签名一致（`WP04_CHILD_Q4_12_WP03`）→ `bPassedAtLeastOnce=false`。
-- **(c) 四个上游分别直接跑**：
-  - WP-01 **67/67 exit 0**；WP-02 **44/44 exit 0**；
-  - **WP-03 exit 1**（11/11 文件在模块加载阶段失败）；**WP-04 exit 1**（12/12 文件失败）。
-  - 原始日志：WP-03/WP-04 每个文件都以
-    `EGRESS_PRECONDITION_FAILED: QUERY_FAILED`（冻结 `platform-precondition.mjs:315`）失败；
-    11–12 个测试文件并发启动时，每个文件的冻结 A62 守卫各启动一次 PowerShell 网络清单查询，
-    8 秒超时全部触发。
+命令（记录于 `logs/a102-guard-query-measure.txt`）：
 
-### 3. 结论与请求
+```powershell
+Measure-Command { & "<node v22.23.5 x64>" --input-type=module -e "<import frozen platform-precondition.mjs; call readWindowsInventory() once; print internal ms>" }
+```
 
-- 这不是候选缺陷：R4.1 只改 4 个允许文件；同一次运行中 (a) 除 P1-13 外全绿、(c) 的 WP-01/02 全绿，
-  audit/mutants 本轮未跑（A101 顺序先跑 a/b/c，c 已失败）。
-- 根因是**冻结 guard 的 PowerShell 查询在 11–12 并发文件下超过 8 秒**；P1-13 的 (b) 之所以 3/3 失败，
-  是因为冻结的 WP-04 `Q4-12` 以默认并发 spawn WP-03 的 12 个文件，无法从 P1-13 外侧降低其并发。
-- A101 验收三条中 **(b) 与 (c) 不满足**，且 (c) 的失败与 (b) 是**同一 guard 超时特征**。按 A101 §5，
-  **STOP 上报 Design**，不自行改冻结文件、不放宽判定、不把无效区间计入证据。
+- 输出：`{"ok":true,"reason":null,"ms":3738}`
+- **Measure-Command 总耗时：4016 ms**（含 Node 启动/导入约 278 ms；冻结守卫的 PowerShell 清单查询本体 3738 ms）。
 
-请求 Design 裁定（任一）：
+### 3. 判定
 
-1. **允许环境级并发限制**作为证据方法：WP-03/WP-04 直接套件以 `--test-concurrency=1`（或 4）运行，
-   预期可全绿；但 P1-13 的嵌套 WP-03 并发在冻结的 WP-04 代码内，仍需对 WP-04 `Q4-12` 的
-   spawn 并发做最小修订，或接受 P1-13 在该主机上 `NOT_RECORDED`；
-2. **换主机**：在并发压力更低的主机/会话上重跑 A101 (b)(c)（P1-13 曾在 R4 G2 与 R3 QA 通过）；
-3. **限定证据范围**：接受 (a) 除 P1-13 外全绿 + (c) 以 `--test-concurrency=1` 的单文件/低并发结果，
-   并把冻结 guard 的并发敏感记为 **LIM-P0-S2**，由定向 G3 在合格主机复跑。
+- 按 seq 61 第 1 步：“**≥ 4 秒 → 立即 STOP 并上报 Design**（不继续、不重测、不改冻结文件）”。
+  **4016 ms ≥ 4 s → STOP**；未运行 (a)/(b)/(c)，未跑 audit/mutants，无新的 A59 区间，无 G2/QA_HANDOFF 证据。
+- 数值本身说明主机仍偏慢：本体 3738 ms 已接近 4 s 阈值；按 A102 §2 的机理，WP-03/WP-04 的 11–12 个文件并发时，
+  同一查询会被放大并再次超过冻结守卫的 8 s 超时（上一轮 (c) 即如此）。
 
-### 4. 边界
+### 4. 请 Design 裁定
 
-- 未合并、未派 QA、未 force-push、未改冻结路径、未运行 live、未接触真实凭证/邮箱；
-  PR #9 保持 OPEN @ `6c59f35`；当前无任何已授权的 live 运行；P0-STORE 仍 BLOCKED。
-- 本序为 STOP，**未写** QA_HANDOFF 的 R4.1 证据、**未发** 增量 G2 评论。
+1. 阈值口径：seq 61 写的是 Measure-Command 的“耗时”，本次总耗时 **4016 ms**（≥4 s）而查询本体 **3738 ms**（<4 s）；
+   请明确按哪个口径判定。
+2. 若裁定按“查询本体 <4 s”继续，请给出**显式新派单**（我会在**新的** A59 区间原样重跑 (a)(b)(c)+audit+mutants）；
+   但请注意并发放大风险：单次 3.7 s 时，12 个并发查询预计远超 8 s，P1-13 与 WP-03/WP-04 直跑很可能仍失败。
+3. 若维持 STOP，请裁定换主机或改用并发受限的取证方法（后者需修订冻结测试/守卫，当前未授权）。
 
-**EXECUTION STOP（等待 Design 对冻结 guard 并发取证方法的裁定）**
+### 5. 边界
+
+- 未改任何文件/冻结路径、未重测、未运行测试组、未联网跑测试、未 live、未接触真实凭证/邮箱、未合并、未派 QA。
+- PR #9 保持 OPEN @ `6c59f35`（R4.1 已推送）；当前无任何已授权的 live 运行；P0-STORE 仍 BLOCKED。
+
+**EXECUTION STOP（等待 Design 对 4016 ms / 3738 ms 阈值口径的裁定）**
