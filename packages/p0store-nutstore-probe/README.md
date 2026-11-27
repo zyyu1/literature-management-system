@@ -1,6 +1,6 @@
-# P0-STORE Phase 1 — Nutstore WebDAV probe runner, local mock only
+# P0-STORE Phase 1 / Phase 3 live-readiness — Nutstore WebDAV probe runner
 
-**Status: PHASE_1_LOCAL_READINESS_ONLY / LOCAL_MOCK_ONLY / NOT_AUTHORIZED_FOR_LIVE_ACCESS.**
+**Status: LOCAL_MOCK_ONLY / PHASE_3_LIVE_READINESS_OFFLINE_TESTED / NO_LIVE_ACCESS_EXERCISED.**
 This package is the Phase 1 readiness slice of D007-A90: a bounded WebDAV experiment runner plus a
 loopback HTTPS mock proof. It does not create an account, does not read or hold a real credential, does
 not contact a real provider, does not contain real data and cannot be used for a live run in this
@@ -21,37 +21,56 @@ lockfile, no CI.
 
 A live run is never implied by this package. Phase 3 needs its own explicit user ACCESS-02/G6 approval
 naming the exact probe commit SHA, the exact host, the run namespace and the operator, and the
-credential is injected into the process environment by the user at run time. The live code path here
-is deliberately **inert**: it requires `--live`, a plan whose host is not loopback, an
-`accessApprovalId` and the credential environment variable, and even with all four present the frozen
-constant `PHASE1_LIVE_ENABLED = false` refuses with `PHASE1_LIVE_INERT` before any socket is created.
-There is no environment variable, flag or waiver that re-enables it. The P1-12 tests exercise the
-refusal paths only: they use a placeholder `.invalid` host, a dummy approval id and the fake canary
-credential, and assert that the transport is never invoked (zero socket attempts). No test ever names
-a real host or uses a real credential.
+credential is injected into the process environment by the user at run time. R3 makes that future run
+*possible*; it performs no live request, sets no real credential and contacts no real host.
+
+The live path is reachable only when all seven run-time checks pass, in order, before any secret read,
+gate, socket or child process:
+
+1. CLI `--live`;
+2. plan `mode:"live"`, `protocol:"https:"`, the one pinned host, port 443, `probeParent`
+   `/dav/LMS-P0STORE/`, runtime `pathPrefix` `/dav/LMS-P0STORE/<runId>/`, `pinnedCaFile:null`;
+3. CLI `--approval <id>` matching `^P0STORE-ACCESS-02-\d{8}-[A-Za-z0-9]{4,16}$`; the committed live
+   plan has `accessApprovalId:null`, so it can never self-authorize;
+4. a fresh 32-hex `runId` from 16 random bytes; a plan-supplied run id is refused;
+5. `P0STORE_WEBDAV_PASSWORD` present and non-empty — the value is not read until checks 1–4 pass;
+6. Node exactly `v22.23.5` x64, otherwise `NODE_RUNTIME_MISMATCH` (test-stubbable, never
+   environment-selectable);
+7. every failure has its own reason code, produces zero transport calls and zero trace events, and
+   `PHASE1_LIVE_ENABLED` is no longer consulted (retained only as a frozen-harness compatibility
+   export).
+
+Before the first request the CLI prints a redacted `P0STORE_PREFLIGHT` line (host, port, resolved
+prefix, run id, approval id, budget, caps, Node version/arch) and any refusal exits non-zero. The
+approval id is copied into the redacted trace header. No environment variable, flag or waiver can skip
+a check. P1-12/P1-15 exercise the refusal matrix and the all-satisfied path with an injected counting
+transport: no socket is created, no test names a real host, and no real credential exists.
 
 ## Components
 
 | File | Role |
 | --- | --- |
-| `src/plan.mjs` | Closed-schema frozen-plan loader: L0–L12, per-step id/methods/synthetic target/expected oracle/request estimate, host+port+path-prefix pinning, file manifest (the only write/delete allowlist), budget, caps, timing. Unknown keys, extra/duplicate/missing/reordered steps, forbidden verbs, over-cap budgets and non-loopback test plans are rejected with dedicated codes. |
+| `src/plan.mjs` | Closed-schema frozen-plan loader: L0–L12, per-step id/methods/synthetic target/expected oracle/request estimate, host+port+path-prefix pinning, file manifest (the only write/delete allowlist), budget, caps, timing. Unknown keys, extra/duplicate/missing/reordered steps, forbidden verbs, over-cap budgets and non-loopback test plans are rejected with dedicated codes. Live mode accepts only the one pinned host for `mode:"live"`, with a runtime `{runId}` placeholder, `runId:null`, and no committed approval id. |
 | `src/gate.mjs` | The only network path. `https:` only; pinned host/port/prefix; verbs `PROPFIND` (Depth 0/1 only), `GET`, `HEAD`, `PUT`, `OPTIONS`, `MKCOL` (the single run directory only) and per-file `DELETE`; canonical path; manifest-only writes; conditional-write requirement; rolling 30-minute budget of 100 with 12 pre-reserved cleanup slots; 20 files / 1 MiB per file / 20 MiB total / 2 writers; strict TLS; redirect never followed; zero egress on refusal. |
 | `src/secret.mjs` | The credential is read only at run time from the one environment variable named by the plan; it is redacted for every serialisation and refused when missing/empty/oversized/malformed, before a gate or socket exists. |
-| `src/runner.mjs` | Executes L0–L12. L6 is a real cross-process race (two OS child processes per round, file barrier, both PIDs recorded). L8 sends the body, destroys the socket and resolves only from authoritative GET/PROPFIND, never by retry. STOP handling cleans up only certain identities and quarantines the rest. |
+| `src/runner.mjs` | Executes L0–L12. L6 is a real cross-process race (two OS child processes per round, file barrier, both PIDs recorded). L8 sends the body, destroys the socket and resolves only from authoritative GET/PROPFIND, never by retry. STOP handling cleans up only certain identities and quarantines the rest. R3 live authorization (`authorizeLiveRun`) runs all seven checks in order before the secret read; the resolved live plan gets a fresh run id and a redacted pre-flight print. |
 | `src/oracle.mjs` | Pure per-step PASS/FAIL/UNRESOLVABLE classification plus anomaly recording (weak validator, delayed visibility, unresolvable late ACK). |
 | `src/verdict.mjs` | A90 §6 / A92 four-verdict rules (GO / PARTIAL / INCONCLUSIVE / NO-GO) with fixed precedence and root-cause-first `REASON@STEP` reasons. |
 | `src/trace.mjs` | Redacted JSONL trace: method, path template + synthetic id, status, validator hash prefix, body SHA-256, duration and budget counters only. Headers, concrete paths, host names and bodies never enter it, and a line that would contain the credential is refused. |
 | `support/mock-webdav.mjs` | TEST-ONLY loopback HTTPS WebDAV mock with 11 personalities and request/byte counters. |
 | `support/harness.mjs` | TEST-ONLY harness. It evaluates the frozen A62 egress precondition at module load, before any test body, socket or child. |
-| `plans/example-plan.json` | The frozen example plan: loopback placeholder host `127.0.0.1`, fake run id, fake file ids, 13 steps. |
+| `plans/example-plan.json` | The frozen local example plan: loopback placeholder host `127.0.0.1`, fake run id, fake file ids, 13 steps. |
+| `plans/live-nutstore-plan.json` | The committed live-readiness plan: the one pinned live host, port 443, `/dav/LMS-P0STORE/` parent, `{runId}` placeholders, `runId:null`, `accessApprovalId:null`, no pinned CA. It never runs live in this slice. |
 | `scripts/mutation-check.mjs` | Guards first, copies the package + the one frozen dependency into a scratch tree outside the repository, applies one exact mutation per mutant and requires a named failing test. |
 | `scripts/verify-candidate-scope.mjs` | Separate read-only candidate audit; not discovered by `node --test`. |
 
-## Frozen plan
+## Frozen plans
 
-The committed plan uses only `https://127.0.0.1` / `localhost` / `::1` or `.invalid` placeholders.
-Tests replace only the ephemeral mock **port**; host, prefix, budget, caps, timing, file manifest and
-step table stay frozen.
+The local example plan uses only `127.0.0.1` / `localhost` / `::1` placeholders. Tests replace only
+the ephemeral mock **port**; host, prefix, budget, caps, timing, file manifest and step table stay
+frozen. The separate live-readiness plan names the one pinned host and port 443, uses the
+`/dav/LMS-P0STORE/` parent and `{runId}` path placeholders, carries `runId:null` and
+`accessApprovalId:null`, and has no pinned CA. It is byte-frozen and never executed live in this slice.
 
 | Item | Value |
 | --- | --- |
@@ -60,7 +79,8 @@ step table stay frozen.
 | Planned attempts | 89 (83 normal + 6 cleanup DELETEs) |
 | Budget | rolling 30 min, `maxRequests` 100, `reservedCleanup` 12 → 88 non-reserved |
 | Caps | ≤20 files, ≤1 MiB/file, ≤20 MiB total, ≤2 writers |
-| Files | 8 manifest entries, all synthetic JSON under the fake run id |
+| Files | 8 manifest entries, all synthetic JSON under the run prefix |
+| Run id | local fake id; live 32-hex id generated at run time from 16 random bytes |
 | Read-after-write | 0 ms / 2000 ms / 10000 ms |
 
 A refused request consumes no budget and creates no socket; the gate validates the whole request
@@ -158,8 +178,8 @@ result.
 ```powershell
 cd packages/p0store-nutstore-probe
 Get-ChildItem -Recurse -Filter *.mjs | ForEach-Object { node --check $_.FullName }   # every package .mjs
-node --test                                                                          # guard + P1-01..P1-14
-node scripts/mutation-check.mjs                                                      # guard + 16 named mutants
+node --test                                                                          # guard + P1-01..P1-15
+node scripts/mutation-check.mjs                                                      # guard + 22 named mutants
 node scripts/verify-candidate-scope.mjs                                              # read-only candidate audit
 ```
 
@@ -203,9 +223,10 @@ writable directory (the runner does not create it).
 | `test/p1-09-late-ack.test.mjs` | P1-09 late-ack 3/3; unresolvable → `UNRESOLVABLE_LATE_ACK@L8` → PARTIAL |
 | `test/p1-10-stop.test.mjs` | P1-10 early STOP → INCONCLUSIVE; later STOP → PARTIAL; uncertain cleanup quarantined |
 | `test/p1-11-race.test.mjs` | P1-11 two PIDs, barrier, 5 rounds, one winner, no GO with 4/5 |
-| `test/p1-12-live-inert.test.mjs` | P1-12 live inertness and no real host literal |
+| `test/p1-12-live-inert.test.mjs` | P1-12 rewritten live-gating matrix: seven conditions, wrong hosts/port/prefix, zero transport, secret-not-read, exact real-host literal scan |
 | `test/p1-13-upstream.test.mjs` | P1-13 strict upstream TAP (67/44 nested/103/91) and 94 pinned Base blobs |
 | `test/p1-14-inconclusive.test.mjs` | P1-14 11-personality verdict matrix, reason order, synthetic precedence cases |
+| `test/p1-15-live-gating.test.mjs` | P1-15 all-conditions stub transport: pre-flight, fresh run id, pinned target, canary scan; mutation-target refusal cases |
 
 Every test imports `support/harness.mjs` first (P1-13 imports the frozen A62 guard directly and calls
 it at module load). Every socket is loopback-only. P1-13 spawns the four upstream suites with
@@ -219,7 +240,7 @@ query timeout under load.
 plus `wp-01-synthetic-auth-api/support/platform-precondition.mjs` into a scratch tree **outside the
 repository**. It runs the union baseline once, then one exact mutation per mutant and requires a named
 failing test (a crash or timeout is classified separately and is not "killed"). It prints
-`MUTATION_SUMMARY killed=N/N` and exits non-zero unless every mutant is killed. Sixteen mutants:
+`MUTATION_SUMMARY killed=N/N` and exits non-zero unless every mutant is killed. Twenty-two mutants:
 
 | Id | Mutation |
 | --- | --- |
@@ -239,12 +260,18 @@ failing test (a crash or timeout is classified separately and is not "killed"). 
 | M14 | map an early STOP to PARTIAL instead of INCONCLUSIVE |
 | M15 | map INCONCLUSIVE to GO despite L6 not completing all rounds |
 | M16 | place a later STOP reason before the root cause (reverse reason order) |
+| M17 | accept a missing CLI approval |
+| M18 | accept a mismatched or malformed CLI approval |
+| M19 | accept a different live host |
+| M20 | accept a live prefix outside the allowed parent |
+| M21 | skip the exact Node runtime check |
+| M22 | read the credential before authorization checks complete |
 
 ## Candidate scope and count-neutral negatives
 
 `scripts/verify-candidate-scope.mjs` pins Base
-`663556bc68dc0472f2f392f09ca4bee7c668d2f5`, 275 Base paths, exactly 29 whitelisted additions (28
-package paths plus `docs/handoffs/P0-STORE/QA_HANDOFF.md`) and 304 HEAD paths, proves single-parent
+`663556bc68dc0472f2f392f09ca4bee7c668d2f5`, 275 Base paths, exactly 31 whitelisted additions (30
+package paths plus `docs/handoffs/P0-STORE/QA_HANDOFF.md`) and 306 HEAD paths, proves single-parent
 linear history, byte- and mode-identical Base paths at HEAD, the 94-file protected inventory
 (WP-01..04 packages, both fixtures, `tools/offline`), a clean checkout and a worktree equal to HEAD.
 It accepts no argument or switch that re-targets or relaxes it.

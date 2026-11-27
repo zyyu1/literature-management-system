@@ -1,11 +1,15 @@
 // P1-01 - strict frozen-plan loader.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import {
-  readExamplePlanObject, loadExamplePlan, validatePlan, planTotals, STEP_IDS, PlanError,
+  readExamplePlanObject, loadExamplePlan, loadPlanFile, validatePlan, planTotals, STEP_IDS, PlanError,
 } from '../support/harness.mjs';
+import { LIVE_HOST } from '../src/plan.mjs';
 
 const BASE = readExamplePlanObject();
+const LIVE_PLAN_URL = new URL('../plans/live-nutstore-plan.json', import.meta.url);
+const LIVE_BASE = JSON.parse(fs.readFileSync(LIVE_PLAN_URL, 'utf8'));
 
 function mutate(fn) {
   const plan = structuredClone(BASE);
@@ -144,4 +148,64 @@ test('P1-01 every rejection carries a stable PlanError code and never a generic 
     }
   }
   assert.equal(reasons.size, cases.length, 'each negative has its own dedicated reason');
+});
+
+function mutateLive(fn) {
+  const plan = structuredClone(LIVE_BASE);
+  fn(plan);
+  return plan;
+}
+
+function expectLiveCode(fn, code) {
+  let thrown = null;
+  try {
+    validatePlan(mutateLive(fn));
+  } catch (error) {
+    thrown = error;
+  }
+  assert.ok(thrown instanceof PlanError, `expected PlanError ${code}, nothing was thrown`);
+  assert.equal(thrown.code, code, `expected dedicated live reason ${code}, got ${thrown.code} (${thrown.message})`);
+}
+
+test('P1-01 the committed live plan loads with a runtime run id placeholder, pinned origin/prefix and no self-authorization', () => {
+  const plan = loadPlanFile(LIVE_PLAN_URL);
+  assert.equal(Object.isFrozen(plan), true);
+  assert.equal(plan.mode, 'live');
+  assert.equal(plan.protocol, 'https:');
+  assert.equal(plan.host, LIVE_HOST);
+  assert.equal(plan.port, 443);
+  assert.equal(plan.runId, null, 'the committed plan must never supply the run id');
+  assert.equal(plan.probeParent, '/dav/LMS-P0STORE/');
+  assert.equal(plan.pathPrefix, '/dav/LMS-P0STORE/{runId}/');
+  assert.equal(plan.runDirectory, '/dav/LMS-P0STORE/{runId}');
+  assert.equal(plan.credentialEnvVar, 'P0STORE_WEBDAV_PASSWORD');
+  assert.equal(plan.pinnedCaFile, null);
+  assert.equal(plan.accessApprovalId, null, 'the committed live plan can never self-authorize');
+  assert.deepEqual(plan.steps.map((step) => step.id), [...STEP_IDS]);
+  assert.equal(plan.files.length, 8);
+  const totals = planTotals(plan);
+  assert.equal(totals.requests, 89);
+  assert.equal(totals.cleanupRequests, 6);
+  assert.equal(totals.normalRequests, 83);
+  assert.equal(totals.nonReservedCeiling, 88);
+});
+
+test('P1-01 live plans reject any host other than the one pinned host, including suffixes, uppercase and IP literals', () => {
+  expectLiveCode((plan) => { plan.host = LIVE_HOST + '.evil'; }, 'LIVE_HOST_MISMATCH');
+  expectLiveCode((plan) => { plan.host = 'jianguoyun.com'; }, 'LIVE_HOST_MISMATCH');
+  expectLiveCode((plan) => { plan.host = '203.0.113.7'; }, 'LIVE_HOST_MISMATCH');
+  expectLiveCode((plan) => { plan.host = LIVE_HOST.toUpperCase(); }, 'LIVE_HOST_MISMATCH');
+  expectLiveCode((plan) => { plan.host = 'wrong.invalid'; }, 'LIVE_HOST_MISMATCH');
+});
+
+test('P1-01 live plans reject wrong port, prefix, trust, env, supplied run id and shipped approval id', () => {
+  expectLiveCode((plan) => { plan.port = 8443; }, 'LIVE_PORT_MISMATCH');
+  expectLiveCode((plan) => { plan.protocol = 'http:'; }, 'LIVE_PROTOCOL_MISMATCH');
+  expectLiveCode((plan) => { plan.probeParent = '/dav/OTHER/'; }, 'LIVE_PROBE_PARENT_MISMATCH');
+  expectLiveCode((plan) => { plan.pathPrefix = '/dav/OTHER/{runId}/'; }, 'LIVE_PATH_PREFIX_MISMATCH');
+  expectLiveCode((plan) => { plan.runDirectory = '/dav/OTHER/{runId}'; }, 'LIVE_RUN_DIRECTORY_MISMATCH');
+  expectLiveCode((plan) => { plan.pinnedCaFile = 'ca.pem'; }, 'LIVE_PINNED_CA_FORBIDDEN');
+  expectLiveCode((plan) => { plan.credentialEnvVar = 'OTHER_PASSWORD'; }, 'LIVE_CREDENTIAL_ENV_MISMATCH');
+  expectLiveCode((plan) => { plan.runId = 'a'.repeat(32); }, 'LIVE_RUN_ID_SUPPLIED');
+  expectLiveCode((plan) => { plan.accessApprovalId = 'P0STORE-ACCESS-02-20261127-ABCD'; }, 'LIVE_PLAN_SELF_AUTHORIZED');
 });

@@ -1,11 +1,9 @@
-// P0-STORE Phase 1 - experiment runner (A90 §4, §5, §6; DESIGN §2).
-//
-// Executes the frozen L0-L12 run plan through the single gate. L6 is a real cross-process race: two
-// separate OS child processes are spawned per round, synchronised by files in a private temp
-// directory, and both PIDs are recorded. L8 sends the body and destroys the socket, then resolves
-// the outcome only by authoritative GET/PROPFIND; it never retries. Live mode exists but is inert in
-// Phase 1: it requires --live, a non-loopback plan host, an access approval id and the credential
-// environment variable, and even then a frozen constant refuses it before any socket is created.
+// P0-STORE Phase 1 runner, plus the R3 live-readiness authorization path. L6 is a real cross-process
+// race: two separate OS child processes are spawned per round, synchronised by files in a private
+// temp directory, and both PIDs are recorded. L8 sends the body and destroys the socket, then resolves
+// the outcome only by authoritative GET/PROPFIND; it never retries. Live mode is reachable only when
+// all seven R3 checks pass before any secret read, gate, socket or child; there is no build-time
+// waiver, environment opt-in or self-authorization in the committed plan.
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -13,7 +11,9 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
-  loadPlanFile, validatePlan, isLoopbackHost, planTotals,
+  loadPlanFile, validatePlan, planTotals,
+  LIVE_HOST, LIVE_PORT, LIVE_PROBE_PARENT, LIVE_PATH_PREFIX_TEMPLATE,
+  LIVE_RUN_DIRECTORY_TEMPLATE, LIVE_CREDENTIAL_ENV,
 } from './plan.mjs';
 import { createGate, Budget, GateRefusal, BudgetRefusal } from './gate.mjs';
 import { loadSecret } from './secret.mjs';
@@ -22,10 +22,14 @@ import { evaluateStep, isNoGo, NO_GO_REASONS } from './oracle.mjs';
 import { computeVerdict } from './verdict.mjs';
 
 export const PHASE1_LOCAL_MOCK_ONLY = 'LOCAL_MOCK_ONLY';
+export const PHASE3_LIVE_READINESS = 'P0_STORE_PHASE3_LIVE_READINESS';
+// Legacy compatibility export for the frozen harness. R3 live gating no longer consults this constant;
+// the seven run-time checks below replace it.
 export const PHASE1_LIVE_ENABLED = false;
 export const RACE_ROUNDS = 5;
 export const LATE_ACK_ROUNDS = 3;
 export const DEFAULT_BARRIER_TIMEOUT_MS = 20000;
+const LIVE_APPROVAL_RE = /^P0STORE-ACCESS-02-\d{8}-[A-Za-z0-9]{4,16}$/;
 const SELF_PATH = fileURLToPath(import.meta.url);
 
 const TLS_ERROR_CODES = new Set([
@@ -71,20 +75,95 @@ function isTlsError(error) {
   return /certificate|self[- ]signed|altname|issuer|handshake/i.test(message);
 }
 
-// Phase 1 live mode is deliberately inert. The function is pure and is called before any secret,
-// gate, socket or child process exists. Every missing precondition has its own reason code.
+// R3 live authorization. Every check is ordered exactly as the binding handoff requires, and none of
+// checks 1-4 may touch the credential environment: the value is read only at check 5. The function is
+// pure and is called before any secret load, gate, socket or child process exists.
 export function authorizeLiveRun({
-  plan, live, accessApprovalId = null, env = process.env, phase1LiveEnabled = PHASE1_LIVE_ENABLED,
+  plan, live, accessApprovalId = null, env = process.env,
+  runtime = { version: process.version, arch: process.arch },
 }) {
   if (live !== true) return { ok: false, reason: 'LIVE_FLAG_REQUIRED' };
-  if (typeof accessApprovalId !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._-]{7,127}$/.test(accessApprovalId)) {
-    return { ok: false, reason: 'ACCESS_APPROVAL_REQUIRED' };
+  if (!plan || plan.mode !== 'live') return { ok: false, reason: 'LIVE_PLAN_MODE_REQUIRED' };
+  if (plan.protocol !== 'https:') return { ok: false, reason: 'LIVE_PROTOCOL_MISMATCH' };
+  if (plan.host !== LIVE_HOST) return { ok: false, reason: 'LIVE_HOST_MISMATCH' };
+  if (plan.port !== LIVE_PORT) return { ok: false, reason: 'LIVE_PORT_MISMATCH' };
+  if (plan.probeParent !== LIVE_PROBE_PARENT) return { ok: false, reason: 'LIVE_PROBE_PARENT_MISMATCH' };
+  if (plan.pathPrefix !== LIVE_PATH_PREFIX_TEMPLATE) return { ok: false, reason: 'LIVE_PATH_PREFIX_MISMATCH' };
+  if (plan.runDirectory !== LIVE_RUN_DIRECTORY_TEMPLATE) return { ok: false, reason: 'LIVE_RUN_DIRECTORY_MISMATCH' };
+  if (plan.pinnedCaFile !== null) return { ok: false, reason: 'LIVE_PINNED_CA_FORBIDDEN' };
+  if (plan.credentialEnvVar !== LIVE_CREDENTIAL_ENV) return { ok: false, reason: 'LIVE_CREDENTIAL_ENV_MISMATCH' };
+  if (plan.accessApprovalId !== null) return { ok: false, reason: 'LIVE_PLAN_SELF_AUTHORIZED' };
+
+  if (accessApprovalId === null || accessApprovalId === undefined) {
+    return { ok: false, reason: 'LIVE_APPROVAL_REQUIRED' };
   }
+  if (typeof accessApprovalId !== 'string' || !LIVE_APPROVAL_RE.test(accessApprovalId)) {
+    return { ok: false, reason: 'LIVE_APPROVAL_INVALID' };
+  }
+  if (plan.runId !== null) return { ok: false, reason: 'LIVE_RUN_ID_SUPPLIED' };
+
+  // Check 5 is the first and only place the credential value may be read.
   const value = env === null || typeof env !== 'object' ? undefined : env[plan.credentialEnvVar];
-  if (typeof value !== 'string' || value.length === 0) return { ok: false, reason: 'LIVE_SECRET_MISSING' };
-  if (isLoopbackHost(plan.host)) return { ok: false, reason: 'LIVE_HOST_LOOPBACK' };
-  if (phase1LiveEnabled !== true) return { ok: false, reason: 'PHASE1_LIVE_INERT' };
+  if (typeof value !== 'string' || value.length === 0) {
+    return { ok: false, reason: 'LIVE_CREDENTIAL_MISSING' };
+  }
+
+  // Check 6: exact runtime pin; `runtime` is test-stubbable, never environment-selectable.
+  if (runtime === null || typeof runtime !== 'object'
+    || runtime.version !== 'v22.23.5' || runtime.arch !== 'x64') {
+    return { ok: false, reason: 'NODE_RUNTIME_MISMATCH' };
+  }
   return { ok: true, reason: null };
+}
+
+function resolveLivePlan(plan, runId) {
+  const resolved = structuredClone(plan);
+  resolved.runId = runId;
+  resolved.pathPrefix = plan.pathPrefix.split('{runId}').join(runId);
+  resolved.runDirectory = plan.runDirectory.split('{runId}').join(runId);
+  return resolved;
+}
+
+function buildPreflight(plan, runId, approvalId, runtime) {
+  return {
+    host: plan.host,
+    port: plan.port,
+    pathPrefix: plan.pathPrefix,
+    runId,
+    approvalId,
+    budget: {
+      maxRequests: plan.budget.maxRequests,
+      reservedCleanup: plan.budget.reservedCleanup,
+      windowMs: plan.budget.windowMs,
+    },
+    limits: {
+      maxFiles: plan.limits.maxFiles,
+      maxFileBytes: plan.limits.maxFileBytes,
+      maxTotalBytes: plan.limits.maxTotalBytes,
+      maxWriters: plan.limits.maxWriters,
+    },
+    node: runtime.version,
+    arch: runtime.arch,
+  };
+}
+
+function formatPreflight(preflight) {
+  return [
+    'P0STORE_PREFLIGHT',
+    `host=${preflight.host}`,
+    `port=${preflight.port}`,
+    `prefix=${preflight.pathPrefix}`,
+    `runId=${preflight.runId}`,
+    `approvalId=${preflight.approvalId}`,
+    `budget.maxRequests=${preflight.budget.maxRequests}`,
+    `budget.reservedCleanup=${preflight.budget.reservedCleanup}`,
+    `limits.maxFiles=${preflight.limits.maxFiles}`,
+    `limits.maxFileBytes=${preflight.limits.maxFileBytes}`,
+    `limits.maxTotalBytes=${preflight.limits.maxTotalBytes}`,
+    `limits.maxWriters=${preflight.limits.maxWriters}`,
+    `node=${preflight.node}`,
+    `arch=${preflight.arch}`,
+  ].join(' ');
 }
 
 function refusal(error) {
@@ -104,6 +183,8 @@ function refusal(error) {
     gateStats: null,
     budget: null,
     trace: [],
+    runId: null,
+    preflight: null,
   };
 }
 
@@ -146,6 +227,12 @@ export async function runProbe(options = {}) {
   const ca = options.ca === undefined ? null : options.ca;
   const transport = options.transport;
   const allowTestHooks = options.allowTestHooks === true;
+  const runtime = options.runtime === undefined
+    ? { version: process.version, arch: process.arch }
+    : {
+      version: options.runtime === null || typeof options.runtime !== 'object' ? undefined : options.runtime.version,
+      arch: options.runtime === null || typeof options.runtime !== 'object' ? undefined : options.runtime.arch,
+    };
 
   let plan;
   try {
@@ -154,13 +241,24 @@ export async function runProbe(options = {}) {
     return refusal(error);
   }
 
-  if (live) {
+  // A live plan without --live is refused, and a local-mock plan with --live is refused, before the
+  // credential is read. All seven R3 checks live in authorizeLiveRun.
+  if (plan.mode === 'live' || live) {
     const authorization = authorizeLiveRun({
-      plan, live, accessApprovalId: accessApprovalId === null ? plan.accessApprovalId : accessApprovalId, env,
+      plan, live, accessApprovalId, env, runtime,
     });
     if (!authorization.ok) {
       return { ...refusal(Object.assign(new Error(authorization.reason), { code: authorization.reason })), planId: plan.planId };
     }
+  }
+
+  let runId = null;
+  let preflight = null;
+  if (plan.mode === 'live') {
+    runId = crypto.randomBytes(16).toString('hex');
+    plan = resolveLivePlan(plan, runId);
+    preflight = buildPreflight(plan, runId, accessApprovalId, runtime);
+    if (typeof options.onPreflight === 'function') options.onPreflight(formatPreflight(preflight));
   }
 
   let secret;
@@ -178,7 +276,10 @@ export async function runProbe(options = {}) {
   }
 
   const trace = createTrace({ filePath: traceFilePath, secret });
-  trace.record({ type: 'run', planId: plan.planId, mode: live ? 'live' : 'local-mock', phase: PHASE1_LOCAL_MOCK_ONLY });
+  const tracePhase = plan.mode === 'live'
+    ? `${PHASE3_LIVE_READINESS} approval=${accessApprovalId}`
+    : PHASE1_LOCAL_MOCK_ONLY;
+  trace.record({ type: 'run', planId: plan.planId, mode: live ? 'live' : 'local-mock', phase: tracePhase });
   // The L6 writer children inherit the environment, so an explicit env object passed to runProbe is
   // merged over the current process environment for them. The credential is never written to a file.
   const childEnv = { ...process.env, ...(env !== null && typeof env === 'object' ? env : {}) };
@@ -976,8 +1077,10 @@ export async function runProbe(options = {}) {
     refused: false,
     code: null,
     planId: plan.planId,
-    mode: live ? 'live' : 'local-mock',
-    phase: PHASE1_LOCAL_MOCK_ONLY,
+    mode: plan.mode === 'live' ? 'live' : 'local-mock',
+    phase: plan.mode === 'live' ? PHASE3_LIVE_READINESS : PHASE1_LOCAL_MOCK_ONLY,
+    runId: preflight === null ? null : preflight.runId,
+    preflight,
     totals: planTotals(plan),
     verdict: verdict.verdict,
     rule: verdict.rule,
@@ -1078,7 +1181,15 @@ async function raceWriterMain() {
   let config;
   try {
     config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    const plan = validatePlan(config.plan, {});
+    // The parent resolves a live plan's runtime run id before spawning L6 writers. That resolved
+    // object cannot be re-validated by the committed-live-plan loader (which requires the {runId}
+    // placeholder), so it is trusted directly here; the parent already authorized the exact host,
+    // port, prefix and run id before any child existed. Local-mock plans keep the strict loader.
+    const resolvedLivePlan = config.plan
+      && config.plan.mode === 'live'
+      && typeof config.plan.runId === 'string'
+      && /^[0-9a-f]{32}$/.test(config.plan.runId);
+    const plan = resolvedLivePlan ? config.plan : validatePlan(config.plan, {});
     const ca = fs.existsSync(path.join(config.barrierDir, 'ca.pem'))
       ? fs.readFileSync(path.join(config.barrierDir, 'ca.pem'))
       : null;
@@ -1135,7 +1246,7 @@ function parseArgs(args) {
     const arg = args[i];
     if (arg === '--live') out.live = true;
     else if (arg === '--plan') { i += 1; out.planPath = args[i] || null; }
-    else if (arg === '--access-approval') { i += 1; out.accessApprovalId = args[i] || null; }
+    else if (arg === '--approval') { i += 1; out.accessApprovalId = args[i] || null; }
     else if (arg === '--trace') { i += 1; out.trace = args[i] || null; }
     else return { error: `UNKNOWN_ARGUMENT: ${arg}` };
   }
@@ -1152,7 +1263,7 @@ async function main() {
     return 2;
   }
   if (args.planPath === null) {
-    console.error('usage: node src/runner.mjs --plan <plan.json> [--trace <trace.jsonl>] [--live --access-approval <id>]');
+    console.error('usage: node src/runner.mjs --plan <plan.json> [--trace <trace.jsonl>] [--live --approval <id>]');
     return 2;
   }
   let plan;
@@ -1168,6 +1279,7 @@ async function main() {
     accessApprovalId: args.accessApprovalId,
     traceFilePath: args.trace,
     env: process.env,
+    onPreflight: (summary) => { console.log(summary); },
   });
   if (result.refused) {
     console.error(`REFUSED: ${result.code}`);

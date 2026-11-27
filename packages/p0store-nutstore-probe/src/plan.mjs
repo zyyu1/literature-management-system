@@ -46,6 +46,16 @@ export const ALLOWED_VERBS = Object.freeze(['PROPFIND', 'GET', 'HEAD', 'PUT', 'O
 export const FORBIDDEN_VERBS = Object.freeze(['PATCH', 'POST', 'TRACE', 'CONNECT']);
 export const LOOPBACK_HOSTS = Object.freeze(['127.0.0.1', '::1', 'localhost']);
 
+// R3 live readiness: the one pinned live host. This literal may appear only here and in
+// plans/live-nutstore-plan.json; the P1-12 scan enforces exactly those two occurrences.
+export const LIVE_HOST = 'dav.jianguoyun.com';
+export const LIVE_PORT = 443;
+export const LIVE_PROBE_PARENT = '/dav/LMS-P0STORE/';
+export const LIVE_PATH_PREFIX_TEMPLATE = '/dav/LMS-P0STORE/{runId}/';
+export const LIVE_RUN_DIRECTORY_TEMPLATE = '/dav/LMS-P0STORE/{runId}';
+export const LIVE_CREDENTIAL_ENV = 'P0STORE_WEBDAV_PASSWORD';
+export const LIVE_RUN_ID_PATTERN = /^[0-9a-f]{32}$/;
+
 const PLAN_KEYS = Object.freeze([
   'schemaVersion', 'planId', 'mode', 'protocol', 'host', 'port', 'runId', 'probeParent',
   'pathPrefix', 'runDirectory', 'credentialEnvVar', 'pinnedCaFile', 'accessApprovalId',
@@ -274,6 +284,22 @@ export function planTotals(plan) {
   };
 }
 
+function validateTotals(value) {
+  const totals = planTotals(value);
+  if (totals.requests >= MAX_REQUESTS) fail('BUDGET_PLANNED_AT_CAP', String(totals.requests));
+  if (totals.normalRequests > totals.nonReservedCeiling) {
+    fail('BUDGET_PLANNED_OVER_NONRESERVED', `${totals.normalRequests} > ${totals.nonReservedCeiling}`);
+  }
+  if (totals.cleanupRequests > value.budget.reservedCleanup) {
+    fail('BUDGET_PLANNED_OVER_CLEANUP_RESERVE', `${totals.cleanupRequests} > ${value.budget.reservedCleanup}`);
+  }
+  for (const step of value.steps) {
+    if (step.requests > STEP_SPEC[step.id].maxRequests) {
+      fail('STEP_REQUEST_OVER', `${step.id}:${step.requests}`);
+    }
+  }
+}
+
 function deepFreeze(value) {
   if (Array.isArray(value)) {
     for (const item of value) deepFreeze(item);
@@ -287,6 +313,46 @@ function deepFreeze(value) {
   return value;
 }
 
+// Live plans are structurally different from local-mock plans: the host is the one pinned live host,
+// the run id is supplied at run time (not by the committed file), and the prefix/run directory carry
+// the literal {runId} placeholder until the runner resolves them after authorization. The committed
+// file can never carry an approval id, and system trust is mandatory (pinnedCaFile null).
+function validateLivePlan(value) {
+  if (value.protocol !== 'https:') fail('LIVE_PROTOCOL_MISMATCH', String(value.protocol));
+  if (value.host !== LIVE_HOST) fail('LIVE_HOST_MISMATCH', String(value.host));
+  if (value.port !== LIVE_PORT) fail('LIVE_PORT_MISMATCH', String(value.port));
+  if (value.runId !== null) fail('LIVE_RUN_ID_SUPPLIED', String(value.runId));
+  if (value.probeParent !== LIVE_PROBE_PARENT) fail('LIVE_PROBE_PARENT_MISMATCH', String(value.probeParent));
+  if (value.pathPrefix !== LIVE_PATH_PREFIX_TEMPLATE) fail('LIVE_PATH_PREFIX_MISMATCH', String(value.pathPrefix));
+  if (value.runDirectory !== LIVE_RUN_DIRECTORY_TEMPLATE) fail('LIVE_RUN_DIRECTORY_MISMATCH', String(value.runDirectory));
+  if (value.pinnedCaFile !== null) fail('LIVE_PINNED_CA_FORBIDDEN', String(value.pinnedCaFile));
+  if (value.accessApprovalId !== null) fail('LIVE_PLAN_SELF_AUTHORIZED', String(value.accessApprovalId));
+  if (value.credentialEnvVar !== LIVE_CREDENTIAL_ENV) {
+    fail('LIVE_CREDENTIAL_ENV_MISMATCH', String(value.credentialEnvVar));
+  }
+  assertPlanPath(value.probeParent, 'INVALID_PROBE_PARENT', 'probeParent');
+  if (!value.probeParent.endsWith('/') || value.probeParent === '/') {
+    fail('INVALID_PROBE_PARENT', 'probeParent must be a non-root collection path ending in /');
+  }
+  validateBudget(value.budget);
+  validateLimits(value.limits);
+  validateTiming(value.timing);
+
+  // Validate the file manifest against a concrete placeholder run id so the normal canonical-path,
+  // name, duplicate and size checks still apply without weakening the {runId} template requirement.
+  const placeholderRunId = '0'.repeat(32);
+  const filePlan = {
+    ...value,
+    runId: placeholderRunId,
+    pathPrefix: value.pathPrefix.split('{runId}').join(placeholderRunId),
+    runDirectory: value.runDirectory.split('{runId}').join(placeholderRunId),
+  };
+  validateFiles(value.files, filePlan);
+  validateSteps(value.steps);
+  validateTotals(value);
+  return deepFreeze(structuredClone(value));
+}
+
 // Validates a parsed plan object. `allowNonLoopback` is false in Phase 1 test/mock mode, so a plan
 // naming anything other than 127.0.0.1 / ::1 / localhost is always rejected before a gate exists.
 export function validatePlan(value, options = {}) {
@@ -295,6 +361,7 @@ export function validatePlan(value, options = {}) {
   if (value.schemaVersion !== PLAN_SCHEMA_VERSION) fail('UNSUPPORTED_SCHEMA_VERSION', String(value.schemaVersion));
   if (typeof value.planId !== 'string' || !PLAN_ID_RE.test(value.planId)) fail('INVALID_PLAN_ID', String(value.planId));
   if (value.mode !== 'local-mock' && value.mode !== 'live') fail('INVALID_MODE', String(value.mode));
+  if (value.mode === 'live') return validateLivePlan(value);
   if (value.protocol !== 'https:') fail('NON_HTTPS_PLAN', String(value.protocol));
   const host = validateHost(value.host, allowNonLoopback);
   requireInteger(value.port, 1, 65535, 'INVALID_PORT', 'port');
@@ -329,20 +396,7 @@ export function validatePlan(value, options = {}) {
   validateTiming(value.timing);
   validateFiles(value.files, value);
   validateSteps(value.steps);
-
-  const totals = planTotals(value);
-  if (totals.requests >= MAX_REQUESTS) fail('BUDGET_PLANNED_AT_CAP', String(totals.requests));
-  if (totals.normalRequests > totals.nonReservedCeiling) {
-    fail('BUDGET_PLANNED_OVER_NONRESERVED', `${totals.normalRequests} > ${totals.nonReservedCeiling}`);
-  }
-  if (totals.cleanupRequests > value.budget.reservedCleanup) {
-    fail('BUDGET_PLANNED_OVER_CLEANUP_RESERVE', `${totals.cleanupRequests} > ${value.budget.reservedCleanup}`);
-  }
-  for (const step of value.steps) {
-    if (step.requests > STEP_SPEC[step.id].maxRequests) {
-      fail('STEP_REQUEST_OVER', `${step.id}:${step.requests}`);
-    }
-  }
+  validateTotals(value);
 
   const normalized = structuredClone(value);
   normalized.host = host;

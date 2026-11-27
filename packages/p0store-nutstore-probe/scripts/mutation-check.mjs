@@ -39,6 +39,7 @@ export const BASELINE_FILES = Object.freeze([
   'test/p1-10-stop.test.mjs',
   'test/p1-11-race.test.mjs',
   'test/p1-14-inconclusive.test.mjs',
+  'test/p1-15-live-gating.test.mjs',
 ]);
 
 export const MUTANTS = Object.freeze([
@@ -251,6 +252,88 @@ export const MUTANTS = Object.freeze([
     }],
     files: ['test/p1-14-inconclusive.test.mjs'],
     expect: /P1-14 stale-read personality/,
+  },
+  {
+    id: 'M17',
+    what: 'accept a missing CLI approval',
+    edits: [{
+      file: 'src/runner.mjs',
+      from: '  if (accessApprovalId === null || accessApprovalId === undefined) {\n',
+      to: '  if (false && (accessApprovalId === null || accessApprovalId === undefined)) {\n',
+    }, {
+      file: 'src/runner.mjs',
+      from: '  if (typeof accessApprovalId !== \'string\' || !LIVE_APPROVAL_RE.test(accessApprovalId)) {\n',
+      to: '  if (false && (typeof accessApprovalId !== \'string\' || !LIVE_APPROVAL_RE.test(accessApprovalId))) {\n',
+    }],
+    files: ['test/p1-15-live-gating.test.mjs'],
+    expect: /P1-15 mutation target: a missing approval/,
+  },
+  {
+    id: 'M18',
+    what: 'accept a mismatched or malformed CLI approval',
+    edits: [{
+      file: 'src/runner.mjs',
+      from: '  if (typeof accessApprovalId !== \'string\' || !LIVE_APPROVAL_RE.test(accessApprovalId)) {\n',
+      to: '  if (typeof accessApprovalId !== \'string\' || false) {\n',
+    }],
+    files: ['test/p1-15-live-gating.test.mjs'],
+    expect: /P1-15 mutation target: a malformed approval/,
+  },
+  {
+    id: 'M19',
+    what: 'accept a different live host',
+    edits: [{
+      file: 'src/plan.mjs',
+      from: '  if (value.host !== LIVE_HOST) fail(\'LIVE_HOST_MISMATCH\', String(value.host));\n',
+      to: '  if (false) fail(\'LIVE_HOST_MISMATCH\', String(value.host));\n',
+    }, {
+      file: 'src/runner.mjs',
+      from: '  if (plan.host !== LIVE_HOST) return { ok: false, reason: \'LIVE_HOST_MISMATCH\' };\n',
+      to: '  if (false) return { ok: false, reason: \'LIVE_HOST_MISMATCH\' };\n',
+    }],
+    files: ['test/p1-15-live-gating.test.mjs'],
+    expect: /P1-15 mutation target: a different live host/,
+  },
+  {
+    id: 'M20',
+    what: 'accept a live prefix outside the allowed parent',
+    edits: [{
+      file: 'src/plan.mjs',
+      from: '  if (value.pathPrefix !== LIVE_PATH_PREFIX_TEMPLATE) fail(\'LIVE_PATH_PREFIX_MISMATCH\', String(value.pathPrefix));\n',
+      to: '  if (false) fail(\'LIVE_PATH_PREFIX_MISMATCH\', String(value.pathPrefix));\n',
+    }, {
+      file: 'src/plan.mjs',
+      from: '  validateFiles(value.files, filePlan);\n',
+      to: '  // validateFiles intentionally skipped by M20\n',
+    }, {
+      file: 'src/runner.mjs',
+      from: '  if (plan.pathPrefix !== LIVE_PATH_PREFIX_TEMPLATE) return { ok: false, reason: \'LIVE_PATH_PREFIX_MISMATCH\' };\n',
+      to: '  if (false) return { ok: false, reason: \'LIVE_PATH_PREFIX_MISMATCH\' };\n',
+    }],
+    files: ['test/p1-15-live-gating.test.mjs'],
+    expect: /P1-15 mutation target: a prefix outside/,
+  },
+  {
+    id: 'M21',
+    what: 'skip the exact Node runtime check',
+    edits: [{
+      file: 'src/runner.mjs',
+      from: '  if (runtime === null || typeof runtime !== \'object\'\n    || runtime.version !== \'v22.23.5\' || runtime.arch !== \'x64\') {\n',
+      to: '  if (false) {\n',
+    }],
+    files: ['test/p1-15-live-gating.test.mjs'],
+    expect: /P1-15 mutation target: a stubbed Node mismatch/,
+  },
+  {
+    id: 'M22',
+    what: 'read the credential before authorization checks complete',
+    edits: [{
+      file: 'src/runner.mjs',
+      from: '}) {\n  if (live !== true) return { ok: false, reason: \'LIVE_FLAG_REQUIRED\' };\n',
+      to: '}) {\n  const early = env === null || typeof env !== \'object\' ? undefined : env[plan.credentialEnvVar];\n  if (live !== true) return { ok: false, reason: \'LIVE_FLAG_REQUIRED\' };\n',
+    }],
+    files: ['test/p1-15-live-gating.test.mjs'],
+    expect: /P1-15 mutation target: the secret is not read/,
   },
 ]);
 
