@@ -39,7 +39,7 @@ a real host or uses a real credential.
 | `src/secret.mjs` | The credential is read only at run time from the one environment variable named by the plan; it is redacted for every serialisation and refused when missing/empty/oversized/malformed, before a gate or socket exists. |
 | `src/runner.mjs` | Executes L0–L12. L6 is a real cross-process race (two OS child processes per round, file barrier, both PIDs recorded). L8 sends the body, destroys the socket and resolves only from authoritative GET/PROPFIND, never by retry. STOP handling cleans up only certain identities and quarantines the rest. |
 | `src/oracle.mjs` | Pure per-step PASS/FAIL/UNRESOLVABLE classification plus anomaly recording (weak validator, delayed visibility, unresolvable late ACK). |
-| `src/verdict.mjs` | A90 §6 GO / PARTIAL / NO-GO rules, with NO-GO always taking precedence over a STOP. |
+| `src/verdict.mjs` | A90 §6 / A92 four-verdict rules (GO / PARTIAL / INCONCLUSIVE / NO-GO) with fixed precedence and root-cause-first `REASON@STEP` reasons. |
 | `src/trace.mjs` | Redacted JSONL trace: method, path template + synthetic id, status, validator hash prefix, body SHA-256, duration and budget counters only. Headers, concrete paths, host names and bodies never enter it, and a line that would contain the credential is refused. |
 | `support/mock-webdav.mjs` | TEST-ONLY loopback HTTPS WebDAV mock with 11 personalities and request/byte counters. |
 | `support/harness.mjs` | TEST-ONLY harness. It evaluates the frozen A62 egress precondition at module load, before any test body, socket or child. |
@@ -89,17 +89,34 @@ payload, so the rest of L0–L12 keeps baseline semantics. That is server-side t
 request content, not a probe runtime flag. `bad-cert` is the server's TLS material, not a handler
 switch.
 
-## Verdict rules (A90 §6)
+## Verdict rules (A90 §6, amended by A92/DEC-37)
 
-- **GO (single-object)** only when all 13 steps pass, L2/L5/L6/L7 prove CAS, L3 is consistent and
-  immediately visible with a strong validator, L6 has 5/5 confirmed exactly-one-winner rounds, L8 is
-  determinable 3/3, L11 hashes are equal, L12 verified an empty namespace and no STOP or anomaly was
-  recorded.
-- **NO-GO** on any lost update (L5/L6), create-only overwrite (L2), stale conditional delete (L7),
-  accepted invalid precondition, or acknowledged-winner bytes not surviving; NO-GO takes precedence.
-- **PARTIAL** for weak-only validators, delayed/stale visibility, unresolvable late ACK, cleanup that
-  cannot be verified, or any STOP without NO-GO evidence. An undeterminable result is recorded as
-  `UNRESOLVABLE` and maps to PARTIAL, never to GO.
+Four verdicts, fixed precedence. `rule` names the deciding clause; `reasons` are root-cause first, in
+run order, formatted `<REASON>@<STEP>` (for example `STALE_READ_VISIBILITY@L2` before
+`STOP_CLEANUP_UNVERIFIED@L12`). Duplicate root causes keep their earliest step.
+
+1. **NO-GO** (`NO_GO_EVIDENCE`) on any lost update (L5/L6), create-only overwrite (L2), stale
+   conditional delete (L7), accepted invalid precondition, or acknowledged-winner bytes not surviving.
+2. **INCONCLUSIVE** (`INCONCLUSIVE_BEFORE_L6_COMPLETE`) when the run STOPs or an outcome becomes
+   unresolvable before L6 completed all five race rounds, without NO-GO evidence: no CAS conclusion is
+   possible and a new approval would be needed to repeat.
+3. **PARTIAL** (`PARTIAL_LIMITING_CONDITION`) when L6 completed all five rounds but a limiting
+   condition remains: weak-only validator, delayed/stale visibility, unresolvable late ACK, cleanup
+   that cannot be verified, another failing step, or a later STOP.
+4. **GO** (`GO_ALL_CRITERIA_PASSED`) only when every step passed, L2/L5/L6/L7 prove CAS, L3 is
+   immediately visible with a strong validator, L6 has 5/5 confirmed exactly-one-winner rounds, L8 is
+   determinable 3/3, L11 hashes are equal, L12 verified an empty namespace and no STOP or anomaly was
+   recorded.
+
+| Personality | Verdict | First reason |
+| --- | --- | --- |
+| `strong`, `late-ack` | GO | — |
+| `weak-etag` | PARTIAL | `WEAK_VALIDATOR@L3` |
+| `stale-read` | PARTIAL | `STALE_READ_VISIBILITY@L2` (the earliest read-back observation; L12 cleanup STOP follows) |
+| `lost-update` | NO-GO | `NO_GO_STALE_WRITE_ACCEPTED@L5` |
+| `create-overwrite` | NO-GO | `NO_GO_CREATE_OVERWRITE@L2` |
+| `unresolvable-ack` | PARTIAL | `UNRESOLVABLE_LATE_ACK@L8` |
+| `throttle`, `server-error`, `redirect`, `bad-cert` | INCONCLUSIVE | `STOP_<RULE>@L0` |
 
 STOP follows §5: abort, then per-file cleanup only for identities whose creation and latest validator
 are certain; an uncertain identity is quarantined and never deleted. No STOP path retries a request.
@@ -141,8 +158,8 @@ result.
 ```powershell
 cd packages/p0store-nutstore-probe
 Get-ChildItem -Recurse -Filter *.mjs | ForEach-Object { node --check $_.FullName }   # every package .mjs
-node --test                                                                          # guard + P1-01..P1-13
-node scripts/mutation-check.mjs                                                      # guard + 13 named mutants
+node --test                                                                          # guard + P1-01..P1-14
+node scripts/mutation-check.mjs                                                      # guard + 16 named mutants
 node scripts/verify-candidate-scope.mjs                                              # read-only candidate audit
 ```
 
@@ -177,17 +194,18 @@ writable directory (the runner does not create it).
 | --- | --- |
 | `test/p1-01-plan-loader.test.mjs` | P1-01 closed schema, steps, verbs, budgets, caps, pinning |
 | `test/p1-02-gate-pinning.test.mjs` | P1-02 host/port/prefix pinning, verb allowlist, canonical paths, manifest, zero egress |
-| `test/p1-03-tls-redirect-stop.test.mjs` | P1-03 wrong CA/CN/expired, redirect STOP before follow |
+| `test/p1-03-tls-redirect-stop.test.mjs` | P1-03 wrong CA/CN/expired, redirect STOP before follow; early STOP is INCONCLUSIVE |
 | `test/p1-04-budget-caps.test.mjs` | P1-04 rolling window, reserved slots, delegated budgets, caps, writers |
 | `test/p1-05-secret.test.mjs` | P1-05 redaction, missing secret, no trace/log/error/URL leakage |
 | `test/p1-06-strong-go.test.mjs` | P1-06 full strong run → GO, budget ≤ 88 + 6, empty namespace |
 | `test/p1-07-no-go.test.mjs` | P1-07 lost-update and create-overwrite → NO-GO + STOP |
-| `test/p1-08-partial.test.mjs` | P1-08 weak-etag and stale-read → PARTIAL with reason |
-| `test/p1-09-late-ack.test.mjs` | P1-09 late-ack 3/3, unresolvable → UNRESOLVABLE → PARTIAL, no retry |
-| `test/p1-10-stop.test.mjs` | P1-10 throttle/5xx/unexpected 401 STOP, uncertain cleanup quarantined |
+| `test/p1-08-partial.test.mjs` | P1-08 weak-etag and stale-read → PARTIAL with root-cause reason order |
+| `test/p1-09-late-ack.test.mjs` | P1-09 late-ack 3/3; unresolvable → `UNRESOLVABLE_LATE_ACK@L8` → PARTIAL |
+| `test/p1-10-stop.test.mjs` | P1-10 early STOP → INCONCLUSIVE; later STOP → PARTIAL; uncertain cleanup quarantined |
 | `test/p1-11-race.test.mjs` | P1-11 two PIDs, barrier, 5 rounds, one winner, no GO with 4/5 |
 | `test/p1-12-live-inert.test.mjs` | P1-12 live inertness and no real host literal |
 | `test/p1-13-upstream.test.mjs` | P1-13 strict upstream TAP (67/44 nested/103/91) and 94 pinned Base blobs |
+| `test/p1-14-inconclusive.test.mjs` | P1-14 11-personality verdict matrix, reason order, synthetic precedence cases |
 
 Every test imports `support/harness.mjs` first (P1-13 imports the frozen A62 guard directly and calls
 it at module load). Every socket is loopback-only. P1-13 spawns the four upstream suites with
@@ -201,7 +219,7 @@ query timeout under load.
 plus `wp-01-synthetic-auth-api/support/platform-precondition.mjs` into a scratch tree **outside the
 repository**. It runs the union baseline once, then one exact mutation per mutant and requires a named
 failing test (a crash or timeout is classified separately and is not "killed"). It prints
-`MUTATION_SUMMARY killed=N/N` and exits non-zero unless every mutant is killed. Thirteen mutants:
+`MUTATION_SUMMARY killed=N/N` and exits non-zero unless every mutant is killed. Sixteen mutants:
 
 | Id | Mutation |
 | --- | --- |
@@ -218,12 +236,15 @@ failing test (a crash or timeout is classified separately and is not "killed"). 
 | M11 | record a single process for both race writers |
 | M12 | verdict GO despite one lost race round |
 | M13 | delete a file whose identity is uncertain |
+| M14 | map an early STOP to PARTIAL instead of INCONCLUSIVE |
+| M15 | map INCONCLUSIVE to GO despite L6 not completing all rounds |
+| M16 | place a later STOP reason before the root cause (reverse reason order) |
 
 ## Candidate scope and count-neutral negatives
 
 `scripts/verify-candidate-scope.mjs` pins Base
-`663556bc68dc0472f2f392f09ca4bee7c668d2f5`, 275 Base paths, exactly 28 whitelisted additions (27
-package paths plus `docs/handoffs/P0-STORE/QA_HANDOFF.md`) and 303 HEAD paths, proves single-parent
+`663556bc68dc0472f2f392f09ca4bee7c668d2f5`, 275 Base paths, exactly 29 whitelisted additions (28
+package paths plus `docs/handoffs/P0-STORE/QA_HANDOFF.md`) and 304 HEAD paths, proves single-parent
 linear history, byte- and mode-identical Base paths at HEAD, the 94-file protected inventory
 (WP-01..04 packages, both fixtures, `tools/offline`), a clean checkout and a worktree equal to HEAD.
 It accepts no argument or switch that re-targets or relaxes it.

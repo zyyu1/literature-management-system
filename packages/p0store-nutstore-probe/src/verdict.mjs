@@ -1,21 +1,41 @@
-// P0-STORE Phase 1 - A90 §6 verdict rules (GO / PARTIAL / NO-GO) and STOP interaction.
+// P0-STORE Phase 1 R2 - A90 §6 / A92 verdict rules and root-cause-first reasons.
 //
-// Pure function over the per-step oracle results and the recorded STOP. Order of precedence is fixed:
-//   1. any hard NO-GO evidence (lost update, create-only overwrite, stale conditional delete,
-//      invalid precondition accepted, acknowledged winner bytes lost) -> NO-GO, regardless of STOP;
-//   2. a STOP or any unresolvable evidence without NO-GO -> PARTIAL with `unresolved: true`;
-//   3. GO only when L0-L12 all pass, L2/L5/L6/L7 prove CAS, L3 is consistent and immediately visible
-//      with a strong validator, L8 is determinable 3/3, L11 hashes are equal, L12 cleaned the
-//      namespace and no anomaly or STOP was recorded;
-//   4. otherwise PARTIAL with the specific compensating reason(s) (weak validator, delayed/stale
-//      visibility, late ACK unresolvable).
+// Four verdicts, in fixed precedence order:
+//   1. NO-GO          any hard NO-GO evidence (lost update, create-only overwrite, stale delete,
+//                     accepted invalid precondition, acknowledged-winner bytes lost);
+//   2. INCONCLUSIVE   the run stopped or an outcome became unresolvable before L6 completed all five
+//                     race rounds, and there is no NO-GO evidence: no CAS conclusion is possible;
+//   3. PARTIAL        L6 completed all five rounds but a limiting condition (weak validator, delayed
+//                     visibility, unresolvable late ACK, cleanup that cannot be verified, an earlier/
+//                     later failing step) or a later STOP remains;
+//   4. GO             every criterion passed and no STOP, anomaly or incomplete race was recorded.
+//
+// `reasons` are ordered root-cause first: the first failing or limiting step in L0..L12 supplies the
+// first reason, formatted `<REASON>@<STEP>` (for example `STALE_READ_VISIBILITY@L2` before
+// `STOP_CLEANUP_UNVERIFIED@L12`). Duplicate root causes keep their earliest step. `rule` names the
+// deciding clause, not a step reason.
 import { ANOMALIES, isNoGo } from './oracle.mjs';
 
-const REQUIRED_STEPS = Object.freeze([
+const STEP_ORDER = Object.freeze([
   'L0', 'L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10', 'L11', 'L12',
 ]);
+const L6_COMPLETED_ROUNDS = 5;
 
-export const VERDICTS = Object.freeze(['GO', 'PARTIAL', 'NO-GO']);
+export const VERDICTS = Object.freeze(['GO', 'PARTIAL', 'INCONCLUSIVE', 'NO-GO']);
+
+export const VERDICT_RULES = Object.freeze({
+  GO: 'GO_ALL_CRITERIA_PASSED',
+  PARTIAL: 'PARTIAL_LIMITING_CONDITION',
+  INCONCLUSIVE: 'INCONCLUSIVE_BEFORE_L6_COMPLETE',
+  NO_GO: 'NO_GO_EVIDENCE',
+});
+
+const ANOMALY_REASON = Object.freeze({
+  [ANOMALIES.WEAK_VALIDATOR]: 'WEAK_VALIDATOR',
+  [ANOMALIES.STALE_READ_VISIBILITY]: 'STALE_READ_VISIBILITY',
+  [ANOMALIES.VERIFY_STALE]: 'STALE_READ_VISIBILITY',
+  [ANOMALIES.LATE_ACK_UNRESOLVABLE]: 'UNRESOLVABLE_LATE_ACK',
+});
 
 function indexSteps(steps) {
   const map = new Map();
@@ -26,7 +46,7 @@ function indexSteps(steps) {
 }
 
 function noGoResult(byStep) {
-  for (const step of REQUIRED_STEPS) {
+  for (const step of STEP_ORDER) {
     const result = byStep.get(step);
     if (isNoGo(result)) return result;
   }
@@ -43,82 +63,157 @@ function allAnomalies(byStep) {
   return out;
 }
 
-function goEligible(byStep) {
-  for (const step of REQUIRED_STEPS) {
+// "L6 completed all five rounds" is about evidence collection, not about a clean race outcome: a
+// five-round race with no confirmed winner or with stale verification is still complete. A stopped,
+// missing or short L6 is not.
+function l6Completed(byStep) {
+  const l6 = byStep.get('L6');
+  if (!l6) return false;
+  const evidence = l6.evidence && typeof l6.evidence === 'object' ? l6.evidence : {};
+  if (Number.isInteger(evidence.rounds)) return evidence.rounds === L6_COMPLETED_ROUNDS;
+  // Synthetic/legacy evidence without a round count: infer completion only from a fully confirmed
+  // five-round PASS. Everything else is treated as not completed.
+  return l6.status === 'PASS'
+    && evidence.confirmed === L6_COMPLETED_ROUNDS
+    && evidence.unresolvedRounds === 0;
+}
+
+function goEligible(byStep, stop) {
+  if (stop !== null) return false;
+  if (!l6Completed(byStep)) return false;
+  for (const step of STEP_ORDER) {
     const result = byStep.get(step);
     if (!result || result.status !== 'PASS') return false;
   }
   const l3 = byStep.get('L3');
-  if (l3.evidence.immediate !== true) return false;
-  if (l3.evidence.weakValidator === true) return false;
+  const l3Evidence = l3.evidence || {};
+  if (l3Evidence.immediate !== true) return false;
+  if (l3Evidence.weakValidator === true) return false;
   const l6 = byStep.get('L6');
-  if (l6.evidence.confirmed !== 5 || l6.evidence.unresolvedRounds !== 0) return false;
+  const l6Evidence = l6.evidence || {};
+  if (l6Evidence.confirmed !== 5 || l6Evidence.unresolvedRounds !== 0) return false;
   const l8 = byStep.get('L8');
-  if (l8.evidence.resolved !== 3) return false;
+  const l8Evidence = l8.evidence || {};
+  if (l8Evidence.resolved !== 3) return false;
   const l11 = byStep.get('L11');
-  if (l11.evidence.hashesEqual !== true) return false;
+  const l11Evidence = l11.evidence || {};
+  if (l11Evidence.hashesEqual !== true) return false;
   const l12 = byStep.get('L12');
-  if (l12.evidence.empty !== true) return false;
+  const l12Evidence = l12.evidence || {};
+  if (l12Evidence.empty !== true) return false;
   if (allAnomalies(byStep).length > 0) return false;
   return true;
 }
 
-function partialReasons(byStep, stop) {
+// The canonical root cause(s) contributed by one step. A failing/unresolvable step contributes its
+// own reason first; a passing step can still contribute limiting anomalies (weak validator, delayed
+// visibility, stale verification). The late-ACK outcome is named `UNRESOLVABLE_LATE_ACK` whichever
+// internal anomaly spelling the oracle used.
+function stepCauses(result) {
+  if (!result) return [];
+  const causes = [];
+  const anomalies = result.anomalies || [];
+  if (result.status !== 'PASS' && typeof result.reason === 'string' && result.reason.length > 0) {
+    if (result.reason === 'L8_OUTCOME_UNRESOLVABLE'
+      || anomalies.includes(ANOMALIES.LATE_ACK_UNRESOLVABLE)) {
+      causes.push('UNRESOLVABLE_LATE_ACK');
+    } else {
+      causes.push(result.reason);
+    }
+  }
+  for (const anomaly of anomalies) {
+    const mapped = ANOMALY_REASON[anomaly];
+    if (mapped) causes.push(mapped);
+  }
+  return [...new Set(causes)];
+}
+
+// Root-cause-first reason list. Steps are visited in run order; the STOP cause is inserted at its own
+// step position, after that step's own reason, so a later STOP can never precede an earlier root
+// cause. Duplicate canonical causes keep their earliest occurrence.
+function buildReasons(byStep, stop) {
   const reasons = [];
-  const anomalies = allAnomalies(byStep);
-  if (anomalies.includes(ANOMALIES.WEAK_VALIDATOR)) reasons.push('WEAK_VALIDATOR');
-  if (anomalies.includes(ANOMALIES.STALE_READ_VISIBILITY) || anomalies.includes(ANOMALIES.VERIFY_STALE)) {
-    reasons.push('STALE_READ_VISIBILITY');
+  const seen = new Set();
+  const push = (step, reason) => {
+    if (typeof reason !== 'string' || reason.length === 0 || seen.has(reason)) return;
+    seen.add(reason);
+    reasons.push(step === null || step === undefined ? reason : `${reason}@${step}`);
+  };
+
+  for (const step of STEP_ORDER) {
+    const result = byStep.get(step);
+    if (result) {
+      for (const reason of stepCauses(result)) push(step, reason);
+    }
+    if (stop !== null && stop.step === step) push(step, `STOP_${stop.rule}`);
   }
-  const l8 = byStep.get('L8');
-  if (l8 && (l8.status === 'UNRESOLVABLE' || (l8.anomalies || []).includes(ANOMALIES.LATE_ACK_UNRESOLVABLE))) {
-    reasons.push('LATE_ACK_UNRESOLVABLE');
+  if (stop !== null && !STEP_ORDER.includes(stop.step)) {
+    push(stop.step === undefined ? null : stop.step, `STOP_${stop.rule}`);
   }
-  if (stop) reasons.push(`STOP_${stop.rule}`);
-  const l12 = byStep.get('L12');
-  if (l12 && l12.status !== 'PASS') reasons.push('CLEANUP_UNVERIFIED');
-  return [...new Set(reasons)];
+  return reasons;
+}
+
+function hasUnresolvedStep(byStep) {
+  for (const result of byStep.values()) {
+    if (result.status === 'UNRESOLVABLE') return true;
+  }
+  return false;
+}
+
+function partialFallbackReason(byStep) {
+  const l6 = byStep.get('L6');
+  if (l6 && l6.evidence && Number.isInteger(l6.evidence.confirmed) && l6.evidence.confirmed < 5) {
+    return 'L6_CONFIRMATION_INCOMPLETE@L6';
+  }
+  return 'INCOMPLETE_EVIDENCE';
 }
 
 export function computeVerdict({ steps, stop = null } = {}) {
   const byStep = indexSteps(steps);
+  const reasons = buildReasons(byStep, stop);
+  const completed = l6Completed(byStep);
   const hardNoGo = noGoResult(byStep);
+
   if (hardNoGo) {
     return {
       verdict: 'NO-GO',
-      rule: hardNoGo.reason,
-      reasons: [hardNoGo.reason],
+      rule: VERDICT_RULES.NO_GO,
+      reasons,
       unresolved: false,
       noGoStep: hardNoGo.step,
+      l6Complete: completed,
     };
   }
-  if (stop) {
+
+  if (!completed) {
+    if (reasons.length === 0) reasons.push('L6_INCOMPLETE@L6');
     return {
-      verdict: 'PARTIAL',
-      rule: `STOP_${stop.rule}`,
-      reasons: partialReasons(byStep, stop),
+      verdict: 'INCONCLUSIVE',
+      rule: VERDICT_RULES.INCONCLUSIVE,
+      reasons,
       unresolved: true,
       noGoStep: null,
+      l6Complete: false,
     };
   }
-  if (goEligible(byStep)) {
-    return { verdict: 'GO', rule: 'GO', reasons: [], unresolved: false, noGoStep: null };
-  }
-  const reasons = partialReasons(byStep, stop);
-  if (reasons.length > 0) {
+
+  if (goEligible(byStep, stop)) {
     return {
-      verdict: 'PARTIAL',
-      rule: reasons[0],
-      reasons,
-      unresolved: reasons.includes('LATE_ACK_UNRESOLVABLE') || reasons.includes('CLEANUP_UNVERIFIED'),
+      verdict: 'GO',
+      rule: VERDICT_RULES.GO,
+      reasons: [],
+      unresolved: false,
       noGoStep: null,
+      l6Complete: true,
     };
   }
+
   return {
     verdict: 'PARTIAL',
-    rule: 'UNRESOLVABLE',
-    reasons: ['UNRESOLVABLE_EVIDENCE'],
-    unresolved: true,
+    rule: VERDICT_RULES.PARTIAL,
+    reasons: reasons.length > 0 ? reasons : [partialFallbackReason(byStep)],
+    unresolved: stop !== null || hasUnresolvedStep(byStep),
     noGoStep: null,
+    l6Complete: true,
   };
 }

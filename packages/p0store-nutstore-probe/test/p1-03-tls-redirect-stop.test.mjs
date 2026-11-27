@@ -15,7 +15,8 @@ for (const kind of ['wrong-ca', 'wrong-cn', 'expired']) {
       mockOptions: { tls: 'bad-cert', badCertKind: kind },
     });
     assert.equal(result.stop.rule, 'TLS_OR_HOST', `expected TLS STOP for ${kind}`);
-    assert.equal(result.verdict, 'PARTIAL');
+    // R2/DEC-37 minimal whitelist exception: a STOP before L6 completed is INCONCLUSIVE, not PARTIAL.
+    assert.equal(result.verdict, 'INCONCLUSIVE');
     assert.equal(result.unresolved, true);
     assert.equal(result.steps[0].reason, 'STOP_TLS_OR_HOST');
     assert.equal(mock.stats.requests, 0, 'no HTTP request may reach the server over a failed handshake');
@@ -41,7 +42,8 @@ test('P1-03 a 3xx response STOPs the run and the Location is never fetched', asy
     probeOptions: { transport: countingTransport, allowTestHooks: true },
   });
   assert.equal(result.stop.rule, 'REDIRECT');
-  assert.equal(result.verdict, 'PARTIAL');
+  // R2/DEC-37 minimal whitelist exception: a STOP before L6 completed is INCONCLUSIVE, not PARTIAL.
+  assert.equal(result.verdict, 'INCONCLUSIVE');
   assert.equal(result.unresolved, true);
   assert.equal(transportCalls, 3, 'one transport call per L0 request; no fourth call for the redirect target');
   assert.equal(mock.stats.redirects, 1);

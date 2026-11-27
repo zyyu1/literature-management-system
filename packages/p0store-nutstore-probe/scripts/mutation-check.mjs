@@ -38,6 +38,7 @@ export const BASELINE_FILES = Object.freeze([
   'test/p1-09-late-ack.test.mjs',
   'test/p1-10-stop.test.mjs',
   'test/p1-11-race.test.mjs',
+  'test/p1-14-inconclusive.test.mjs',
 ]);
 
 export const MUTANTS = Object.freeze([
@@ -201,8 +202,8 @@ export const MUTANTS = Object.freeze([
     what: 'verdict GO despite one lost race round (confirmed >= 4)',
     edits: [{
       file: 'src/verdict.mjs',
-      from: '  if (l6.evidence.confirmed !== 5 || l6.evidence.unresolvedRounds !== 0) return false;\n',
-      to: '  if (l6.evidence.confirmed < 4 || l6.evidence.unresolvedRounds !== 0) return false;\n',
+      from: '  if (l6Evidence.confirmed !== 5 || l6Evidence.unresolvedRounds !== 0) return false;\n',
+      to: '  if (l6Evidence.confirmed < 4 || l6Evidence.unresolvedRounds !== 0) return false;\n',
     }],
     files: ['test/p1-11-race.test.mjs'],
     expect: /P1-11 the L6 evidence records two distinct writer PIDs/,
@@ -217,6 +218,39 @@ export const MUTANTS = Object.freeze([
     }],
     files: ['test/p1-10-stop.test.mjs'],
     expect: /P1-10 STOP after an unresolvable late ACK quarantines the uncertain file/,
+  },
+  {
+    id: 'M14',
+    what: 'map an early STOP to PARTIAL instead of INCONCLUSIVE',
+    edits: [{
+      file: 'src/verdict.mjs',
+      from: '      verdict: \'INCONCLUSIVE\',\n      rule: VERDICT_RULES.INCONCLUSIVE,\n',
+      to: '      verdict: \'PARTIAL\',\n      rule: VERDICT_RULES.INCONCLUSIVE,\n',
+    }],
+    files: ['test/p1-14-inconclusive.test.mjs'],
+    expect: /P1-14 throttle personality/,
+  },
+  {
+    id: 'M15',
+    what: 'map INCONCLUSIVE to GO despite L6 not completing all rounds',
+    edits: [{
+      file: 'src/verdict.mjs',
+      from: '      verdict: \'INCONCLUSIVE\',\n      rule: VERDICT_RULES.INCONCLUSIVE,\n',
+      to: '      verdict: \'GO\',\n      rule: VERDICT_RULES.INCONCLUSIVE,\n',
+    }],
+    files: ['test/p1-14-inconclusive.test.mjs'],
+    expect: /P1-14 throttle personality/,
+  },
+  {
+    id: 'M16',
+    what: 'place a later STOP reason before the root cause (reverse reason order)',
+    edits: [{
+      file: 'src/verdict.mjs',
+      from: '  const reasons = buildReasons(byStep, stop);\n',
+      to: '  const reasons = buildReasons(byStep, stop).reverse();\n',
+    }],
+    files: ['test/p1-14-inconclusive.test.mjs'],
+    expect: /P1-14 stale-read personality/,
   },
 ]);
 

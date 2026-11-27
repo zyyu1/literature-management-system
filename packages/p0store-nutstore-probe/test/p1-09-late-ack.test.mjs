@@ -10,6 +10,7 @@ function l8PutEvents(result) {
 test('P1-09 late-ack personality: all three socket-destroyed writes are resolved from authoritative state without a retry', async (t) => {
   const { result } = await runAgainstMock(t, { personality: 'late-ack' });
   assert.equal(result.verdict, 'GO', `expected GO, reasons: ${result.reasons.join(',')}`);
+  assert.equal(result.rule, 'GO_ALL_CRITERIA_PASSED');
   const l8 = result.steps.find((step) => step.step === 'L8');
   assert.equal(l8.status, 'PASS');
   assert.equal(l8.evidence.rounds, 3);
@@ -23,7 +24,10 @@ test('P1-09 late-ack personality: all three socket-destroyed writes are resolved
 test('P1-09 unresolvable-ack personality: hidden outcome becomes UNRESOLVABLE -> PARTIAL, with no blind retry and a quarantine', async (t) => {
   const { mock, plan, result } = await runAgainstMock(t, { personality: 'unresolvable-ack' });
   assert.equal(result.verdict, 'PARTIAL');
-  assert.equal(result.reasons.includes('LATE_ACK_UNRESOLVABLE'), true, `reasons: ${result.reasons.join(',')}`);
+  assert.equal(result.rule, 'PARTIAL_LIMITING_CONDITION');
+  assert.equal(result.reasons[0], 'UNRESOLVABLE_LATE_ACK@L8', `reasons: ${result.reasons.join(',')}`);
+  assert.equal(result.steps.find((step) => step.step === 'L6').evidence.rounds, 5,
+    'L8 is after L6 completed all five race rounds');
   const l8 = result.steps.find((step) => step.step === 'L8');
   assert.equal(l8.status, 'UNRESOLVABLE');
   assert.equal(l8.reason, 'L8_OUTCOME_UNRESOLVABLE');

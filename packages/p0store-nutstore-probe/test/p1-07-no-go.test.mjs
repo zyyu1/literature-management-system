@@ -6,7 +6,8 @@ import { runAgainstMock } from '../support/harness.mjs';
 test('P1-07 lost-update personality: a stale If-Match accepted in L5 yields NO-GO and an immediate STOP', async (t) => {
   const { mock, plan, result } = await runAgainstMock(t, { personality: 'lost-update' });
   assert.equal(result.verdict, 'NO-GO');
-  assert.equal(result.rule, 'NO_GO_STALE_WRITE_ACCEPTED');
+  assert.equal(result.rule, 'NO_GO_EVIDENCE');
+  assert.equal(result.reasons[0], 'NO_GO_STALE_WRITE_ACCEPTED@L5', `reasons: ${result.reasons.join(',')}`);
   assert.equal(result.stop.rule, 'LOST_UPDATE');
   assert.equal(result.stop.step, 'L5');
   const l5 = result.steps.find((step) => step.step === 'L5');
@@ -22,7 +23,8 @@ test('P1-07 lost-update personality: a stale If-Match accepted in L5 yields NO-G
 test('P1-07 create-overwrite personality: create-only overwrite in L2 yields NO-GO and an immediate STOP', async (t) => {
   const { mock, plan, result } = await runAgainstMock(t, { personality: 'create-overwrite' });
   assert.equal(result.verdict, 'NO-GO');
-  assert.equal(result.rule, 'NO_GO_CREATE_OVERWRITE');
+  assert.equal(result.rule, 'NO_GO_EVIDENCE');
+  assert.equal(result.reasons[0], 'NO_GO_CREATE_OVERWRITE@L2', `reasons: ${result.reasons.join(',')}`);
   assert.equal(result.stop.rule, 'CREATE_OVERWRITE');
   assert.equal(result.stop.step, 'L2');
   const l2 = result.steps.find((step) => step.step === 'L2');

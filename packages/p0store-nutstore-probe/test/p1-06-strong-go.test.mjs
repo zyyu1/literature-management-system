@@ -10,7 +10,7 @@ test('P1-06 strong WebDAV personality: full L0-L12 run yields GO, budget <= 88 +
 
   assert.equal(result.refused, false);
   assert.equal(result.verdict, 'GO', `expected GO, got ${result.verdict} (${result.reasons.join(',')})`);
-  assert.equal(result.rule, 'GO');
+  assert.equal(result.rule, 'GO_ALL_CRITERIA_PASSED');
   assert.deepEqual(result.reasons, []);
   assert.equal(result.unresolved, false);
   assert.equal(result.stop, null);

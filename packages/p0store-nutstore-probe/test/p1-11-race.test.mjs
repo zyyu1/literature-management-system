@@ -41,6 +41,7 @@ test('P1-11 the L6 evidence records two distinct writer PIDs, matching child-rep
   const steps = allSteps.map((step) => pass(step, {
     immediate: true,
     weakValidator: false,
+    rounds: 5,
     confirmed: 5,
     unresolvedRounds: 0,
     resolved: 3,

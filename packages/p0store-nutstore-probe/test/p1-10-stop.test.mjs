@@ -7,7 +7,9 @@ test('P1-10 a 429 at the first authenticated request STOPs immediately with no r
   const { mock, result } = await runAgainstMock(t, { personality: 'throttle' });
   assert.equal(result.stop.rule, 'THROTTLE');
   assert.equal(result.stop.step, 'L0');
-  assert.equal(result.verdict, 'PARTIAL');
+  assert.equal(result.verdict, 'INCONCLUSIVE');
+  assert.equal(result.rule, 'INCONCLUSIVE_BEFORE_L6_COMPLETE');
+  assert.equal(result.reasons[0], 'STOP_THROTTLE@L0', `reasons: ${result.reasons.join(',')}`);
   assert.equal(result.unresolved, true);
   assert.equal(mock.stats.requests, 3, 'two unauthenticated 401s and exactly one throttled request');
   assert.equal(mock.stats.byMethod.OPTIONS, 1);
@@ -21,7 +23,9 @@ test('P1-10 a 5xx at the first authenticated request STOPs immediately with no r
   const { mock, result } = await runAgainstMock(t, { personality: 'server-error' });
   assert.equal(result.stop.rule, 'SERVER_ERROR');
   assert.equal(result.stop.step, 'L0');
-  assert.equal(result.verdict, 'PARTIAL');
+  assert.equal(result.verdict, 'INCONCLUSIVE');
+  assert.equal(result.rule, 'INCONCLUSIVE_BEFORE_L6_COMPLETE');
+  assert.equal(result.reasons[0], 'STOP_SERVER_ERROR@L0', `reasons: ${result.reasons.join(',')}`);
   assert.equal(mock.stats.requests, 3);
   assert.equal(mock.stats.serverErrors, 1);
 });
@@ -34,7 +38,9 @@ test('P1-10 an unexpected 401 after successful authentication STOPs at once, is 
   const { result: injected } = await runAgainstMock(t, { mock });
   assert.equal(injected.stop.rule, 'UNEXPECTED_401');
   assert.equal(injected.stop.step, 'L3');
-  assert.equal(injected.verdict, 'PARTIAL');
+  assert.equal(injected.verdict, 'INCONCLUSIVE');
+  assert.equal(injected.rule, 'INCONCLUSIVE_BEFORE_L6_COMPLETE');
+  assert.equal(injected.reasons[0], 'STOP_UNEXPECTED_401@L3', `reasons: ${injected.reasons.join(',')}`);
   const filePath = `${plan.pathPrefix}a-XFA.json`;
   assert.equal(mock.pathRequests(filePath), 6, 'four L2 requests, one rejected L3 PUT, one cleanup DELETE');
   assert.equal(mock.stats.byMethod.DELETE, 1, 'the certain file is deleted exactly once');
@@ -52,6 +58,10 @@ test('P1-10 STOP after an unresolvable late ACK quarantines the uncertain file a
   assert.equal(result.stop.rule, 'UNEXPECTED_401');
   assert.equal(result.stop.step, 'L9');
   assert.equal(result.verdict, 'PARTIAL');
+  assert.equal(result.rule, 'PARTIAL_LIMITING_CONDITION');
+  assert.equal(result.reasons[0], 'UNRESOLVABLE_LATE_ACK@L8', `reasons: ${result.reasons.join(',')}`);
+  assert.equal(result.steps.find((step) => step.step === 'L6').evidence.rounds, 5,
+    'the L9 STOP is after L6 completed all five race rounds');
   assert.equal(result.quarantine.some((entry) => entry.fileId === 'XFA' && entry.reason === 'IDENTITY_UNCERTAIN'), true);
   assert.equal(result.cleanup.some((entry) => entry.fileId === 'XFA' && entry.result === 'QUARANTINED'), true);
   // The only DELETE that reached the mock is L7's stale conditional-delete experiment (412). The
