@@ -23,3 +23,6 @@
 5. A new STOP reason `AUTH_REJECTED@L0` maps a first-request 401/403 to INCONCLUSIVE with the classification `AUTH`. It stops immediately after the first 401 (1 request, not 3).
 6. Tests are updated, including the redaction canary for the user name. The `probe:` constant and every test that asserts it are listed as allowed changes.
 7. Exact-SHA G2 → G3 → G4 as for R3. After that, a new user DEC with a new approval id is needed for a single new live run with a freshly generated app password, and the runbook is updated (rev 3: one more masked line for the user name).
+
+## 5. DEC-42 outcome
+The user chose **A: do the R4 fix**. The spec is [R4_AUTH_IDENTITY](../handoffs/P0-STORE/R4_AUTH_IDENTITY.md). It amends §4 item 5: the existing rule `UNEXPECTED_401` is kept and stops on the first 401/403 in live mode. Board R55 dispatches R4 to Execution, first-pass G2 only.
