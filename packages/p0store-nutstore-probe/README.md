@@ -1,0 +1,245 @@
+# P0-STORE Phase 1 — Nutstore WebDAV probe runner, local mock only
+
+**Status: PHASE_1_LOCAL_READINESS_ONLY / LOCAL_MOCK_ONLY / NOT_AUTHORIZED_FOR_LIVE_ACCESS.**
+This package is the Phase 1 readiness slice of D007-A90: a bounded WebDAV experiment runner plus a
+loopback HTTPS mock proof. It does not create an account, does not read or hold a real credential, does
+not contact a real provider, does not contain real data and cannot be used for a live run in this
+state. The readiness verdict this slice can support is `PRE_G6_LOCAL_READY` only; G6/G7 are not
+authorized.
+
+Authority (read-only, not copied into this package; they are **not present in the Base tree** — they
+were added later on `main` and must be read from there):
+
+- D007-A90 route design, especially §3 Phase 1, §4 run sheet, §5 STOP, §6 verdict.
+- P0-STORE `DESIGN.md` (the binding Phase 1 design) and `QA_INSTRUCTION.md`.
+
+Execution point: immutable Base `663556bc68dc0472f2f392f09ca4bee7c668d2f5`, branch
+`exec/P0STORE-nutstore-probe-r1`. Node exactly **v22.23.5 x64**, built-ins only, no dependencies, no
+lockfile, no CI.
+
+## Phase 3 is a separate decision
+
+A live run is never implied by this package. Phase 3 needs its own explicit user ACCESS-02/G6 approval
+naming the exact probe commit SHA, the exact host, the run namespace and the operator, and the
+credential is injected into the process environment by the user at run time. The live code path here
+is deliberately **inert**: it requires `--live`, a plan whose host is not loopback, an
+`accessApprovalId` and the credential environment variable, and even with all four present the frozen
+constant `PHASE1_LIVE_ENABLED = false` refuses with `PHASE1_LIVE_INERT` before any socket is created.
+There is no environment variable, flag or waiver that re-enables it. The P1-12 tests exercise the
+refusal paths only: they use a placeholder `.invalid` host, a dummy approval id and the fake canary
+credential, and assert that the transport is never invoked (zero socket attempts). No test ever names
+a real host or uses a real credential.
+
+## Components
+
+| File | Role |
+| --- | --- |
+| `src/plan.mjs` | Closed-schema frozen-plan loader: L0–L12, per-step id/methods/synthetic target/expected oracle/request estimate, host+port+path-prefix pinning, file manifest (the only write/delete allowlist), budget, caps, timing. Unknown keys, extra/duplicate/missing/reordered steps, forbidden verbs, over-cap budgets and non-loopback test plans are rejected with dedicated codes. |
+| `src/gate.mjs` | The only network path. `https:` only; pinned host/port/prefix; verbs `PROPFIND` (Depth 0/1 only), `GET`, `HEAD`, `PUT`, `OPTIONS`, `MKCOL` (the single run directory only) and per-file `DELETE`; canonical path; manifest-only writes; conditional-write requirement; rolling 30-minute budget of 100 with 12 pre-reserved cleanup slots; 20 files / 1 MiB per file / 20 MiB total / 2 writers; strict TLS; redirect never followed; zero egress on refusal. |
+| `src/secret.mjs` | The credential is read only at run time from the one environment variable named by the plan; it is redacted for every serialisation and refused when missing/empty/oversized/malformed, before a gate or socket exists. |
+| `src/runner.mjs` | Executes L0–L12. L6 is a real cross-process race (two OS child processes per round, file barrier, both PIDs recorded). L8 sends the body, destroys the socket and resolves only from authoritative GET/PROPFIND, never by retry. STOP handling cleans up only certain identities and quarantines the rest. |
+| `src/oracle.mjs` | Pure per-step PASS/FAIL/UNRESOLVABLE classification plus anomaly recording (weak validator, delayed visibility, unresolvable late ACK). |
+| `src/verdict.mjs` | A90 §6 GO / PARTIAL / NO-GO rules, with NO-GO always taking precedence over a STOP. |
+| `src/trace.mjs` | Redacted JSONL trace: method, path template + synthetic id, status, validator hash prefix, body SHA-256, duration and budget counters only. Headers, concrete paths, host names and bodies never enter it, and a line that would contain the credential is refused. |
+| `support/mock-webdav.mjs` | TEST-ONLY loopback HTTPS WebDAV mock with 11 personalities and request/byte counters. |
+| `support/harness.mjs` | TEST-ONLY harness. It evaluates the frozen A62 egress precondition at module load, before any test body, socket or child. |
+| `plans/example-plan.json` | The frozen example plan: loopback placeholder host `127.0.0.1`, fake run id, fake file ids, 13 steps. |
+| `scripts/mutation-check.mjs` | Guards first, copies the package + the one frozen dependency into a scratch tree outside the repository, applies one exact mutation per mutant and requires a named failing test. |
+| `scripts/verify-candidate-scope.mjs` | Separate read-only candidate audit; not discovered by `node --test`. |
+
+## Frozen plan
+
+The committed plan uses only `https://127.0.0.1` / `localhost` / `::1` or `.invalid` placeholders.
+Tests replace only the ephemeral mock **port**; host, prefix, budget, caps, timing, file manifest and
+step table stay frozen.
+
+| Item | Value |
+| --- | --- |
+| Steps | L0–L12, exactly once, in order |
+| Per-step fields | `id`, `methods` (a non-empty subset of the verbs that step may use; several steps need more than one verb), `target`, `oracle`, `requests`, `cleanupRequests` |
+| Planned attempts | 89 (83 normal + 6 cleanup DELETEs) |
+| Budget | rolling 30 min, `maxRequests` 100, `reservedCleanup` 12 → 88 non-reserved |
+| Caps | ≤20 files, ≤1 MiB/file, ≤20 MiB total, ≤2 writers |
+| Files | 8 manifest entries, all synthetic JSON under the fake run id |
+| Read-after-write | 0 ms / 2000 ms / 10000 ms |
+
+A refused request consumes no budget and creates no socket; the gate validates the whole request
+(including method shape, canonical path, manifest membership, conditional header and body caps) before
+`budget.tryAcquire()` and before the transport is invoked. `gate.stats.egress` counts transport
+invocations and is asserted to be zero in the negative tests.
+
+Only a `DELETE` carrying the explicit `cleanup: true` intent draws from the 12 pre-reserved cleanup
+slots. L7's stale conditional `DELETE` is an experiment, not cleanup, and therefore counts against the
+normal budget; the six L12 per-file cleanup deletes use the reserve. This keeps the plan's
+`cleanupRequests: 6` and the runtime cleanup counter identical.
+
+## Mock personalities (TEST-ONLY)
+
+`strong`, `weak-etag`, `lost-update`, `create-overwrite`, `stale-read`, `late-ack`,
+`unresolvable-ack`, `throttle`, `server-error`, `redirect`, `bad-cert`.
+
+TLS material is generated at test time with the host `openssl` CLI into `os.tmpdir()`: a test CA, a
+correct server certificate (`SAN IP:127.0.0.1, DNS:localhost`), a wrong-CA certificate, a wrong-CN
+certificate and an expired certificate. These certificates are never trusted outside these tests; the
+tests pass the generated CA to the gate explicitly and never write one into the repository. The mock
+binds `127.0.0.1:0` only.
+
+The `late-ack` and `unresolvable-ack` personalities engage only on the probe's synthetic `S-LATE`
+payload, so the rest of L0–L12 keeps baseline semantics. That is server-side test behaviour keyed by
+request content, not a probe runtime flag. `bad-cert` is the server's TLS material, not a handler
+switch.
+
+## Verdict rules (A90 §6)
+
+- **GO (single-object)** only when all 13 steps pass, L2/L5/L6/L7 prove CAS, L3 is consistent and
+  immediately visible with a strong validator, L6 has 5/5 confirmed exactly-one-winner rounds, L8 is
+  determinable 3/3, L11 hashes are equal, L12 verified an empty namespace and no STOP or anomaly was
+  recorded.
+- **NO-GO** on any lost update (L5/L6), create-only overwrite (L2), stale conditional delete (L7),
+  accepted invalid precondition, or acknowledged-winner bytes not surviving; NO-GO takes precedence.
+- **PARTIAL** for weak-only validators, delayed/stale visibility, unresolvable late ACK, cleanup that
+  cannot be verified, or any STOP without NO-GO evidence. An undeterminable result is recorded as
+  `UNRESOLVABLE` and maps to PARTIAL, never to GO.
+
+STOP follows §5: abort, then per-file cleanup only for identities whose creation and latest validator
+are certain; an uncertain identity is quarantined and never deleted. No STOP path retries a request.
+`429`, unexpected `401`, repeated `5xx`, redirects, TLS/host anomalies, budget exhaustion and any path
+outside the pinned namespace stop immediately.
+
+## Deliberate implementations of ambiguous points
+
+1. **No collection DELETE.** The gate permits per-file `DELETE` only, and the design's L12 says
+   "delete run dir". Per-file-only is the stricter safety rule, so L12 deletes every probe file, then
+   proves the run directory has zero children and is retained (empty). It never issues a `DELETE`
+   against the run directory or any other collection.
+2. **L11 "fresh sub-namespace".** The gate permits exactly one `MKCOL` (the run directory), so the
+   restore target is a fresh set of unique file names inside the run directory with
+   `If-None-Match: *`; hashes are compared against the exported sources.
+3. **L9 attempt count.** L9 has four attempts: a network `PUT` into a missing collection (409), a
+   network `GET` of an absent file (404), and two locally refused attempts (oversized body, path
+   outside the namespace) that produce zero egress. The plan conservatively charges 4; the run still
+   stays inside 88 non-reserved requests.
+4. **L4 identical-byte rewrite.** The mock changes the validator on every write; the runner records
+   whether it changed. Either recorded behaviour is acceptable under A90 §4 as long as it is
+   consistent.
+5. **L8 abort timing.** L8 destroys the socket only after the body has been flushed (`finish`) plus
+   the frozen `abortAfterBodyDelayMs` (250 ms), so the server's commit is a genuine post-body event
+   on loopback; the probe still never waits for a response and never retries. Resolution is a fresh
+   authoritative GET plus PROPFIND over the same file.
+6. **Trace templates.** File requests log the frozen path template plus the synthetic file id.
+   Non-file targets log the fixed labels `{run-directory}` and `{probe-parent}`; no host or concrete
+   path is ever traced.
+
+## Exact commands
+
+Node exactly `v22.23.5` x64 (the pinned executable in this checkout is
+`runtime/node-v22.23.5-win-x64/node.exe`; `node` below means that executable). All suites must run
+inside the accepted offline interval: on a connected host the frozen A62 guard fails closed with
+`EGRESS_PRECONDITION_FAILED` before any socket or child exists. That is expected and is not a suite
+result.
+
+```powershell
+cd packages/p0store-nutstore-probe
+Get-ChildItem -Recurse -Filter *.mjs | ForEach-Object { node --check $_.FullName }   # every package .mjs
+node --test                                                                          # guard + P1-01..P1-13
+node scripts/mutation-check.mjs                                                      # guard + 13 named mutants
+node scripts/verify-candidate-scope.mjs                                              # read-only candidate audit
+```
+
+`node --test` is not run online. The mutation driver and the audit are not part of `node --test` and
+are not discovered by it.
+
+## Programmatic use (test-only)
+
+QA and the local tests drive the same exported surface without the CLI:
+
+```js
+import { runProbe } from './src/runner.mjs';
+import { validatePlan } from './src/plan.mjs';
+import fs from 'node:fs';
+
+const plan = validatePlan({ ...JSON.parse(fs.readFileSync('plans/example-plan.json', 'utf8')), port: mockPort });
+const result = await runProbe({ plan, ca: testCaPem, env: process.env, traceFilePath: null });
+// result.refused / result.code / result.verdict / result.rule / result.reasons / result.steps /
+// result.stop / result.cleanup / result.quarantine / result.budget / result.gateStats / result.trace
+```
+
+`ca` is a TEST-ONLY CA injection for the loopback mock; production live mode uses the system roots or
+`plan.pinnedCaFile`. `createGate({ ..., transport })` is likewise TEST-ONLY and is refused unless
+`allowTestHooks: true` is also passed; production callers never pass either. The probe sends HTTP
+Basic authentication with the fixed synthetic user name `probe` and the runtime credential as the
+password; a test mock can validate exactly that. `traceFilePath` is optional and must point into a
+writable directory (the runner does not create it).
+
+## Tests
+
+| File | Coverage |
+| --- | --- |
+| `test/p1-01-plan-loader.test.mjs` | P1-01 closed schema, steps, verbs, budgets, caps, pinning |
+| `test/p1-02-gate-pinning.test.mjs` | P1-02 host/port/prefix pinning, verb allowlist, canonical paths, manifest, zero egress |
+| `test/p1-03-tls-redirect-stop.test.mjs` | P1-03 wrong CA/CN/expired, redirect STOP before follow |
+| `test/p1-04-budget-caps.test.mjs` | P1-04 rolling window, reserved slots, delegated budgets, caps, writers |
+| `test/p1-05-secret.test.mjs` | P1-05 redaction, missing secret, no trace/log/error/URL leakage |
+| `test/p1-06-strong-go.test.mjs` | P1-06 full strong run → GO, budget ≤ 88 + 6, empty namespace |
+| `test/p1-07-no-go.test.mjs` | P1-07 lost-update and create-overwrite → NO-GO + STOP |
+| `test/p1-08-partial.test.mjs` | P1-08 weak-etag and stale-read → PARTIAL with reason |
+| `test/p1-09-late-ack.test.mjs` | P1-09 late-ack 3/3, unresolvable → UNRESOLVABLE → PARTIAL, no retry |
+| `test/p1-10-stop.test.mjs` | P1-10 throttle/5xx/unexpected 401 STOP, uncertain cleanup quarantined |
+| `test/p1-11-race.test.mjs` | P1-11 two PIDs, barrier, 5 rounds, one winner, no GO with 4/5 |
+| `test/p1-12-live-inert.test.mjs` | P1-12 live inertness and no real host literal |
+| `test/p1-13-upstream.test.mjs` | P1-13 strict upstream TAP (67/44 nested/103/91) and 94 pinned Base blobs |
+
+Every test imports `support/harness.mjs` first (P1-13 imports the frozen A62 guard directly and calls
+it at module load). Every socket is loopback-only. P1-13 spawns the four upstream suites with
+`--test-concurrency=1` (same files, titles and counts) because the frozen upstream guards have no
+cross-process lock and several simultaneous PowerShell inventory queries can exceed the frozen 8 s
+query timeout under load.
+
+## Mutation driver
+
+`scripts/mutation-check.mjs` first runs the frozen A62 egress precondition, then copies this package
+plus `wp-01-synthetic-auth-api/support/platform-precondition.mjs` into a scratch tree **outside the
+repository**. It runs the union baseline once, then one exact mutation per mutant and requires a named
+failing test (a crash or timeout is classified separately and is not "killed"). It prints
+`MUTATION_SUMMARY killed=N/N` and exits non-zero unless every mutant is killed. Thirteen mutants:
+
+| Id | Mutation |
+| --- | --- |
+| M01 | skip host/port pinning from the plan (hardcoded origin port) |
+| M02 | follow a 3xx Location with a second transport call |
+| M03 | disable TLS certificate verification |
+| M04 | allow recursive/root DELETE (drop the Depth guard) |
+| M05 | skip the pre-reserved cleanup budget |
+| M06 | log credential material (trace redaction/refusal disabled) |
+| M07 | treat a rejected 412 create as success |
+| M08 | treat a missing 412 as success (lost update undetected) |
+| M09 | blind retry after an unresolvable late ACK |
+| M10 | treat an UNRESOLVABLE late ACK as a PASS |
+| M11 | record a single process for both race writers |
+| M12 | verdict GO despite one lost race round |
+| M13 | delete a file whose identity is uncertain |
+
+## Candidate scope and count-neutral negatives
+
+`scripts/verify-candidate-scope.mjs` pins Base
+`663556bc68dc0472f2f392f09ca4bee7c668d2f5`, 275 Base paths, exactly 28 whitelisted additions (27
+package paths plus `docs/handoffs/P0-STORE/QA_HANDOFF.md`) and 303 HEAD paths, proves single-parent
+linear history, byte- and mode-identical Base paths at HEAD, the 94-file protected inventory
+(WP-01..04 packages, both fixtures, `tools/offline`), a clean checkout and a worktree equal to HEAD.
+It accepts no argument or switch that re-targets or relaxes it.
+
+Every negative is **count-neutral**: per-path checks run before any count check and each negative has
+its own dedicated reason, so a modified Base path, an added path that replaces an approved one, a
+modified protected blob, an untracked file, a mode change or a symlink fails with
+`BASE_PATH_MODIFIED_OR_DELETED`, `UNEXPECTED_ADDED_PATH`, `PROTECTED_*`, `UNEXPECTED_WORKTREE_PATH`,
+`BASE_PATH_MODE_CHANGED_AT_HEAD` or `WORKTREE_NON_REGULAR_PATH` respectively — never with a generic
+path-count mismatch. The same rule governs plan and gate negatives: one dedicated code per condition.
+
+## Not covered (NOT_COVERED) and NOT_RUN
+
+- No real provider, real account, real credential, real data, real host or live request. Phase 3 is a
+  separate user authorization.
+- No Phase 2 account/credential work, no persistence, backup completeness, SLA, performance,
+  browser/TLS UI behaviour or production claim.
+- No Linux run in this slice (NOT_RUN); the Windows offline interval is the target environment.
+- No request may leave loopback in Phase 1; the mock is the only server.

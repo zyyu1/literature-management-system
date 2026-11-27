@@ -1,0 +1,14 @@
+{
+  "name": "p0store-nutstore-probe",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "P0-STORE Phase 1 local probe runner: bounded WebDAV experiment engine proven against loopback HTTPS mocks only (LOCAL_MOCK_ONLY).",
+  "engines": {
+    "node": "22.23.5"
+  },
+  "dependencies": {},
+  "scripts": {
+    "test": "node --test"
+  }
+}

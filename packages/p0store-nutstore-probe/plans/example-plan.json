@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "planId": "p0store-phase1-local-example",
+  "mode": "local-mock",
+  "protocol": "https:",
+  "host": "127.0.0.1",
+  "port": 8443,
+  "runId": "run-fake-p0store-0001",
+  "probeParent": "/LMS-P0STORE/",
+  "pathPrefix": "/LMS-P0STORE/run-fake-p0store-0001/",
+  "runDirectory": "/LMS-P0STORE/run-fake-p0store-0001",
+  "credentialEnvVar": "P0STORE_WEBDAV_PASSWORD",
+  "pinnedCaFile": null,
+  "accessApprovalId": null,
+  "budget": {
+    "maxRequests": 100,
+    "reservedCleanup": 12,
+    "windowMs": 1800000
+  },
+  "limits": {
+    "maxFiles": 20,
+    "maxFileBytes": 1048576,
+    "maxTotalBytes": 20971520,
+    "maxWriters": 2
+  },
+  "timing": {
+    "readAfterWriteMs": [0, 2000, 10000],
+    "abortAfterBodyDelayMs": 250
+  },
+  "files": [
+    {
+      "id": "XFA",
+      "name": "a-XFA.json",
+      "maxBytes": 2048,
+      "template": "/LMS-P0STORE/{runId}/a-{fileId}.json"
+    },
+    {
+      "id": "XFJ",
+      "name": "j-XFJ.json",
+      "maxBytes": 1024,
+      "template": "/LMS-P0STORE/{runId}/j-{fileId}.json"
+    },
+    {
+      "id": "XFD",
+      "name": "d-XFD.json",
+      "maxBytes": 1024,
+      "template": "/LMS-P0STORE/{runId}/d-{fileId}.json"
+    },
+    {
+      "id": "XFR1",
+      "name": "r1-XFR1.json",
+      "maxBytes": 2048,
+      "template": "/LMS-P0STORE/{runId}/r1-{fileId}.json"
+    },
+    {
+      "id": "XFR2",
+      "name": "r2-XFR2.json",
+      "maxBytes": 2048,
+      "template": "/LMS-P0STORE/{runId}/r2-{fileId}.json"
+    },
+    {
+      "id": "XFR3",
+      "name": "r3-XFR3.json",
+      "maxBytes": 2048,
+      "template": "/LMS-P0STORE/{runId}/r3-{fileId}.json"
+    },
+    {
+      "id": "XFM",
+      "name": "missing-XFM/probe-XFM.json",
+      "maxBytes": 1024,
+      "template": "/LMS-P0STORE/{runId}/missing-{fileId}/probe-{fileId}.json"
+    },
+    {
+      "id": "XFZ",
+      "name": "absent-XFZ.json",
+      "maxBytes": 1024,
+      "template": "/LMS-P0STORE/{runId}/absent-{fileId}.json"
+    }
+  ],
+  "steps": [
+    {
+      "id": "L0",
+      "methods": ["OPTIONS", "PROPFIND"],
+      "target": "run-parent-probe",
+      "oracle": "L0_TLS_AUTH",
+      "requests": 3,
+      "cleanupRequests": 0
+    },
+    {
+      "id": "L1",
+      "methods": ["MKCOL", "PROPFIND"],
+      "target": "run-directory",
+      "oracle": "L1_MKCOL_SHAPE",
+      "requests": 2,
+      "cleanupRequests": 0
+    },
+    {
+      "id": "L2",
+      "methods": ["PUT", "GET", "PROPFIND"],
+      "target": "file-a",
+      "oracle": "L2_CREATE_ONLY",
+      "requests": 4,
+      "cleanupRequests": 0
+    },
+    {
+      "id": "L3",
+      "methods": ["PUT", "GET", "PROPFIND", "HEAD"],
+      "target": "file-a",
+      "oracle": "L3_ETAG_CONSISTENCY",
+      "requests": 7,
+      "cleanupRequests": 0
+    },
+    {
+      "id": "L4",
+      "methods": ["PUT", "GET"],
+      "target": "file-a",
+      "oracle": "L4_IDENTICAL_REWRITE",
+      "requests": 3,
+      "cleanupRequests": 0
+    },
+    {
+      "id": "L5",
+      "methods": ["PUT", "GET", "PROPFIND"],
+      "target": "file-a",
+      "oracle": "L5_CONDITIONAL_UPDATE",
+      "requests": 5,
+      "cleanupRequests": 0
+    },
+    {
+      "id": "L6",
+      "methods": ["GET", "PUT"],
+      "target": "file-a-cross-process",
+      "oracle": "L6_CROSS_PROCESS_RACE",
+      "requests": 25,
+      "cleanupRequests": 0
+    },
+    {
+      "id": "L7",
+      "methods": ["PUT", "DELETE", "GET"],
+      "target": "file-a-invalid-stale",
+      "oracle": "L7_INVALID_AND_STALE",
+      "requests": 5,
+      "cleanupRequests": 0
+    },
+    {
+      "id": "L8",
+      "methods": ["PUT", "GET", "PROPFIND"],
+      "target": "file-a-late-ack",
+      "oracle": "L8_LATE_ACK",
+      "requests": 9,
+      "cleanupRequests": 0
+    },
+    {
+      "id": "L9",
+      "methods": ["PUT", "GET"],
+      "target": "missing-and-absent",
+      "oracle": "L9_ERROR_SEMANTICS",
+      "requests": 4,
+      "cleanupRequests": 0
+    },
+    {
+      "id": "L10",
+      "methods": ["PUT", "GET", "PROPFIND"],
+      "target": "journal-and-data",
+      "oracle": "L10_MULTI_PARTIAL",
+      "requests": 6,
+      "cleanupRequests": 0
+    },
+    {
+      "id": "L11",
+      "methods": ["GET", "PUT"],
+      "target": "backup-restore",
+      "oracle": "L11_BACKUP_HASHES",
+      "requests": 8,
+      "cleanupRequests": 0
+    },
+    {
+      "id": "L12",
+      "methods": ["DELETE", "PROPFIND"],
+      "target": "cleanup-and-empty-check",
+      "oracle": "L12_CLEANUP",
+      "requests": 8,
+      "cleanupRequests": 6
+    }
+  ]
+}
