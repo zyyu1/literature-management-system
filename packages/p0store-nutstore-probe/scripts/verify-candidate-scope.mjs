@@ -9,9 +9,9 @@
 // It proves, using Git plumbing/read commands and Node builtins only:
 //   1. the immutable Base 663556bc68dc0472f2f392f09ca4bee7c668d2f5 is resolvable and Base..HEAD is a
 //      linear chain of single-parent commits with no merge;
-//   2. the only cumulative changes relative to Base are the explicitly enumerated 31 additions
-//      (30 package paths + docs/handoffs/P0-STORE/QA_HANDOFF.md), with no extra or untracked path, no
-//      Base modification/deletion and exactly 306 tracked paths;
+//   2. the only cumulative changes relative to Base are the explicitly enumerated 32 additions
+//      (31 package paths + docs/handoffs/P0-STORE/QA_HANDOFF.md), with no extra or untracked path, no
+//      Base modification/deletion and exactly 307 tracked paths;
 //   3. every original Base path is byte-identical in the working tree (`git hash-object --no-filters`)
 //      and byte- and mode-identical in the committed HEAD tree;
 //   4. the protected WP-01..04 packages, both fixtures and tools/offline are unchanged;
@@ -30,7 +30,7 @@ const REPO = fileURLToPath(new URL('../../../', import.meta.url));
 const BASE = '663556bc68dc0472f2f392f09ca4bee7c668d2f5';
 
 const BASE_TREE_PATHS = 275;
-const EXPECTED_HEAD_PATHS = 306;
+const EXPECTED_HEAD_PATHS = 307;
 
 export const APPROVED_ADDITIONS = Object.freeze([
   'docs/handoffs/P0-STORE/QA_HANDOFF.md',
@@ -64,6 +64,7 @@ export const APPROVED_ADDITIONS = Object.freeze([
   'packages/p0store-nutstore-probe/test/p1-13-upstream.test.mjs',
   'packages/p0store-nutstore-probe/test/p1-14-inconclusive.test.mjs',
   'packages/p0store-nutstore-probe/test/p1-15-live-gating.test.mjs',
+  'packages/p0store-nutstore-probe/test/p1-16-auth-identity.test.mjs',
 ]);
 
 // Literal original Base Git blob IDs of every protected dependency file (all four upstream packages
@@ -271,7 +272,7 @@ function verifyHistory() {
 function verifyWhitelist() {
   // Count-neutral: every path is classified first; the count check runs last. A pure mode change is
   // detected from the raw diff before the status classification so it keeps its own reason.
-  if (APPROVED_ADDITIONS.length !== 31) fail(`APPROVED_ADDITION_COUNT: ${APPROVED_ADDITIONS.length} (expected 31)`);
+  if (APPROVED_ADDITIONS.length !== 32) fail(`APPROVED_ADDITION_COUNT: ${APPROVED_ADDITIONS.length} (expected 32)`);
   const approved = new Set(APPROVED_ADDITIONS);
   if (approved.size !== APPROVED_ADDITIONS.length) fail('APPROVED_ADDITION_DUPLICATE');
   const rawDiff = gitOk(['diff', '--raw', '-z', '--no-renames', BASE, 'HEAD'], 'BASE_DIFF_RAW').split('\0');

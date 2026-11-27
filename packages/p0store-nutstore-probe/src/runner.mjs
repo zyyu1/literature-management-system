@@ -16,7 +16,7 @@ import {
   LIVE_RUN_DIRECTORY_TEMPLATE, LIVE_CREDENTIAL_ENV,
 } from './plan.mjs';
 import { createGate, Budget, GateRefusal, BudgetRefusal } from './gate.mjs';
-import { loadSecret } from './secret.mjs';
+import { loadSecret, loadCredentialUser } from './secret.mjs';
 import { createTrace } from './trace.mjs';
 import { evaluateStep, isNoGo, NO_GO_REASONS } from './oracle.mjs';
 import { computeVerdict } from './verdict.mjs';
@@ -102,7 +102,16 @@ export function authorizeLiveRun({
   }
   if (plan.runId !== null) return { ok: false, reason: 'LIVE_RUN_ID_SUPPLIED' };
 
-  // Check 5 is the first and only place the credential value may be read.
+  // R4: validate the user name immediately before the password. This is the first credential
+  // environment read; the password is not touched when the user is missing or malformed.
+  let user;
+  try {
+    user = loadCredentialUser(plan, env);
+  } catch (error) {
+    return { ok: false, reason: error && error.code ? error.code : 'CREDENTIAL_USER_MALFORMED' };
+  }
+
+  // Check 5 is the first and only place the password value may be read.
   const value = env === null || typeof env !== 'object' ? undefined : env[plan.credentialEnvVar];
   if (typeof value !== 'string' || value.length === 0) {
     return { ok: false, reason: 'LIVE_CREDENTIAL_MISSING' };
@@ -113,7 +122,7 @@ export function authorizeLiveRun({
     || runtime.version !== 'v22.23.5' || runtime.arch !== 'x64') {
     return { ok: false, reason: 'NODE_RUNTIME_MISMATCH' };
   }
-  return { ok: true, reason: null };
+  return { ok: true, reason: null, user };
 }
 
 function resolveLivePlan(plan, runId) {
@@ -124,13 +133,16 @@ function resolveLivePlan(plan, runId) {
   return resolved;
 }
 
-function buildPreflight(plan, runId, approvalId, runtime) {
+function buildPreflight(plan, runId, approvalId, runtime, user) {
   return {
     host: plan.host,
     port: plan.port,
     pathPrefix: plan.pathPrefix,
     runId,
     approvalId,
+    // Personal data never appears here; only a redacted label and the character count.
+    user: '<redacted>',
+    userChars: user.length,
     budget: {
       maxRequests: plan.budget.maxRequests,
       reservedCleanup: plan.budget.reservedCleanup,
@@ -155,6 +167,7 @@ function formatPreflight(preflight) {
     `prefix=${preflight.pathPrefix}`,
     `runId=${preflight.runId}`,
     `approvalId=${preflight.approvalId}`,
+    `user=<redacted, ${preflight.userChars} chars>`,
     `budget.maxRequests=${preflight.budget.maxRequests}`,
     `budget.reservedCleanup=${preflight.budget.reservedCleanup}`,
     `limits.maxFiles=${preflight.limits.maxFiles}`,
@@ -242,7 +255,8 @@ export async function runProbe(options = {}) {
   }
 
   // A live plan without --live is refused, and a local-mock plan with --live is refused, before the
-  // credential is read. All seven R3 checks live in authorizeLiveRun.
+  // credential is read. All seven R3 checks plus the R4 user check live in authorizeLiveRun.
+  let liveUser = null;
   if (plan.mode === 'live' || live) {
     const authorization = authorizeLiveRun({
       plan, live, accessApprovalId, env, runtime,
@@ -250,6 +264,7 @@ export async function runProbe(options = {}) {
     if (!authorization.ok) {
       return { ...refusal(Object.assign(new Error(authorization.reason), { code: authorization.reason })), planId: plan.planId };
     }
+    liveUser = authorization.user;
   }
 
   let runId = null;
@@ -257,13 +272,13 @@ export async function runProbe(options = {}) {
   if (plan.mode === 'live') {
     runId = crypto.randomBytes(16).toString('hex');
     plan = resolveLivePlan(plan, runId);
-    preflight = buildPreflight(plan, runId, accessApprovalId, runtime);
+    preflight = buildPreflight(plan, runId, accessApprovalId, runtime, liveUser);
     if (typeof options.onPreflight === 'function') options.onPreflight(formatPreflight(preflight));
   }
 
   let secret;
   try {
-    secret = loadSecret(plan, env);
+    secret = loadSecret(plan, env, plan.mode === 'live' ? liveUser : undefined);
   } catch (error) {
     return { ...refusal(error), planId: plan.planId };
   }
@@ -291,6 +306,8 @@ export async function runProbe(options = {}) {
     trace,
     secret,
     ca,
+    live,
+    skipCleanup: false,
     files: new Map(plan.files.map((file) => [file.id, {
       id: file.id,
       name: file.name,
@@ -360,6 +377,14 @@ export async function runProbe(options = {}) {
     if (result.error) {
       stop(isTlsError(result.error) ? 'TLS_OR_HOST' : 'SERVER_ERROR', stepId,
         typeof result.error.code === 'string' ? result.error.code : null);
+      return;
+    }
+    // R4 live authentication failure: the first 401/403 ends the run immediately, with the existing
+    // rule name (no UNEXPECTED_403 rule exists) and no cleanup request. This check precedes the
+    // expected-status allowance because L0 intentionally probes unauthenticated 401s.
+    if (ctx.live === true && (result.status === 401 || result.status === 403)) {
+      ctx.skipCleanup = true;
+      stop('UNEXPECTED_401', stepId);
       return;
     }
     if (expectedStatuses.includes(result.status)) return;
@@ -992,6 +1017,17 @@ export async function runProbe(options = {}) {
         });
         recordRequest(stepId, response);
         status = response.status;
+        if (ctx.live === true && (response.status === 401 || response.status === 403)) {
+          // A live auth rejection during cleanup is the first rejection in that phase: stop, record
+          // the failed delete, and send no further cleanup request.
+          ctx.skipCleanup = true;
+          stop('UNEXPECTED_401', stepId);
+          ctx.cleanup.push({ fileId: file.id, action: 'DELETE', status, identity, result: 'FAILED' });
+          trace.record({
+            type: 'cleanup', fileId: file.id, action: 'DELETE', status, identity, result: 'FAILED',
+          });
+          break;
+        }
         if (response.status === 204 || response.status === 200 || response.status === 404) {
           result = 'DELETED';
           file.created = false;
@@ -1016,6 +1052,7 @@ export async function runProbe(options = {}) {
   async function stepL12() {
     ctx.cleanupAttempted = true;
     await cleanupCertainFiles('L12');
+    if (ctx.stop) return null;
     const propfind = await send('L12', { method: 'PROPFIND', target: 'run-directory', depth: '1' }, [207]);
     if (ctx.stop) return null;
     const hrefs = parseHrefs(propfind.body.toString('utf8'));
@@ -1055,7 +1092,7 @@ export async function runProbe(options = {}) {
       if (ctx.stop !== null) break;
       await executeStep(step.id, stepFns[step.id]);
     }
-    if (ctx.stop !== null && ctx.cleanupAttempted !== true) {
+    if (ctx.stop !== null && ctx.cleanupAttempted !== true && ctx.skipCleanup !== true) {
       await cleanupCertainFiles('ABORT');
     }
   } catch (error) {

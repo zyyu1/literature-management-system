@@ -40,6 +40,7 @@ export const BASELINE_FILES = Object.freeze([
   'test/p1-11-race.test.mjs',
   'test/p1-14-inconclusive.test.mjs',
   'test/p1-15-live-gating.test.mjs',
+  'test/p1-16-auth-identity.test.mjs',
 ]);
 
 export const MUTANTS = Object.freeze([
@@ -334,6 +335,39 @@ export const MUTANTS = Object.freeze([
     }],
     files: ['test/p1-15-live-gating.test.mjs'],
     expect: /P1-15 mutation target: the secret is not read/,
+  },
+  {
+    id: 'M23',
+    what: 'hard-code the synthetic probe user in live Basic headers',
+    edits: [{
+      file: 'src/secret.mjs',
+      from: '    this.#pair = `${user}:${value}`;\n',
+      to: '    this.#pair = `probe:${value}`;\n',
+    }],
+    files: ['test/p1-16-auth-identity.test.mjs'],
+    expect: /P1-16 U-05/,
+  },
+  {
+    id: 'M24',
+    what: 'do not redact the runtime user name',
+    edits: [{
+      file: 'src/secret.mjs',
+      from: '    this.#protectUser = user !== \'probe\';\n',
+      to: '    this.#protectUser = false;\n',
+    }],
+    files: ['test/p1-16-auth-identity.test.mjs'],
+    expect: /P1-16 U-06/,
+  },
+  {
+    id: 'M25',
+    what: 'do not stop on the first live 401/403',
+    edits: [{
+      file: 'src/runner.mjs',
+      from: '    if (ctx.live === true && (result.status === 401 || result.status === 403)) {\n',
+      to: '    if (false && (result.status === 401 || result.status === 403)) {\n',
+    }],
+    files: ['test/p1-16-auth-identity.test.mjs'],
+    expect: /P1-16 U-07/,
   },
 ]);
 

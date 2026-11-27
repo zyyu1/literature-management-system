@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import {
   readExamplePlanObject, loadExamplePlan, loadPlanFile, validatePlan, planTotals, STEP_IDS, PlanError,
 } from '../support/harness.mjs';
-import { LIVE_HOST } from '../src/plan.mjs';
+import { LIVE_HOST, LIVE_USER_ENV } from '../src/plan.mjs';
 
 const BASE = readExamplePlanObject();
 const LIVE_PLAN_URL = new URL('../plans/live-nutstore-plan.json', import.meta.url);
@@ -179,6 +179,7 @@ test('P1-01 the committed live plan loads with a runtime run id placeholder, pin
   assert.equal(plan.pathPrefix, '/dav/LMS-P0STORE/{runId}/');
   assert.equal(plan.runDirectory, '/dav/LMS-P0STORE/{runId}');
   assert.equal(plan.credentialEnvVar, 'P0STORE_WEBDAV_PASSWORD');
+  assert.equal(plan.credentialUserEnvVar, LIVE_USER_ENV);
   assert.equal(plan.pinnedCaFile, null);
   assert.equal(plan.accessApprovalId, null, 'the committed live plan can never self-authorize');
   assert.deepEqual(plan.steps.map((step) => step.id), [...STEP_IDS]);

@@ -10,6 +10,7 @@
   "pathPrefix": "/dav/LMS-P0STORE/{runId}/",
   "runDirectory": "/dav/LMS-P0STORE/{runId}",
   "credentialEnvVar": "P0STORE_WEBDAV_PASSWORD",
+  "credentialUserEnvVar": "P0STORE_WEBDAV_USER",
   "pinnedCaFile": null,
   "accessApprovalId": null,
   "budget": {

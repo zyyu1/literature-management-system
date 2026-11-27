@@ -7,10 +7,11 @@ import fs from 'node:fs';
 import {
   runProbe, loadPlanFile, countingTransport, traceHasSecret, CANARY, CREDENTIAL_ENV_NAME,
 } from '../support/harness.mjs';
-import { LIVE_HOST } from '../src/plan.mjs';
+import { LIVE_HOST, LIVE_USER_ENV } from '../src/plan.mjs';
 
 const LIVE_PLAN_URL = new URL('../plans/live-nutstore-plan.json', import.meta.url);
 const GOOD_APPROVAL = 'P0STORE-ACCESS-02-20261127-ABCD';
+const GOOD_USER = 'probe-user@example.invalid';
 const GOOD_RUNTIME = { version: 'v22.23.5', arch: 'x64' };
 
 function liveBase() {
@@ -18,7 +19,7 @@ function liveBase() {
 }
 
 function envWithSecret() {
-  return { [CREDENTIAL_ENV_NAME]: CANARY };
+  return { [LIVE_USER_ENV]: GOOD_USER, [CREDENTIAL_ENV_NAME]: CANARY };
 }
 
 function poisonedEnv() {
@@ -50,9 +51,9 @@ function stubTransport(seen) {
       path: options.path,
       hasAuth: Boolean(options.headers && options.headers.Authorization),
     });
-    if (options.method === 'OPTIONS') return response(401, {});
+    if (options.method === 'OPTIONS') return response(200, {});
     if (options.method === 'PROPFIND' && options.path === '/dav/LMS-P0STORE/') {
-      return response(options.headers && options.headers.Authorization ? 207 : 401, { dav: '1,2' });
+      return response(207, { dav: '1,2' });
     }
     if (options.method === 'MKCOL') return response(201, {});
     if (options.method === 'PROPFIND') return response(207, { dav: '1,2' }, collectionXml());
@@ -97,6 +98,8 @@ test('P1-15 all seven conditions satisfied: pre-flight is redacted, run id is fr
   assert.equal(result.preflight.limits.maxWriters, 2);
   assert.equal(result.preflight.node, 'v22.23.5');
   assert.equal(result.preflight.arch, 'x64');
+  assert.equal(result.preflight.user, '<redacted>');
+  assert.equal(result.preflight.userChars, GOOD_USER.length);
 
   assert.equal(typeof summary, 'string');
   assert.match(summary, /^P0STORE_PREFLIGHT /);
@@ -104,6 +107,8 @@ test('P1-15 all seven conditions satisfied: pre-flight is redacted, run id is fr
   assert.ok(summary.includes('port=443'));
   assert.ok(summary.includes(`runId=${result.runId}`));
   assert.ok(summary.includes(`approvalId=${GOOD_APPROVAL}`));
+  assert.ok(summary.includes(`user=<redacted, ${GOOD_USER.length} chars>`));
+  assert.equal(summary.includes(GOOD_USER), false, 'the pre-flight summary must never contain the user');
   assert.ok(summary.includes('node=v22.23.5'));
   assert.equal(summary.includes(CANARY), false, 'the pre-flight summary must never contain the secret');
 

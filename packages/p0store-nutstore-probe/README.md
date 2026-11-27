@@ -24,8 +24,8 @@ naming the exact probe commit SHA, the exact host, the run namespace and the ope
 credential is injected into the process environment by the user at run time. R3 makes that future run
 *possible*; it performs no live request, sets no real credential and contacts no real host.
 
-The live path is reachable only when all seven run-time checks pass, in order, before any secret read,
-gate, socket or child process:
+The live path is reachable only when all seven R3 run-time checks pass, in order, before any secret
+read, gate, socket or child process, plus the R4 user check immediately before the password:
 
 1. CLI `--live`;
 2. plan `mode:"live"`, `protocol:"https:"`, the one pinned host, port 443, `probeParent`
@@ -33,34 +33,44 @@ gate, socket or child process:
 3. CLI `--approval <id>` matching `^P0STORE-ACCESS-02-\d{8}-[A-Za-z0-9]{4,16}$`; the committed live
    plan has `accessApprovalId:null`, so it can never self-authorize;
 4. a fresh 32-hex `runId` from 16 random bytes; a plan-supplied run id is refused;
-5. `P0STORE_WEBDAV_PASSWORD` present and non-empty — the value is not read until checks 1–4 pass;
-6. Node exactly `v22.23.5` x64, otherwise `NODE_RUNTIME_MISMATCH` (test-stubbable, never
+5. the live user name from `P0STORE_WEBDAV_USER` (named by `credentialUserEnvVar`; the committed live
+   plan must carry exactly that key) validated as 3–254 chars matching
+   `^[^\s:@]+@[^\s:@]+\.[^\s:@]+$`, with no control characters and no `:` before the password is read:
+   `CREDENTIAL_USER_MISSING` / `CREDENTIAL_USER_MALFORMED`, zero transport and empty trace;
+6. `P0STORE_WEBDAV_PASSWORD` present and non-empty — the password value is not read until the user
+   check and checks 1–4 pass;
+7. Node exactly `v22.23.5` x64, otherwise `NODE_RUNTIME_MISMATCH` (test-stubbable, never
    environment-selectable);
-7. every failure has its own reason code, produces zero transport calls and zero trace events, and
+8. every failure has its own reason code, produces zero transport calls and zero trace events, and
    `PHASE1_LIVE_ENABLED` is no longer consulted (retained only as a frozen-harness compatibility
    export).
 
+The live Basic header carries the runtime user and password. The user name is personal data treated
+like the secret: clear user, clear `user:password`, its base64 form and the Basic header are covered by
+`Secret.contains` / `redact`, and never appear in trace, console, pre-flight, errors or `result`.
 Before the first request the CLI prints a redacted `P0STORE_PREFLIGHT` line (host, port, resolved
-prefix, run id, approval id, budget, caps, Node version/arch) and any refusal exits non-zero. The
-approval id is copied into the redacted trace header. No environment variable, flag or waiver can skip
-a check. P1-12/P1-15 exercise the refusal matrix and the all-satisfied path with an injected counting
-transport: no socket is created, no test names a real host, and no real credential exists.
+prefix, run id, approval id, `user=<redacted, N chars>`, budget, caps, Node version/arch) and any
+refusal exits non-zero. The approval id is copied into the redacted trace header. In live mode the
+first 401/403 ends the run at once with the existing `UNEXPECTED_401` rule, one transport call and no
+cleanup; the verdict stays INCONCLUSIVE per R2. No environment variable, flag or waiver can skip a
+check. P1-12/P1-15/P1-16 exercise the refusal matrix and the all-satisfied stub-transport path: no
+socket is created, no test names a real host, and no real credential exists.
 
 ## Components
 
 | File | Role |
 | --- | --- |
-| `src/plan.mjs` | Closed-schema frozen-plan loader: L0–L12, per-step id/methods/synthetic target/expected oracle/request estimate, host+port+path-prefix pinning, file manifest (the only write/delete allowlist), budget, caps, timing. Unknown keys, extra/duplicate/missing/reordered steps, forbidden verbs, over-cap budgets and non-loopback test plans are rejected with dedicated codes. Live mode accepts only the one pinned host for `mode:"live"`, with a runtime `{runId}` placeholder, `runId:null`, and no committed approval id. |
+| `src/plan.mjs` | Closed-schema frozen-plan loader: L0–L12, per-step id/methods/synthetic target/expected oracle/request estimate, host+port+path-prefix pinning, file manifest (the only write/delete allowlist), budget, caps, timing. Unknown keys, extra/duplicate/missing/reordered steps, forbidden verbs, over-cap budgets and non-loopback test plans are rejected with dedicated codes. Live mode accepts only the one pinned host, with a runtime `{runId}` placeholder, `runId:null`, no committed approval id, and the required `credentialUserEnvVar` key; local plans may omit that key and keep `probe`. |
 | `src/gate.mjs` | The only network path. `https:` only; pinned host/port/prefix; verbs `PROPFIND` (Depth 0/1 only), `GET`, `HEAD`, `PUT`, `OPTIONS`, `MKCOL` (the single run directory only) and per-file `DELETE`; canonical path; manifest-only writes; conditional-write requirement; rolling 30-minute budget of 100 with 12 pre-reserved cleanup slots; 20 files / 1 MiB per file / 20 MiB total / 2 writers; strict TLS; redirect never followed; zero egress on refusal. |
-| `src/secret.mjs` | The credential is read only at run time from the one environment variable named by the plan; it is redacted for every serialisation and refused when missing/empty/oversized/malformed, before a gate or socket exists. |
-| `src/runner.mjs` | Executes L0–L12. L6 is a real cross-process race (two OS child processes per round, file barrier, both PIDs recorded). L8 sends the body, destroys the socket and resolves only from authoritative GET/PROPFIND, never by retry. STOP handling cleans up only certain identities and quarantines the rest. R3 live authorization (`authorizeLiveRun`) runs all seven checks in order before the secret read; the resolved live plan gets a fresh run id and a redacted pre-flight print. |
+| `src/secret.mjs` | The password and the optional live user name are read only at run time from the environment variables named by the plan. The user is validated before the password, and both are redacted in clear, `user:password`, base64 and Basic-header forms. Missing/malformed values refuse before a gate or socket exists. |
+| `src/runner.mjs` | Executes L0–L12. L6 is a real cross-process race (two OS child processes per round, file barrier, both PIDs recorded). L8 sends the body, destroys the socket and resolves only from authoritative GET/PROPFIND, never by retry. STOP handling cleans up only certain identities and quarantines the rest. Live authorization runs the R3 checks plus the R4 user-before-password check; the resolved live plan gets a fresh run id, a redacted pre-flight print, the runtime Basic identity and a first-401/403 stop with no cleanup. |
 | `src/oracle.mjs` | Pure per-step PASS/FAIL/UNRESOLVABLE classification plus anomaly recording (weak validator, delayed visibility, unresolvable late ACK). |
 | `src/verdict.mjs` | A90 §6 / A92 four-verdict rules (GO / PARTIAL / INCONCLUSIVE / NO-GO) with fixed precedence and root-cause-first `REASON@STEP` reasons. |
 | `src/trace.mjs` | Redacted JSONL trace: method, path template + synthetic id, status, validator hash prefix, body SHA-256, duration and budget counters only. Headers, concrete paths, host names and bodies never enter it, and a line that would contain the credential is refused. |
 | `support/mock-webdav.mjs` | TEST-ONLY loopback HTTPS WebDAV mock with 11 personalities and request/byte counters. |
 | `support/harness.mjs` | TEST-ONLY harness. It evaluates the frozen A62 egress precondition at module load, before any test body, socket or child. |
 | `plans/example-plan.json` | The frozen local example plan: loopback placeholder host `127.0.0.1`, fake run id, fake file ids, 13 steps. |
-| `plans/live-nutstore-plan.json` | The committed live-readiness plan: the one pinned live host, port 443, `/dav/LMS-P0STORE/` parent, `{runId}` placeholders, `runId:null`, `accessApprovalId:null`, no pinned CA. It never runs live in this slice. |
+| `plans/live-nutstore-plan.json` | The committed live-readiness plan: the one pinned live host, port 443, `/dav/LMS-P0STORE/` parent, `{runId}` placeholders, `runId:null`, `accessApprovalId:null`, `credentialUserEnvVar:"P0STORE_WEBDAV_USER"`, no pinned CA. It never runs live in this slice. |
 | `scripts/mutation-check.mjs` | Guards first, copies the package + the one frozen dependency into a scratch tree outside the repository, applies one exact mutation per mutant and requires a named failing test. |
 | `scripts/verify-candidate-scope.mjs` | Separate read-only candidate audit; not discovered by `node --test`. |
 
@@ -69,8 +79,9 @@ transport: no socket is created, no test names a real host, and no real credenti
 The local example plan uses only `127.0.0.1` / `localhost` / `::1` placeholders. Tests replace only
 the ephemeral mock **port**; host, prefix, budget, caps, timing, file manifest and step table stay
 frozen. The separate live-readiness plan names the one pinned host and port 443, uses the
-`/dav/LMS-P0STORE/` parent and `{runId}` path placeholders, carries `runId:null` and
-`accessApprovalId:null`, and has no pinned CA. It is byte-frozen and never executed live in this slice.
+`/dav/LMS-P0STORE/` parent and `{runId}` path placeholders, carries `runId:null`,
+`accessApprovalId:null` and `credentialUserEnvVar:"P0STORE_WEBDAV_USER"`, and has no pinned CA. It is
+byte-frozen and never executed live in this slice.
 
 | Item | Value |
 | --- | --- |
@@ -178,8 +189,8 @@ result.
 ```powershell
 cd packages/p0store-nutstore-probe
 Get-ChildItem -Recurse -Filter *.mjs | ForEach-Object { node --check $_.FullName }   # every package .mjs
-node --test                                                                          # guard + P1-01..P1-15
-node scripts/mutation-check.mjs                                                      # guard + 22 named mutants
+node --test                                                                          # guard + P1-01..P1-16
+node scripts/mutation-check.mjs                                                      # guard + 25 named mutants
 node scripts/verify-candidate-scope.mjs                                              # read-only candidate audit
 ```
 
@@ -203,10 +214,11 @@ const result = await runProbe({ plan, ca: testCaPem, env: process.env, traceFile
 
 `ca` is a TEST-ONLY CA injection for the loopback mock; production live mode uses the system roots or
 `plan.pinnedCaFile`. `createGate({ ..., transport })` is likewise TEST-ONLY and is refused unless
-`allowTestHooks: true` is also passed; production callers never pass either. The probe sends HTTP
-Basic authentication with the fixed synthetic user name `probe` and the runtime credential as the
-password; a test mock can validate exactly that. `traceFilePath` is optional and must point into a
-writable directory (the runner does not create it).
+`allowTestHooks: true` is also passed; production callers never pass either. Local/mock runs send HTTP
+Basic authentication with the fixed synthetic user name `probe` and the runtime password. Live runs
+read the user name from `P0STORE_WEBDAV_USER` (validated before the password) and send
+`Basic base64(<user>:<password>)`; a test stub can validate exactly that. `traceFilePath` is optional
+and must point into a writable directory (the runner does not create it).
 
 ## Tests
 
@@ -216,7 +228,7 @@ writable directory (the runner does not create it).
 | `test/p1-02-gate-pinning.test.mjs` | P1-02 host/port/prefix pinning, verb allowlist, canonical paths, manifest, zero egress |
 | `test/p1-03-tls-redirect-stop.test.mjs` | P1-03 wrong CA/CN/expired, redirect STOP before follow; early STOP is INCONCLUSIVE |
 | `test/p1-04-budget-caps.test.mjs` | P1-04 rolling window, reserved slots, delegated budgets, caps, writers |
-| `test/p1-05-secret.test.mjs` | P1-05 redaction, missing secret, no trace/log/error/URL leakage |
+| `test/p1-05-secret.test.mjs` | P1-05 redaction, missing secret, no trace/log/error/URL leakage; local `probe` identity |
 | `test/p1-06-strong-go.test.mjs` | P1-06 full strong run → GO, budget ≤ 88 + 6, empty namespace |
 | `test/p1-07-no-go.test.mjs` | P1-07 lost-update and create-overwrite → NO-GO + STOP |
 | `test/p1-08-partial.test.mjs` | P1-08 weak-etag and stale-read → PARTIAL with root-cause reason order |
@@ -227,6 +239,7 @@ writable directory (the runner does not create it).
 | `test/p1-13-upstream.test.mjs` | P1-13 strict upstream TAP (67/44 nested/103/91) and 94 pinned Base blobs |
 | `test/p1-14-inconclusive.test.mjs` | P1-14 11-personality verdict matrix, reason order, synthetic precedence cases |
 | `test/p1-15-live-gating.test.mjs` | P1-15 all-conditions stub transport: pre-flight, fresh run id, pinned target, canary scan; mutation-target refusal cases |
+| `test/p1-16-auth-identity.test.mjs` | P1-16 U-01…U-08: user env validation, redaction, exact Basic identity, first-401 stop, local `probe` |
 
 Every test imports `support/harness.mjs` first (P1-13 imports the frozen A62 guard directly and calls
 it at module load). Every socket is loopback-only. P1-13 spawns the four upstream suites with
@@ -240,7 +253,7 @@ query timeout under load.
 plus `wp-01-synthetic-auth-api/support/platform-precondition.mjs` into a scratch tree **outside the
 repository**. It runs the union baseline once, then one exact mutation per mutant and requires a named
 failing test (a crash or timeout is classified separately and is not "killed"). It prints
-`MUTATION_SUMMARY killed=N/N` and exits non-zero unless every mutant is killed. Twenty-two mutants:
+`MUTATION_SUMMARY killed=N/N` and exits non-zero unless every mutant is killed. Twenty-five mutants:
 
 | Id | Mutation |
 | --- | --- |
@@ -266,12 +279,15 @@ failing test (a crash or timeout is classified separately and is not "killed"). 
 | M20 | accept a live prefix outside the allowed parent |
 | M21 | skip the exact Node runtime check |
 | M22 | read the credential before authorization checks complete |
+| M23 | hard-code the synthetic probe user in live Basic headers |
+| M24 | do not redact the runtime user name |
+| M25 | do not stop on the first live 401/403 |
 
 ## Candidate scope and count-neutral negatives
 
 `scripts/verify-candidate-scope.mjs` pins Base
-`663556bc68dc0472f2f392f09ca4bee7c668d2f5`, 275 Base paths, exactly 31 whitelisted additions (30
-package paths plus `docs/handoffs/P0-STORE/QA_HANDOFF.md`) and 306 HEAD paths, proves single-parent
+`663556bc68dc0472f2f392f09ca4bee7c668d2f5`, 275 Base paths, exactly 32 whitelisted additions (31
+package paths plus `docs/handoffs/P0-STORE/QA_HANDOFF.md`) and 307 HEAD paths, proves single-parent
 linear history, byte- and mode-identical Base paths at HEAD, the 94-file protected inventory
 (WP-01..04 packages, both fixtures, `tools/offline`), a clean checkout and a worktree equal to HEAD.
 It accepts no argument or switch that re-targets or relaxes it.

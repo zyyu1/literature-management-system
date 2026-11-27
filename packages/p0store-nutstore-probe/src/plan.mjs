@@ -54,6 +54,7 @@ export const LIVE_PROBE_PARENT = '/dav/LMS-P0STORE/';
 export const LIVE_PATH_PREFIX_TEMPLATE = '/dav/LMS-P0STORE/{runId}/';
 export const LIVE_RUN_DIRECTORY_TEMPLATE = '/dav/LMS-P0STORE/{runId}';
 export const LIVE_CREDENTIAL_ENV = 'P0STORE_WEBDAV_PASSWORD';
+export const LIVE_USER_ENV = 'P0STORE_WEBDAV_USER';
 export const LIVE_RUN_ID_PATTERN = /^[0-9a-f]{32}$/;
 
 const PLAN_KEYS = Object.freeze([
@@ -61,6 +62,9 @@ const PLAN_KEYS = Object.freeze([
   'pathPrefix', 'runDirectory', 'credentialEnvVar', 'pinnedCaFile', 'accessApprovalId',
   'budget', 'limits', 'timing', 'files', 'steps',
 ]);
+// R4: this key is optional for local/mock plans (the frozen example omits it and keeps `probe`) and
+// required only by the live branch; the closed schema accepts no other additions.
+const PLAN_OPTIONAL_KEYS = Object.freeze(['credentialUserEnvVar']);
 const BUDGET_KEYS = Object.freeze(['maxRequests', 'reservedCleanup', 'windowMs']);
 const LIMIT_KEYS = Object.freeze(['maxFiles', 'maxFileBytes', 'maxTotalBytes', 'maxWriters']);
 const TIMING_KEYS = Object.freeze(['readAfterWriteMs', 'abortAfterBodyDelayMs']);
@@ -94,10 +98,10 @@ function isPlainObject(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function closedObject(value, keys, where) {
+function closedObject(value, keys, where, optionalKeys = []) {
   if (!isPlainObject(value)) fail('PLAN_NOT_OBJECT', where);
   for (const key of Object.keys(value)) {
-    if (!keys.includes(key)) fail('UNKNOWN_FIELD', `${where}.${key}`);
+    if (!keys.includes(key) && !optionalKeys.includes(key)) fail('UNKNOWN_FIELD', `${where}.${key}`);
   }
   for (const key of keys) {
     if (!Object.hasOwn(value, key)) fail('MISSING_FIELD', `${where}.${key}`);
@@ -318,6 +322,9 @@ function deepFreeze(value) {
 // the literal {runId} placeholder until the runner resolves them after authorization. The committed
 // file can never carry an approval id, and system trust is mandatory (pinnedCaFile null).
 function validateLivePlan(value) {
+  if (value.credentialUserEnvVar !== LIVE_USER_ENV) {
+    fail('PLAN_REJECTED', `live plan requires credentialUserEnvVar=${LIVE_USER_ENV}`);
+  }
   if (value.protocol !== 'https:') fail('LIVE_PROTOCOL_MISMATCH', String(value.protocol));
   if (value.host !== LIVE_HOST) fail('LIVE_HOST_MISMATCH', String(value.host));
   if (value.port !== LIVE_PORT) fail('LIVE_PORT_MISMATCH', String(value.port));
@@ -357,11 +364,15 @@ function validateLivePlan(value) {
 // naming anything other than 127.0.0.1 / ::1 / localhost is always rejected before a gate exists.
 export function validatePlan(value, options = {}) {
   const allowNonLoopback = options.allowNonLoopback === true;
-  closedObject(value, PLAN_KEYS, 'plan');
+  closedObject(value, PLAN_KEYS, 'plan', PLAN_OPTIONAL_KEYS);
   if (value.schemaVersion !== PLAN_SCHEMA_VERSION) fail('UNSUPPORTED_SCHEMA_VERSION', String(value.schemaVersion));
   if (typeof value.planId !== 'string' || !PLAN_ID_RE.test(value.planId)) fail('INVALID_PLAN_ID', String(value.planId));
   if (value.mode !== 'local-mock' && value.mode !== 'live') fail('INVALID_MODE', String(value.mode));
   if (value.mode === 'live') return validateLivePlan(value);
+  if (Object.hasOwn(value, 'credentialUserEnvVar')
+    && (typeof value.credentialUserEnvVar !== 'string' || !ENV_RE.test(value.credentialUserEnvVar))) {
+    fail('INVALID_CREDENTIAL_USER_ENV', String(value.credentialUserEnvVar));
+  }
   if (value.protocol !== 'https:') fail('NON_HTTPS_PLAN', String(value.protocol));
   const host = validateHost(value.host, allowNonLoopback);
   requireInteger(value.port, 1, 65535, 'INVALID_PORT', 'port');

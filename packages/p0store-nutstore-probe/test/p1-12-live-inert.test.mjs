@@ -9,12 +9,13 @@ import {
   runProbe, loadExamplePlan, countingTransport, walkPackageSourceFiles, urlHostsInText,
   CANARY, CREDENTIAL_ENV_NAME, PACKAGE_ROOT,
 } from '../support/harness.mjs';
-import { LIVE_HOST } from '../src/plan.mjs';
+import { LIVE_HOST, LIVE_USER_ENV } from '../src/plan.mjs';
 
 const LIVE_PLAN_URL = new URL('../plans/live-nutstore-plan.json', import.meta.url);
 const LIVE_PLAN_PATH = path.join(PACKAGE_ROOT, 'plans', 'live-nutstore-plan.json');
 const PLAN_SOURCE_PATH = path.join(PACKAGE_ROOT, 'src', 'plan.mjs');
 const GOOD_APPROVAL = 'P0STORE-ACCESS-02-20261127-ABCD';
+const GOOD_USER = 'probe-user@example.invalid';
 const GOOD_RUNTIME = { version: 'v22.23.5', arch: 'x64' };
 
 function liveBase() {
@@ -32,7 +33,7 @@ function mutation(fn) {
 }
 
 function envWithSecret() {
-  return { [CREDENTIAL_ENV_NAME]: CANARY };
+  return { [LIVE_USER_ENV]: GOOD_USER, [CREDENTIAL_ENV_NAME]: CANARY };
 }
 
 function poisonedEnv() {
@@ -116,7 +117,9 @@ test('P1-12 condition 4: a plan-supplied run id refuses with LIVE_RUN_ID_SUPPLIE
 });
 
 test('P1-12 condition 5: a missing credential refuses with LIVE_CREDENTIAL_MISSING and no transport call', async () => {
-  const result = await expectRefusal(livePlan(), 'LIVE_CREDENTIAL_MISSING', { env: {} });
+  const result = await expectRefusal(livePlan(), 'LIVE_CREDENTIAL_MISSING', {
+    env: { [LIVE_USER_ENV]: GOOD_USER },
+  });
   assert.equal(result.gateStats, null);
 });
 
@@ -137,7 +140,7 @@ test('P1-12 the seven-condition matrix never creates a transport call or a trace
     [mutation((plan) => { plan.port = 8443; }), {}],
     [livePlan(), { accessApprovalId: null }],
     [mutation((plan) => { plan.runId = 'a'.repeat(32); }), {}],
-    [livePlan(), { env: {} }],
+    [livePlan(), { env: { [LIVE_USER_ENV]: GOOD_USER } }],
     [livePlan(), { runtime: { version: 'v0.0.0', arch: 'x64' } }],
   ];
   for (const [plan, overrides] of cases) {
