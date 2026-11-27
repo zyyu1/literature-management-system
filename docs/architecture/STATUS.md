@@ -1,5 +1,7 @@
 # D007 — Architecture and Deployment Governance (D007-A33 / D007-A38 G4 partial)
 
+**D007-A105 P0-STORE R4/R4.1 G4 PASS_LOCAL — 2026-11-27:** [A105](D007_A105_P0STORE_R4_R41_G4_PASS_LOCAL.md): QA24 #7225443033 at exact `b2b008295736dc09829e5272638c19aedc9c1442`: 7 groups PASS; auth matrix 8/8, early-stop 4/4, canary PASS, byte/carry 6/6, mutants 26+3; P0/P1/P2=0. **G4 PASS_LOCAL; ACCESS02_RUN2_REQUEST_READY**; runbook rev 3 (approval id `P0STORE-ACCESS-02-20261127-b2b0082`). DEC-48 pending.
+
 **D007-A104 P0-STORE R4+R4.1 G2 ACCEPTED — 2026-11-27:** [A104](D007_A104_P0STORE_R4_R41_G2_ACCEPTED.md): delta G2 #7225015533 at exact `b2b008295736dc09829e5272638c19aedc9c1442` has suite 94/94, upstream 67/44/103/91, U-07 3 calls, U-10 into L1, mutants 26/26, and passes the carry-forward byte proof. **G2 ACCEPTED**; DEC-47=A releases the independent targeted G3 (A104 §4).
 
 **D007-A103 P0-STORE R4.1 CARRY-FORWARD UPSTREAM — 2026-11-27:** [A103](D007_A103_P0STORE_R41_CARRY_FORWARD_UPSTREAM.md): after the reboot the guard query still takes 3738 ms (4016 ms with Node start-up); Execution39 STOP. Design verified that `16f0cb0..6c59f35` touches only the 5 R4.1 files, so P1-13, the upstream packages and the guard are byte-identical to the 93/93 run in a valid interval. DEC-46=A: carry that evidence forward by byte proof; the current run covers the full suite as-is, upstream with --test-concurrency=1, P1-16, audit and mutants; LIM-P0S-2 recorded.

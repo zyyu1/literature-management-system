@@ -1,74 +1,84 @@
-# P0-STORE Phase 3 — live run runbook (rev 2, A98 §6; ACCESS-02 approved by DEC-41)
+# P0-STORE Phase 3 — live run runbook (rev 3, A105; run 2 executes only after the user approves DEC-48)
 
-Authority: [A98](../../architecture/D007_A98_P0STORE_R3_G4_AND_ACCESS02_PACKET.md), A90 §4–§6/§10, [R3_LIVE_READINESS](R3_LIVE_READINESS.md), [PHASE2_USER_PREPARATION](PHASE2_USER_PREPARATION.md). **Until the user selects the ACCESS-02 approval option in the Design window, nobody runs this.**
+Authority: [A105](../../architecture/D007_A105_P0STORE_R4_R41_G4_PASS_LOCAL.md), A90 §4–§6, A99, A104. Rev 1/2 belonged to run 1 (approval `P0STORE-ACCESS-02-20261127-6a59ce9`, **consumed**). **Until the user selects the DEC-48 approval option in the Design window, nobody runs this.**
 
 ## 0. Fixed parameters
 | Item | Value |
 | --- | --- |
-| Probe code | PR #9 exact `6a59ce94a20ef59de545e1dc53fbd9d22dbc32ef` (R3 G4 PASS_LOCAL) |
-| Approval id | `P0STORE-ACCESS-02-20261127-6a59ce9` (valid only for this SHA and one run) |
+| Probe code | PR #9 exact `b2b008295736dc09829e5272638c19aedc9c1442` (R4/R4.1 G4 PASS_LOCAL) |
+| Approval id | `P0STORE-ACCESS-02-20261127-b2b0082` (valid only for this SHA and one run) |
 | Host / port | `dav.jianguoyun.com:443`, system trust store, strict TLS, no redirects |
 | Namespace | `/dav/LMS-P0STORE/<random 32-hex runId>/` (generated at run time) |
-| Budget | ≤ 88 planned requests + 12 reserved for cleanup/abort per 30 min; ≤ 14 synthetic files ≤ 4 KiB; 2 writers |
-| Operator | **the user**, on the A59 Windows machine, non-elevated PowerShell, pinned Node v22.23.5 x64 by full path |
-| Account | the empty disposable test account (U1) with its app password (U2) |
+| Budget | ≤ 88 planned requests + 12 reserved per 30 min; synthetic files only; 2 writers |
+| Operator | **the user**, A59 Windows, non-elevated PowerShell, pinned Node v22.23.5 x64 by full path |
+| Account | the same empty disposable test account; a **newly generated** app password (the run-1 one must already be revoked) |
 
-## 1–2. Prepare and run — ONE PowerShell window, type/paste ONE line at a time (corrected, A98 §6)
-> Do not paste the whole block. Paste one numbered line, press Enter, check its output, then the next. Do not close or switch windows between lines; `$node` and the folder must stay in the same window.
+## Before you start
+- In Nutstore web → Account info → Security options → Third-party application management: make sure the run-1 app password is **deleted**, then **generate a new one** (any name, e.g. `lms-p0store-2`). Keep it only on screen or in your password manager.
+- You need: the **account e-mail** (the Nutstore login of the test account) and the **new app password**. Neither is ever typed into any Claude window.
+
+## 1–2. Prepare and run — ONE PowerShell window, ONE line at a time
+> Paste one numbered line, press Enter, check the output, then the next. Do not close or switch windows.
 
 **Prepare (nothing secret yet):**
 ```powershell
-# 1  (skip clone if C:\lms-p0store-live already exists from the earlier attempt)
-git clone https://github.com/zyyu1/literature-management-system.git C:\lms-p0store-live
+# 1
+git clone https://github.com/zyyu1/literature-management-system.git C:\lms-p0store-live2
 # 2
-cd C:\lms-p0store-live
+cd C:\lms-p0store-live2
 # 3
-git checkout --detach 6a59ce94a20ef59de545e1dc53fbd9d22dbc32ef
-# 4  must print exactly 6a59ce94a20ef59de545e1dc53fbd9d22dbc32ef
+git fetch origin pull/9/head
+# 4
+git checkout --detach b2b008295736dc09829e5272638c19aedc9c1442
+# 5  must print exactly b2b008295736dc09829e5272638c19aedc9c1442
 git rev-parse HEAD
-# 5  must print nothing
+# 6  must print nothing
 git status --porcelain
-# 6  replace the path with the real full path of the pinned v22.23.5 node.exe
+# 7  replace with the real full path of the pinned v22.23.5 node.exe
 $node = "C:\FULL\PATH\TO\node-v22.23.5-win-x64\node.exe"
-# 7  must print: True
+# 8  True
 Test-Path $node
-# 8  must print: v22.23.5
+# 9  v22.23.5
 & $node -v
-# 9  must print: x64
+# 10 x64
 & $node -p "process.arch"
-# 10 must start with 247E9693 and end with BDF38A
+# 11 starts 247E9693, ends BDF38A
 (Get-FileHash $node -Algorithm SHA256).Hash
-# 11
-cd C:\lms-p0store-live\packages\p0store-nutstore-probe
+# 12
+cd C:\lms-p0store-live2\packages\p0store-nutstore-probe
 ```
-If any check in 4/5/7/8/9/10 differs → stop and tell Design.
+If 5/6/8/9/10/11 differ → stop and tell Design.
 
-**Run (the only time the secret exists):**
+**Run (the only time the credentials exist):**
 ```powershell
-# 12  a masked prompt appears; type the app password, press Enter
+# 13 type the test account's login e-mail, press Enter
+$env:P0STORE_WEBDAV_USER = Read-Host "Nutstore account e-mail"
+# 14 masked prompt: type the NEW app password, press Enter
 $s = Read-Host "WebDAV app password" -AsSecureString
-# 13
+# 15
 $env:P0STORE_WEBDAV_PASSWORD = [System.Net.NetworkCredential]::new("", $s).Password
-# 14
+# 16
 Remove-Variable s
-# 15  the run itself (one line)
-& $node src/runner.mjs --plan plans/live-nutstore-plan.json --trace C:\lms-p0store-live\p0store-live-trace.jsonl --live --approval P0STORE-ACCESS-02-20261127-6a59ce9 *> C:\lms-p0store-live\p0store-live-console.txt
-# 16  run IMMEDIATELY after 15
+# 17 the run itself (one line)
+& $node src/runner.mjs --plan plans/live-nutstore-plan.json --trace C:\lms-p0store-live2\p0store-live-trace.jsonl --live --approval P0STORE-ACCESS-02-20261127-b2b0082 *> C:\lms-p0store-live2\p0store-live-console.txt
+# 18 IMMEDIATELY after 17
 $code = $LASTEXITCODE
-# 17
+# 19
 Remove-Item Env:P0STORE_WEBDAV_PASSWORD
-# 18
+# 20
+Remove-Item Env:P0STORE_WEBDAV_USER
+# 21
 "exit=$code"
 ```
-- Line 15 is the one live run. Do **not** run it a second time, whatever happens. Exit 4 = refused before any request (copy the `REFUSED:` line from the console file). Exit 1 = NO-GO. Exit 0 = GO / PARTIAL / INCONCLUSIVE (JSON at the end of the console file). Any other code = runner error; stop.
-- If any of lines 12–14 errors, run line 17 (an error there is fine), close the window, and tell Design — line 15 has not run, so the approval is not used.
-- Close the PowerShell window afterwards.
+- Line 17 is the one live run. **Never run it twice.** Exit 4 = refused before any request (copy the `REFUSED:` line). Exit 1 = NO-GO. Exit 0 = GO / PARTIAL / INCONCLUSIVE (JSON at the end of the console file). Other = runner error.
+- If any of 13–16 errors: run 19 and 20 (errors there are fine), close the window, tell Design — line 17 has not run, approval not used.
+- Close the window afterwards.
 
 ## 3. Immediately after
-1. **Revoke** the app password in the test account (Account info → Security options → delete the application) — U6.
-2. In the Nutstore web UI, look at `/LMS-P0STORE/`: note whether the run folder is empty (cleanup ok) or which files remain (cleanup STOP). Do not delete anything by hand unless Design asks.
-3. Check that neither `p0store-live-trace.jsonl` nor `p0store-live-console.txt` contains the password (open them and search for it; it must not appear). If it does → do not share; tell Design (P0 incident).
-4. Tell the Design window: exit code, the verdict line, and where the two files are. Execution then attaches them to PR #9 (redacted files only) and independent QA re-derives the verdict offline from the trace.
+1. **Revoke** the new app password in Nutstore.
+2. In the Nutstore web UI look at `/LMS-P0STORE/`: note whether a run folder remains and what is in it. Do not delete by hand unless Design asks.
+3. Open both files and search for your password **and your e-mail**; neither may appear. If one does → do not share; tell Design.
+4. Tell the Design window: exit code, the verdict line, file locations. Execution then attaches the redacted files to PR #9 and independent QA re-derives the verdict offline.
 
-## 4. Abort conditions (stop and tell Design)
-Any SHA/Node/hash mismatch; PowerShell is elevated; a prompt asks for anything except the app password; any browser or certificate warning; the console shows a host other than `dav.jianguoyun.com`; the run exceeds ~10 minutes.
+## 4. Abort conditions
+SHA/Node/hash mismatch; elevated PowerShell; any prompt other than lines 13/14; certificate warning; host other than `dav.jianguoyun.com` in the console; run longer than ~10 minutes.
